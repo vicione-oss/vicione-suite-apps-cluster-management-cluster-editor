@@ -1,0 +1,8 @@
+@use "icons/monochrome-icons" with (
+    $svg-base-url: "../icons/monochrome-icons"
+);
+
+// Popup overrides indicating discrepancies between Suite and Cluster Editor
+.modal-content {
+    font-weight: 400 !important;
+}

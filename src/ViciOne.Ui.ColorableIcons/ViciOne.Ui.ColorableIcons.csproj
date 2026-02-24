@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor">
+
+  <ItemGroup>
+    <PackageReference Include="ViciOne.Cluster.Model" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="IconParts.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>IconParts.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="IconParts.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>IconParts.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ViciOne.Ui.ClusterEditor.Tests"/>
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,126 @@
+﻿@using ViciOne.Cluster.Builder.Extensions
+@using ViciOne.Cluster.Model.Extensions
+@using ViciOne.Ui.ClusterEditor.Components.DiagramComponents
+@using ViciOne.Ui.ClusterEditor.Extensions
+
+@if (!Node!.Visible) { return; }
+
+<div class="child-container-container"
+     style="--alignment-border-grid-cells: @(DiagramSettings.FlagMarginGridCells);">
+
+    <div class="title-container"
+         style="--title-name-background-color: @Node!.NameBackgroundColor;
+                --title-name-fore-color: @Node.NameForeColor;">
+
+        @Node.Name
+    </div>
+
+    <div class="container-info-container">
+        <div class="container-info-engine-display-text"
+             style="--container-info-engine-background-color: @Node.EngineBackgroundColor;">
+
+            @Node.EngineDisplayText
+        </div>
+
+        <div class="container-info-children-elements">
+            @Node.ChildrenDisplayText
+        </div>
+    </div>
+
+    <div class="child-container-image-container">
+        <div class="child-container-image"></div>
+    </div>
+
+    @for (var i = 0; i < Node.Connectors!.Count; i++)
+    {
+        var inputConnector = Node.Connectors[i][0];
+        var outputConnector = Node.Connectors[i][1];
+
+        <div class="connector-row @(i == 3 ? "divider" : "") @(i == Node.Connectors.Count - 1 ? "last-row" : "")">
+            @if (inputConnector is not null)
+            {
+                @InputConnectorFragment(inputConnector)
+            }
+
+            @if (outputConnector is not null)
+            {
+                @OutputConnectorFragment(outputConnector)
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private RenderFragment<BlockNodeConnector> InputConnectorFragment => connector => __builder =>
+    {
+        if (!connector.Visible) { return; }
+
+        <div class="input-connector-container"
+             style="--input-text-background-color: @connector.TextBackgroundColor;">
+
+            <div @onpointerenter="@((e) => OnPortContainerPointerEnter(e, connector))"
+                 @onpointerleave="@OnPortContainerPointerLeave"
+                 class="input-port-container"
+                 style="--input-port-color: @connector.PortColor;
+                        --input-port-text-color: @connector.PortTextColor">
+
+                <PortRenderer @key="connector"
+                              Port="@connector">
+
+                    @if (!string.IsNullOrWhiteSpace(connector.PortText))
+                    {
+                        <div>@connector.PortText</div>
+                    }
+                </PortRenderer>
+            </div>
+
+            <div class="input-pooling-mode"
+                 style="--input-pooling-mode-color: @connector.PoolingModeColor;">
+
+                @connector.PoolingMode
+            </div>
+
+            <div class="input-text @(connector.HasChangedProperties ? "non-default-properties" : string.Empty)"
+                 style="--input-text-color: @connector.TextColor;">
+
+                @connector.Text
+            </div>
+        </div>
+    };
+
+    private RenderFragment<BlockNodeConnector> OutputConnectorFragment => connector => __builder =>
+    {
+        if (!connector.Visible) { return; }
+
+        var originalConnector = GetOriginalConnectorDiagramModel(connector);
+        var conModel = Datastore.DataflowDiagramMapping.GetModel(originalConnector);
+        var conDesign = Datastore.Builder.ResolveConnectorDesign(originalConnector.Connector.GetUnderlyingConnector());
+
+        <div class="output-connector-container"
+             style="--output-text-background-color: @connector.TextBackgroundColor;">
+
+            <div class="output-text @(connector.HasChangedProperties ? "non-default-properties" : string.Empty)"
+                 style="--output-text-color: @connector.TextColor;">
+
+                @connector.Text
+            </div>
+
+            <div @onpointerenter="@((e) => OnPortContainerPointerEnter(e, connector))"
+                 @onpointerleave="@OnPortContainerPointerLeave"
+                 class="output-port-container"
+                 style="--output-port-color: @connector.PortColor;
+                        --output-port-text-color: @connector.PortTextColor">
+
+                <PortRenderer @key="connector"
+                              Port="@connector">
+
+                    @if (!string.IsNullOrWhiteSpace(connector.PortText))
+                    {
+                        <div>@connector.PortText</div>
+                    }
+                </PortRenderer>
+            </div>
+        </div>
+    };
+}
+

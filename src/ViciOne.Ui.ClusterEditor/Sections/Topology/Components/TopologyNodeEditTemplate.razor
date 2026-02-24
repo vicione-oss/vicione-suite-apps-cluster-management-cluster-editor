@@ -1,0 +1,28 @@
+﻿@using ViciOne.Ui.Blazor.Components.PropertyGrid.Components
+@using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
+
+@inherits NodeTemplateBase
+
+<DefaultNodeDisplay />
+
+<div class="property-container">
+    <PropertyGrid Controller="PropertyGridController" />
+</div>
+
+<div class="form-button-container">
+    <Button CssClass="action-button"
+            OnClick="@OnConfirmClicked"
+            Size="ButtonSize.Small">
+
+        @CommonVocabulary.Save
+    </Button>
+
+    <Button CssClass="action-button"
+            OnClick="@OnCancelClicked"
+            Size="ButtonSize.Small">
+
+        @CommonVocabulary.Cancel
+    </Button>
+</div>
+
+

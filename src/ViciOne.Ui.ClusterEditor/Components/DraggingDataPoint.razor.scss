@@ -1,0 +1,9 @@
+.dragging-datapoint {
+    height: 32px;
+    left: var(--left);
+    position: fixed;
+    top: var(--top);
+    visibility: var(--visible);
+    width: 32px;
+    z-index: 10;
+}

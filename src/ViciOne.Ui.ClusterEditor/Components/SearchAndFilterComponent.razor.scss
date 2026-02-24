@@ -1,0 +1,61 @@
+﻿@use "./../Styles/colors";
+@use "./../Styles/shared-search-tools-styles";
+
+.command-button {
+    cursor: pointer;
+
+    &:hover:not(.disabled) {
+        background-color: colors.$editor-background-hover;
+    }
+
+    &.active {
+        ::deep svg path {
+            fill: colors.$editor-accent;
+        }
+    }
+
+    &.disabled {
+        cursor: default;
+
+        ::deep svg path {
+            fill: colors.$editor-background-hover;
+        }
+    }
+
+    ::deep svg {
+        height: 24px;
+        width: 24px;
+    }
+}
+
+.command-buttons-container {
+    display: grid;
+    grid-row: 5;
+    grid-template-columns: repeat(var(--filter-button-column-count), 24px) auto repeat(var(--system-button-column-count), 24px);
+}
+
+.command-buttons-heading {
+    align-self: center;
+    font-size: 13px;
+    grid-row: 3;
+}
+
+.search-and-filter-container {
+    display: grid;
+}
+
+.search-body {
+    background-color: colors.$editor-background;
+    display: grid;
+    grid-template-rows: min-content 17px 32px 8px auto;
+    padding: 16px 12px 16px 16px;
+    position: relative;
+
+    ::deep .form-control-sm {
+        font-size: 12px;
+    }
+}
+
+.search-heading {
+    @include shared-search-tools-styles.heading();
+}

@@ -1,0 +1,186 @@
+﻿@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using ViciOne.Ui.Blazor.Components.SectionRail.Components
+
+<SectionLayout>
+    <Tools>
+        <SearchAndFilterComponent FilterButtons="@_filterButtons"
+                                  GroupingButtonsEnabled="@_groupingButtonsEnabled"
+                                  OnCollapseAllGroups="@OnCollapseAllGroups"
+                                  OnColumnChooser="@OnColumnChooser"
+                                  OnExpandAllGroups="@OnExpandAllGroups"
+                                  OnSearchTextChanged="@((searchText) => SearchText = searchText)" />
+    </Tools>
+
+    <Content>
+        <div class="content-container">
+            <DxGrid @ref="@_gridRef"
+                    AllowSelectRowByClick="false"
+                    ColumnResizeMode="GridColumnResizeMode.ColumnsContainer"
+                    CssClass="scrollable-grid"
+                    CustomGroup="OnCustomizeCustomGroup"
+                    CustomizeCellDisplayText="OnCustomizeCellDisplayText"
+                    CustomSort="@OnDxGridCustomSort"
+                    CustomizeElement="OnCustomizeElement"
+                    Data="@PublishedConnectorsService.PublishedConnectorWrappers"
+                    FocusedRowEnabled="false"
+                    RowDoubleClick="OnRowDoubleClickAsync"
+                    SearchText="@SearchText"
+                    SearchTextParseMode="GridSearchTextParseMode.ExactMatch"
+                    SelectionMode="GridSelectionMode.Multiple"
+                    ShowGroupPanel="true"
+                    VirtualScrollingEnabled="true">
+
+                <Columns>
+
+                    <DxGridDataColumn AllowGroup="true"
+                                      AllowSort="false"
+                                      Caption="@CommonVocabulary.Path"
+                                      FieldName="@nameof(DataGridConnectorWrapper.Path)"
+                                      MinWidth=200
+                                      Width="200px">
+
+                        <CellDisplayTemplate>
+                            @{
+                                <div class="text-truncated" title="@context.DisplayText">
+                                    <SearchHighlighter SearchText="@SearchText"
+                                                       Text="@context.DisplayText.ToString()" />
+                                </div>
+                            }
+                        </CellDisplayTemplate>
+
+                        <GroupRowTemplate>
+                            @{
+                                <div class="text-truncated" title="@context.GroupValueDisplayText">
+                                    @context.GroupValueDisplayText
+                                </div>
+                            }
+                        </GroupRowTemplate>
+                    </DxGridDataColumn>
+
+                    <DxGridDataColumn AllowGroup="true"
+                                      AllowSort="true"
+                                      Caption="@CommonVocabulary.Design"
+                                      FieldName="@nameof(DataGridConnectorWrapper.DesignName)"
+                                      GroupInterval="GridColumnGroupInterval.DisplayText"
+                                      GroupIndex="0"
+                                      MinWidth=120
+                                      Width="120px">
+
+                        <CellDisplayTemplate>
+                            @{
+                                <div class="text-truncated" title="@context.DisplayText">
+                                    <SearchHighlighter SearchText="@SearchText"
+                                                       Text="@context.DisplayText.ToString()" />
+                                </div>
+                            }
+                        </CellDisplayTemplate>
+
+                        <GroupRowTemplate>
+                            @context.GroupValue
+                        </GroupRowTemplate>
+                    </DxGridDataColumn>
+
+                    <DxGridDataColumn AllowGroup="true"
+                                      AllowSort="true"
+                                      Caption="@TechnicalTerms.FunctionBlock"
+                                      FieldName="@nameof(DataGridConnectorWrapper.FunctionBlockId)"
+                                      GroupInterval="GridColumnGroupInterval.Custom"
+                                      MinWidth=120
+                                      SortIndex="1"
+                                      SortMode="GridColumnSortMode.Custom"
+                                      Width="120px">
+
+                        <CellDisplayTemplate>
+                            @{
+                                <div class="text-truncated" title="@context.DisplayText">
+                                    <SearchHighlighter SearchText="@SearchText"
+                                                       Text="@context.DisplayText.ToString()" />
+                                </div>
+                            }
+                        </CellDisplayTemplate>
+
+                        <GroupRowTemplate>
+                            @context.GroupValueDisplayText
+                        </GroupRowTemplate>
+                    </DxGridDataColumn>
+
+                    <DxGridDataColumn AllowGroup="true"
+                                      AllowSort="false"
+                                      Caption="@TechnicalTerms.Connector"
+                                      FieldName="@nameof(DataGridConnectorWrapper.ConnectorName)"
+                                      MinWidth=120
+                                      Width="120px">
+
+                        <CellDisplayTemplate>
+                            @{
+                                var publishedConnector = (DataGridConnectorWrapper)context.DataItem;
+
+                                <div class="connector-with-icon-cell">
+                                    <div class="icon">
+                                        @GetIconMarkup(publishedConnector)
+                                    </div>
+                                    <div class="value">
+                                        <SearchHighlighter SearchText="@SearchText"
+                                                           Text="@context.Value.ToString()" />
+                                    </div>
+                                </div>
+                            }
+                        </CellDisplayTemplate>
+
+                        <GroupRowTemplate Context="rowContext">
+                            @{
+                                var publishedConnector = (DataGridConnectorWrapper)rowContext.Grid.GetDataItem(rowContext.VisibleIndex);
+
+                                <div class="connector-with-icon-cell">
+                                    <div class="icon">
+                                        @GetIconMarkup(publishedConnector)
+                                    </div>
+                                    <div class="value">
+                                        @rowContext.GroupValueDisplayText.ToString()
+                                    </div>
+                                </div>
+                            }
+                        </GroupRowTemplate>
+                    </DxGridDataColumn>
+
+                    <DxGridDataColumn AllowGroup="true"
+                                      AllowSort="false"
+                                      Caption="@TechnicalTerms.LinkPlural"
+                                      FieldName="@nameof(DataGridConnectorWrapper.Links)"
+                                      MinWidth=50
+                                      Width="50px">
+
+                        <CellDisplayTemplate>
+                            @{
+                                <div class="text-truncated" title="@context.DisplayText">
+                                    <SearchHighlighter SearchText="@SearchText"
+                                                       Text="@context.DisplayText.ToString()" />
+                                </div>
+                            }
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+
+                    <DxGridDataColumn AllowGroup="true"
+                                      AllowSort="false"
+                                      Caption="@CommonVocabulary.Description"
+                                      FieldName="@nameof(DataGridConnectorWrapper.Description)"
+                                      MinWidth=200
+                                      Width="200px" >
+
+                        <CellDisplayTemplate>
+                            @{
+                                <div class="text-truncated" title="@context.DisplayText">
+                                    <SearchHighlighter SearchText="@SearchText"
+                                                       Text="@context.DisplayText.ToString()" />
+                                </div>
+                            }
+                        </CellDisplayTemplate>
+                    </DxGridDataColumn>
+                </Columns>
+
+            </DxGrid>
+
+            <DraggingPublishedConnectorComponent />
+        </div>
+    </Content>
+</SectionLayout>

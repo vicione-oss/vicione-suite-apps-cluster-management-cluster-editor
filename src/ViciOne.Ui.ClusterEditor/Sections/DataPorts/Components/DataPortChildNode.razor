@@ -1,0 +1,30 @@
+﻿@using ViciOne.Ui.TreeEditor.Templates.Fragments.Node
+
+@inherits ViciOne.Ui.TreeEditor.Templates.NodeTemplate
+
+@{
+    RenderFragment contentFragment = builder =>
+    {
+        <div class="icon-content">
+            @(Icon.Fragment(Node.Icons))
+        </div>
+
+        <div class="node-text">
+            <div @onpointerleave="OnNodeTextPointerLeave"
+                 @onpointerleave:preventDefault
+                 @onpointermove="OnNodeTextPointerMove"
+                 @onpointermove:stopPropagation>
+
+                @(Node.DisplayText)
+            </div>
+        </div>
+
+        <div class="action-button-content">
+            @(ActionButton.Fragment(_actionButtonContainerParameters!))
+        </div>
+
+        @(DropArea.Fragment(_dropAreaParameters!))
+    };
+}
+
+@base.Fragment(contentFragment)

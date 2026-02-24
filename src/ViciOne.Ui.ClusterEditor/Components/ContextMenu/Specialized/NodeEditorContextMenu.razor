@@ -1,0 +1,144 @@
+﻿@using System.Globalization
+@using ViciOne.Ui.Blazor.Components.ContextMenu.Components
+@using ViciOne.Ui.ClusterEditor.Models.ComponentStates.ContextMenu.Specialized
+@using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized
+@using ViciOne.Ui.Localization.Resources
+@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using LocalTechnicalTerms=ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+
+@inherits SpecializedContextMenuWithStateBase<NodeEditorContextMenuContext, NodeEditorContextMenuState>
+
+<ContextMenu @ref="ContextMenu"
+             VisibilityChanged="@OnContextMenuVisibilityChanged">
+
+    <ContextMenuItem ApplicableTo="new(typeof(ChildContainerNode), typeof(FunctionBlockNode), typeof(LabelNode))"
+                     IconCssClass="@ContextMenuIcon.Delete"
+                     OnClick="@OnDeleteClicked"
+                     Text="@CommonVocabulary.Delete" />
+
+    <ContextMenuItem BeginGroup="true"
+                     IconCssClass="@ContextMenuIcon.AddContainer"
+                     OnClick="@AddContainerClickAsync"
+                     Text="@Localization.NodeEditorContextMenu.AddContainer" />
+    <ContextMenuItem BeginGroup="true"
+                     IconCssClass="@ContextMenuIcon.AddLabel"
+                     OnClick="@AddLabelClick"
+                     Text="@Localization.NodeEditorContextMenu.AddLabel" />
+    <ContextMenuItem IconCssClass="@ContextMenuIcon.LockTextLabels"
+                     OnClick="@LockLabelsClick"
+                     Text="@GetLockLabelsText()" />
+    <ContextMenuItem BeginGroup="true"
+                     Enabled="@State.SelectAllEnabled"
+                     IconCssClass="@ContextMenuIcon.SelectAllBlocks"
+                     OnClick="@SelectAllBlocksClick"
+                     Text="@Localization.NodeEditorContextMenu.SelectAllBlocks" />
+
+    <ContextMenuItem ApplicableTo="new(typeof(ChildContainerNode), typeof(FunctionBlockNode))"
+                     BeginGroup="true"
+                     Enabled="State.EngineAssignmentEnabled"
+                     Text="@Localization.NodeEditorContextMenu.EngineAssignment">
+
+        <ContextMenuItem Text="@Localization.NodeEditorContextMenu.UnassignEngine"
+                         OnClick="@UnassignEngineClick" />
+
+        @foreach (var contextMenuEntry in State.EngineAssignmentContextMenuEntries)
+        {
+            <ContextMenuItem @key="@contextMenuEntry.Text"
+                             BeginGroup="contextMenuEntry.BeginGroup"
+                             IconCssClass="@contextMenuEntry.IconCssClass"
+                             OnClick="@(() => ToggleEngineAssignment(contextMenuEntry.Engine))"
+                             Text="@contextMenuEntry.Text" />
+        }
+    </ContextMenuItem>
+
+    <ContextMenuItem ApplicableTo="new(typeof(ChildContainerNode), typeof(FunctionBlockNode), typeof(LabelNode))"
+                     BeginGroup="true"
+                     Enabled="@State.MoveToNewContainerEnabled"
+                     IconCssClass="@ContextMenuIcon.MoveToNewContainer"
+                     OnClick="@MoveToNewContainerClickAsync"
+                     Text="@Localization.NodeEditorContextMenu.MoveToNewContainer" />
+    <ContextMenuItem ApplicableTo="new(typeof(ChildContainerNode))"
+                     Enabled="State.DissolveContainerEnabled"
+                     IconCssClass="@ContextMenuIcon.ContainerDissolve"
+                     OnClick="@DissolveContainerClickAsync"
+                     Text="@Localization.NodeEditorContextMenu.DissolveContainer" />
+    <ContextMenuItem ApplicableTo="new(typeof(ChildContainerNode))"
+                     Enabled="State.EditContainerEnabled"
+                     IconCssClass="@ContextMenuIcon.ContainerEdit"
+                     OnClick="@EditContainerClickAsync"
+                     Text="@(string.Format(UserActions.EditSomething, LocalTechnicalTerms.Container))" />
+    <ContextMenuItem ApplicableTo="new(typeof(ChildContainerNode), typeof(FunctionBlockNode))"
+                     BeginGroup="true"
+                     Enabled="State.ConnectorsWizardEnabled"
+                     IconCssClass="@ContextMenuIcon.SelectFunctionBlockInputOutputConnectors"
+                     OnClick="@OnConnectorsSelectionWizardClicked"
+                     Text="@Localization.NodeEditorContextMenu.SelectConnectorsWizard" />
+
+    <ContextMenuItem ApplicableTo="new(typeof(ChildContainerNode), typeof(FunctionBlockNode))"
+                     Text="@(string.Format(CultureInfo.CurrentCulture, UserActions.SelectSomething, LocalTechnicalTerms.ConnectorPlural))">
+
+        <ContextMenuItem Enabled="State.SelectAllConnectorsEnabled"
+                         IconCssClass="@ContextMenuIcon.SelectAllFunctionBlockConnectors"
+                         OnClick="@SelectAllConnectorsClick"
+                         Text="@_selectAllConnectorsText" />
+        <ContextMenuItem BeginGroup="true"
+                         Enabled="State.SelectInputConnectorsEnabled"
+                         IconCssClass="@ContextMenuIcon.SelectFunctionBlockInputConnectors"
+                         OnClick="@SelectInputConnectorsClick"
+                         Text="@_selectInputConnectorsText" />
+        <ContextMenuItem Enabled="State.SelectOutputConnectorsEnabled"
+                         IconCssClass="@ContextMenuIcon.SelectFunctionBlockOutputConnectors"
+                         OnClick="@SelectOutputConnectorsClick"
+                         Text="@_selectOutputConnectorsText" />
+        <ContextMenuItem Enabled="State.SelectInputAndOutputConnectorsEnabled"
+                         IconCssClass="@ContextMenuIcon.SelectFunctionBlockInputOutputConnectors"
+                         OnClick="@SelectInputAndOutputConnectorsClick"
+                         Text="@(Localization.NodeEditorContextMenu.SelectInputAndOutputConnectors)" />
+        <ContextMenuItem BeginGroup="true"
+                         Enabled="State.SelectInputConnectorsIncludingSystemConnectorsEnabled"
+                         IconCssClass="@ContextMenuIcon.SelectAllFunctionBlockInputConnectors"
+                         OnClick="@SelectInputIncludingSystemConnectorsClick"
+                         Text="@(_selectInputConnectorsText + " (" + LocalTechnicalTerms.IncludingSystemConnectors + ")")" />
+        <ContextMenuItem Enabled="State.SelectOutputConnectorsIncludingSystemConnectorsEnabled"
+                         IconCssClass="@ContextMenuIcon.SelectAllFunctionBlockOutputConnectors"
+                         OnClick="@SelectOutputIncludingSystemConnectorsClick"
+                         Text="@(_selectOutputConnectorsText + " (" + LocalTechnicalTerms.IncludingSystemConnectors + ")")" />
+    </ContextMenuItem>
+
+    <ContextMenuItem ApplicableTo="new(typeof(FunctionBlockNode))"
+                     BeginGroup="true"
+                     Enabled="@State.SettingsEnabled"
+                     IconCssClass="@ContextMenuIcon.SettingsEdit"
+                     OnClick="@SettingsClickAsync"
+                     Text="@CommonVocabulary.SettingPlural" />
+
+    <ContextMenuItem ApplicableTo="new(typeof(LabelNode))"
+                     IconData="@ContextMenuIcon.TextLabelBringToFront"
+                     OnClick="@LabelBringToFrontClick"
+                     Text="@Localization.NodeEditorContextMenu.BringToFront" />
+    <ContextMenuItem ApplicableTo="new(typeof(LabelNode))"
+                     IconData="@ContextMenuIcon.TextLabelSendToBack"
+                     OnClick="@LabelSendToBackClick"
+                     Text="@Localization.NodeEditorContextMenu.SendToBack" />
+
+    <ContextMenuButtonRow ApplicableTo="new(typeof(ChildContainerNode), typeof(FunctionBlockNode), typeof(LabelNode))"
+                          BeginGroup="true"
+                          Enabled="@State.AlignmentButtonsEnabled">
+
+        <ContextMenuButton IconCssClass="@ContextMenuIcon.AlignTopIcon"
+                           OnClick="@(() => AlignmentButtonClicked(Alignment.Top))"
+                           Title="@UserActions.AlignTop" />
+        <ContextMenuButton IconCssClass="@ContextMenuIcon.AlignTopByLowestElementIcon"
+                           OnClick="@(() => AlignmentButtonClicked(Alignment.TopByLowestElement))"
+                           Title="@UserActions.AlignTopByLowest" />
+        <ContextMenuButton IconCssClass="@ContextMenuIcon.AlignBottomIcon"
+                           OnClick="@(() => AlignmentButtonClicked(Alignment.Bottom))"
+                           Title="@UserActions.AlignBottom" />
+        <ContextMenuButton IconCssClass="@ContextMenuIcon.AlignLeftIcon"
+                           OnClick="@(() => AlignmentButtonClicked(Alignment.Left))"
+                           Title="@UserActions.AlignLeft" />
+        <ContextMenuButton IconCssClass="@ContextMenuIcon.AlignRightIcon"
+                           OnClick="@(() => AlignmentButtonClicked(Alignment.Right))"
+                           Title="@UserActions.AlignRight" />
+    </ContextMenuButtonRow>
+</ContextMenu>

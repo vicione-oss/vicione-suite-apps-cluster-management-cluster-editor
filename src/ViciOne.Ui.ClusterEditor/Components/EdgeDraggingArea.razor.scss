@@ -1,0 +1,147 @@
+﻿@use "./../Styles/colors";
+
+.edge-dragging-area-container {
+    display: grid;
+    grid-template-columns: 100px auto 100px;
+    grid-template-rows: 100px auto 100px;
+}
+
+.indicator-area {
+    display: grid;
+    padding: 2px;
+    z-index: 0;
+
+    &.bottom {
+        grid-column: 2;
+        grid-row: 3;
+
+        > .trigger-area {
+            align-items: end;
+            clip-path: polygon(0% 80%, 100% 80%, 100% 100%, 0% 100%);
+            justify-content: center;
+
+            > ::deep .adjust-icon {
+                transform: translateY(2px);
+            }
+        }
+    }
+
+    &.left {
+        grid-column: 1;
+        grid-row: 2;
+
+        > .trigger-area {
+            align-items: center;
+            clip-path: polygon(0% 0%, 20% 0, 20% 100%, 0% 100%);
+            justify-content: start;
+
+            > ::deep .adjust-icon {
+                transform: translateX(-2px);
+            }
+        }
+    }
+
+    &.lower-left {
+        grid-column: 1;
+        grid-row: 3;
+
+        > .trigger-area {
+            align-items: end;
+            clip-path: polygon(0% 0%, 20% 0%, 20% 80%, 100% 80%, 100% 100%, 0% 100%);
+            justify-content: start;
+
+            > ::deep .adjust-icon {
+                transform: translateY(-2px) rotate(45deg);
+            }
+        }
+    }
+
+    &.lower-right {
+        grid-column: 3;
+        grid-row: 3;
+
+        > .trigger-area {
+            align-items: end;
+            clip-path: polygon(80% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 80%, 80% 80%);
+            justify-content: end;
+
+            > ::deep .adjust-icon {
+                transform: rotate(45deg);
+            }
+        }
+    }
+
+    &.right {
+        grid-column: 3;
+        grid-row: 2;
+
+        > .trigger-area {
+            align-items: center;
+            clip-path: polygon(80% 0%, 100% 0%, 100% 100%, 80% 100%);
+            justify-content: end;
+
+            > ::deep .adjust-icon {
+                transform: translateX(2px);
+            }
+        }
+    }
+
+    &.top {
+        grid-column: 2;
+        grid-row: 1;
+
+        > .trigger-area {
+            align-items: start;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 20%, 0% 20%);
+            justify-content: center;
+
+            > ::deep .adjust-icon {
+                transform: translateY(-2px);
+            }
+        }
+    }
+
+    &.upper-left {
+        grid-column: 1;
+        grid-row: 1;
+
+        > .trigger-area {
+            align-items: start;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 20%, 20% 20%, 20% 100%, 0% 100%);
+            justify-content: start;
+
+            > ::deep .adjust-icon {
+                transform: translateX(-2px) translateY(-2px) rotate(45deg);
+            }
+        }
+    }
+
+    &.upper-right {
+        grid-column: 3;
+        grid-row: 1;
+
+        > .trigger-area {
+            align-content: start;
+            clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 80% 100%, 80% 20%, 0% 20%);
+            justify-content: end;
+
+            > ::deep .adjust-icon {
+                transform: translateX(2px) translateY(-2px) rotate(45deg);
+            }
+        }
+    }
+}
+
+.trigger-area {
+    background-color: rgba(colors.$editor-foreground, 0.5);
+    color: colors.$editor-font-light;
+    display: flex;
+    height: 100%;
+    opacity: 0.5;
+    z-index: 10;
+    width: 100%;
+
+    &:hover {
+        background-color: rgba(colors.$editor-accent, 0.5);
+    }
+}

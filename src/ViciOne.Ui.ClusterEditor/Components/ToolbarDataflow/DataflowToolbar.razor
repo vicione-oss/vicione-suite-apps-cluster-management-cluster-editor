@@ -1,0 +1,83 @@
+﻿@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using LocalTechnicalTerms=ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+@using ViciOne.Ui.Blazor.Components.SectionRail.Components
+@using ViciOne.Ui.Blazor.Components.Sidebar
+@using ViciOne.Ui.Blazor.Components.Sidebar.Enums
+@using ViciOne.Ui.ClusterEditor.Components.ToolbarDataflow.Models
+@using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components
+@using ViciOne.Ui.ClusterEditor.Sections.Debugging.Components
+@using ViciOne.Ui.ClusterEditor.Sections.Library.Components
+@using ViciOne.Ui.ClusterEditor.Sections.Property.Components
+@using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Components
+@using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.ContextMenu
+@using ViciOne.Ui.ClusterEditor.Sections.SearchAndTools.Components
+@using ViciOne.Ui.ClusterEditor.Sections.Topology.Components
+
+<Sidebar @bind-FluidWidth="_sidebarFluidWidth"
+         CompactWidth="48"
+         FluidMinimumWidth="388"
+         FluidMaximumWidth="728"
+         Mode="@GetSidebarMode()"
+         Placement="SidebarPlacement.Right">
+
+    <SectionRail @bind-ActiveSectionId="_activeSectionId"
+                 @bind-Expanded="_expanded">
+
+        <Section IconCssClass="@s_searchAndToolsIconCssClass"
+                 Id="DataflowToolbarSection.SearchTools"
+                 Title="@DataflowToolbarSectionNames.SearchAndTools">
+
+            <SearchAndToolsSectionContent />
+        </Section>
+
+        <Section IconCssClass="@s_clusterIconCssClass"
+                 Id="DataflowToolbarSection.Cluster"
+                 Title="@DataflowToolbarSectionNames.ClusterTopology">
+
+            <TopologySectionContent />
+        </Section>
+
+        <Section IconCssClass="@s_libraryIconCssClass"
+                 Id="DataflowToolbarSection.Library"
+                 Title="@CommonVocabulary.Library">
+
+            <LibrarySectionContent />
+        </Section>
+
+        <Section IconCssClass="@s_dataPortsIconCssClass"
+                 Id="DataflowToolbarSection.DataPorts"
+                 Title="@TechnicalTerms.DataPortPlural">
+
+            <DataPortSectionContent />
+        </Section>
+
+        <Section IconCssClass="@s_publishedConnectorsIconCssClass"
+                 Id="DataflowToolbarSection.Connectors"
+                 Title="@DataflowToolbarSectionNames.PublishedConnectors">
+
+            <PublishedConnectorsSectionContent />
+        </Section>
+
+        <Section IconCssClass="@s_propertiesIconCssClass"
+                 Id="DataflowToolbarSection.Properties"
+                 Title="@CommonVocabulary.PropertyPlural">
+
+            <PropertySectionContent PropertyGridController="@PropertyGridController" />
+        </Section>
+
+        @{
+            #if DEBUG
+            {
+                <Section IconCssClass="@s_debugIconCssClass"
+                         Id="DataflowToolbarSection.Debug"
+                         Title="@DataflowToolbarSectionNames.Debug">
+
+                    <DebugSectionContent />
+                </Section>
+            }
+            #endif
+        }
+    </SectionRail>
+</Sidebar>
+
+<PublishedConnectorsSectionContextMenu />

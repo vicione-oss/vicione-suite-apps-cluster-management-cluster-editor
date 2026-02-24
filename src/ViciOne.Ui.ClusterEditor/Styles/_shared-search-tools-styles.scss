@@ -1,0 +1,41 @@
+@use "./colors";
+
+@mixin heading {
+    font-size: 12px;
+    padding: 6px 12px 7px 16px;
+}
+
+@mixin content-icon {
+    align-self: center;
+    height: 24px;
+    width: 24px;
+}
+
+@mixin content-item {
+    display: grid;
+    grid-template-columns: 28px auto;
+    grid-template-rows: 28px;
+
+    &.st-button:hover:not(.disabled) {
+        background-color: colors.$editor-background-dark;
+    }
+}
+
+@mixin content-text {
+    align-self: center;
+    margin-left: 4px;
+}
+
+@mixin st-button {
+    cursor: pointer;
+    user-select: none;
+
+    &.disabled {
+        cursor: default;
+        color: colors.$editor-disabled;
+
+        ::deep svg path, polygon {
+            fill: colors.$editor-disabled;
+        }
+    }
+}

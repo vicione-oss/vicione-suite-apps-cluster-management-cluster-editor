@@ -1,0 +1,337 @@
+﻿@use "./../../Styles/colors";
+
+::deep .diagram-port {
+    height: calc(2 * var(--canvas-grid-size) - 2px);
+}
+
+.alignment-border {
+    border: 2px dashed rgb(90, 90, 90);
+    bottom: calc(var(--canvas-grid-size) * -1 - 1px);
+    left: calc(var(--canvas-grid-size) * var(--alignment-border-grid-cells) * -1 - 1px);
+    position: absolute;
+    right: calc(var(--canvas-grid-size) * var(--alignment-border-grid-cells) * -1 - 1px);
+    top: calc(var(--canvas-grid-size) * -1 - 1px);
+    visibility: var(--node-alignment-border-visibility);
+    z-index: -10;
+}
+
+.block-container {
+    background-color: colors.$editor-border;
+    border: var(--node-border-width) solid transparent;
+    font-size: calc(var(--canvas-grid-size) * 1.4);
+    line-height: calc(var(--canvas-grid-size) * 2 - 2px);
+    width: calc(16 * var(--canvas-grid-size));
+}
+
+.block-image {
+    align-items: center;
+    background-color: colors.$editor-border;
+    display: flex;
+    height: calc(8 * var(--canvas-grid-size) - 1px);
+    justify-content: center;
+    left: calc(2 * var(--canvas-grid-size) - var(--node-border-width));
+    overflow: hidden;
+    position: relative;
+    width: calc(12 * var(--canvas-grid-size));
+
+    img {
+        height: calc(8 * var(--canvas-grid-size) - 1px);
+        width: calc(12 * var(--canvas-grid-size));
+    }
+
+    span {
+        color: colors.$editor-font;
+        font-size: calc(1.8 * var(--canvas-grid-size));
+        line-height: calc(2 * var(--canvas-grid-size));
+        padding: 10px;
+        text-align: center;
+    }
+}
+
+.block-info-container {
+    color: colors.$editor-font;
+    display: grid;
+    font-weight: bold;
+    grid-template-columns: calc(var(--canvas-grid-size) - var(--node-border-width)) repeat(14, var(--canvas-grid-size)) calc(var(--canvas-grid-size) - var(--node-border-width));
+    grid-template-rows: calc(2 * var(--canvas-grid-size) - var(--node-border-width) - 1px);
+    margin-top: 1px;
+    text-align: center;
+}
+
+.block-selection {
+    border: calc(var(--node-border-width) + 3px) solid colors.$editor-selected;
+    height: calc(100% + 2px);
+    left: -1px;
+    pointer-events: none;
+    position: absolute;
+    top: -1px;
+    width: calc(100% + 2px);
+}
+
+.children-elements {
+    background-color: colors.$editor-foreground-dark;
+    grid-column: 7 / span 10;
+}
+
+.connector-row {
+    display: grid;
+    grid-template-columns: repeat(2, calc(8 * var(--canvas-grid-size) - var(--node-border-width)));
+    grid-template-rows: calc(2 * var(--canvas-grid-size));
+
+    &.divider {
+        border-bottom: 1px solid colors.$editor-background;
+        grid-template-rows: calc(2 * var(--canvas-grid-size) - 1px);
+    }
+
+    &.last-row {
+        grid-template-rows: calc(2 * var(--canvas-grid-size) - var(--node-border-width));
+    }
+}
+
+.engine-display-text {
+    background-color: var(--engine-background-color);
+    grid-column: 1 / span 6;
+    height: 100%;
+    margin-right: 1px;
+}
+
+.image-container {
+    height: 0;
+
+    .invisible {
+        visibility: hidden;
+    }
+}
+
+.input-connector-container {
+    display: grid;
+    grid-column: 1;
+    grid-template-columns: calc(var(--canvas-grid-size) - var(--node-border-width)) repeat(7, var(--canvas-grid-size));
+    grid-template-rows: 100%;
+}
+
+.input-pooling-mode {
+    background-color: var(--input-text-background-color);
+    color: var(--input-pooling-mode-color);
+    grid-column: 3 / span 2;
+    margin: 1px 0;
+    text-align: center;
+}
+
+.input-port-container {
+    background-color: var(--input-port-color);
+    color: var(--input-port-text-color);
+    cursor: pointer;
+    grid-column: 1 / span 2;
+    margin: 1px 0;
+    text-align: center;
+}
+
+.input-text {
+    background-color: var(--input-text-background-color);
+    color: var(--input-text-color);
+    grid-column: 5 / span 4;
+    margin: 1px 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    &.non-default-properties {
+        font-weight: bold;
+    }
+}
+
+.marker-base {
+    height: calc(2 * var(--canvas-grid-size) - 2px);
+    margin: 1px 0;
+    width: calc(5 * var(--canvas-grid-size));
+}
+
+.marker {
+    @extend .marker-base;
+    cursor: var(--cursor);
+    line-height: calc(2 * var(--canvas-grid-size) - 2px);
+    overflow: hidden;
+    padding: 0px 2px;
+    text-align: center;
+    text-overflow: ellipsis;
+
+    &.connector-container {
+        background-color: var(--container-marker-background-color);
+        color: var(--container-marker-text-color);
+        position: absolute;
+
+        &.input {
+            border-right: calc(0.5 * var(--canvas-grid-size)) solid colors.$editor-foreground-dark;
+            left: calc(-1 * (5 + 2) * var(--canvas-grid-size));
+            padding-left: 5px;
+            text-align: right;
+
+            &.sliced {
+                clip-path: polygon(10% 0%, 100% 0%, 100% 100%, 0% 100%);
+            }
+        }
+
+        &.output {
+            border-left: calc(0.5 * var(--canvas-grid-size)) solid colors.$editor-foreground-dark;
+            left: calc((16 + 2) * var(--canvas-grid-size));
+            text-align: left;
+
+            &.sliced {
+                clip-path: polygon(0% 0%, 90% 0%, 100% 100%, 0% 100%);
+            }
+        }
+    }
+
+    &.dataport {
+        background-color: var(--dataport-marker-background-color);
+        border-radius: 9px;
+        color: var(--dataport-marker-text-color);
+        position: absolute;
+
+        &.input {
+            left: calc(-1 * (5 + 8) * var(--canvas-grid-size));
+        }
+
+        &.output {
+            left: calc((16 + 8) * var(--canvas-grid-size));
+        }
+
+        &.selected {
+            background-color: colors.$editor-selected;
+            color: colors.$editor-font;
+        }
+    }
+
+    &.publish {
+        background-color: var(--publish-marker-background-color);
+        clip-path: polygon(0 0, 83.33% 0, 100% 50%, 100% calc(50% + 1px), 83.33% 100%, 0 100%, 16.66% calc(50% + 1px), 16.66% 50%);
+        color: var(--publish-marker-text-color);
+        position: absolute;
+
+        &.input {
+            left: calc(-1 * (5 + 14) * var(--canvas-grid-size));
+            padding-left: var(--canvas-grid-size);
+
+            &.regular {
+                border-right: var(--canvas-grid-size) solid colors.$editor-foreground-dark;
+            }
+
+            &.selected {
+                background-color: colors.$editor-selected;
+                color: colors.$editor-font;
+                padding-left: 0px;
+            }
+        }
+
+        &.output {
+            left: calc((16 + 14) * var(--canvas-grid-size));
+            padding-right: var(--canvas-grid-size);
+
+            &.regular {
+                border-left: var(--canvas-grid-size) solid colors.$editor-foreground-dark;
+            }
+
+            &.selected {
+                background-color: colors.$editor-selected;
+                color: colors.$editor-font;
+                padding-left: 12px;
+            }
+        }
+    }
+}
+
+.marker-line {
+    background-color: colors.$editor-foreground-dark;
+    cursor: default;
+    height: 3px;
+    margin-top: calc(var(--canvas-grid-size) - 1px);
+    position: absolute;
+
+    &.input {
+        left: calc(-1 * var(--marker-line-length) * var(--canvas-grid-size));
+        width: calc(var(--marker-line-length) * var(--canvas-grid-size));
+    }
+
+    &.output {
+        left: calc(16 * var(--canvas-grid-size));
+        width: calc(var(--marker-line-length) * var(--canvas-grid-size));
+    }
+
+    &.selected {
+        background-color: colors.$editor-selected;
+    }
+
+    &.traced {
+        background-color: colors.$editor-traced;
+    }
+}
+
+.output-connector-container {
+    display: grid;
+    grid-column: 2;
+    grid-template-columns: repeat(7, var(--canvas-grid-size)) calc(var(--canvas-grid-size) - var(--node-border-width));
+    grid-template-rows: 100%;
+}
+
+.output-port-container {
+    background-color: var(--output-port-color);
+    color: var(--output-port-text-color);
+    cursor: pointer;
+    grid-column: 7 / span 2;
+    margin: 1px 0;
+    text-align: center;
+}
+
+.output-text {
+    background-color: var(--output-text-background-color);
+    color: var(--output-text-color);
+    grid-column: 1 / span 6;
+    margin: 1px 0;
+    overflow: hidden;
+    padding-right: 3px;
+    text-align: right;
+    text-overflow: ellipsis;
+
+    &.non-default-properties {
+        font-weight: bold;
+    }
+}
+
+.run-mode {
+    background-color: colors.$editor-foreground-dark;
+    grid-column: 7 / span 4;
+    margin-right: 1px;
+}
+
+.run-mode-cycle-settings {
+    background-color: colors.$editor-foreground-dark;
+    margin-right: 1px;
+
+    &.frequency {
+        grid-column: 11 / span 4;
+    }
+
+    &.spacer {
+        grid-column: 11 / span 4;
+        margin-left: -2px;
+    }
+
+    &.dummy {
+        grid-column: 11 / span 4;
+    }
+}
+
+.run-mode-dummy {
+    background-color: colors.$editor-foreground-dark;
+    grid-column: 15 / span 2;
+}
+
+.title-container {
+    background-color: var(--title-name-background-color);
+    color: var(--title-name-fore-color);
+    line-height: calc(2 * var(--canvas-grid-size));
+    overflow: hidden;
+    position: relative;
+    text-align: center;
+    text-overflow: ellipsis;
+}

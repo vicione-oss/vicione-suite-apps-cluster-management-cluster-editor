@@ -1,0 +1,64 @@
+﻿@use "./../../../Styles/colors";
+@use "./../../../Styles/shared-search-tools-styles";
+
+.content-divider {
+    background-color: colors.$editor-background-light;
+    height: 1px;
+    margin: 16px 0 0 -28px;
+}
+
+.divider {
+    background-color: colors.$editor-background-light;
+    height: 1px;
+}
+
+.content-container {
+    position: relative;
+
+    display: grid;
+    font-size: 12px;
+    grid-template-rows: min-content min-content min-content min-content;
+    padding: 0 12px 0 16px;
+}
+
+.searchfilter-button {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 28px auto;
+    padding-right: 6px;
+
+    &:hover:not(.disabled) {
+        background-color: colors.$editor-background-hover;
+    }
+}
+
+.searchfilter-buttons .searchfilter-button-icon {
+    @include shared-search-tools-styles.content-icon;
+}
+
+.searchfilter-button-text {
+    align-self: center;
+    font-size: 13px;
+    color: colors.$editor-font;
+    margin-left: 4px;
+}
+
+.searchfilter-buttons {
+    display: grid;
+    grid-template-columns: max-content 32px max-content 32px max-content;
+}
+
+.searchfilter-container {
+    background-color: colors.$editor-background;
+    display: grid;
+    grid-template-rows: 16px 24px 12px 28px 16px;
+    padding: 0 12px 0 16px;
+}
+
+.searchfilter-heading {
+    @include shared-search-tools-styles.heading();
+}
+
+.st-button {
+    @include shared-search-tools-styles.st-button();
+}

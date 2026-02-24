@@ -1,0 +1,38 @@
+﻿@use "./../../../Styles/colors";
+
+$property-container-expansion-placeholder-width: 16px;
+$property-container-property-name-width: 60px;
+$property-container-property-value-padding-left: 5px;
+$property-container-row-height: 38px;
+
+.property-container {
+    background-color: colors.$editor-background-dark;
+    display: grid;
+    grid-template-columns: auto;
+
+    ::deep .property-row {
+        grid-template-columns: 16px $property-container-property-name-width auto 30px;
+    }
+
+    ::deep .property-row {
+        background-color: colors.$editor-background-dark;
+    }
+}
+
+.form-button-container {
+    align-items: center;
+    background-color: colors.$editor-background-dark;
+    display: flex;
+    min-height: $property-container-row-height;
+    padding-left: $property-container-expansion-placeholder-width + $property-container-property-name-width + $property-container-property-value-padding-left;
+
+    ::deep .action-button {
+        grid-area: buttons;
+        font-size: 12px;
+        line-height: 1.4em;
+
+        &:not(:last-of-type) {
+            margin-right: 8px;
+        }
+    }
+}

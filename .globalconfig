@@ -1,0 +1,12 @@
+dotnet_diagnostic.VO2001.severity = warning # Members should be grouped by type, then sorted in predefined order
+
+dotnet_diagnostic.VO2002.severity = warning # Wrong field order, fields should be grouped by keyword ...
+vicione_code_quality.VO2002.with_const_fields_grouped_by_access_modifier = true # ... with const fields grouped by access modifier in a second pass
+vicione_code_quality.VO2002.with_alphabetical_order = true # ... and with alphabetical ordering in the resulting groups
+
+dotnet_diagnostic.VO2003.severity = warning # Properties should be grouped by first attribute, then sorted in alphabetical order
+dotnet_diagnostic.VO2004.severity = warning # Events should be sorted in alphabetical order
+dotnet_diagnostic.VO2005.severity = warning # Constructors should be grouped by keyword, then sorted by number of parameters in ascending order
+dotnet_diagnostic.VO2006.severity = warning # Methods should be sorted in alphabetical order
+dotnet_diagnostic.VO2008.severity = warning # Property assignments in the object initializer are not sorted alphabetically by property name
+dotnet_diagnostic.VO2009.severity = suggestion # Property assignments in the constructor are not sorted alphabetically by property name

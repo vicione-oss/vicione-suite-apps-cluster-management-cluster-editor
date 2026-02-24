@@ -1,0 +1,54 @@
+﻿@using global::Blazor.Diagrams.Core.Extensions
+@* Render Code stark inspiriert von Z.Blazor.Diagrams /src/Blazor.Diagrams/Components/LinkWidget.razor *@
+
+@{
+    if (!Link!.Visible || Link.PathGeneratorResult is null)
+        return;
+
+    var d = Link.PathGeneratorResult.FullPath.ToString();
+}
+
+<path d="@d"
+      fill="none"
+      stroke="@(_highlightColor is not null ? _highlightColor : Link.Color)"
+      stroke-width="@Link.Width.ToInvariantString()"
+      stroke-dasharray="@Link.LineStyle" />
+
+@if (Link.Vertices.Count == 0)
+{
+    if (Link.DrawOverlay)
+    {
+        <path @ondblclick="@OnDblClickAsync"
+              @onpointerenter="@OnPointerEnter"
+              @onpointerleave="@OnPointerLeave"
+              @onpointerup="@OnPointerUp"
+              class="selection-helper"
+              d="@d"
+              fill="none"
+              stroke="transparent"
+              stroke-linecap="round"
+              stroke-width="12" />
+    }
+}
+else
+{
+    // Not needed since you don't use Vertices
+}
+
+@if (Link.SourceMarker is not null &&
+    Link.PathGeneratorResult.SourceMarkerAngle is not null &&
+    Link.PathGeneratorResult.SourceMarkerPosition is not null)
+{
+    <g transform="@GetSourceMarkerTransform()">
+        <path d="@Link.SourceMarker!.Path" fill="@Link.Color" />
+    </g>
+}
+
+@if (Link.TargetMarker is not null &&
+    Link.PathGeneratorResult.TargetMarkerAngle is not null &&
+    Link.PathGeneratorResult.TargetMarkerPosition is not null)
+{
+    <g transform="@GetTargetMarkerTransform()">
+        <path d="@Link.TargetMarker!.Path" fill="@Link.Color" />
+    </g>
+}

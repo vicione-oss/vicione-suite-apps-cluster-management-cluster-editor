@@ -1,0 +1,180 @@
+﻿@using ViciOne.Ui.ClusterEditor.Sections.Property.Components
+@using ViciOne.Ui.Localization.Resources
+@using ViciOne.Ui.Shared.Dx.Components.Scrolling
+@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using TechnicalTerms=ViciOne.Ui.Localization.Resources.TechnicalTerms
+@using LocalTechnicalTerms=ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+
+<DxDialog @ref="@_refDialog"
+          CloseOnOutsideClick="false"
+          Closing="@OnDialogClosingAsync"
+          Header="@(string.Format(UserActions.EditSomething, LocalTechnicalTerms.Container))"
+          Height="@DialogSizes.LargeHeight"
+          PreventDefaultContextMenu="@ContextMenuSettings.UseCustomMenu"
+          Showing="@OnDialogShowing"
+          Shown="@OnDialogShown"
+          Width="@DialogSizes.ContainerEditorWidth">
+
+    <Body>
+        <div class="content-container">
+            <div class="content-area">
+                <div class="area header">
+                    <div class="header-container input">
+                        <div class="button-header">
+                            <div class="caption">
+                                @TechnicalTerms.Input
+                            </div>
+
+                            <div @onclick="@(() => OnMoveUpClicked(true))"
+                                 class="command-button @(_inputUpEnabled ? string.Empty : "disabled")"
+                                 style="--button-position: 1;"
+                                 title="@Localization.ContainerEditor.MoveConnectorUp">
+
+                                <MonochromeIcon Name="@MonochromeIconName.ExpanderLightTop"
+                                                Size="@MonochromeIconSize.SmallMedium" />
+                            </div>
+
+                            <div @onclick="@(() => OnMoveDownClicked(true))"
+                                 class="command-button  @(_inputDownEnabled ? string.Empty : "disabled")"
+                                 style="--button-position: 2;"
+                                 title="@Localization.ContainerEditor.MoveConnectorDown">
+
+                                <MonochromeIcon Name="@MonochromeIconName.ExpanderLightDown"
+                                                Size="@MonochromeIconSize.SmallMedium" />
+                            </div>
+
+                            <div @onclick="@(() => AddPlaceholder(true))"
+                                 class="command-button"
+                                 style="--button-position: 3;"
+                                 title="@Localization.ContainerEditor.AddPlaceholder">
+
+                                <MonochromeIcon Name="@MonochromeIconName.PlusSlim"
+                                                Size="@MonochromeIconSize.SmallMedium" />
+                            </div>
+
+                            <div @onclick="@(() => OnRemovePlaceholderClicked(true))"
+                                 class="command-button @(_removeInputPlaceholderEnabled ? string.Empty : "disabled")"
+                                 style="--button-position: 4;"
+                                 title="@Localization.ContainerEditor.RemovePlaceholder">
+
+                                <MonochromeIcon Name="@MonochromeIconName.MinusSlim"
+                                                Size="@MonochromeIconSize.SmallMedium" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="header-container preview">
+                        <div class="button-header">
+                            <div class="caption">
+                                @CommonVocabulary.Preview
+                            </div>
+
+                            <div @onclick="@OnZoomClicked"
+                                 class="command-button @(_zoomEnabled ? string.Empty : "disabled")"
+                                 style="--button-position: 4;"
+                                 title="@Localization.ContainerEditor.AdjustZoom">
+
+                                @if (_zoomActive)
+                                {
+                                    @((MarkupString)SvgIcons.zoom_100)
+                                }
+                                else
+                                {
+                                    @((MarkupString)SvgIcons.zoom_to_fit);
+                                }
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="header-container output">
+                        <div class="button-header">
+                            <div class="caption">
+                                @LocalTechnicalTerms.Output
+                            </div>
+
+                            <div @onclick="@(() => OnMoveUpClicked(false))"
+                                 class="command-button  @(_outputUpEnabled ? string.Empty : "disabled")"
+                                 style="--button-position: 1;"
+                                 title="@Localization.ContainerEditor.MoveConnectorUp">
+
+                                <MonochromeIcon Name="@MonochromeIconName.ExpanderLightTop"
+                                                Size="@MonochromeIconSize.SmallMedium" />
+                            </div>
+
+                            <div @onclick="@(() => OnMoveDownClicked(false))"
+                                 class="command-button  @(_outputDownEnabled ? string.Empty : "disabled")"
+                                 style="--button-position: 2;"
+                                 title="@Localization.ContainerEditor.MoveConnectorDown">
+
+                                <MonochromeIcon Name="@MonochromeIconName.ExpanderLightDown"
+                                                Size="@MonochromeIconSize.SmallMedium" />
+                            </div>
+
+                            <div @onclick="@(() => AddPlaceholder(false))"
+                                 class="command-button"
+                                 style="--button-position: 3;"
+                                 title="@Localization.ContainerEditor.AddPlaceholder">
+
+                                <MonochromeIcon Name="@MonochromeIconName.PlusSlim"
+                                                Size="@MonochromeIconSize.SmallMedium" />
+                            </div>
+
+                            <div @onclick="@(() => OnRemovePlaceholderClicked(false))"
+                                 class="command-button @(_removeOutputPlaceholderEnabled ? string.Empty : "disabled")"
+                                 style="--button-position: 4;"
+                                 title="@Localization.ContainerEditor.RemovePlaceholder">
+
+                                <MonochromeIcon Name="@MonochromeIconName.MinusSlim"
+                                                Size="@MonochromeIconSize.SmallMedium" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <ScrollContainer @ref="_scrollContainer">
+                    <div class="area content">
+                        <div class="list-content input"
+                             style="--list-height-offset: @(_listsHeightOffset + "px");">
+
+                            @foreach (var connector in _inputConnectors)
+                            {
+                                <ContainerEditorListElement Connector="connector"
+                                                            OnClick="@((e) => OnConnectorClicked(e.Connector, e.CtrlKey, true))" />
+                            }
+                        </div>
+
+                        <div class="preview-content">
+                            <CascadingValue IsFixed="true"
+                                            Value="@_diagram">
+
+                                <DiagramCanvas Class="cursor-default" />
+                            </CascadingValue>
+                        </div>
+
+                        <div class="list-content output"
+                             style="--list-height-offset: @(_listsHeightOffset + "px");">
+
+                            @foreach (var connector in _outputConnectors)
+                            {
+                                <ContainerEditorListElement Connector="connector"
+                                                            OnClick="@((e) => OnConnectorClicked(e.Connector, e.CtrlKey, false))" />
+                            }
+                        </div>
+                    </div>
+                </ScrollContainer>
+            </div>
+
+            <div class="property-area">
+                <PropertySectionContent PropertyGridController="@ContainerEditorPropertyGridController" />
+            </div>
+        </div>
+    </Body>
+
+    <Footer>
+        <DxDialogFooterButton OnClick="@OnDialogOkAsync"
+                              Text="@CommonVocabulary.Ok" />
+
+        <DxDialogFooterButton OnClick="@OnDialogCancelAsync"
+                              Text="@CommonVocabulary.Cancel" />
+    </Footer>
+</DxDialog>

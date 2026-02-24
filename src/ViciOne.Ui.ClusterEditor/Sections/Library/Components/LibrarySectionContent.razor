@@ -1,0 +1,23 @@
+﻿@using ViciOne.Ui.Blazor.Components.SectionRail.Components
+@using ViciOne.Ui.Blazor.Components.SectionRail.Components.ActionButtons
+
+<SectionLayout>
+    <ActionButtons>
+        <SectionActionButton IconCssClass="@_openIconCssClass"
+                             OnClick="@OnImportFbDesignsClicked"
+                             Title="@Localization.LibrarySection.LoadFbDesignsTooltip" />
+    </ActionButtons>
+
+    <Tools>
+        <SearchAndFilterComponent GroupingButtonsEnabled="true"
+                                  OnCollapseAllGroups="@OnCollapseAllGroups"
+                                  OnExpandAllGroups="@OnExpandAllGroups"
+                                  OnSearchTextChanged="@FilterNodes"
+                                  ShowColumnChooser="false" />
+    </Tools>
+
+    <Content>
+        <TreeEditor Builder="@_treeBuilder"
+                    ShowGuidelines="true" />
+    </Content>
+</SectionLayout>

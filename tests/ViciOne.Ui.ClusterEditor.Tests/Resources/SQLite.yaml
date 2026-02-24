@@ -1,0 +1,281 @@
+Common:
+  Target       : DataPort                                                                          # required: Id String to identify the target of the file
+  ContentType  : Rules                                                                             # required: Id String to identify the content of the file
+  Version      : 1.0                                                                               # required: Version of the file
+  Date         : 2024-12-02                                                                        # required: Date of the file
+  Description  : "SQLite DataPort"                                                                 # required: Description of the file
+  Author       : "ifm software gmbh"                                                               # required: Author of the file
+  MetadataType : YAML                                                                              # required: Metadata type of the file (YAML, JSON, XML, Text, Binary, ...)
+
+Root:
+  Id                       : "SQLiteDataPort"                                                      # required: Id String to identify the root of the DataPort
+  Name                     : "SQLite"                                                              # required: display name of the DataPort
+  Description              : "DataPort for SQLite database"                                        # required: display description of the DataPort
+  Icons                    : ['sqlite']                                                            # required: just one Icon for the DataPort
+  ChildNodes               :
+    - Id                   : SQLite-Database
+      MaxDepth             : 64
+      MaxInstances         : 8
+
+Nodes:
+
+  # -------------------- Database ---------------------------------------
+
+  - Id                     : SQLite-Database
+    Type                   : DataPortNode
+    Name                   : "Database"
+    Description            : "Database"
+    MetadataLength         : 0
+    Icons                  : ['database']
+    TransferDirections     : [ Outbound ]
+    ChildNodes             :
+      - Id                 : Table
+        Required           : true
+    PropertyCategories     :
+      - Id                 : Connection
+        Properties         :
+          - Id             : Filename
+            Required       : true
+          - Id             : Password
+          - Id             : Pooling
+      - Id                 : Other
+        Properties         :
+          - Id             : BulkSize
+          - Id             : MinimumPublishIntervalInMs
+
+  # -------------------- Table ------------------------------------------
+
+  - Id                     : Table
+    MappingId              : Table
+    Type                   : DataPortTreeNode
+    Name                   : "Table"
+    Description            : "Table in the SQLite database"
+    Icons                  : ['table']
+    TransferModes          : [ OnChange, Periodic, None ]
+    ChildNodes             :
+      - Id                 : ColumnBool
+      - Id                 : ColumnInteger
+      - Id                 : ColumnFloat
+      - Id                 : ColumnDateTime
+      - Id                 : ColumnString
+      - Id                 : ColumnBinary
+      - Id                 : ColumnJSON
+
+  # -------------------- Columns --------------------------------------
+
+  - Id                     : ColumnBool
+    MappingId              : Column
+    Type                   : DataPortTreeNode
+    Name                   : "Bool Column"
+    Description            : "Boolean column in the SQLite table"
+    Icons                  : ['datapoint']
+    DataTypes              : [ Bool ]
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : NotNull
+
+  - Id                     : ColumnInteger
+    MappingId              : Column
+    Type                   : DataPortTreeNode
+    Name                   : "Integer Column"
+    Description            : "Integer column in the SQLite table"
+    Icons                  : ['datapoint']
+    DataTypes              : [ Int32, Int64, Int16, Int8, UInt32, UInt64, UInt16, UInt8 ]
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : NotNull
+          - Id             : PrimaryKey
+          - Id             : AutoIncrement
+
+  - Id                     : ColumnFloat
+    MappingId              : Column
+    Type                   : DataPortTreeNode
+    Name                   : "Float Column"
+    Description            : "Float column in the SQLite table"
+    Icons                  : ['datapoint']
+    DataTypes              : [ Float64, Float32 ]
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : NotNull
+          - Id             : PrimaryKey
+
+  - Id                     : ColumnDateTime
+    MappingId              : Column
+    Type                   : DataPortTreeNode
+    Name                   : "DateTime Column"
+    Description            : "DateTime column in the SQLite table"
+    Icons                  : ['datapoint']
+    DataTypes              : [ DateTime ]
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : NotNull
+          - Id             : PrimaryKey
+
+  - Id                     : ColumnString
+    MappingId               : Column
+    Type                   : DataPortTreeNode
+    Name                   : "String Column"
+    Description            : "String column in the SQLite table"
+    Icons                  : ['datapoint']
+    DataTypes              : [ String ]
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : NotNull
+          - Id             : PrimaryKey
+
+  - Id                     : ColumnBinary
+    MappingId              : Column
+    Type                   : DataPortTreeNode
+    Name                   : "Binary Column"
+    Description            : "Binary column in the SQLite table"
+    Icons                  : ['datapoint']
+    DataTypes              : [ Binary ]
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : NotNull
+          - Id             : PrimaryKey
+
+  - Id                     : ColumnJSON
+    MappingId              : Column
+    Type                   : DataPortTreeNode
+    Name                   : "JSON Column"
+    Description            : "JSON column in the SQLite table"
+    Icons                  : ['datapoint']
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : NotNull
+          - Id             : PrimaryKey
+    ChildNodes             :
+      - Id                 : JsonObject
+      - Id                 : JsonBool
+      - Id                 : JsonInteger
+      - Id                 : JsonFloat
+      - Id                 : JsonDateTime
+      - Id                 : JsonString
+
+  - Id: JsonBool
+    MappingId: JsonStruct
+    Type: DataPortTreeNode
+    Name: "Bool Property"
+    Description: "Boolean value in the json structure"
+    Icons: [ 'datapoint' ]
+    DataTypes: [ Bool ]
+
+  - Id: JsonInteger
+    MappingId: JsonStruct
+    Type: DataPortTreeNode
+    Name: "Integer Property"
+    Description: "Integer value in the json structure"
+    Icons: [ 'datapoint' ]
+    DataTypes: [ Int32, Int64, Int16, Int8, UInt32, UInt64, UInt16, UInt8 ]
+
+  - Id: JsonFloat
+    MappingId: JsonStruct
+    Type: DataPortTreeNode
+    Name: "Float Property"
+    Description: "Float value in the json structure"
+    Icons: [ 'datapoint' ]
+    DataTypes: [ Float64, Float32 ]
+
+  - Id: JsonDateTime
+    MappingId: JsonStruct
+    Type: DataPortTreeNode
+    Name: "DateTime Property"
+    Description: "DateTime value in the json structure"
+    Icons: [ 'datapoint' ]
+    DataTypes: [ DateTime ]
+
+  - Id: JsonString
+    MappingId: JsonStruct
+    Type: DataPortTreeNode
+    Name: "String Property"
+    Description: "String value in the json structure"
+    Icons: [ 'datapoint' ]
+    DataTypes: [ String ]
+
+  - Id: JsonObject
+    MappingId: JsonStruct
+    Type: DataPortTreeNode
+    Name: "Json Object"
+    Description: "Json object in the json structure"
+    Icons: [ 'datapoint' ]
+    ChildNodes:
+      - Id                 : JsonObject
+      - Id                 : JsonBool
+      - Id                 : JsonInteger
+      - Id                 : JsonFloat
+      - Id                 : JsonDateTime
+      - Id                 : JsonString
+
+PropertyCategories:
+  - Id          : Connection
+    Name        : "Connection"
+    Description : "Connection properties"
+
+  - Id          : Other
+    Name        : "Other"
+    Description : "Other properties"
+
+Properties:
+  - Id          : Filename
+    Name        : "Filename"
+    Description : "Path to the database file"
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : Password
+    Name        : "Password"
+    Description : "The password"
+    DataType    : String
+    UiControl   : PasswordBox
+
+  - Id          : BulkSize
+    Name        : "Bulk size"
+    Description : "The number of rows to be transferred in one bulk."
+    DataType    : Int32
+    UiControl   : NumericUpDown
+    MinValue    : 1
+    DefaultValue: 10000
+
+  - Id          : MinimumPublishIntervalInMs
+    Name        : "Minimum publish interval"
+    Description : "The minimum time interval between two data transfers in milliseconds."
+    DataType    : UInt32
+    UiControl   : NumericUpDown
+    MinValue    : 100
+    DefaultValue: 1000
+
+  - Id          : PrimaryKey
+    Name        : "Primary key"
+    Description : "States if the column is a primary key"
+    DataType    : Bool
+    UiControl   : ToggleButton
+    DefaultValue: false
+
+  - Id          : NotNull
+    Name        : "Not null"
+    Description : "States if the column is allowed to be null"
+    DataType    : Bool
+    UiControl   : ToggleButton
+    DefaultValue: false
+
+  - Id          : AutoIncrement
+    Name        : "Auto increment"
+    Description : "States if the column can auto increment"
+    DataType    : Bool
+    UiControl   : ToggleButton
+    DefaultValue: false
+
+  - Id          : Pooling
+    Name        : "Pooling"
+    Description : "Indicating whether the connection will be pooled"
+    DataType    : Bool
+    UiControl   : ToggleButton
+    DefaultValue: false

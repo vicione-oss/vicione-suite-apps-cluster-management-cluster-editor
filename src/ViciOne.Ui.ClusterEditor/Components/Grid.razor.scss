@@ -1,0 +1,21 @@
+﻿@use "./../Styles/colors";
+
+.grid {
+    background-color: colors.$editor-background;
+    grid-column: 1;
+    grid-row: 1;
+
+    &.grid-visible {
+        background-size: var(--grid-dimensions) var(--grid-dimensions);
+        background-position-x: var(--grid-pos-x);
+        background-position-y: var(--grid-pos-y);
+
+        &.line {
+            background-image: linear-gradient(colors.$editor-border-dark 1px, transparent 1px), linear-gradient(90deg, colors.$editor-border-dark 1px, transparent 1px);
+        }
+
+        &.point {
+            background-image: radial-gradient(circle at 0 0, colors.$editor-border-light 1px, transparent 1px);
+        }
+    }
+}

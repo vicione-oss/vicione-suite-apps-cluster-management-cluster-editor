@@ -1,0 +1,384 @@
+﻿@using System.Globalization
+@using ViciOne.Cluster.Model.Extensions
+@using ViciOne.Ui.Localization.Resources
+@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using TechnicalTerms=ViciOne.Ui.Localization.Resources.TechnicalTerms
+@using LocalTechnicalTerms=ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+
+<DxDialog @ref="_refDialog"
+          CloseOnEscape="true"
+          CloseOnOutsideClick="false"
+          Closing="OnDialogClosing"
+          Header="@(string.Format(CultureInfo.CurrentCulture, UserActions.SelectSomething, LocalTechnicalTerms.ConnectorPlural))"
+          Height="@DialogSizes.LargeHeight"
+          PreventDefaultContextMenu="@ContextMenuSettings.UseCustomMenu"
+          Showing="@OnDialogShowing"
+          Width="@DialogSizes.LargeWidth">
+
+    <HeaderToolbarItems>
+        <DxToolbarItem Alignment="ToolbarItemAlignment.Right">
+            <Template Context="tplCtx">
+                <div class="search-container">
+                    <SearchBox TextChanged="@((searchText) => SearchText = searchText)" />
+                </div>
+            </Template>
+        </DxToolbarItem>
+
+
+        <DxToolbarItem AdaptiveText="@_selectInputConnectorsText"
+                       Alignment="ToolbarItemAlignment.Right"
+                       Tooltip="@_selectInputConnectorsText">
+
+            <Template Context="tplCtx">
+                @{
+                    var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
+                }
+                <button @onclick="(() => OnFilterButton(c => c.IsInput && !c.Connector.FunctionBlock.GetSystemConnectors().ToArray().Contains(c.Connector)))"
+                        class="btn btn-toolbar smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
+
+                    <MonochromeIcon Name="MonochromeIconName.SelectConnectorsInput"
+                                    Size="MonochromeIconSize.SmallMedium" />
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+
+        <DxToolbarItem AdaptiveText="@_selectAllInputConnectorsText"
+                       Alignment="ToolbarItemAlignment.Right"
+                       Tooltip="@_selectAllInputConnectorsText">
+
+            <Template Context="tplCtx">
+                @{
+                    var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
+                }
+                <button @onclick="(() => OnFilterButton(c => c.IsInput))"
+                        class="btn btn-toolbar smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
+
+                    <MonochromeIcon Name="MonochromeIconName.SelectConnectorsInputAll"
+                                    Size="MonochromeIconSize.SmallMedium" />
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+
+
+        <DxToolbarItem AdaptiveText="@_selectConnectorsText"
+                       Alignment="ToolbarItemAlignment.Right"
+                       Tooltip="@_selectConnectorsText">
+
+            <Template Context="tplCtx">
+                @{
+                    var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
+                }
+                <button @onclick="(() => OnFilterButton(c => !c.Connector.FunctionBlock.GetSystemConnectors().ToArray().Contains(c.Connector)))"
+                        class="btn btn-toolbar smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
+
+                    <MonochromeIcon Name="MonochromeIconName.SelectConnectorsInputAndOutput"
+                                    Size="MonochromeIconSize.SmallMedium" />
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+
+        <DxToolbarItem AdaptiveText="@_selectAllConnectorsText"
+                       Alignment="ToolbarItemAlignment.Right"
+                       Tooltip="@_selectAllConnectorsText">
+
+            <Template Context="tplCtx">
+                @{
+                    var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
+                }
+                <button @onclick="(() => OnFilterButton(c => true))"
+                        class="btn btn-toolbar smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
+
+                    <MonochromeIcon Name="MonochromeIconName.SelectConnectorsInputAndOutputAll"
+                                    Size="MonochromeIconSize.SmallMedium" />
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+
+        <DxToolbarItem AdaptiveText="@_selectOutputConnectorsText"
+                       Alignment="ToolbarItemAlignment.Right"
+                       Tooltip="@_selectOutputConnectorsText">
+
+            <Template Context="tplCtx">
+                @{
+                    var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
+                }
+                <button @onclick="(() => OnFilterButton(c => !c.IsInput && !c.Connector.FunctionBlock.GetSystemConnectors().ToArray().Contains(c.Connector)))"
+                        class="btn btn-toolbar smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
+
+                    <MonochromeIcon Name="MonochromeIconName.SelectConnectorsOutput"
+                                    Size="MonochromeIconSize.SmallMedium" />
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+
+        <DxToolbarItem AdaptiveText="@_selectAllOutputConnectorsText"
+                       Alignment="ToolbarItemAlignment.Right"
+                       Tooltip="@_selectAllOutputConnectorsText">
+
+            <Template Context="tplCtx">
+                @{
+                    var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
+                }
+                <button @onclick="(() => OnFilterButton(c => !c.IsInput))"
+                        class="btn btn-toolbar smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
+
+                    <MonochromeIcon Name="MonochromeIconName.SelectConnectorsOutputAll"
+                                    Size="MonochromeIconSize.SmallMedium" />
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+
+        <DxToolbarItem AdaptiveText="@Localization.ConnectorSelectionDialog.DeselectAllConnectors"
+                       Alignment="ToolbarItemAlignment.Right"
+                       Tooltip="@Localization.ConnectorSelectionDialog.DeselectAllConnectors">
+
+            <Template Context="tplCtx">
+                @{
+                    var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
+                }
+                <button @onclick="@(() => OnFilterButton((c) => false))"
+                        class="btn btn-toolbar smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
+
+                    @((MarkupString)SvgIcons.uncheck_all)
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+
+        <DxToolbarItem AdaptiveText="@_expandAllGroupsText"
+                       Alignment="ToolbarItemAlignment.Right"
+                       BeginGroup="true"
+                       Tooltip="@_expandAllGroupsText">
+
+            <Template Context="tplCtx">
+                @{
+                    var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
+                }
+                <button @onclick="OnExpandAllGroups"
+                        class="btn btn-toolbar smaller-icon @(_groupingButtonsEnabled ? string.Empty : "disabled") @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
+
+                    @((MarkupString)SvgIcons.expand_all_groups)
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+
+        <DxToolbarItem AdaptiveText="@_collapseAllGroupsText"
+                       Alignment="ToolbarItemAlignment.Right"
+                       Tooltip="@_collapseAllGroupsText">
+
+            <Template Context="tplCtx">
+                @{
+                    var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
+                }
+                <button @onclick="OnCollapseAllGroups"
+                        class="btn btn-toolbar smaller-icon @(_groupingButtonsEnabled ? string.Empty : "disabled") @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
+
+                    @((MarkupString)SvgIcons.collapse_all_groups)
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+
+        <DxToolbarItem AdaptiveText="@LocalTechnicalTerms.ColumnChooser"
+                       Alignment="ToolbarItemAlignment.Right"
+                       Tooltip="@LocalTechnicalTerms.ColumnChooser">
+
+            <Template Context="tplCtx">
+                @{
+                    var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
+                }
+                <button @onclick="OnShowColumnChooser"
+                        class="btn btn-toolbar @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)"
+                        id="@_columnChooserId">
+
+                    @((MarkupString)SvgIcons.action_column_chooser)
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+    </HeaderToolbarItems>
+
+    <Body>
+        <div class="content-container">
+            <div class="content">
+                <DxGrid @ref="@_refGrid"
+                        CssClass="dialog-grid"
+                        CustomGroup="OnCustomizeCustomGroup"
+                        CustomizeCellDisplayText="OnCustomizeCellDisplayText"
+                        CustomSort="@OnCustomSort"
+                        Data="@_connectorWrappers"
+                        SearchText="@SearchText"
+                        SearchTextParseMode="GridSearchTextParseMode.ExactMatch"
+                        SelectedDataItemsChanged="OnSelectedDataItemsChanged"
+                        SelectionMode="GridSelectionMode.Multiple"
+                        ShowGroupPanel="true"
+                        VirtualScrollingEnabled="true">
+
+                    <Columns>
+                        <DxGridSelectionColumn AllowSelectAll="false"
+                                               ShowInColumnChooser="false"
+                                               Width="50" />
+
+                        <DxGridDataColumn AllowGroup="true"
+                                          AllowSort="true"
+                                          Caption="@CommonVocabulary.Element"
+                                          FieldName="@nameof(DataGridConnectorWrapper.ParentName)"
+                                          GroupIndexChanged="SetGroupingButtonsState"
+                                          GroupInterval="GridColumnGroupInterval.DisplayText"
+                                          SortIndex="1">
+
+                            <CellDisplayTemplate Context="cellContext">
+                                @{
+                                    <div class="text-truncated" title="@cellContext.DisplayText">
+                                        <SearchHighlighter SearchText="@SearchText"
+                                                           Text="@cellContext.DisplayText.ToString()" />
+                                    </div>
+                                }
+                            </CellDisplayTemplate>
+
+                            <GroupRowTemplate Context="rowContext">
+                                @rowContext.GroupValue
+                            </GroupRowTemplate>
+                        </DxGridDataColumn>
+
+                        <DxGridDataColumn AllowGroup="true"
+                                          AllowSort="true"
+                                          Caption="@LocalTechnicalTerms.Connector"
+                                          FieldName="@nameof(DataGridConnectorWrapper.ConnectorName)"
+                                          GroupIndexChanged="SetGroupingButtonsState"
+                                          SortIndex="2"
+                                          SortMode="GridColumnSortMode.Custom">
+
+                            <CellDisplayTemplate Context="cellContext">
+                                @{
+                                    var publishedConnector = (DataGridConnectorWrapper)cellContext.DataItem;
+
+                                    <div class="connector-with-icon-cell">
+                                        <div class="icon">
+                                            @GetIconMarkup(publishedConnector)
+                                        </div>
+                                        <div class="value">
+                                            <SearchHighlighter SearchText="@SearchText"
+                                                               Text="@cellContext.Value.ToString()" />
+                                        </div>
+                                    </div>
+                                }
+                            </CellDisplayTemplate>
+
+                            <GroupRowTemplate Context="rowContext">
+                                @{
+                                    var publishedConnector = (DataGridConnectorWrapper)rowContext.Grid.GetDataItem(rowContext.VisibleIndex);
+
+                                    <div class="connector-with-icon-cell">
+                                        <div class="icon">
+                                            @GetIconMarkup(publishedConnector)
+                                        </div>
+                                        <div class="value">
+                                            @rowContext.GroupValueDisplayText.ToString()
+                                        </div>
+                                    </div>
+                                }
+                            </GroupRowTemplate>
+                        </DxGridDataColumn>
+
+                        <DxGridDataColumn AllowGroup="true"
+                                          AllowSort="true"
+                                          Caption="@TechnicalTerms.DataType"
+                                          FieldName="@nameof(DataGridConnectorWrapper.ConnectorTypeName)"
+                                          GroupIndexChanged="SetGroupingButtonsState">
+
+                            <CellDisplayTemplate Context="cellContext">
+                                @{
+                                    <div class="text-truncated" title="@cellContext.DisplayText">
+                                        <SearchHighlighter SearchText="@SearchText"
+                                                            Text="@cellContext.DisplayText.ToString()" />
+                                    </div>
+                                }
+                            </CellDisplayTemplate>
+
+                            <GroupRowTemplate Context="rowContext">
+                                @{
+                                    <div class="text-truncated" title="@rowContext.GroupValueDisplayText">
+                                        @rowContext.GroupValueDisplayText
+                                    </div>
+                                }
+                            </GroupRowTemplate>
+                        </DxGridDataColumn>
+
+                        <DxGridDataColumn AllowGroup="true"
+                                          AllowSort="false"
+                                          Caption="@CommonVocabulary.Description"
+                                          FieldName="@nameof(DataGridConnectorWrapper.Description)"
+                                          GroupIndexChanged="SetGroupingButtonsState">
+
+                            <CellDisplayTemplate Context="cellContext">
+                                @{
+                                    <div class="text-truncated" title="@cellContext.DisplayText">
+                                        <SearchHighlighter SearchText="@SearchText"
+                                                            Text="@cellContext.DisplayText.ToString()" />
+                                    </div>
+                                }
+                            </CellDisplayTemplate>
+                        </DxGridDataColumn>
+                    </Columns>
+
+                </DxGrid>
+            </div>
+        </div>
+    </Body>
+
+    <Footer>
+        <DxDialogFooterButton OnClick="@OnDialogOk"
+                              Text="@CommonVocabulary.Ok" />
+
+        <DxDialogFooterButton OnClick="@(() => DialogService.SetVisibility(false))"
+                              Text="@CommonVocabulary.Cancel" />
+    </Footer>
+</DxDialog>

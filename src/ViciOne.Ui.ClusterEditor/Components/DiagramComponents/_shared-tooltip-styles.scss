@@ -1,0 +1,18 @@
+﻿@use "./../../Styles/colors";
+
+.no-wrap {
+    white-space: nowrap;
+}
+
+.path-entry {
+    @extend .no-wrap;
+    display: grid;
+    grid-template-columns: 12px auto;
+
+    .icon {
+        align-self: center;
+        fill: colors.$editor-font;
+        height: 9px;
+        width: 9px;
+    }
+}

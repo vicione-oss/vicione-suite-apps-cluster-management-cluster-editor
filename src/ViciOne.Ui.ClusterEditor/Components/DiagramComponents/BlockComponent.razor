@@ -1,0 +1,404 @@
+﻿@using ViciOne.Cluster.Builder.Extensions
+@using ViciOne.Cluster.Model
+@using ViciOne.Cluster.Model.Extensions
+@using ViciOne.Ui.ClusterEditor.Extensions
+
+@if (!Node!.Visible) { return; }
+
+<div @oncontextmenu="OnContextMenuAsync"
+     @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+     @oncontextmenu:stopPropagation
+     @ondblclick="OnDoubleClickAsync"
+     @onpointerdown="@OnBlockContainerPointerDown"
+     @onpointerenter="@OnBlockContainerPointerEnter"
+     @onpointerleave="@OnBlockContainerPointerLeave"
+     class="block-container"
+     style="--alignment-border-grid-cells: @(DiagramSettings.FlagMarginGridCells);">
+
+    <div class="alignment-border"></div>
+
+    <div @ondblclick="@OnTitleDblClick"
+         @ondblclick:stopPropagation
+         class="title-container"
+         style="--title-name-background-color: @Node!.NameBackgroundColor;
+                --title-name-fore-color: @Node.NameForeColor;">
+
+        @Node.Name
+    </div>
+
+    <div class="block-info-container">
+        <div @onpointerenter="@OnEngineDisplayTextPointerEnter"
+             @onpointerleave="@OnEngineDisplayTextPointerLeave"
+             class="engine-display-text"
+             style="--engine-background-color: @Node.EngineBackgroundColor;">
+
+            @Node.EngineDisplayText
+        </div>
+
+        @if (_block.IsChildContainer)
+        {
+            <div class="children-elements">
+                @(((ChildContainerNode)Node).ChildrenDisplayText)
+            </div>
+        }
+        else if (_block.IsFunctionBlock)
+        {
+            <div class="run-mode @(HasDetailedRunModeSettings() ? "short" : "")">@(((FunctionBlockNode)Node).RunModeText)</div>
+
+            @if (HasDetailedRunModeSettings())
+            {
+                <div class="run-mode-cycle-settings frequency">@(((FunctionBlockNode)Node).CycleFrequency)</div>
+            }
+            else
+            {
+                <div class="run-mode-cycle-settings spacer"></div>
+            }
+
+            <div class="run-mode-dummy"></div>
+        }
+    </div>
+
+    <div class="image-container @(IsImageVisible() ? "" : "invisible")">
+        <div class="block-image">
+            @if (string.IsNullOrEmpty(Node.ImageSrc))
+            {
+                <span>@Node.ImageText</span>
+            }
+            else
+            {
+                <img src="@Node.ImageSrc" />
+            }
+        </div>
+    </div>
+
+    @for (var (i, displayAll) = (0, ShouldDisplayAllConnectors()); i < Node.Connectors!.Count; i++)
+    {
+        var inputConnector = Node.Connectors[i][0];
+        var outputConnector = Node.Connectors[i][1];
+
+        <div class="connector-row @(i == 3 ? "divider" : "") @(i == Node.Connectors.Count - 1 ? "last-row" : "")">
+
+            @if (displayAll)
+            {
+                if (inputConnector is not null)
+                {
+                    @InputConnectorFragment(inputConnector)
+                }
+
+                if (outputConnector is not null)
+                {
+                    @OutputConnectorFragment(outputConnector)
+                }
+            }
+            else
+            {
+                if (inputConnector is not null && inputConnector.ShouldDisplayConnector())
+                {
+                    @InputConnectorFragment(inputConnector)
+                }
+
+                if (outputConnector is not null && outputConnector.ShouldDisplayConnector())
+                {
+                    @OutputConnectorFragment(outputConnector)
+                }
+            }
+        </div>
+    }
+
+    @if (Node.Selected)
+    {
+        <div class="block-selection"></div>
+    }
+</div>
+
+@code {
+    private RenderFragment<BlockNodeConnector> InputConnectorFragment => connector => __builder =>
+    {
+        if (!connector.Visible) { return; }
+
+        <div class="input-connector-container"
+             style="--input-text-background-color: @connector.TextBackgroundColor;">
+
+            <div @oncontextmenu="@(async (e) => await OnConnectorContextMenuRequestedAsync(e, connector))"
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @ondblclick="@(async (e) => await OnConnectorDblClickAsync(e, connector))"
+                 @ondblclick:stopPropagation
+                 @ondrop="@((_) => OnDrop(connector))"
+                 @onpointerenter="@((e) => OnPortContainerPointerEnter(e, connector))"
+                 @onpointerleave="@OnPortContainerPointerLeave"
+                 class="input-port-container"
+                 ondragover="@(connector.IsValidDropTarget ? "event.preventDefault();" : string.Empty)"
+                 style="--input-port-color: @connector.PortColor;
+                        --input-port-text-color: @connector.PortTextColor;">
+
+                <PortRenderer @key="connector" Port="@connector">
+                    @if (!string.IsNullOrWhiteSpace(connector.PortText))
+                    {
+                        <div>@connector.PortText</div>
+                    }
+                </PortRenderer>
+            </div>
+
+            <div class="input-pooling-mode"
+                 style="--input-pooling-mode-color: @connector.PoolingModeColor;">
+
+                @connector.PoolingMode
+            </div>
+            
+            <div class="input-text @(connector.HasChangedProperties ? "non-default-properties" : string.Empty)"
+                 style="--input-text-color: @connector.TextColor;">
+
+                @connector.Text
+            </div>
+        </div>
+
+        var markerLineLength = connector.PublishedConnectorMarker.Visible ? 15 :
+            connector.DataPortConnectorMarker.Visible ? 8 :
+            connector.IsOnContainer ? 2 : 0;
+
+        if (markerLineLength > 0)
+        {
+            <div @onclick:stopPropagation
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @ondblclick:stopPropagation
+                 @onpointerdown:stopPropagation
+                 class="marker-line input"
+                 style="--marker-line-length: @markerLineLength">
+            </div>
+        }
+
+        var markerLineTracedLength = connector.PublishedConnectorMarker.Traced ? 15 :
+            connector.DataPortConnectorMarker.Traced ? 8 : 0;
+
+        if (markerLineTracedLength > 0)
+        {
+            <div @onclick:stopPropagation
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @ondblclick:stopPropagation
+                 @onpointerdown:stopPropagation
+                 class="marker-line traced input"
+                 style="--marker-line-length: @markerLineTracedLength">
+            </div>
+        }
+
+        var markerLineSelectedLength = connector.PublishedConnectorMarker.Selected ? 15 :
+            connector.DataPortConnectorMarker.Selected ? 8 : 0;
+
+        if (markerLineSelectedLength > 0)
+        {
+            <div @onclick:stopPropagation
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @ondblclick:stopPropagation
+                 @onpointerdown:stopPropagation
+                 class="marker-line selected input"
+                 style="--marker-line-length: @markerLineSelectedLength">
+            </div>
+        }
+
+        if (connector.PublishedConnectorMarker.Visible)
+        {
+            var count = connector.PublishedConnectorMarker.Links.Count;
+
+            <div @onclick="@((e) => OnMarkerClick(e.CtrlKey, connector.PublishedConnectorMarker))"
+                 @onclick:stopPropagation
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @ondblclick="@(async () => await OnMarkerDoubleClickAsync(connector.PublishedConnectorMarker))"
+                 @ondblclick:stopPropagation
+                 @onpointerenter="@((e) => OnPublishMarkerPointerEnter(e, connector))"
+                 @onpointerleave="@((e) => OnPublishMarkerPointerLeave(e, connector))"
+                 class="marker publish input @(connector.PublishedConnectorMarker.Selected ? "selected" : "regular")" 
+                 style="--cursor: pointer; 
+                        --publish-marker-background-color: @(count == 0 ? BlockNodeColors.UnusedPublishedConnector : connector.PortColor);
+                        --publish-marker-text-color: @connector.PortTextColor">
+
+                @if (count > 0)
+                {
+                    @count
+                }
+            </div>
+        }
+
+        if (connector.DataPortConnectorMarker.Visible)
+        {
+            <div @onclick="@((e) => OnMarkerClick(e.CtrlKey, connector.DataPortConnectorMarker))"
+                 @onclick:stopPropagation
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @ondblclick="@(async () => await OnMarkerDoubleClickAsync(connector.DataPortConnectorMarker))"
+                 @ondblclick:stopPropagation
+                 @onpointerenter="@((e) => OnDataPortMarkerPointerEnter(e, connector))"
+                 @onpointerleave="@OnDataPortMarkerPointerLeave"
+                 class="marker dataport input @(connector.DataPortConnectorMarker.Selected ? "selected" : string.Empty)"
+                 style="--cursor: pointer;
+                        --dataport-marker-background-color: @connector.PortColor;
+                        --dataport-marker-text-color: @connector.PortTextColor;">
+
+                @connector.DataPortConnectorMarker.Links.Count
+            </div>
+        }
+
+        if (connector.IsOnContainer)
+        {
+            <div @ondblclick="OnContainerMarkerDblClickAsync"
+                 @ondblclick:stopPropagation
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @onpointerenter="@((e) => OnParentContainerMarkerPointerEnter(e, connector))"
+                 @onpointerleave="@OnParentContainerMarkerPointerLeave"
+                 class="marker connector-container input @(connector.HasUpstreamLinks ? "sliced" : string.Empty)"
+                 style="--cursor: default;
+                        --container-marker-background-color: @connector.PortColor;
+                        --container-marker-text-color: @connector.PortTextColor">
+
+                <span>@connector.ParentContainerConnector?.ShortName</span>
+            </div>
+        }
+    };
+
+    private RenderFragment<BlockNodeConnector> OutputConnectorFragment => connector => __builder =>
+    {
+        if (!connector.Visible) { return; }
+
+        <div class="output-connector-container"
+             style="--output-text-background-color: @connector.TextBackgroundColor;">
+
+            <div class="output-text @(connector.HasChangedProperties ? "non-default-properties" : string.Empty)"
+                 style="--output-text-color: @connector.TextColor;">
+
+                @connector.Text
+            </div>
+
+            <div @oncontextmenu="@(async (e) => await OnConnectorContextMenuRequestedAsync(e, connector))"
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @ondblclick="@(async (e) => await OnConnectorDblClickAsync(e, connector))"
+                 @ondblclick:stopPropagation
+                 @ondrop="@((_) => OnDrop(connector))"
+                 @onpointerenter="@((e) => OnPortContainerPointerEnter(e, connector))"
+                 @onpointerleave="@OnPortContainerPointerLeave"
+                 class="output-port-container"
+                 ondragover="@(connector.IsValidDropTarget ? "event.preventDefault();" : string.Empty)"
+                 style="--output-port-color: @connector.PortColor;
+                        --output-port-text-color: @connector.PortTextColor;">
+
+                <PortRenderer @key="connector" Port="@connector">
+                    @if (!string.IsNullOrWhiteSpace(connector.PortText))
+                    {
+                        <div>@connector.PortText</div>
+                    }
+                </PortRenderer>
+            </div>
+        </div>
+
+        var markerLineLength = connector.PublishedConnectorMarker.Visible ? 15 :
+            connector.DataPortConnectorMarker.Visible ? 8 :
+            connector.IsOnContainer ? 2 : 0;
+
+        if (markerLineLength > 0)
+        {
+            <div @onclick:stopPropagation
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @ondblclick:stopPropagation
+                 @onpointerdown:stopPropagation
+                 class="marker-line output"
+                 style="--marker-line-length: @markerLineLength">
+            </div>
+        }
+
+        var markerLineTracedLength = connector.PublishedConnectorMarker.Traced ? 15 :
+            connector.DataPortConnectorMarker.Traced ? 8 : 0;
+
+        if (markerLineTracedLength > 0)
+        {
+            <div @onclick:stopPropagation
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @ondblclick:stopPropagation
+                 @onpointerdown:stopPropagation
+                 class="marker-line traced output"
+                 style="--marker-line-length: @markerLineTracedLength">
+            </div>
+        }
+
+        var markerLineSelectedLength = connector.PublishedConnectorMarker.Selected ? 15 :
+            connector.DataPortConnectorMarker.Selected ? 8 : 0;
+
+        if (markerLineSelectedLength > 0)
+        {
+            <div @onclick:stopPropagation
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @ondblclick:stopPropagation
+                 @onpointerdown:stopPropagation
+                 class="marker-line selected output"
+                 style="--marker-line-length: @markerLineSelectedLength">
+            </div>
+        }
+
+        if (connector.IsOnContainer)
+        {
+            <div @ondblclick="OnContainerMarkerDblClickAsync"
+                 @ondblclick:stopPropagation
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @onpointerenter="@((e) => OnParentContainerMarkerPointerEnter(e, connector))"
+                 @onpointerleave="@OnParentContainerMarkerPointerLeave"
+                 class="marker connector-container output @(connector.HasUpstreamLinks ? "sliced" : string.Empty)"
+                 style="--cursor: default;
+                        --container-marker-background-color: @connector.PortColor;
+                        --container-marker-text-color: @connector.PortTextColor">
+
+                <span>@connector.ParentContainerConnector?.ShortName</span>
+            </div>
+        }
+
+        if (connector.DataPortConnectorMarker.Visible)
+        {
+            <div @onclick="(args) => OnMarkerClick(args.CtrlKey, connector.DataPortConnectorMarker)"
+                 @onclick:stopPropagation
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @ondblclick="async (_) => await OnMarkerDoubleClickAsync(connector.DataPortConnectorMarker)"
+                 @ondblclick:stopPropagation
+                 @onpointerenter="@((e) => OnDataPortMarkerPointerEnter(e, connector))"
+                 @onpointerleave="@OnDataPortMarkerPointerLeave"
+                 class="marker dataport output @(connector.DataPortConnectorMarker.Selected ? "selected" : string.Empty)"
+                 style="--cursor: pointer;
+                        --dataport-marker-background-color: @connector.PortColor;
+                        --dataport-marker-text-color: @connector.PortTextColor">
+
+                @connector.DataPortConnectorMarker.Links.Count
+            </div>
+        }
+
+        if (connector.PublishedConnectorMarker.Visible)
+        {
+            var count = connector.PublishedConnectorMarker.Links.Count;
+
+            <div @onclick="(args) => OnMarkerClick(args.CtrlKey, connector.PublishedConnectorMarker)"
+                 @onclick:stopPropagation
+                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:stopPropagation
+                 @ondblclick="async (_) => await OnMarkerDoubleClickAsync(connector.PublishedConnectorMarker)"
+                 @ondblclick:stopPropagation
+                 @onpointerenter = "@((e) => OnPublishMarkerPointerEnter(e, connector))"
+                 @onpointerleave = "@((e) => OnPublishMarkerPointerLeave(e, connector))"
+                 class="marker publish output @(connector.PublishedConnectorMarker.Selected ? "selected" : "regular")"
+                 style="--cursor: pointer;
+                        --publish-marker-background-color: @(count == 0 ? BlockNodeColors.UnusedPublishedConnector : connector.PortColor);
+                        --publish-marker-text-color: @connector.PortTextColor">
+
+                @if (count > 0)
+                {
+                    @count
+                }
+            </div>
+        }
+    };
+}

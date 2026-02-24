@@ -1,0 +1,16 @@
+﻿<div class="dragging-connector"
+     style="--connector-color: @_connectorColor;
+            --visible: @(_visible ? "visible" : "hidden");
+            --top: @Razor.GetCssPx(_position?.Y + 16 ?? 0);
+            --left: @Razor.GetCssPx(_position?.X + 16 ?? 0);">
+
+    @if (_isInput)
+    {
+        @((MarkupString)SvgIcons.connector_dragging_connector_in)
+    }
+    else
+    {
+        @((MarkupString)SvgIcons.connector_dragging_connector_out)
+    }
+
+</div>

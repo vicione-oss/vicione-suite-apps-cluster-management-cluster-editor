@@ -1,0 +1,26 @@
+﻿@use "./../../../Styles/sections";
+
+.added-while-filtered-info {
+    font-size: 10px;
+    text-align: center;
+}
+
+.confirm-node-delete-text {
+    font-size: medium;
+    margin: 15px 20px;
+}
+
+.content-container {
+    ::deep .tree-editor-container {
+        @include sections.action-button-container-styles();
+        @include sections.node-with-icon-styles();
+
+        .icon-container {
+            svg {
+                path {
+                    fill: revert-layer;
+                }
+            }
+        }
+    }
+}

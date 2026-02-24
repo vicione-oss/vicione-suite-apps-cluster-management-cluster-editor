@@ -1,0 +1,34 @@
+﻿using Blazor.Diagrams.Core;
+using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Components.Web;
+using ViciOne.Cluster.Model;
+using ViciOne.Ui.ClusterEditor.Helpers;
+using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
+using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
+
+namespace ViciOne.Ui.ClusterEditor.Components.DiagramComponents;
+
+public sealed partial class ChildContainerEditorComponent : ComponentBase
+{
+    [CascadingParameter] internal Diagram? Diagram { get; set; }
+
+    [Inject] private BoundsService BoundsService { get; set; } = default!;
+    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private TooltipService TooltipService { get; set; } = default!;
+
+    [Parameter] public ChildContainerNode? Node { get; set; }
+
+    private BlockNodeConnector GetOriginalConnectorDiagramModel(BlockNodeConnector nodeConnector)
+        => Datastore.DataflowDiagramMapping.GetDiagramModel(((ContainerConnector)nodeConnector.Connector).Connector);
+
+    private void OnPortContainerPointerEnter(MouseEventArgs e, BlockNodeConnector connector)
+    {
+        var originalConnector = GetOriginalConnectorDiagramModel(connector);
+
+        TooltipService.StartTooltip(TooltipConnectorData.GetConnectorTooltipInfo(Datastore.Builder, e, originalConnector, BoundsService.GetDiagramBounds()));
+    }
+
+    private void OnPortContainerPointerLeave(MouseEventArgs _)
+        => TooltipService.StopTooltip();
+}

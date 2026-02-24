@@ -1,0 +1,10 @@
+﻿<div class="dragging-datapoint"
+     style="--visible: @(_visible ? "visible" : "hidden");
+            --top: @Razor.GetCssPx(_position?.Y + 16 ?? 0);
+            --left: @Razor.GetCssPx(_position?.X + 16 ?? 0);">
+
+    @if (_icon is not null)
+    {
+        @((MarkupString)_icon.MarkupString)
+    }
+</div>

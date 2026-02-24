@@ -1,0 +1,9 @@
+﻿.cluster-editor {
+    display: contents;
+
+    font-family: "Helvetica Neue", "Segoe UI", helvetica, verdana, sans-serif;
+
+    ::deep dxbl-context-menu {
+        position: absolute;
+    }
+}

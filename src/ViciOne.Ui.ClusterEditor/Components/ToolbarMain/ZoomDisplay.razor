@@ -1,0 +1,23 @@
+﻿<div class="zoom-display-container">
+    <div @onclick="@(() => ChangeZoomValue(false))"
+         class="btn btn-zoom @(Enabled ? string.Empty : "disabled")"
+         title="@Localization.ZoomDisplay.ZoomOut">
+
+        <MonochromeIcon Name="MonochromeIconName.MinusSlim"
+                        Size="MonochromeIconSize.SmallMedium" />
+    </div>
+
+    <DxComboBox @bind-Text="@ZoomText"
+                AllowUserInput="true"
+                Data="@_zoomValues"
+                Enabled="@Enabled"
+                TData="@(string)"
+                TValue="@(string)" />
+
+    <div @onclick="@(() => ChangeZoomValue(true))"
+         class="btn btn-zoom @(Enabled ? string.Empty : "disabled")"
+         title="@Localization.ZoomDisplay.ZoomIn">
+
+        <MonochromeIcon Name="MonochromeIconName.PlusSlim" Size="MonochromeIconSize.SmallMedium" />
+    </div>
+</div>

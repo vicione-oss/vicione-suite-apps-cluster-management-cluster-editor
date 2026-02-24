@@ -1,0 +1,75 @@
+﻿@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using TechnicalTerms=ViciOne.Ui.Localization.Resources.TechnicalTerms
+@using LocalCommonVocabulary=ViciOne.Ui.ClusterEditor.Localization.Resources.CommonVocabulary
+@using LocalTechnicalTerms=ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+
+<div class="information-section-container">
+    <span class="label bold">@Localization.InformationSection.EditorVersion</span>
+    <span class="value">@(_editorVersion)</span>
+
+    <span class="separator" />
+
+    <span class="label">@LocalTechnicalTerms.EnginePlural</span>
+    <span class="value">@_statistic.Engines</span>
+
+    <span class="label">@LocalTechnicalTerms.ContainerPlural</span>
+    <span class="value">@_statistic.Containers</span>
+
+    <span class="label">@LocalTechnicalTerms.FunctionBlockPlural</span>
+    <span class="value">@_statistic.Fbs</span>
+
+    <span class="label">@TechnicalTerms.LabelPlural</span>
+    <span class="value">@_statistic.Labels</span>
+
+    <span class="label">@LocalTechnicalTerms.DataPortPlural</span>
+    <span class="value">@_statistic.DataPorts</span>
+
+    <span class="separator" />
+
+    <span class="label bold">@LocalTechnicalTerms.FunctionBlockDesignPlural</span>
+    <span class="value">@_statistic.FbDesigns</span>
+
+    <span class="label">@LocalTechnicalTerms.DriverPlural</span>
+    <span class="value">@_statistic.Drivers</span>
+
+    <span class="separator" />
+
+    <span class="label bold">@LocalTechnicalTerms.ConnectorPlural</span>
+    <span class="value">@_statistic.Connectors</span>
+
+    <span class="label">@CommonVocabulary.Published</span>
+    <span class="value">@_statistic.ConnectorsPublished</span>
+
+    <span class="label">@LocalTechnicalTerms.EventEnabled</span>
+    <span class="value">@_statistic.ConnectorsEventEnabled</span>
+
+    <span class="separator" />
+
+    <span class="label bold">@LocalTechnicalTerms.LinkPlural</span>
+    <span class="value">@_statistic.Links</span>
+
+    <span class="label">@CommonVocabulary.Visible</span>
+    <span class="value">@_statistic.LinksVisible</span>
+
+    <span class="label">@CommonVocabulary.Hidden</span>
+    <span class="value">@_statistic.LinksHidden</span>
+
+    <span class="separator" />
+
+    <span class="label bold">@LocalTechnicalTerms.DataPortTreeNodePlural</span>
+    <span class="value">@_statistic.DataPortTreeNodes</span>
+
+    <span class="label">@CommonVocabulary.Linked</span>
+    <span class="value">@_statistic.DataPortTreeNodesConnected</span>
+
+    <span class="label">@LocalCommonVocabulary.Unlinked</span>
+    <span class="value">@_statistic.DataPortTreeNodesNotConnected</span>
+
+    <span class="separator" />
+
+    <span class="label bold">@LocalTechnicalTerms.LoggerPlural</span>
+    <span class="value">@_statistic.Loggers</span>
+
+    <span class="separator" />
+    <span class="separator" />
+</div>

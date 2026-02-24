@@ -1,0 +1,81 @@
+﻿@use "./../Styles/colors";
+
+::deep {
+    --canvas-grid-size: 10px;
+    --node-border-width: 1px;
+}
+
+.diagram-container {
+    display: grid;
+    grid-column: 1;
+    grid-row: 1;
+    overflow: hidden;
+    position: relative;
+
+    ::deep > .diagram-canvas {
+        cursor: default;
+        grid-column: 1;
+        grid-row: 1;
+
+        .diagram-node.locked {
+            pointer-events: none;
+        }
+
+        .diagram-link {
+            cursor: unset;
+        }
+    }
+
+    ::deep .edge-dragging-area-container {
+        grid-column: 1;
+        grid-row: 1;
+    }
+
+    ::deep > .minimap-container {
+        bottom: 25px;
+        position: absolute;
+        right: 25px;
+    }
+
+    ::deep .label-container.ql-editor > * {
+        cursor: unset;
+    }
+}
+
+.drag-and-drop-ghost {
+    background-color: transparent;
+    grid-column: 1;
+    grid-row: 1;
+    visibility: collapse;
+    z-index: 100;
+
+    .visible {
+        visibility: visible;
+    }
+}
+
+.node-editor-container {
+    background-color: colors.$editor-background;
+    display: grid;
+    height: 100%;
+    grid-column-gap: 5px;
+    grid-row-gap: 5px;
+    grid-template-columns: auto 10px;
+    grid-template-rows: auto 10px;
+    padding-bottom: 5px;
+    padding-left: 0px;
+    padding-right: 5px;
+    padding-top: 0px;
+
+    ::deep .scrollbar-container {
+        &.horizontal {
+            grid-column: 1;
+            grid-row: 2;
+        }
+
+        &.vertical {
+            grid-column: 2;
+            grid-row: 1;
+        }
+    }
+}

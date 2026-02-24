@@ -1,0 +1,50 @@
+﻿@use "./../../Styles/colors";
+@use "./../../Styles/mixins";
+
+.btn.btn-toolbar {
+    padding: 4px;
+
+    &.active {
+        ::deep > svg {
+            path, polygon {
+                fill: colors.$editor-accent;
+            }
+        }
+    }
+
+    &.adaptive-hidden {
+        display: grid;
+        grid-column-gap: 8px;
+        grid-template-columns: 24px max-content;
+    }
+
+    &.disabled {
+        @include mixins.not-clickable();
+        @include mixins.svg-icon-disabled();
+        @include mixins.button-text-span-disabled();
+    }
+
+    ::deep > svg {
+        height: 24px;
+        width: 24px;
+
+        path, polygon {
+            fill: colors.$editor-font;
+        }
+    }
+}
+
+::deep .main-toolbar {
+    grid-column: 2;
+
+    & .dxbl-toolbar-btn-ellipsis {
+        height: 34px;
+    }
+}
+
+.sidebar-top-container {
+    background-color: colors.$editor-background;
+    color: colors.$editor-font;
+    height: 64px;
+    padding: 16px 32px;
+}

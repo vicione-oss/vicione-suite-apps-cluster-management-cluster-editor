@@ -1,0 +1,24 @@
+﻿{
+    "profiles": {
+        "BlazorServer": {
+            "commandName": "Project",
+            "dotnetRunMessages": true,
+            "launchBrowser": false,
+            "applicationUrl": "http://localhost:57006",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development"
+            }
+        },
+        "BlazorWasm": {
+            "commandName": "Project",
+            "dotnetRunMessages": true,
+            "launchBrowser": false,
+            "inspectUri": "{wsProtocol}://{url.hostname}:{url.port}/_framework/debug/ws-proxy?browser={browserInspectUri}",
+            "applicationUrl": "http://localhost:57007",
+            "environmentVariables": {
+                "ASPNETCORE_ENVIRONMENT": "Development",
+                "RenderWasm": "true"
+            }
+        }
+    }
+}

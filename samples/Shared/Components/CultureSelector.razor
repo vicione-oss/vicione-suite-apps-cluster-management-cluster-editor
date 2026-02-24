@@ -1,0 +1,13 @@
+﻿@using System.Globalization
+@using ViciOne.Ui.Localization.Resources
+
+<div class="culture-selector">
+
+    <span>@CommonVocabulary.Language:</span>
+
+    <ComboBox @bind-Value:get="CultureService.CurrentCulture"
+              @bind-Value:set="OnCultureChanged"
+              Items="@CultureService.SupportedCultures"
+              TextSelector="@(item => item.DisplayName)"
+              ValueSelector="@(item => item)" />
+</div>

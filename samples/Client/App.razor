@@ -1,0 +1,52 @@
+﻿@using BlazorWasm.Client
+@using Microsoft.Extensions.Hosting
+
+@inject IHostEnvironment Env
+@inject RenderModeProvider Provider
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>
+        Cluster Editor - Blazor @(Provider.UseWebassembly ? "Webassembly" : "Server")
+    </title>
+    <base href="/" />
+    <link href="@Assets["_content/ViciOne.Ui.ClusterEditor/css/cluster-editor.css"]" rel="stylesheet" />
+    <link href="@Assets["_content/ViciOne.Ui.ClusterEditor/css/easymde.min.css"]" rel="stylesheet" />
+    <link href="@Assets["_content/ViciOne.Ui.Shared.Dx/css/bootstrap.min.css"]" rel="stylesheet" />
+    <link href="@Assets["_content/ViciOne.Ui.Shared.Dx/css/dx-bootstrap-custom.css"]" rel="stylesheet" />
+    <link href="@Assets["_content/Z.Blazor.Diagrams/style.min.css"]" rel="stylesheet" />
+    <link href="@Assets["css/site.css"]" rel="stylesheet" />
+    <link href="@Assets["Client.styles.css"]" rel="stylesheet" />
+    <script src="_content/Z.Blazor.Diagrams/script.min.js"></script>
+    <script src="_content/ViciOne.Ui.Shared.Dx/scripts/vicione-ui-shared-dx.min.js"></script>
+    <script src="_content/ViciOne.Ui.ClusterEditor/scripts/vicione.cluster-editor.min.js"></script>
+    <script src="_content/Shared/scripts/culture.js"></script>
+    <script src="_content/Shared/scripts/file.js"></script>
+    <HeadOutlet @rendermode="Provider.HeaderRenderMode" />
+</head>
+<body>
+    <Routes @rendermode="Provider.ContentRenderMode" />
+
+    <div id="blazor-error-ui">
+        @if (Env.IsDevelopment())
+        {
+            <text>
+                An unhandled exception has occurred. See browser dev tools for details.
+            </text>
+        }
+        else
+        {
+            <text>
+                An error has occurred. This app may no longer respond until reloaded.
+            </text>
+        }
+        <a href="" class="reload">Reload</a>
+        <a class="dismiss">🗙</a>
+    </div>
+
+    <script src="_framework/blazor.web.js"></script>
+</body>
+</html>

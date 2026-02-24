@@ -1,0 +1,38 @@
+﻿@use "./../../Styles/colors";
+
+.zoom-display-container {
+    display: grid;
+    grid-column-gap: 8px;
+    grid-template-columns: min-content 100px min-content;
+
+    .btn-zoom {
+        display: inline-flex;
+        padding: 4px;
+
+        ::deep > svg {
+            height: 24px;
+            width: 24px;
+
+            path, polygon {
+                fill: colors.$editor-font;
+            }
+        }
+    }
+
+    ::deep .dxbs-combobox {
+        align-self: center;
+    }
+
+    ::deep .dxbs-editor-input-container input {
+        font-size: 11px;
+    }
+
+    ::deep .dxbs-form-control {
+        max-height: 24px;
+        min-height: 24px;
+    }
+
+    ::deep .dxbs-input-group-append {
+        min-height: 24px;
+    }
+}

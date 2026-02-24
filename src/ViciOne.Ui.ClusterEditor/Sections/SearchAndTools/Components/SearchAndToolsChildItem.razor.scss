@@ -1,0 +1,17 @@
+@use "./../../../Styles/shared-search-tools-styles";
+
+.content-icon {
+    @include shared-search-tools-styles.content-icon;
+}
+
+.content-item {
+    @include shared-search-tools-styles.content-item;
+}
+
+.content-text {
+    @include shared-search-tools-styles.content-text;
+}
+
+.st-button {
+    @include shared-search-tools-styles.st-button;
+}

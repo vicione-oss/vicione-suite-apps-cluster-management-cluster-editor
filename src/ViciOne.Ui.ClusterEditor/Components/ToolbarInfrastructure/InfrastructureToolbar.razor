@@ -1,0 +1,14 @@
+﻿@using ViciOne.Ui.Blazor.Components.ExpandableMenu.Components
+@using ViciOne.Ui.Blazor.Components.Sidebar
+@using ViciOne.Ui.Blazor.Components.Sidebar.Enums
+
+<Sidebar @bind-FluidWidth="_sidebarFluidWidth"
+         CompactWidth="56"
+         FluidMinimumWidth="300"
+         FluidMaximumWidth="680"
+         Mode="GetSidebarMode()"
+         Placement="SidebarPlacement.Left">
+
+    <ExpandableMenu @bind-CompactMode="_compactMode"
+                    Entries="@_entries" />
+</Sidebar>

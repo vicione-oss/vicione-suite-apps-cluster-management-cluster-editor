@@ -1,0 +1,11 @@
+﻿{
+  "name": "vicione-ui-cluster-editor-root",
+  "private": true,
+  "workspaces": [
+    "src/ViciOne.Ui.ClusterEditor"
+  ],
+  "scripts": {
+    "build": "npm --workspaces --if-present run build",
+    "build-debug": "npm --workspaces --if-present run build-debug"
+  }
+}

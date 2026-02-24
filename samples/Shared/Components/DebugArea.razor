@@ -1,0 +1,16 @@
+﻿@using Shared.Services
+
+@if (IndexService.DisplayDebugArea)
+{
+    <div class="debug-content">
+        <CultureSelector />
+        <LoadSaveArea />
+
+        <div class="debug-bottom">
+            <button @onclick="@(IndexService.OnCloseRequested)"
+                    class="btn btn-sm btn-outline-secondary">
+                Close Debug
+            </button>
+        </div>
+    </div>
+}

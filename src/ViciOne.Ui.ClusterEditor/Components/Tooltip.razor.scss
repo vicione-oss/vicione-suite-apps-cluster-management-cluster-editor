@@ -1,0 +1,88 @@
+@use "./../Styles/colors";
+
+.tooltip-container {
+    background-color: colors.$editor-background;
+    border-radius: 5px;
+    box-shadow: 0 3px 5px 0 colors.$editor-background-dark;
+    color: colors.$editor-font;
+    font-size: 11px;
+    left: var(--tooltip-position-left);
+    line-height: 14px;
+    min-width: 20px;
+    pointer-events: none;
+    position: fixed;
+    top: var(--tooltip-position-top);
+    visibility: hidden;
+
+    &.visible {
+        visibility: visible;
+    }
+}
+
+.tooltip-header {
+    border-bottom: 1px solid colors.$editor-border;
+    color: colors.$editor-font-light;
+    display: flex;
+    font-size: 11px;
+    justify-content: center;
+    line-height: 12px;
+    padding: 6px;
+    white-space: nowrap;
+}
+
+.tooltip-content {
+    margin: 0;
+    padding: 8px;
+
+    &.line {
+        display: grid;
+        grid-template-rows: min-content;
+
+        .separator {
+            border-top: 1px solid colors.$editor-border;
+            margin: 4px 0;
+        }
+
+        .space {
+            margin: 4px 0;
+        }
+
+        > span {
+            white-space: nowrap;
+        }
+    }
+
+    &.table {
+        display: grid;
+        grid-column-gap: 16px;
+        grid-template-columns: max-content max-content;
+
+        .label {
+            grid-column: 1;
+            margin-left: auto;
+            opacity: 0.5;
+        }
+
+        .separator {
+            grid-column: 1 / span 2;
+            line-height: 9px;
+
+            &:before {
+                content: "\00a0";
+            }
+        }
+
+        .value {
+            display: block;
+            display: -webkit-box;
+            grid-column: 2;
+            max-height: 115px;
+            max-width: 350px;
+            overflow: hidden;
+            overflow-wrap: anywhere;
+            text-align: left;
+            -webkit-box-orient: vertical;
+            -webkit-line-clamp: 8;
+        }
+    }
+}

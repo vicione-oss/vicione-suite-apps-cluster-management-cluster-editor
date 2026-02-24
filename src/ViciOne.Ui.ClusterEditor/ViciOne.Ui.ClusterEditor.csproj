@@ -1,0 +1,399 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Razor" InitialTargets="InstallNpmPackagesAndRunBuildScript">
+
+  <PropertyGroup>
+    <DisableFastUpToDateCheck>true</DisableFastUpToDateCheck>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <CompressionEnabled>false</CompressionEnabled>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <SupportedPlatform Include="browser" />
+  </ItemGroup>
+
+  <ItemGroup>    
+    <PackageReference Include="AspNetCore.SassCompiler" PrivateAssets="all" />    
+    <PackageReference Include="Markdig" />
+    <PackageReference Include="Microsoft.Extensions.Localization" />
+    <PackageReference Include="StronglyTypedId" PrivateAssets="all" ExcludeAssets="runtime" />
+    <PackageReference Include="ViciOne.Cluster.Builder" />
+    <PackageReference Include="ViciOne.TreeBuilder" />
+    <PackageReference Include="ViciOne.Ui.Blazor.Components" />
+    <PackageReference Include="ViciOne.Ui.Design" />
+    <PackageReference Include="ViciOne.Ui.Localization" />
+    <PackageReference Include="ViciOne.Ui.MonochromeIcons.Assets">
+      <!-- avoids include of CSS isolation bundle -->
+      <PrivateAssets>all</PrivateAssets>
+      <!-- don't depend on assembly at runtime -->
+      <ExcludeAssets>runtime</ExcludeAssets>
+      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="ViciOne.Ui.MonochromeIcons.Components" />
+    <PackageReference Include="ViciOne.Ui.Shared.Dx" />
+    <PackageReference Include="ViciOne.Ui.TreeEditor" />
+    <PackageReference Include="Z.Blazor.Diagrams" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <InternalsVisibleTo Include="ViciOne.Ui.ClusterEditor.Tests" />
+    <InternalsVisibleTo Include="DynamicProxyGenAssembly2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- https://josef.codes/dotnet-pack-include-referenced-projects/ -->
+    <ProjectReference Include="..\ViciOne.Ui.ColorableIcons\ViciOne.Ui.ColorableIcons.csproj">
+      <PrivateAssets>All</PrivateAssets>
+    </ProjectReference>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetsForTfmSpecificBuildOutput>$(TargetsForTfmSpecificBuildOutput);CopyProjectReferencesToPackage</TargetsForTfmSpecificBuildOutput>
+  </PropertyGroup>
+
+  <Target Name="CopyProjectReferencesToPackage" DependsOnTargets="BuildOnlySettings;ResolveReferences">
+    <ItemGroup>
+      <!-- Filter out unnecessary files -->
+      <_ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths-&gt;WithMetadataValue('ReferenceSourceTarget', 'ProjectReference')-&gt;WithMetadataValue('PrivateAssets', 'All'))" />
+    </ItemGroup>
+
+    <!-- Print batches for debug purposes -->
+    <Message Text="Batch for .nupkg: ReferenceCopyLocalPaths = @(_ReferenceCopyLocalPaths), ReferenceCopyLocalPaths.DestinationSubDirectory = %(_ReferenceCopyLocalPaths.DestinationSubDirectory) Filename = %(_ReferenceCopyLocalPaths.Filename) Extension = %(_ReferenceCopyLocalPaths.Extension)" Importance="High" Condition="'@(_ReferenceCopyLocalPaths)' != ''" />
+
+    <ItemGroup>
+      <!-- Add file to package with consideration of sub folder. If empty, the root folder is chosen. -->
+      <BuildOutputInPackage Include="@(_ReferenceCopyLocalPaths)" TargetPath="%(_ReferenceCopyLocalPaths.DestinationSubDirectory)" />
+    </ItemGroup>
+  </Target>
+
+  <ItemGroup>
+    <Compile Update="Components\ContainerEditor\Localization\ContainerEditor.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ContainerEditor.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Components\ContextMenu\Specialized\Localization\BlockNodeConnectorContextMenu.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BlockNodeConnectorContextMenu.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Components\ContextMenu\Specialized\Localization\NodeEditorContextMenu.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>NodeEditorContextMenu.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Components\DiagramComponents\Localization\BlockComponent.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>BlockComponent.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Helpers\Localization\TooltipData.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TooltipData.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Components\FbSettingsEditor\Localization\FbSettingsEditor.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>FbSettingsEditor.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Components\ConnectorDialogs\Localization\ConnectorSelectionDialog.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ConnectorSelectionDialog.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Components\Localization\LinkDestinationDialog.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LinkDestinationDialog.resx</DependentUpon>
+	</Compile>
+    <Compile Update="Components\Localization\SearchAndFilterComponent.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SearchAndFilterComponent.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\Resources\DataflowToolbarSectionNames.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DataflowToolbarSectionNames.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Resources\SvgIcons.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SvgIcons.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Sections\Debugging\Components\Localization\DebugSection.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DebugSection.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Sections\Information\Components\Localization\InformationSection.Designer.cs">
+      <DependentUpon>InformationSection.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+    </Compile>
+    <Compile Update="Sections\Library\Components\Localization\LibrarySection.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>LibrarySection.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Sections\Localization\SharedSectionText.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SharedSectionText.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Sections\Property\Components\Localization\PropertySection.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PropertySection.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Sections\PublishedConnectors\Components\Localization\PublishedConnectorsSection.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PublishedConnectorsSection.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Components\ToolbarMain\Localization\MainToolbar.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>MainToolbar.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Components\ToolbarMain\Localization\ZoomDisplay.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>ZoomDisplay.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Sections\Topology\Components\Localization\TopologySection.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TopologySection.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Sections\DataPorts\Components\Localization\DataPortSection.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DataPortSection.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Sections\Dataflow\Services\Localization\DataflowStructureTreeAdapter.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DataflowStructureTreeAdapter.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Components\ToolbarInfrastructure\Localization\InfrastructureToolbar.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>InfrastructureToolbar.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\Resources\CommonVocabulary.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CommonVocabulary.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Localization\Resources\TechnicalTerms.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TechnicalTerms.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Sections\SearchAndTools\Components\Localization\SearchAndToolsSection.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SearchAndToolsSection.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Components\ContainerEditor\Localization\ContainerEditor.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ContainerEditor.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Components\ContextMenu\Specialized\Localization\BlockNodeConnectorContextMenu.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>BlockNodeConnectorContextMenu.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Components\ContextMenu\Specialized\Localization\NodeEditorContextMenu.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>NodeEditorContextMenu.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Components\DiagramComponents\Localization\BlockComponent.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>BlockComponent.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Helpers\Localization\TooltipData.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>TooltipData.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Components\FbSettingsEditor\Localization\FbSettingsEditor.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>FbSettingsEditor.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Components\ConnectorDialogs\Localization\ConnectorSelectionDialog.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ConnectorSelectionDialog.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Components\Localization\LinkDestinationDialog.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>LinkDestinationDialog.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Components\Localization\SearchAndFilterComponent.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SearchAndFilterComponent.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\Resources\DataflowToolbarSectionNames.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DataflowToolbarSectionNames.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Sections\Debugging\Components\Localization\DebugSection.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DebugSection.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Sections\Information\Components\Localization\InformationSection.resx">
+      <LastGenOutput>InformationSection.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Sections\Library\Components\Localization\LibrarySection.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>LibrarySection.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Sections\Localization\SharedSectionText.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SharedSectionText.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Sections\Property\Components\Localization\PropertySection.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>PropertySection.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Sections\PublishedConnectors\Components\Localization\PublishedConnectorsSection.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>PublishedConnectorsSection.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Components\ToolbarMain\Localization\MainToolbar.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>MainToolbar.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Components\ToolbarMain\Localization\ZoomDisplay.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>ZoomDisplay.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Sections\Topology\Components\Localization\TopologySection.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>TopologySection.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Sections\DataPorts\Components\Localization\DataPortSection.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DataPortSection.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Sections\Dataflow\Services\Localization\DataflowStructureTreeAdapter.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DataflowStructureTreeAdapter.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Components\ToolbarInfrastructure\Localization\InfrastructureToolbar.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>InfrastructureToolbar.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\Resources\CommonVocabulary.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>CommonVocabulary.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Localization\Resources\TechnicalTerms.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>TechnicalTerms.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Resources\SvgIcons.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SvgIcons.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Sections\SearchAndTools\Components\Localization\SearchAndToolsSection.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SearchAndToolsSection.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <!-- Prevent Microsoft.NET.Sdk.Razor from copying unnecessary file -->
+  <ItemGroup>
+    <Content Update="sasscompiler.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Pack="False" />
+    <Content Update="package*.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Pack="False" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="wwwroot\icons\" />
+  </ItemGroup>
+
+  <Target Name="ConfigureDxLib" BeforeTargets="BeforeDxLibTargets">
+    <PropertyGroup>
+      <DxLibScrollingScssOutputFolder>$(MSBuildProjectDirectory)/Styles/scrolling</DxLibScrollingScssOutputFolder>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="ConfigureMonochromeIcons" BeforeTargets="BeforeMonochromeIconTargets">
+    <ItemGroup>
+      <MonochromeIcon Include="add-text-labels-solid" Size="16" />
+      <MonochromeIcon Include="align-bottom" Size="16;24" />
+      <MonochromeIcon Include="align-left" Size="16;24" />
+      <MonochromeIcon Include="align-right" Size="16;24" />
+      <MonochromeIcon Include="align-top" Size="16;24" />
+      <MonochromeIcon Include="align-top-by-lowest-element" Size="16;24" />
+      <MonochromeIcon Include="arrow-navigation-light-left" Size="24" />
+      <MonochromeIcon Include="arrow-navigation-light-right" Size="24" />
+      <MonochromeIcon Include="bug-light" Size="32" />
+      <MonochromeIcon Include="check" Size="16" />
+      <MonochromeIcon Include="cluster-2" Size="32" />
+      <MonochromeIcon Include="connector-add-to-container" Size="16" />
+      <MonochromeIcon Include="connector-cancel-publication" Size="16" />
+      <MonochromeIcon Include="connector-publish" Size="16" />
+      <MonochromeIcon Include="connector-remove-from-container" Size="16" />
+      <MonochromeIcon Include="container-add" Size="16" />
+      <MonochromeIcon Include="container-dissolve-solid" Size="16" />
+      <MonochromeIcon Include="dataflow-solid" Size="24" />
+      <MonochromeIcon Include="data-switch" Size="32" />
+      <MonochromeIcon Include="delete" Size="16" />
+      <MonochromeIcon Include="edit" Size="16" />
+      <MonochromeIcon Include="expander-light-down" Size="24" />
+      <MonochromeIcon Include="expander-light-left" Size="24" />
+      <MonochromeIcon Include="expander-light-right" Size="16;24" />
+      <MonochromeIcon Include="expander-light-top" Size="24" />
+      <MonochromeIcon Include="export" Size="24" />
+      <MonochromeIcon Include="gear-solid" Size="16" />
+      <MonochromeIcon Include="hamburger-menu" Size="24" />
+      <MonochromeIcon Include="import" Size="24" />
+      <MonochromeIcon Include="info-outlined" Size="24" />
+      <MonochromeIcon Include="library" Size="32" />
+      <MonochromeIcon Include="lock-text-labels-solid" Size="16" />
+      <MonochromeIcon Include="minimap-light" Size="24" />
+      <MonochromeIcon Include="minus-slim" Size="16;24" />
+      <MonochromeIcon Include="move-to-new-container" Size="16" />
+      <MonochromeIcon Include="new" Size="24" />
+      <MonochromeIcon Include="new-in-wizard" Size="24" />
+      <MonochromeIcon Include="open" Size="16" />
+      <MonochromeIcon Include="open-in-new-window" Size="16" />
+      <MonochromeIcon Include="plus-slim" Size="16;24" />
+      <MonochromeIcon Include="properties" Size="32" />
+      <MonochromeIcon Include="published-connector-full" Size="32" />
+      <MonochromeIcon Include="reload" Size="16" />
+      <MonochromeIcon Include="save-outline" Size="24" />
+      <MonochromeIcon Include="search-and-tools" Size="32" />
+      <MonochromeIcon Include="select-all-blocks" Size="16" />
+      <MonochromeIcon Include="select-connectors-input" Size="16;24" />
+      <MonochromeIcon Include="select-connectors-input-all" Size="16;24" />
+      <MonochromeIcon Include="select-connectors-input-and-output" Size="16;24" />
+      <MonochromeIcon Include="select-connectors-input-and-output-all" Size="16;24" />
+      <MonochromeIcon Include="select-connectors-output" Size="16;24" />
+      <MonochromeIcon Include="select-connectors-output-all" Size="16;24" />
+      <MonochromeIcon Include="test-tube-solid" Size="32" />
+    </ItemGroup>
+
+    <PropertyGroup>
+      <MonochromeIconSvgOutputFolder>$(MSBuildProjectDirectory)/wwwroot/icons/monochrome-icons</MonochromeIconSvgOutputFolder>
+      <MonochromeIconScssOutputFolder>$(MSBuildProjectDirectory)/Styles/icons/monochrome-icons</MonochromeIconScssOutputFolder>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="ConfigureDesignTargets" BeforeTargets="BeforeDesignTargets">
+    <PropertyGroup>
+      <ColorsScssOutputFolder>$(MSBuildProjectDirectory)/Styles/design/colors</ColorsScssOutputFolder>
+      <ScrollbarScssOutputFolder>$(MSBuildProjectDirectory)/Styles/design/scrollbar</ScrollbarScssOutputFolder>
+    </PropertyGroup>
+  </Target>
+
+  <Target Name="InstallNpmPackagesAndRunBuildScript" Condition="'$(Configuration)' == 'Debug'">
+    <!-- install node modules when neccessary -->
+    <Exec Command="npm i" Condition="!Exists('./node_modules')" />
+    <!-- run initial npm build when neccessary -->
+    <Exec Command="npm run build" Condition="!Exists('./wwwroot/scripts')" />
+  </Target>
+
+</Project>

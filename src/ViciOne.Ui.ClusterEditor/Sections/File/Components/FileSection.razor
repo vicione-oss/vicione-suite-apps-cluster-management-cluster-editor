@@ -1,0 +1,39 @@
+﻿@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+
+<div class="file-section-container @DebugCssClass">
+    <button @onclick="@DataManagementService.RequestSave"
+            class="button-base">
+
+        <MonochromeIcon Name="MonochromeIconName.SaveOutline"
+                        Size="MonochromeIconSize.SmallMedium" />
+
+        <span>@CommonVocabulary.Save</span>
+    </button>
+
+    <button @onclick="@DataManagementService.RequestNew"
+            class="button-base button-debug">
+
+        <MonochromeIcon Name="MonochromeIconName.New"
+                        Size="MonochromeIconSize.SmallMedium" />
+
+        <span>@CommonVocabulary.New</span>
+    </button>
+
+    <button @onclick="@DataManagementService.RequestImport"
+            class="button-base button-debug">
+
+        <MonochromeIcon Name="MonochromeIconName.Import"
+                        Size="MonochromeIconSize.SmallMedium" />
+
+        <span>@CommonVocabulary.ImportVerb</span>
+    </button>
+
+    <button @onclick="@DataManagementService.RequestExport"
+            class="button-base button-debug">
+
+        <MonochromeIcon Name="MonochromeIconName.Export"
+                        Size="MonochromeIconSize.SmallMedium" />
+
+        <span>@CommonVocabulary.ExportVerb</span>
+    </button>
+</div>

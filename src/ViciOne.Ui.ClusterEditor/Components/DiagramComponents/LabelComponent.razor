@@ -1,0 +1,54 @@
+﻿@if (!Node!.Visible) { return; }
+
+<foreignObject width="@Node.Width" height="@Node.Height">
+    <div @oncontextmenu="@OnContainerContextMenuAsync"
+         @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+         @oncontextmenu:stopPropagation
+         @ondblclick="@StartTextEdit"
+         class="label-container markup-content-container"
+         style="--background-color: @Node!.BackgroundColor;
+                --border-color: @Node.BorderColor;
+                --container-width: @Razor.GetCssPx(Node.Width);
+                --container-height: @Razor.GetCssPx(Node.Height);">
+
+        @((MarkupString)Markdig.Markdown.ToHtml(Node!.Text, _markdigPipeline))
+
+        @if (Node.Selected)
+        {
+            <div class="label-selection"></div>
+
+            <div class="label-resize-marker-top-left-left"></div>
+            <div class="label-resize-marker-top-left-top"></div>
+            <div class="label-resize-marker-top-right-top"></div>
+            <div class="label-resize-marker-top-right-right"></div>
+            <div class="label-resize-marker-bottom-right-right"></div>
+            <div class="label-resize-marker-bottom-right-bottom"></div>
+            <div class="label-resize-marker-bottom-left-bottom"></div>
+            <div class="label-resize-marker-bottom-left-left"></div>
+
+            <div @onpointerdown="() => StartResizing(ResizingDirection.Top)"
+                 class="label-resizer-top" />
+
+            <div @onpointerdown="() => StartResizing(ResizingDirection.Top | ResizingDirection.Right)"
+                 class="label-resizer-top-right" />
+
+            <div @onpointerdown="() => StartResizing(ResizingDirection.Right)"
+                 class="label-resizer-right" />
+
+            <div @onpointerdown="() => StartResizing(ResizingDirection.Bottom | ResizingDirection.Right)"
+                 class="label-resizer-bottom-right" />
+
+            <div @onpointerdown="() => StartResizing(ResizingDirection.Bottom)"
+                 class="label-resizer-bottom" />
+
+            <div @onpointerdown="() => StartResizing(ResizingDirection.Bottom | ResizingDirection.Left)"
+                 class="label-resizer-bottom-left" />
+
+            <div @onpointerdown="() => StartResizing(ResizingDirection.Left)"
+                 class="label-resizer-left" />
+
+            <div @onpointerdown="() => StartResizing(ResizingDirection.Top | ResizingDirection.Left)"
+                 class="label-resizer-top-left" />
+        }
+    </div>
+</foreignObject>

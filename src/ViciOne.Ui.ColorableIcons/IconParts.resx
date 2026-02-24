@@ -1,0 +1,147 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="ConnectorInput" xml:space="preserve">
+    <value>&lt;svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"&gt;&lt;g fill="none" fill-rule="evenodd"&gt;&lt;path fill="#F0F" fill-opacity=".25" d="M22 8v16h-8v-2h-2V10h2V8h8Z"/&gt;&lt;path fill="#F0F" d="M24 6v20H12v-4h2v2h8V8h-8v2h-2V6h12Z"/&gt;&lt;path fill="#FFF" d="m16 16-5.16 5-1.54-1.5 2.52-2.45H4v-2.11h7.82L9.3 12.5l1.54-1.5L16 16Z"/&gt;&lt;/g&gt;&lt;/svg&gt;</value>
+  </data>
+  <data name="ConnectorOutput" xml:space="preserve">
+    <value>&lt;svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"&gt;&lt;g fill="none" fill-rule="evenodd"&gt;&lt;path fill="#F0F" d="M12 6v20h12v-4h-2v2h-8V8h8v2h2V6H12Z"/&gt;&lt;path fill="#F0F" fill-opacity=".25" d="M22 24h-8V8h8v2h2v12h-2v2Z"/&gt;&lt;path fill="#FFF" d="m32 16-5.16 5-1.54-1.5 2.52-2.45H20v-2.11h7.82L25.3 12.5l1.54-1.5L32 16Z"/&gt;&lt;/g&gt;&lt;/svg&gt;</value>
+  </data>
+  <data name="DataPortArrowInPath" xml:space="preserve">
+    <value>&lt;path d="M10.5 7.06 7.06 10.5 6.03 9.47l1.74-1.74H2.5V6.27h5.27L6.03 4.53 7.06 3.5l3.44 3.44-.06.06.06.06Z" id="arrow-in" fill="#FFF" fill-rule="evenodd" /&gt;</value>
+  </data>
+  <data name="DataPortArrowOutPath" xml:space="preserve">
+    <value>&lt;path d="m28.5 7.06-3.44 3.44-1.03-1.03 1.74-1.74H20.5V6.27h5.27l-1.74-1.74 1.03-1.03 3.44 3.44-.06.06.06.06Z" id="arrow-out" fill="#FFF" fill-rule="evenodd" /&gt;</value>
+  </data>
+  <data name="DataPortIconBody" xml:space="preserve">
+    <value>&lt;svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"&gt;{0}&lt;/svg&gt;</value>
+  </data>
+  <data name="DataPortIconEmpty" xml:space="preserve">
+    <value>&lt;path d="M20.51 10.5c.55 0 .99.44.99.99v9.02c0 .55-.44.99-.99.99h-9.02a.99.99 0 0 1-.99-.99v-9.02c0-.55.44-.99.99-.99h9.02Zm-.39 1.38h-8.25v8.24h8.26v-8.25Z" id="empty" fill="#F0F" fill-rule="evenodd" /&gt;</value>
+  </data>
+  <data name="DataPortIconFilled" xml:space="preserve">
+    <value>&lt;rect fill="#F0F" fill-rule="evenodd" height="11" id="filled"  rx=".96" width="11" x="10.5" y="10.5" /&gt;</value>
+  </data>
+  <data name="DataPortIconInputFilled" xml:space="preserve">
+    <value>&lt;path d="M20.51 10.5c.55 0 .99.44.99.99v9.02c0 .55-.44.99-.99.99h-9.02a.99.99 0 0 1-.99-.99v-9.02c0-.55.44-.99.99-.99h9.02Zm-.39 1.38H16v8.24h4.13v-8.25Z" id="input-filled" fill="#F0F" fill-rule="evenodd" /&gt;</value>
+  </data>
+  <data name="DataPortIconOutputFilled" xml:space="preserve">
+    <value>&lt;path d="M21.5 20.51c0 .55-.44.99-.99.99h-9.02a.99.99 0 0 1-.99-.99v-9.02c0-.55.44-.99.99-.99h9.02c.55 0 .99.44.99.99v9.02ZM16 11.87h-4.13v8.26H16v-8.25Z" id="output-filled" fill="#F0F" fill-rule="evenodd" /&gt;</value>
+  </data>
+</root>

@@ -1,0 +1,85 @@
+﻿@using Microsoft.JSInterop
+@using ViciOne.Cluster.Builder
+@using ViciOne.Serialization.Json
+@using ViciOne.Ui.ClusterEditor.Services
+
+<div class="section-header">
+    File
+</div>
+<div class="section">
+    <div>
+        1:
+        <button @onclick="@(() => OnFileSaveClick(1))"
+                class="btn btn-sm btn-outline-secondary">
+            Save
+        </button>
+        <button @onclick="@(() => OnFileLoadClick(1))"
+                class="btn btn-sm btn-outline-secondary">
+            Load
+        </button>
+        <button @onclick="@(() => OnFileClearClick(1))"
+                class="btn btn-sm btn-outline-secondary">
+            Clear
+        </button>
+        <span class="file-size">
+            @(_fileSizes[0] < 0 ? $"(empty)" : $"({_fileSizes[0]} KB)")
+        </span>
+    </div>
+    <div>
+        2:
+        <button @onclick="@(() => OnFileSaveClick(2))"
+                class="btn btn-sm btn-outline-secondary">
+            Save
+        </button>
+        <button @onclick="@(() => OnFileLoadClick(2))"
+                class="btn btn-sm btn-outline-secondary">
+            Load
+        </button>
+        <button @onclick="@(() => OnFileClearClick(2))"
+                class="btn btn-sm btn-outline-secondary">
+            Clear
+        </button>
+        <span class="file-size">
+            @(_fileSizes[1] < 0 ? $"(empty)" : $"({_fileSizes[1]} KB)")
+        </span>
+    </div>
+    <div>
+        3:
+        <button @onclick="@(() => OnFileSaveClick(3))"
+                class="btn btn-sm btn-outline-secondary">
+            Save
+        </button>
+        <button @onclick="@(() => OnFileLoadClick(3))"
+                class="btn btn-sm btn-outline-secondary">
+            Load
+        </button>
+        <button @onclick="@(() => OnFileClearClick(3))"
+                class="btn btn-sm btn-outline-secondary">
+            Clear
+        </button>
+        <span class="file-size">
+            @(_fileSizes[2] < 0 ? $"(empty)" : $"({_fileSizes[2]} KB)")
+        </span>
+    </div>
+</div>
+<div class="section-header">
+    Current Cluster
+</div>
+<div class="section">
+    <button @onclick="@(() => OnFileClearClick(4))"
+            class="btn btn-sm btn-outline-secondary">
+        Clear saved cluster
+    </button>
+    <button @onclick="IndexService.AddContainersAndRefresh"
+            class="btn btn-sm btn-outline-secondary">
+        Generate and Reload
+    </button>
+</div>
+<div class="section-header">
+    Import Cluster
+</div>
+<div class="section">
+    <InputFile OnChange="OnFileUpload">
+        Import
+    </InputFile>
+</div>

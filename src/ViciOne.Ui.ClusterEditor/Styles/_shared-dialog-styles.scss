@@ -1,0 +1,132 @@
+﻿@use "./colors";
+
+.content-container {
+    height: 100%;
+    position: relative;
+
+    & .content {
+        bottom: 0;
+        left: 0;
+        position: absolute;
+        right: 0;
+        top: 0;
+
+        .text-truncated {
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        ::deep .dialog-grid {
+            --dxbl-grid-bg: #{colors.$editor-background};
+            --dxbl-grid-header-bg: #{colors.$editor-background};
+            --dxbl-grid-group-indent-cell-width: 32px;
+            --dxbl-grid-edit-row-bg: #{colors.$editor-background};
+            height: 100%;
+            user-select: none;
+
+            .connector-with-icon-cell {
+                display: grid;
+                grid-template-columns: 24px auto;
+
+                > .icon {
+                    align-items: center;
+                    display: grid;
+
+                    svg {
+                        cursor: unset;
+                        height: 24px;
+                        width: 24px;
+                    }
+                }
+
+                > .value {
+                    @extend .text-truncated;
+                    line-height: 24px;
+                    padding-left: 5px;
+                }
+            }
+
+            .regular {
+                color: colors.$editor-foreground;
+            }
+
+            .modified {
+                font-weight: bold;
+            }
+
+            .dxbl-grid-table {
+                border-collapse: collapse;
+
+                & > tbody > tr > td {
+                    line-height: 25px;
+                    outline: none !important;
+                }
+
+                & > tbody > tr > td:first-of-type, & > thead > tr > th:first-of-type {
+                    padding-left: 24px !important;
+                }
+
+                & > tbody > tr.dxbl-grid-edit-row.dxbl-grid-editor-inplace-container > td:not(.dxbl-grid-empty-cell):not(.dxbl-grid-indent-cell)::before {
+                    content: none;
+                }
+
+                & > tbody > tr > td.dxbl-grid-expand-button-cell {
+                    padding-left: 12px !important;
+                }
+
+                & > tbody > tr > td > .dxbl-checkbox {
+                    vertical-align: middle !important;
+                }
+
+                & > tbody > tr:first-of-type > td {
+                    padding-top: 16px !important;
+                }
+
+                & > thead {
+                    box-shadow: 0 1px colors.$editor-background-light-hover;
+
+                    .dxbl-grid-header-row > th:not(.dxbl-grid-empty-cell)::before {
+                        opacity: 0%;
+                    }
+
+                    & > tr > th {
+                        height: 48px;
+                    }
+                }
+            }
+        }
+    }
+}
+
+.search-container {
+    align-items: center;
+    display: grid;
+    height: 34px;
+    min-width: 336px;
+    padding: 0px 8px;
+
+    &.adaptive-hidden {
+        padding-right: 8px;
+    }
+
+    .searchbar-icon {
+        > svg {
+            path, polygon {
+                fill: colors.$editor-foreground;
+            }
+        }
+    }
+}
+
+.btn.btn-toolbar.smaller-icon {
+    align-content: center;
+    height: 32px;
+    justify-content: center;
+    width: 32px;
+
+    ::deep > svg {
+        height: 24px;
+        width: 24px;
+    }
+}

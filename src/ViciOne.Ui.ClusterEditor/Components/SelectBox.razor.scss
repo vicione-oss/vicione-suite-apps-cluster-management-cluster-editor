@@ -1,0 +1,20 @@
+﻿@use "./../Styles/colors";
+
+.select-box {
+    background-color: rgba(colors.$editor-selected, 0.3);
+    border: 1px solid colors.$editor-selected;
+    grid-column: 1;
+    grid-row: 1;
+    height: var(--select-box-height);
+    left: var(--select-box-left);
+    pointer-events: none;
+    position: absolute;
+    top: var(--select-box-top);
+    user-select: none;
+    visibility: hidden;
+    width: var(--select-box-width);
+
+    &.visible {
+        visibility: visible;
+    }
+}

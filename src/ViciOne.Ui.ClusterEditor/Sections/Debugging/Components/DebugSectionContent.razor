@@ -1,0 +1,134 @@
+﻿@using System.Globalization
+@using ViciOne.Ui.Blazor.Components.ComboBox
+@using ViciOne.Ui.Blazor.Components.Popup.Components
+@using ViciOne.Ui.Blazor.Components.SectionRail.Components
+@using ViciOne.Ui.Blazor.Components.SpinEdit
+@using ViciOne.Ui.Blazor.Components.Switch
+@using ViciOne.Ui.Localization.Resources
+@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using TechnicalTerms=ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+
+@{
+    #if DEBUG
+    {
+        <SectionLayout>
+            <Tools>
+                <div class="settings">
+                    <div class="heading">
+                        @CommonVocabulary.SettingPlural
+                    </div>
+
+                    <div class="label">
+                        @Localization.DebugSection.UseClusterEditorContextMenu
+                    </div>
+                    <Switch @bind-Value="ContextMenuSettings.UseCustomMenu" />
+
+                    <div class="label">
+                        @Localization.DebugSection.GridMode
+                    </div>
+                    <ComboBox Items="@_gridModeComboBoxItems"
+                              TextSelector="@(item => item.Text)"
+                              Value="@DiagramService.DiagramState.GridMode"
+                              ValueSelector="@(item => item.Value)"
+                              ValueChanged="@((GridMode item) => OnGridModeChanged(item))" />
+
+                    <div class="label">
+                        @Localization.DebugSection.UseGimpPanBehavior
+                    </div>
+                    <Switch Value="@DiagramService.DiagramState.UsesGimpPanBehavior"
+                            ValueChanged="@OnUseGimpPanBehaviorChanged" />
+
+                    <div class="label">
+                        @Localization.DebugSection.UseSimplifiedView
+                    </div>
+                    <Switch Value="@DiagramService.DiagramState.SimplifiedView"
+                            ValueChanged="@OnUseSimplifiedViewChanged" />
+
+                    <div class="label">
+                        @Localization.DebugSection.NodeAlignmentBorderVisible
+                    </div>
+                    <Switch Value="@DiagramService.DiagramState.IsNodeAlignmentBorderEnabled"
+                            ValueChanged="@OnNodeAlignmentBorderVisibleChanged" />
+
+                    <div class="label">
+                        @Localization.DebugSection.UseMinimapColoring
+                    </div>
+                    <Switch Value="@DiagramService.DiagramState.UseNodeColoringOnMinimap"
+                            ValueChanged="@OnUseMinimapNodeColorsChanged" />
+                </div>
+            </Tools>
+
+            <Content>
+                <div class="section-header">
+                    @string.Format(CultureInfo.CurrentCulture, UserActions.GenerateSomething, TechnicalTerms.FunctionBlockPlural)
+                </div>
+                <div class="section">
+                    <div style="display: flex;">
+                        <SpinEdit @bind-Value="@_generateBlocksAmount"
+                                  CssClass="ce-spin-edit"
+                                  Interval="1"
+                                  Maximum="@int.MaxValue"
+                                  Minimum="0">
+                        </SpinEdit>
+                        <DxTextBox @bind-Text="_generateBlocksName"></DxTextBox>
+                        <button @onclick="OnGenerateBlocksClickAsync"
+                                class="btn btn-sm btn-outline-secondary">@CommonVocabulary.Generate</button>
+                    </div>
+                    <button @onclick="OnGenerateAllLibraryBlocksClickAsync"
+                            class="btn btn-sm btn-outline-secondary">@_generateAllFbsText</button>
+                </div>
+
+                <div class="section-header">
+                    @string.Format(CultureInfo.CurrentCulture, UserActions.GenerateSomething, TechnicalTerms.LinkPlural)
+                </div>
+                <div class="section">
+                    <div style="display: flex;">
+                        <SpinEdit @bind-Value="@_generateLinksAmount"
+                                  CssClass="ce-spin-edit"
+                                  Interval="1"
+                                  Maximum="@int.MaxValue"
+                                  Minimum="0">
+                        </SpinEdit>
+                        <button @onclick="@(() => OnGenerateLinksClick(GenerateLinksType.Visible))"
+                                class="btn btn-sm btn-outline-secondary">@CommonVocabulary.Visible</button>
+                        <button @onclick="@(() => OnGenerateLinksClick(GenerateLinksType.Hidden))"
+                                class="btn btn-sm btn-outline-secondary">@CommonVocabulary.Hidden</button>
+                        <button @onclick="@(() => OnGenerateLinksClick(GenerateLinksType.DataPort))"
+                                class="btn btn-sm btn-outline-secondary">@TechnicalTerms.DataPort</button>
+                    </div>
+                </div>
+
+                <div class="section-header">
+                    Debug console
+
+                    <div @onclick="@OnShowDebugConsoleButtonClick"
+                         class="options-button-base"
+                         title="Pop out console">
+
+                        <MonochromeIcon Name="@MonochromeIconName.OpenInNewWindow"
+                                        Size="@MonochromeIconSize.Small" />
+                    </div>
+                </div>
+                <div class="section dbg">
+                    @if (!_debugPopupVisible)
+                    {
+                        <DebugConsole />
+                    }
+
+                    <Popup @bind-Visible="@_debugPopupVisible"
+                           Moveable="true"
+                           ShowBackdrop="false"
+                           Width="500px">
+
+                        <PopupHeaderBodyLayout HeaderText="Debug console">
+                            <Body>
+                                <DebugConsole />
+                            </Body>
+                        </PopupHeaderBodyLayout>
+                    </Popup>
+                </div>
+            </Content>
+        </SectionLayout>
+    }
+    #endif
+}

@@ -1,0 +1,44 @@
+@use "./../../../Styles/colors";
+@use "./../../../Styles/mixins";
+
+.debug {
+    & .button-debug {
+        visibility: visible;
+    }
+}
+
+.button-base {
+    border: none;
+    background-color: inherit;
+    color: colors.$editor-font;
+    cursor: pointer;
+    display: grid;
+    grid-template-columns: 24px auto;
+    padding: 8px;
+    user-select: none;
+
+    &.disabled {
+        @include mixins.not-clickable();
+        @include mixins.svg-icon-disabled();
+        @include mixins.button-text-span-disabled();
+    }
+
+    &:hover {
+        background-color: colors.$editor-background-dark-hover;
+    }
+
+    > span {
+        text-align: left;
+        font-size: 13px;
+        margin-left: 10px;
+    }
+}
+
+.button-debug {
+    visibility: hidden;
+}
+
+.file-section-container {
+    display: grid;
+    grid-template-rows: repeat(4, 40px);
+}

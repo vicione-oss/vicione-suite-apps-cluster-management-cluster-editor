@@ -1,0 +1,34 @@
+﻿@page "/"
+
+@using ViciOne.Ui.Blazor.Components.Popup.Components
+
+<ClusterEditor>
+    <ExternalDebugContent>
+        <DebugArea />
+    </ExternalDebugContent>
+</ClusterEditor>
+
+<DxLoadingPanel ApplyBackgroundShading="true"
+                PositionTarget="body"
+                Visible="@_loaderVisible"/>
+
+<Popup @bind-Visible="_errorVisible"
+       Width="500px">
+
+    <PopupHeaderBodyLayout HeaderText="Error">
+        <Body>
+            Saving failed, the cluster is too large. Please use download/import instead.
+        </Body>
+    </PopupHeaderBodyLayout>
+</Popup>
+
+<Popup @bind-Visible="_messageToastVisible"
+       @bind-Visible:after="MessageToastVisibilityChanged"
+       Width="500px">
+
+    <PopupHeaderBodyLayout HeaderText="@_messageToastTitle">
+        <Body>
+            @_messageToastText
+        </Body>
+    </PopupHeaderBodyLayout>
+</Popup>

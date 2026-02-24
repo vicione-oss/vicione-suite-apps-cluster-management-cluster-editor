@@ -1,0 +1,36 @@
+.action-button-content {
+    display: contents;
+
+    ::deep {
+        svg, .icon {
+            height: 16px;
+            width: 16px;
+        }
+    }
+}
+
+.icon-content {
+    display: contents;
+
+    ::deep .icon svg path {
+        fill: revert-layer;
+    }
+}
+
+.node-text {
+    align-content: center;
+    display: flex;
+    flex-wrap: wrap;
+    grid-column: 2;
+    height: 1.5em;
+    line-height: 1.5em;
+    min-width: 100px;
+
+    > div {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+}
+
+

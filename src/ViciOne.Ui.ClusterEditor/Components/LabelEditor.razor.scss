@@ -1,0 +1,101 @@
+﻿@use "sass:color";
+@use "./../Styles/colors";
+@use "./../Styles/design/scrollbar" as scrollbar;
+
+.label-editor-content-container {
+    background-color: colors.$editor-background;
+    height: 100%;
+    padding: 0 2em;
+    position: relative;
+    visibility: var(--label-editor-visibility);
+
+    ::deep .EasyMDEContainer {
+
+        .CodeMirror {
+            background-color: colors.$editor-background-dark;
+            border-color: colors.$editor-disabled-background-dark;
+            border-radius: unset;
+            color: colors.$editor-font;
+            font-size: 13px;
+            padding-bottom: 1px;
+
+            .cm-quote {
+                color: unset;
+            }
+
+            .CodeMirror-code {
+                .cm-string {
+                    color: #899118;
+                }
+            }
+
+            .CodeMirror-cursor {
+                border-left-color: colors.$editor-font;
+            }
+
+            .CodeMirror-selected {
+                background: unset;
+            }
+
+            .CodeMirror-selectedtext {
+                background-color: colors.$editor-accent;
+                color: colors.$editor-background-dark;
+            }
+
+            .CodeMirror-vscrollbar {
+                @include scrollbar.adjust-styles();
+            }
+        }
+
+        .editor-preview {
+            background-color: colors.$editor-background-dark;
+            color: colors.$editor-font;
+
+            blockquote {
+                border-left: 3px solid colors.$editor-disabled-dark;
+                padding-left: 1em;
+            }
+
+            pre {
+                background: unset;
+            }
+
+            @include scrollbar.adjust-styles();
+        }
+
+        .editor-preview-side {
+            border-color: colors.$editor-disabled-background-dark;
+            color: colors.$editor-font;
+
+            @include scrollbar.adjust-styles();
+        }
+
+        .editor-toolbar {
+            border: none;
+            border-radius: unset;
+
+            button {
+                color: colors.$editor-font;
+
+                &.active {
+                    background: unset;
+                    border: unset;
+                    color: colors.$editor-accent;
+                }
+
+                &:hover {
+                    background: unset;
+                    border: unset;
+                }
+
+                &.table {
+                    width: unset;
+                }
+            }
+        }
+    }
+
+    #label-editor-content-area {
+        visibility: hidden;
+    }
+}

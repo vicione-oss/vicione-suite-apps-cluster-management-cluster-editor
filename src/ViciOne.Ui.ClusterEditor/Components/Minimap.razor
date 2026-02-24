@@ -1,0 +1,62 @@
+﻿@if (_isVisible)
+{
+    <div @oncontextmenu:preventDefault
+         @oncontextmenu:stopPropagation
+         @onpointerdown:stopPropagation
+         @onpointerenter="OnContainerPointerEnter"
+         class="minimap-container"
+         style="--container-height: @Razor.GetCssPx(_containerSize.Height);
+                --container-width: @Razor.GetCssPx(_containerSize.Width);
+                opacity: @(_transparentMode ? "0.25" : "1.0");
+                pointer-events: @(_transparentMode ? "none" : "all");">
+
+        <div @onclick="@OnMinimapClick"
+             @onwheel="OnMinimapWheel"
+             class="minimap">
+
+            <div class="minimap-layer"
+                 style="z-index:1;">
+
+                @foreach (var node in _nodes.Where(n => n.Type == MinimapNodeType.Label).ToArray())
+                {
+                    <div class="minimap-node"
+                         style="@node.CssStyles">
+                    </div>
+                }
+            </div>
+
+            <div class="minimap-layer"
+                 style="z-index:2;">
+
+                @foreach (var node in _nodes.Where(n => n.Type == MinimapNodeType.Block).ToArray())
+                {
+                    <div class="minimap-node"
+                         style="@node.CssStyles">
+                    </div>
+                }
+             </div>
+
+            @{ var (viewportOffsetX, viewportOffsetY) = GetViewportOffset(); }
+            <div class="viewport"
+                 style="--viewport-pos-x: @Razor.GetCssPx(viewportOffsetX);
+                        --viewport-pos-y: @Razor.GetCssPx(viewportOffsetY);
+                        --viewport-height: @Razor.GetCssPx(_viewportRect.Height / _referenceScale);
+                        --viewport-width: @Razor.GetCssPx(_viewportRect.Width / _referenceScale);">
+            </div>
+
+            <div @onclick:stopPropagation
+                 @onpointerdown="OnViewportGhostPointerDown"
+                 @onpointerdown:stopPropagation
+                 @onpointerleave="OnViewportGhostPointerUp"
+                 @onpointerleave:stopPropagation
+                 @onpointermove="OnViewportGhostPointerMove"
+                 @onpointerup="OnViewportGhostPointerUp"
+                 class="viewport-ghost @(_movingViewport ? "expanded" : "")"
+                 style="--viewport-pos-x: @Razor.GetCssPx(viewportOffsetX);
+                        --viewport-pos-y: @Razor.GetCssPx(viewportOffsetY);
+                        --viewport-height: @Razor.GetCssPx(_viewportRect.Height / _referenceScale);
+                        --viewport-width: @Razor.GetCssPx(_viewportRect.Width / _referenceScale)">
+            </div>
+        </div>
+    </div>
+}

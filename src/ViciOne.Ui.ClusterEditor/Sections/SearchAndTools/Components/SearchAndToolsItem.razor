@@ -1,0 +1,26 @@
+﻿<div>
+    <div @onclick="OnExpandClickAsync"
+         class="content-item st-button">
+
+        @if (Expanded)
+        {
+            <MonochromeIcon CssClass="content-icon"
+                            Name="MonochromeIconName.ExpanderLightDown"
+                            Size="MonochromeIconSize.SmallMedium" />
+        }
+        else
+        {
+            <MonochromeIcon CssClass="content-icon"
+                            Name="MonochromeIconName.ExpanderLightRight"
+                            Size="MonochromeIconSize.SmallMedium" />
+        }
+
+        <div class="content-text">
+            @Text
+        </div>
+    </div>
+
+    <div class="child-content" style="display: @(Expanded ? "block" : "none")">
+        @ChildContent
+    </div>
+</div>

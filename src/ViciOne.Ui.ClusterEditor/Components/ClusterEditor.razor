@@ -1,0 +1,53 @@
+﻿@using ViciOne.Ui.Blazor.Components.Popup.Components
+@using ViciOne.Ui.Blazor.Components.EditorLayout
+@using ViciOne.Ui.ClusterEditor.Components.ConnectorDialogs
+@using ViciOne.Ui.ClusterEditor.Components.ContainerBreadcrumb
+@using ViciOne.Ui.ClusterEditor.Components.ContextMenu.Specialized
+
+<div class="cluster-editor"
+     @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+     @oncontextmenu:stopPropagation
+     @onclick="@InputEventService.InvokeClicked"
+     @onpointerdown="@InputEventService.InvokePointerDown"
+     @onpointermove="@InputEventService.InvokePointerMove"
+     @onpointerup="@InputEventService.InvokePointerUp"
+     @ref="FullscreenService.DataflowEditorContainerReference">
+
+    <EditorLayout>
+        <Left>
+            <InfrastructureToolbar />
+        </Left>
+
+        <Top>
+            <MainToolbar />
+        </Top>
+
+        <Right>
+            <DataflowToolbar />
+        </Right>
+
+        <Center>
+            <NodeEditor />
+        </Center>
+
+        <Bottom>
+            <ContainerBreadcrumb />
+        </Bottom>
+
+        <Debug>
+            @if (ExternalDebugContent is not null)
+            {
+                @ExternalDebugContent
+            }
+        </Debug>
+    </EditorLayout>
+
+    <BlockNodeConnectorContextMenu />
+    <NodeEditorContextMenu />
+
+    <LinkDestinationDialog />
+    <DraggingConnector />
+    <DraggingDataPoint />
+
+    <Tooltip />
+</div>

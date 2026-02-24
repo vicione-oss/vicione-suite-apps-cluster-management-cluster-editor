@@ -1,0 +1,369 @@
+Common:
+  Target       : DataPort                                                                          # required: Id String to identify the target of the file
+  ContentType  : Rules                                                                             # required: Id String to identify the content of the file
+  Version      : 1.0                                                                               # required: Version of the file
+  Date         : 2024-12-02                                                                        # required: Date of the file
+  Description  : "MQTT DataPort"                                                                   # required: Description of the file
+  Author       : "ifm software gmbh"                                                               # required: Author of the file
+  MetadataType : YAML                                                                              # required: Metadata type of the file (YAML, JSON, XML, Text, Binary, ...)
+
+Root:
+  Id                       : "MQTTDataPort"                                                        # required: Id String to identify the root of the DataPort
+  Name                     : "MQTT"                                                                # required: display name of the DataPort
+  Description              : "DataPort for MQTT Protocol 3.x to 5.0"                               # required: display description of the DataPort
+  Icons                    : ['mqtt']                                                              # required: just one Icon for the DataPort
+  ChildNodes               :
+    - Id                   : MQTT-Broker
+      MaxDepth             : 64
+      MaxInstances         : 8
+
+Nodes:
+
+  # -------------------- MQTT-Broker ------------------------------------
+
+  - Id                     : MQTT-Broker
+    Type                   : DataPortNode
+    Name                   : "Broker"
+    Description            : "Broker"
+    MetadataLength         : 0
+    Icons                  : ['broker']
+    TransferDirections     : [ Outbound, Inbound ]
+    ChildNodes             :
+      - Id                 : Folder
+      - Id                 : DataPointBool
+      - Id                 : DataPointInteger
+      - Id                 : DataPointFloat
+      - Id                 : DataPointDateTime
+      - Id                 : DataPointString
+      - Id                 : DataPointBinary
+    PropertyCategories     :
+      - Id                 : Connection
+        Properties         :
+          - Id             : Protocol
+            Required       : true
+          - Id             : Host
+          - Id             : Port
+          - Id             : Url
+          - Id             : ClientId
+          - Id             : ProtocolVersion
+            Required       : true
+          - Id             : Pooling
+          - Id             : Username
+          - Id             : Password
+      - Id                 : LastWill
+        Properties         :
+          - Id             : WillTopic
+          - Id             : WillMessage
+          - Id             : WillRetain
+      - Id                 : Certificate
+        Properties         :
+          - Id             : SslProtocol
+          - Id             : CertificateFile
+          - Id             : CertificateFilePassword
+          - Id             : CertificatePrivateKeyFile
+          - Id             : DisableCertificateValidation
+      - Id                 : Other
+        Properties         :
+          - Id             : QualityOfService
+            Required       : true
+          - Id             : CleanSession
+          - Id             : SessionExpiryInterval
+          - Id             : DefaultSerializer
+
+  # -------------------- Folder ------------------------------------------
+
+  - Id                     : Folder
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "Folder"
+    Description            : "Folder in the MQTT Topic Tree"
+    Icons                  : ['folder']
+    TransferModes          : [ None, OnChange, Periodic  ]
+    ChildNodes             :
+      - Id                 : Folder
+      - Id                 : DataPointBool
+      - Id                 : DataPointInteger
+      - Id                 : DataPointFloat
+      - Id                 : DataPointDateTime
+      - Id                 : DataPointString
+      - Id                 : DataPointBinary
+
+  # -------------------- DataPoints --------------------------------------
+
+  - Id                     : DataPointBool
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "DataPoint Bool"
+    Description            : "Boolean data point in the MQTT topic tree"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : Retain
+          - Id             : Serializer
+
+  - Id                     : DataPointInteger
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "DataPoint Integer"
+    Description            : "Integer data point in the MQTT topic tree"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Int32, Int64, Int16, Int8, UInt32, UInt64, UInt16, UInt8 ]
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : Retain
+          - Id             : Serializer
+
+  - Id                     : DataPointFloat
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "DataPoint Float"
+    Description            : "Float data point in the MQTT topic tree"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Float64, Float32 ]
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : Retain
+          - Id             : Serializer
+
+  - Id                     : DataPointDateTime
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "DataPoint DateTime"
+    Description            : "DateTime data point in the MQTT topic tree"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ DateTime ]
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : Retain
+          - Id             : Serializer
+
+  - Id                     : DataPointString
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "DataPoint String"
+    Description            : "String data point in the MQTT topic tree"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ String ]
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : Retain
+          - Id             : Serializer
+
+  - Id                     : DataPointBinary
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "DataPoint Binary"
+    Description            : "Binary data point in the MQTT topic tree"
+    Icons                  : ['datapoint']
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Binary ]
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : Retain
+          - Id             : Serializer
+
+PropertyCategories:
+  - Id          : Connection
+    Name        : "Connection"
+    Description : "Connection properties"
+
+  - Id          : Certificate
+    Name        : "Certificate"
+    Description : "Certificate properties"
+
+  - Id          :  LastWill
+    Name        : "Last Will"
+    Description : "Last Will properties"
+
+  - Id          : Other
+    Name        : "Other"
+    Description : "Other properties"
+
+Properties:
+  - Id          : ClientId
+    Name        : "Client ID"
+    Description : "The client id"
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : WillTopic
+    Name        : "Will topic"
+    Description : "The will topic"
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : WillMessage
+    Name        : "Will message"
+    Description : "The will message"
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : WillRetain
+    Name        : "Will retain"
+    Description : "The will retain"
+    DataType    : Bool
+    DefaultValue: false
+    UiControl   : CheckBox
+
+  - Id          : Protocol
+    Name        : "Protocol"
+    Description : "The protocol used to contact the broker"
+    DataType    : UInt8
+    DefaultValue: 0
+    UiControl   : NumericListBox
+    MinValue    : 0
+    MaxValue    : 1
+    Elements    : { 0: 'TCP',
+                    1: 'WebSocket' }
+
+  - Id          : Host
+    Name        : "Host"
+    Description : "The broker host name or IP address for TCP."
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : Port
+    Name        : "Port"
+    Description : "The broker port for TCP."
+    DataType    : UInt16
+    UiControl   : NumericUpDown
+    MinValue    : 1
+    DefaultValue: 1883
+
+  - Id          : Url
+    Name        : "Url"
+    Description : "The broker url for WebSocket."
+    DataType    : Uri
+    UiControl   : TextBox
+
+  - Id          : QualityOfService
+    Name        : "Quality of service"
+    Description : "Quality of service"
+    DataType    : UInt8
+    DefaultValue: 0
+    UiControl   : NumericUpDown
+    MinValue    : 0
+    MaxValue    : 2
+
+  - Id          : ProtocolVersion
+    Name        : "Protocol version"
+    Description : "Protocol version"
+    DataType    : UInt8
+    DefaultValue: 1
+    UiControl   : NumericListBox
+    MinValue    : 0
+    MaxValue    : 1
+    Elements    : { 0: 'v3.1.1',
+                    1: 'v5.0' }
+
+  - Id          : Username
+    Name        : "User name"
+    Description : "The user name"
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : Password
+    Name        : "Password"
+    Description : "The password"
+    DataType    : String
+    UiControl   : PasswordBox
+
+  - Id          : CertificateFile
+    Name        : "Certificate file"
+    Description : "The certificate file"
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : CertificateFilePassword
+    Name        : "Certificate file password"
+    Description : "The certificate file password"
+    DataType    : String
+    UiControl   : PasswordBox
+
+  - Id          : CertificatePrivateKeyFile
+    Name        : "Certificate private key file"
+    Description : "The certificate private key file"
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : SslProtocol
+    Name        : "SSL protocol"
+    Description : "The SSL protocol"
+    DataType    : UInt8
+    DefaultValue: 0
+    UiControl   : NumericListBox
+    MinValue    : 0
+    MaxValue    : 2
+    Elements    : { 0: 'None',
+                    1: 'TLSv1.2',
+                    2: 'TLSv1.3' }
+
+  - Id          : DisableCertificateValidation
+    Name        : "Disable certificate validation"
+    Description : "Disable certificate validation"
+    DataType    : Bool
+    DefaultValue: false
+    UiControl   : CheckBox
+
+  - Id          : CleanSession
+    Name        : "Clean session"
+    Description : "Clean session"
+    DataType    : Bool
+    DefaultValue: true
+    UiControl   : CheckBox
+
+  - Id          : SessionExpiryInterval
+    Name        : "Session expiry interval"
+    Description : "Session expiry interval"
+    DataType    : UInt32
+    DefaultValue: 0
+    UiControl   : NumericUpDown
+    MinValue    : 0
+
+  - Id          : Retain
+    Name        : "Retain"
+    Description : "Retain"
+    DataType    : Bool
+    DefaultValue: false
+    UiControl   : CheckBox
+
+  - Id          : DefaultSerializer
+    Name        : "Serializer"
+    Description : "Serializer"
+    DataType    : UInt8
+    UiControl   : NumericListBox
+    MinValue    : 1
+    MaxValue    : 1
+    DefaultValue: 1
+    Elements    : { 1: 'JSON', }
+
+  - Id          : Serializer
+    Name        : "Serializer"
+    Description : "Serializer"
+    DataType    : UInt8
+    UiControl   : NumericListBox
+    MinValue    : 0
+    MaxValue    : 2
+    DefaultValue: 0
+    Elements    : { 0: 'Inherited',
+                    1: 'JSON',
+                    2: 'PlainText', }
+
+  - Id          : Pooling
+    Name        : "Pooling"
+    Description : "Pooling is a technique that involves creating and maintaining a pool of connections, which are then be reused"
+    DataType    : Bool
+    DefaultValue: true
+    UiControl   : CheckBox

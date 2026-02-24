@@ -1,0 +1,43 @@
+﻿@use "./../../Styles/colors";
+@use "./../../Styles/shared-dialog-styles";
+
+@mixin checkbox-focus-state() {
+    &:focus-within {
+        @content;
+    }
+}
+
+.content-container .content ::deep .dialog-grid .dxbl-grid-table tbody tr.dxbl-grid-editor-inplace-container > td:not(.dxbl-grid-command-cell):not(.dxbl-grid-selection-cell) {
+    & .dxbl-checkbox-checked,
+    & .dxbl-checkbox-indeterminate {
+        .dxbl-checkbox-check-element {
+            @include checkbox-focus-state() {
+                box-shadow: 0 0 var(--dxbl-checkbox-checked-focus-shadow-blur) var(--dxbl-checkbox-checked-focus-shadow-spread) var(--dxbl-checkbox-checked-focus-shadow-color);
+            }
+        }
+    }
+
+    & .dxbl-checkbox-unchecked .dxbl-checkbox-check-element {
+        @include checkbox-focus-state() {
+            box-shadow: 0 0 var(--dxbl-checkbox-unchecked-focus-shadow-blur) var(--dxbl-checkbox-unchecked-focus-shadow-spread) var(--dxbl-checkbox-unchecked-focus-shadow-color);
+        }
+    }
+}
+
+.icon-badge::after {
+    content: counter(bn);
+    counter-reset: bn var(--badge-number);
+    font-size: 0.6rem;
+    left: -0.75rem;
+    position: relative;
+    top: 0.19rem;
+}
+
+.validation-message-container {
+    color: colors.$editor-danger;
+    font-size: 10px;
+    margin-top: 2px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

@@ -1,0 +1,44 @@
+﻿@use "./../../../Styles/colors";
+@use "./../../../Styles/sections";
+
+.added-while-filtered-info {
+    font-size: 10px;
+    text-align: center;
+}
+
+.confirm-node-delete-text {
+    margin: 15px 20px;
+    font-size: medium;
+}
+
+.dataflow-section-container {
+    bottom: 0;
+    display: grid;
+    grid-template-rows: repeat(2, min-content) auto;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+
+    ::deep .search-box-container {
+        padding: 12px;
+    }
+
+    ::deep .tree-editor-container {
+        background-color: inherit;
+
+        @include sections.action-button-container-styles();
+
+        .tree-node {
+            &.dataflow-active {
+                .node-text {
+                    color: colors.$editor-accent;
+                }
+            }
+        }
+    }
+
+    ::deep .tree-node-display-container.root-layer {
+        border: none;
+    }
+}

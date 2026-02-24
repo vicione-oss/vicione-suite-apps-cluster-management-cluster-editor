@@ -1,0 +1,117 @@
+{
+  "$id": "1",
+  "AssemblyName": "Numeric.Incrementor.dll",
+  "DefaultCycleFrequency": 1,
+  "DefaultRunMode": 0,
+  "Name": "Incrementor",
+  "Namespace": "Numeric",
+  "PersistentVariables": {
+    "$id": "2",
+    "$values": [
+      {
+        "$id": "3",
+        "$type": "ViciOne.Core.Dataflow.DataModel.PersistentVariableDesign`1[[System.Double, System.Private.CoreLib]], ViciOne.Core.Dataflow",
+        "DefaultValue": 0.0,
+        "Name": "Value",
+        "Id": "1cc5f3c2-a5be-4ed7-a934-0ae2ac9e9d50"
+      }
+    ]
+  },
+  "ProcessDataInputs": {
+    "$id": "4",
+    "$values": [
+      {
+        "$id": "5",
+        "$type": "ViciOne.Core.Dataflow.DataModel.ConnectorDesignInput`1[[System.Boolean, System.Private.CoreLib]], ViciOne.Core.Dataflow",
+        "DefaultPooling": {
+          "$id": "6",
+          "$type": "ViciOne.Engine.DefaultPoolings.OrPooling, ViciOne.Engine.DefaultPoolings"
+        },
+        "DefaultValue": false,
+        "Name": "Increment",
+        "Id": "e14a86af-8d7d-4973-a5f4-e59d80ec2277"
+      }
+    ]
+  },
+  "ProcessDataOutputs": {
+    "$id": "7",
+    "$values": [
+      {
+        "$id": "8",
+        "$type": "ViciOne.Core.Dataflow.DataModel.ConnectorDesignOutput`1[[System.Double, System.Private.CoreLib]], ViciOne.Core.Dataflow",
+        "DefaultValue": 0.0,
+        "Name": "Value",
+        "Id": "b534ddee-d7c0-4ea4-9f2e-24dbfde8851b"
+      }
+    ]
+  },
+  "Settings": {
+    "$id": "9",
+    "$values": [
+      {
+        "$id": "10",
+        "$type": "ViciOne.Core.Dataflow.DataModel.SettingDesign`1[[System.Double, System.Private.CoreLib]], ViciOne.Core.Dataflow",
+        "DefaultValue": 0.5,
+        "Input": {
+          "$id": "11",
+          "DefaultPooling": {
+            "$id": "12",
+            "$type": "ViciOne.Engine.DefaultPoolings.AveragePooling, ViciOne.Engine.DefaultPoolings"
+          },
+          "DefaultValue": 0.5,
+          "Name": "IncrementValue",
+          "Id": "c7923629-2854-4498-9f21-b3fd67bc4549"
+        },
+        "Name": "IncrementValue",
+        "Output": {
+          "$id": "13",
+          "DefaultValue": 0.5,
+          "Name": "IncrementValue",
+          "Id": "02f6ebfa-5382-4fa2-b225-ba7aae310fc1"
+        },
+        "Id": "da73c7e1-98f3-44bc-bc52-65a9f30d336e",
+        "Validator": {
+          "$id": "14",
+          "$type": "ViciOne.Engine.DefaultValidators.InequalityValidator`1[[System.Double, System.Private.CoreLib]], ViciOne.Engine.DefaultValidators",
+          "InvalidValue": 0.0,
+          "ReplacementValue": 0.5
+        }
+      }
+    ]
+  },
+  "SystemInputs": {
+    "$id": "15",
+    "$values": [
+      {
+        "$id": "16",
+        "$type": "ViciOne.Core.Dataflow.DataModel.ConnectorDesignInput`1[[System.Boolean, System.Private.CoreLib]], ViciOne.Core.Dataflow",
+        "DefaultPooling": {
+          "$id": "17",
+          "$type": "ViciOne.Engine.DefaultPoolings.OrPooling, ViciOne.Engine.DefaultPoolings"
+        },
+        "DefaultValue": true,
+        "Name": "Enabled",
+        "Id": "fff22efe-c07f-4153-98d0-60d83f42271b"
+      }
+    ]
+  },
+  "SystemOutputs": {
+    "$id": "18",
+    "$values": [
+      {
+        "$id": "19",
+        "$type": "ViciOne.Core.Dataflow.DataModel.ConnectorDesignOutput`1[[System.Boolean, System.Private.CoreLib]], ViciOne.Core.Dataflow",
+        "DefaultValue": false,
+        "Name": "Enabled",
+        "Id": "5e1db2db-caf0-4a3b-b862-d1c6fb8da391"
+      }
+    ]
+  },
+  "Id": "85dbbbd7-1a4e-4b82-94b8-1c34fbaaab60",
+  "ValidRunModes": {
+    "$id": "20",
+    "$values": [
+      0
+    ]
+  }
+}

@@ -1,0 +1,25 @@
+﻿@use "./../../../Styles/colors";
+
+// Values adopted from PropertyGroup.razor.scss
+$property-group-expansion-placeholder-width: 16px;
+$property-group-property-name-width: 120px;
+$property-group-property-value-padding-left: 5px;
+$property-group-row-height: 38px;
+
+.form-button-container {
+    align-items: center;
+    background-color: colors.$editor-background;
+    display: flex;
+    min-height: $property-group-row-height;
+    padding-left: $property-group-expansion-placeholder-width + $property-group-property-name-width + $property-group-property-value-padding-left;
+
+    ::deep .action-button {
+        grid-area: buttons;
+        font-size: 12px;
+        line-height: 1.4em;
+
+        &:not(:last-of-type) {
+            margin-right: 8px;
+        }
+    }
+}

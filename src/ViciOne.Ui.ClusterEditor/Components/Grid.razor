@@ -1,0 +1,12 @@
+﻿@if (IsVisible && Mode != GridMode.None)
+{
+    <div class="grid grid-visible @(Mode == GridMode.Line ? "line" : "point")"
+         style="--grid-dimensions: @_gridDimensions;
+                --grid-pos-x: @_gridPositionX;
+                --grid-pos-y: @_gridPositionY">
+    </div>
+}
+else
+{
+    <div class="grid"></div>
+}

@@ -1,0 +1,25 @@
+﻿using System.Collections.Generic;
+using ViciOne.Cluster.Model;
+using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
+using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
+using ViciOne.Ui.ClusterEditor.Sections.Property.Models.PropertyDescriptors.Connectors;
+using ViciOne.Ui.ClusterEditor.Sections.Property.Models.PropertyDescriptors.ContainerConnectors;
+using ViciOne.Ui.ClusterEditor.Services;
+
+namespace ViciOne.Ui.ClusterEditor.Sections.Property.Services;
+
+internal sealed class ContainerConnectorOutputPropertyDescriptorProvider<TContext>(Datastore datastore)
+    : IPropertyDescriptorProvider<TContext, ContainerConnectorOutput>
+{
+    public IEnumerable<IPropertyDescriptor<ContainerConnectorOutput>> GetPropertyDescriptors(TContext context)
+    {
+        var editor = datastore.Builder.Editors.Connector;
+
+        yield return new NamePropertyDescriptor<ContainerConnectorOutput>();
+        yield return new DescriptionPropertyDescriptor<ContainerConnectorOutput>(editor);
+        yield return new EventEnabledPropertyDescriptor<ContainerConnectorOutput>(editor);
+        yield return new MarkAsChangedOnlyIfNotEqualPropertyDescriptor<ContainerConnectorOutput>(editor);
+        yield return new PublishedPropertyDescriptor<ContainerConnectorOutput>(editor);
+        yield return new ShortNamePropertyDescriptor<ContainerConnectorOutput>(editor);
+    }
+}

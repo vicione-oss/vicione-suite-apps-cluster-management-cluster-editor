@@ -1,0 +1,77 @@
+﻿@use "./../Styles/colors";
+
+.minimap {
+    bottom: 4px;
+    box-sizing: content-box;
+    left: 4px;
+    position: absolute;
+    right: 4px;
+    top: 4px;
+}
+
+.minimap-container {
+    background-color: colors.$editor-foreground-dark;
+    border-radius: 3px;
+    bottom: 50px;
+    height: calc(var(--container-height) + 8px);
+    width: calc(var(--container-width) + 8px);
+    position: fixed;
+    right: 50px;
+    z-index: 0;
+    transition: opacity 0.25s linear;
+}
+
+.minimap-layer {
+    bottom: 0;
+    left: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+}
+
+.minimap-node {
+    background-color: var(--node-background-color);
+    border: 1px var(--node-border-style) var(--node-border-color);
+    height: var(--node-height);
+    left: var(--node-pos-x);
+    pointer-events: none;
+    position: absolute;
+    top: var(--node-pos-y);
+    width: var(--node-width);
+    z-index: var(--node-z-index);
+}
+
+.viewport {
+    border: 1px solid colors.$editor-border-dark;
+    border-radius: 3px;
+    height: var(--viewport-height);
+    left: var(--viewport-pos-x);
+    position: absolute;
+    top: var(--viewport-pos-y);
+    user-select: none;
+    width: var(--viewport-width);
+    z-index: 50; // has to be below .viewport-ghost
+}
+
+.viewport-ghost {
+    background-color: transparent;
+    border-radius: 3px;
+    cursor: move;
+    height: var(--viewport-height);
+    left: var(--viewport-pos-x);
+    position: absolute;
+    top: var(--viewport-pos-y);
+    user-select: none;
+    width: var(--viewport-width);
+    z-index: 100; // has to be above .viewport
+
+    &.expanded {
+        bottom: 0;
+        height: unset;
+        left: 0;
+        position: fixed;
+        right: 0;
+        top: 0;
+        width: unset;
+    }
+}

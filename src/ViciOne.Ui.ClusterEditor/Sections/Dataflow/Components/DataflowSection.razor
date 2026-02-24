@@ -1,0 +1,47 @@
+﻿@using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Services.Localization
+@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+
+@if (TreeAdapter is not null)
+{
+    <div class="dataflow-section-container">
+        <SearchBox TextChanged="@OnFilterTextChanged">
+            <SearchBoxButton Action="@OnCreateNewDataflowClicked"
+                             Icon="@SvgIcons.add"
+                             Tooltip="@DataflowStructureTreeAdapter.AddDataflow" />
+        </SearchBox>
+
+        <div class="added-while-filtered-info">
+            @if (_dataflowsAddedWhileFiltered > 0)
+            {
+                <span>@(string.Format(DataflowStructureTreeAdapter.DataflowAddedWhileFilteredInfo, _dataflowsAddedWhileFiltered))</span>
+            }
+        </div>
+
+        <TreeEditor Builder="@_treeBuilder"
+                    ShowGuidelines="true"
+                    TemplateMapping="@GetNodeTemplate" />
+    </div>
+
+    <DxDialog @ref="_confirmDeleteDialogRef"
+              CloseOnEscape="true"
+              CloseOnOutsideClick="false"
+              Closing="@OnClosingDataflowDeleteDialog"
+              Header="@DataflowStructureTreeAdapter.DeleteDataflowHeader"
+              Height="@DialogSizes.SmallHeight"
+              Width="@DialogSizes.SmallWidth">
+
+        <Body>
+            <div class="confirm-node-delete-text">
+                @string.Format(DataflowStructureTreeAdapter.ConfirmDeleteDataflow, _currentDeletingNode!.Dataflow.Name)
+            </div>
+        </Body>
+
+        <Footer>
+            <DxDialogFooterButton OnClick="@OnConfirmDeleteClickedAsync"
+                                  Text="@CommonVocabulary.Yes" />
+
+            <DxDialogFooterButton OnClick="@OnCancelClickedAsync"
+                                  Text="@CommonVocabulary.No" />
+        </Footer>
+    </DxDialog>
+}

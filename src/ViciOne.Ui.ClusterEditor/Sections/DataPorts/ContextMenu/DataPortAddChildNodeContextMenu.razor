@@ -1,0 +1,17 @@
+﻿@using ViciOne.Ui.Blazor.Components.ContextMenu.Components
+
+@inherits SpecializedContextMenuBase<DataPortAddChildNodeContextMenuContext>
+
+<ContextMenu @ref="ContextMenu"
+             VisibilityChanged="@OnContextMenuVisibilityChanged">
+
+    @if (Context is not null)
+    {
+        foreach (var possibleChild in Context.PossibleChildren)
+        {
+            <ContextMenuItem IconData="@GetIconData(possibleChild)"
+                             OnClick="@(() => ContextMenuItemClickAsync(possibleChild))"
+                             Text="@possibleChild.DisplayText" />
+        }
+    }
+</ContextMenu>

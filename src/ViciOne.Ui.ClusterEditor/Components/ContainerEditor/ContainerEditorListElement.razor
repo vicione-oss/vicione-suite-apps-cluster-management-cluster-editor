@@ -1,0 +1,21 @@
+﻿<div @onclick="@((args) => InvokeOnClick(args.CtrlKey))"
+     class="list-element @(Connector.Selected ? "selected" : string.Empty)">
+
+    @if (string.IsNullOrEmpty(Connector.Color))
+    {
+        <div class="type-icon empty"></div>
+    }
+    else
+    {
+        <div class="type-icon"
+             style="--type-color: @Connector.Color"></div>
+    }
+
+    <div class="short-name">
+        @Connector.ShortName
+    </div>
+
+    <div class="full-name">
+        @Connector.Name
+    </div>
+</div>

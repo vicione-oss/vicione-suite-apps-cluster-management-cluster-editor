@@ -1,0 +1,36 @@
+﻿@use "./../../../Styles/colors";
+@use "./../../../Styles/sections";
+
+.added-while-filtered-info {
+    font-size: 10px;
+    text-align: center;
+}
+
+.confirm-node-delete-text {
+    margin: 15px 20px;
+    font-size: medium;
+}
+
+.content-container {
+    ::deep .tree-editor-container {
+        @include sections.action-button-container-styles();
+        @include sections.node-with-icon-styles();
+
+        .tree-node {
+            .node-drop-zone-container {
+                // !important because on deployment it can be possible that
+                // stylesheets are not loaded in the correct order
+                --drop-zone-colour: transparent !important;
+            }
+
+            &.highlighted {
+                border: 1px solid colors.$editor-accent;
+                margin: -1px;
+
+                &:hover {
+                    border-color: colors.$editor-font;
+                }
+            }
+        }
+    }
+}

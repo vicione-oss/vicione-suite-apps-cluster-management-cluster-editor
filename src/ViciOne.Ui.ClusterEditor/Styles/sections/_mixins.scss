@@ -1,0 +1,34 @@
+﻿@use "./../colors";
+
+@mixin action-button-container-styles() {
+    .action-button-container {
+        grid-template-columns: repeat(var(--button-count), min-content);
+
+        > button {
+            background-color: colors.$editor-background;
+            color: colors.$editor-font;
+            height: 22px;
+            width: 22px;
+
+            &:disabled {
+                cursor: default;
+                color: colors.$editor-disabled-background-dark;
+            }
+
+            &:hover:not(:disabled) {
+                background-color: colors.$editor-background-hover;
+            }
+
+            .icon {
+                height: 16px;
+                width: 16px;
+            }
+        }
+    }
+}
+
+@mixin node-with-icon-styles() {
+    .node-text {
+        padding-left: 6px;
+    }
+}

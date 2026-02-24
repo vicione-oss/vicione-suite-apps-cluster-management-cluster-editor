@@ -1,0 +1,18 @@
+﻿@using ViciOne.Ui.Blazor.Components.ContextMenu.Components
+
+@inherits SpecializedContextMenuBase<AddDataPortContextMenuContext>
+
+<ContextMenu @ref="ContextMenu"
+             VisibilityChanged="@OnContextMenuVisibilityChanged">
+
+    @if (Context is not null)
+    {
+        foreach (var contextMenuItem in Context.AddDataPortContextMenuItems)
+        {
+            <ContextMenuItem Enabled="@contextMenuItem.Enabled"
+                             IconData="@GetIconData(contextMenuItem.Identifier)"
+                             OnClick="@(() => ContextMenuItemClickAsync(contextMenuItem.Identifier))"
+                             Text="@contextMenuItem.DisplayText" />
+        }
+    }
+</ContextMenu>

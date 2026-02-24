@@ -1,0 +1,22 @@
+﻿@using ViciOne.Ui.Blazor.Components.PropertyGrid.Components
+@using ViciOne.Ui.Blazor.Components.SectionRail.Components
+@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+
+@typeparam TPropertyGridContext
+
+<SectionLayout>
+    <Tools>
+        <div class="tools-container">
+            @* OnSearchTextChanged disabled, see #663 *@
+            <SearchAndFilterComponent FilterButtons="@_filterButtons"
+                                      GroupingButtonsEnabled="false"
+                                      OnSearchTextChanged="@((_) => {})"
+                                      ShowColumnChooser="false"
+                                      ShowGroupingButtons="false" />
+        </div>
+    </Tools>
+
+    <Content>
+        <PropertyGrid Controller="PropertyGridController" />
+    </Content>
+</SectionLayout>

@@ -1,0 +1,40 @@
+﻿@using ViciOne.Ui.Blazor.Components.ContextMenu.Components
+@using ViciOne.Ui.ClusterEditor.Models.ComponentStates.ContextMenu.Specialized
+@using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized
+@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+
+@inherits SpecializedContextMenuWithStateBase<BlockNodeConnectorContextMenuContext, BlockNodeConnectorContextMenuState>;
+
+<ContextMenu @ref="ContextMenu"
+             ApplicableTo="new(typeof(BlockNodeConnector))"
+             VisibilityChanged="@OnContextMenuVisibilityChanged">
+
+    <ContextMenuItem Enabled="@State.AddConnectorToParentContainerEnabled"
+                     IconCssClass="@ContextMenuIcon.ConnectorAddToContainer"
+                     OnClick="@AddConnectorToParentContainerClick"
+                     Text="@Localization.BlockNodeConnectorContextMenu.AddConnectorToParentContainer" />
+    <ContextMenuItem Enabled="@State.RemoveConnectorFromParentContainerEnabled"
+                     IconCssClass="@ContextMenuIcon.ConnectorRemoveFromContainer"
+                     OnClick="@RemoveConnectorFromParentContainerClick"
+                     Text="@Localization.BlockNodeConnectorContextMenu.RemoveConnectorFromParentContainer" />
+    <ContextMenuItem Enabled="@State.RemoveConnectorFromContainerEnabled"
+                     IconCssClass="@ContextMenuIcon.ConnectorRemoveFromContainer"
+                     OnClick="@RemoveConnectorFromContainerClickAsync"
+                     Text="@Localization.BlockNodeConnectorContextMenu.RemoveConnectorFromContainer"
+                     Visible="@State.RemoveConnectorFromContainerVisible" />
+
+    <ContextMenuItem BeginGroup="true"
+                     Enabled="@State.PublishConnectorEnabled"
+                     IconCssClass="@ContextMenuIcon.ConnectorPublish"
+                     OnClick="@PublishConnectorClick"
+                     Text="@CommonVocabulary.PublishVerb" />
+    <ContextMenuItem Enabled="@State.CancelConnectorPublicationEnabled"
+                     IconCssClass="@ContextMenuIcon.ConnectorCancelPublication"
+                     OnClick="@CancelConnectorPublicationClick"
+                     Text="@Localization.BlockNodeConnectorContextMenu.CancelPublication" />
+
+    <ContextMenuItem BeginGroup="true"
+                     Enabled="false"
+                     IconCssClass="@ContextMenuIcon.ConnectorReset"
+                     Text="@CommonVocabulary.ResetVerb" />
+</ContextMenu>

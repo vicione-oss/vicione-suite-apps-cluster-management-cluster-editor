@@ -1,0 +1,169 @@
+@using ViciOne.Ui.Blazor.Components.SectionRail.Components
+@using ViciOne.Ui.Localization.Resources
+@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using LocalCommonVocabulary=ViciOne.Ui.ClusterEditor.Localization.Resources.CommonVocabulary
+@using LocalTechnicalTerms=ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+
+<SectionLayout>
+    <Tools>
+        <div class="searchfilter-heading">
+            @(CommonVocabulary.Search) & @(CommonVocabulary.Filter)
+        </div>
+
+        <div class="searchfilter-container">
+            <div></div>
+            <SearchBox @ref="_searchSearchBoxRef"
+                       ClearIcon="@((MarkupString)SvgIcons.searchandtools_section_clear)"
+                       TextChanged="OnSearchTextChanged"
+                       SearchIcon="@((MarkupString)SvgIcons.searchbox_search)" />
+            <div></div>
+            <div class="searchfilter-buttons">
+                <div @onclick="OnSearchPreviousClick"
+                     class="searchfilter-button st-button">
+
+                    <MonochromeIcon CssClass="searchfilter-button-icon"
+                                    Name="MonochromeIconName.ArrowNavigationLightLeft"
+                                    Size="MonochromeIconSize.SmallMedium" />
+
+                    <div class="searchfilter-button-text">
+                        @CommonVocabulary.Previous
+                    </div>
+                </div>
+                <div></div>
+                <div @onclick="OnSearchNextClick"
+                     class="searchfilter-button st-button">
+
+                    <MonochromeIcon CssClass="searchfilter-button-icon"
+                                    Name="MonochromeIconName.ArrowNavigationLightRight"
+                                    Size="MonochromeIconSize.SmallMedium" />
+
+                    <div class="searchfilter-button-text">
+                        @CommonVocabulary.Next
+                    </div>
+                </div>
+            </div>
+            <div></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="searchfilter-container">
+            <div></div>
+            <SearchBox @ref="_filterSearchBoxRef"
+                       ClearIcon="@((MarkupString)SvgIcons.searchandtools_section_clear)"
+                       NullText="@CommonVocabulary.Filter"
+                       TextChanged="OnFilterTextChanged"
+                       SearchIcon="@((MarkupString)SvgIcons.searchbox_filter)" />
+            <div></div>
+            <div class="searchfilter-buttons">
+                <div @onclick="OnFilterAttachedClick"
+                     class="searchfilter-button st-button">
+                    <div class="searchfilter-button-icon">
+                        @((MarkupString)SvgIcons.searchandtools_section_attached)
+                    </div>
+                    <div class="searchfilter-button-text">
+                        @LocalCommonVocabulary.Attached
+                    </div>
+                </div>
+                <div></div>
+                <div @onclick="OnFilterSelectedClick"
+                     class="searchfilter-button st-button">
+                    <div class="searchfilter-button-icon">
+                        @((MarkupString)SvgIcons.searchandtools_section_selected)
+                    </div>
+                    <div class="searchfilter-button-text">
+                        @CommonVocabulary.Selected
+                    </div>
+                </div>
+            </div>
+            <div></div>
+        </div>
+    </Tools>
+
+    <Content>
+        <div class="content-container">
+
+            <SearchAndToolsItem @bind-Expanded="_selectExpanded"
+                                Text="@CommonVocabulary.SelectVerb">
+
+                <SearchAndToolsChildItem Enabled="_selectEnabled"
+                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_all)"
+                                         OnClickCallback="@OnSelectAllClick"
+                                         Text="@CommonVocabulary.All" />
+                <SearchAndToolsChildItem Enabled="_selectEnabled"
+                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_invert)"
+                                         OnClickCallback="@OnSelectInvertClick"
+                                         Text="@CommonVocabulary.InvertVerb" />
+                <SearchAndToolsChildItem Enabled="_selectClearEnabled"
+                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_clear)"
+                                         OnClickCallback="@OnSelectClearClick"
+                                         Text="@CommonVocabulary.ClearVerb" />
+                <div class="content-divider"></div>
+            </SearchAndToolsItem>
+
+            <SearchAndToolsItem @bind-Expanded="_traceExpanded"
+                                Text="@CommonVocabulary.TraceVerb">
+
+                <SearchAndToolsChildItem Enabled="@_traceEnabled"
+                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_predecessors)"
+                                         OnClickCallback="@OnTracePredecessorsClick"
+                                         Text="@LocalTechnicalTerms.PredecessorPlural" />
+                <SearchAndToolsChildItem Enabled="@_traceEnabled"
+                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_predecessor)"
+                                         OnClickCallback="@OnTracePredecessorClick"
+                                         Text="@LocalTechnicalTerms.Predecessor" />
+                <SearchAndToolsChildItem Enabled="@_traceEnabled"
+                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_successor)"
+                                         OnClickCallback="@OnTraceSuccessorClick"
+                                         Text="@LocalTechnicalTerms.Successor" />
+                <SearchAndToolsChildItem Enabled="@_traceEnabled"
+                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_successors)"
+                                         OnClickCallback="@OnTraceSuccessorsClick"
+                                         Text="@LocalTechnicalTerms.SuccessorPlural" />
+                <SearchAndToolsChildItem IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_clear)"
+                                         OnClickCallback="@OnTraceClearClick"
+                                         Text="@CommonVocabulary.ClearVerb" />
+                <div class="content-divider"></div>
+            </SearchAndToolsItem>
+
+            <SearchAndToolsItem @bind-Expanded="_alignExpanded"
+                                Text="@CommonVocabulary.AlignVerb">
+
+                <SearchAndToolsChildItem Enabled="@_alignEnabled"
+                                         IconName="MonochromeIconName.AlignTop"
+                                         OnClickCallback="@(() => OnAlignClick(Alignment.Top))"
+                                         Text="@UserActions.AlignTop" />
+                <SearchAndToolsChildItem Enabled="@_alignEnabled"
+                                         IconName="MonochromeIconName.AlignTopByLowestElement"
+                                         OnClickCallback="@(() => OnAlignClick(Alignment.TopByLowestElement))"
+                                         Text="@UserActions.AlignTopByLowest" />
+                <SearchAndToolsChildItem Enabled="@_alignEnabled"
+                                         IconName="MonochromeIconName.AlignBottom"
+                                         OnClickCallback="@(() => OnAlignClick(Alignment.Bottom))"
+                                         Text="@UserActions.AlignBottom" />
+                <SearchAndToolsChildItem Enabled="@_alignEnabled"
+                                         IconName="MonochromeIconName.AlignLeft"
+                                         OnClickCallback="@(() => OnAlignClick(Alignment.Left))"
+                                         Text="@UserActions.AlignLeft" />
+                <SearchAndToolsChildItem Enabled="@_alignEnabled"
+                                         IconName="MonochromeIconName.AlignRight"
+                                         OnClickCallback="@(() => OnAlignClick(Alignment.Right))"
+                                         Text="@UserActions.AlignRight" />
+                <div class="content-divider"></div>
+            </SearchAndToolsItem>
+
+            <SearchAndToolsItem @bind-Expanded="_arrangeExpanded"
+                                Text="@CommonVocabulary.ArrangeVerb">
+
+                <SearchAndToolsChildItem Enabled="@_arrangeEnabled"
+                                         IconMarkup="@((MarkupString)SvgIcons.several_to_front)"
+                                         OnClickCallback="@OnToFrontClick"
+                                         Text="@Localization.SearchAndToolsSection.ToFront" />
+                <SearchAndToolsChildItem Enabled="@_arrangeEnabled"
+                                         IconMarkup="@((MarkupString)SvgIcons.several_to_back)"
+                                         OnClickCallback="@OnToBackClick"
+                                         Text="@Localization.SearchAndToolsSection.ToBack" />
+            </SearchAndToolsItem>
+        </div>
+    </Content>
+</SectionLayout>

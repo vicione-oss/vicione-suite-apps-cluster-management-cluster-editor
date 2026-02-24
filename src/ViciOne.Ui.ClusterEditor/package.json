@@ -1,0 +1,19 @@
+﻿{
+    "scripts": {
+        "build": "npm run build:js",
+        "build:js": "npm run create-folder && npm run js:minify:internal",
+        "create-folder": "mkdirp ./wwwroot/scripts",
+        "js:minify:internal": "uglifyjs ./Scripts/internal/*.js ./Scripts/external/*.js -c -m -o ./wwwroot/scripts/vicione.cluster-editor.min.js",
+
+        "build-debug": "npm run build:js-debug",
+        "build:js-debug": "npm run create-folder && npm run js:minify-debug:internal",
+        "js:minify-debug:internal": "uglifyjs ./Scripts/internal/*.js ./Scripts/external/*.js -o ./wwwroot/scripts/vicione.cluster-editor.min.js",
+
+        "build-debug-js": "npm run js:minify-debug:internal"
+    },
+    "devDependencies": {
+        "mkdirp": "^1.0.4",
+        "uglify-js": "^3.16.2"
+    },
+    "dependencies": {}
+}

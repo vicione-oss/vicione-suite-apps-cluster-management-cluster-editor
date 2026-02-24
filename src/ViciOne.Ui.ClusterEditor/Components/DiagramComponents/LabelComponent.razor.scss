@@ -1,0 +1,185 @@
+﻿@use "./../../Styles/colors";
+
+.label-container {
+    background-color: var(--background-color);
+    border: 1px solid var(--border-color);
+    height: var(--container-height);
+    overflow: hidden;
+    padding: 1em;
+    width: var(--container-width);
+}
+
+.label-resize-marker-bottom-left-bottom {
+    background-color: colors.$editor-font-light;
+    height: 4px;
+    left: -1px;
+    position: absolute;
+    top: calc(var(--container-height) - 3px);
+    width: 12px;
+}
+
+.label-resize-marker-bottom-left-left {
+    background-color: colors.$editor-font-light;
+    height: 12px;
+    left: -1px;
+    position: absolute;
+    top: calc(var(--container-height) - 11px);
+    width: 4px;
+}
+
+.label-resize-marker-bottom-right-bottom {
+    background-color: colors.$editor-font-light;
+    height: 4px;
+    left: calc(var(--container-width) - 11px);
+    position: absolute;
+    top: calc(var(--container-height) - 3px);
+    width: 12px;
+}
+
+.label-resize-marker-bottom-right-right {
+    background-color: colors.$editor-font-light;
+    height: 12px;
+    left: calc(var(--container-width) - 3px);
+    position: absolute;
+    top: calc(var(--container-height) - 11px);
+    width: 4px;
+}
+
+.label-resize-marker-top-left-left {
+    background-color: colors.$editor-font-light;
+    height: 12px;
+    left: -1px;
+    position: absolute;
+    top: -1px;
+    width: 4px;
+}
+
+.label-resize-marker-top-left-top {
+    background-color: colors.$editor-font-light;
+    height: 4px;
+    left: -1px;
+    position: absolute;
+    top: -1px;
+    width: 12px;
+}
+
+.label-resize-marker-top-right-right {
+    background-color: colors.$editor-font-light;
+    height: 12px;
+    left: calc(var(--container-width) - 3px);
+    position: absolute;
+    top: -1px;
+    width: 4px;
+}
+
+.label-resize-marker-top-right-top {
+    background-color: colors.$editor-font-light;
+    height: 4px;
+    left: calc(var(--container-width) - 11px);
+    position: absolute;
+    top: -1px;
+    width: 12px;
+}
+
+.label-resizer-bottom {
+    cursor: ns-resize;
+    height: 8px;
+    left: 7px;
+    position: absolute;
+    pointer-events: inherit;
+    top: calc(var(--container-height) - 5px);
+    width: calc(var(--container-width) - 14px);
+}
+
+.label-resizer-bottom-left {
+    cursor: nesw-resize;
+    height: 10px;
+    left: -3px;
+    position: absolute;
+    top: calc(var(--container-height) - 7px);
+    width: 10px;
+}
+
+.label-resizer-bottom-right {
+    cursor: nwse-resize;
+    height: 10px;
+    left: calc(var(--container-width) - 7px);
+    position: absolute;
+    top: calc(var(--container-height) - 7px);
+    width: 10px;
+}
+
+.label-resizer-left {
+    cursor: ew-resize;
+    height: calc(var(--container-height) - 14px);
+    left: -3px;
+    position: absolute;
+    top: 7px;
+    width: 8px;
+}
+
+.label-resizer-right {
+    cursor: ew-resize;
+    height: calc(var(--container-height) - 14px);
+    left: calc(var(--container-width) - 5px);
+    pointer-events: inherit;
+    position: absolute;
+    top: 7px;
+    width: 8px;
+}
+
+.label-resizer-top {
+    cursor: ns-resize;
+    height: 8px;
+    left: 7px;
+    position: absolute;
+    top: -3px;
+    width: calc(var(--container-width) - 14px);
+}
+
+.label-resizer-top-left {
+    cursor: nwse-resize;
+    height: 10px;
+    left: -3px;
+    position: absolute;
+    top: -3px;
+    width: 10px;
+}
+
+.label-resizer-top-right {
+    cursor: nesw-resize;
+    height: 10px;
+    left: calc(var(--container-width) - 7px);
+    position: absolute;
+    top: -3px;
+    width: 10px;
+}
+
+.label-selection {
+    border: calc(var(--node-border-width) + 3px) solid colors.$editor-selected;
+    height: calc(100% + 2px);
+    left: -1px;
+    pointer-events: none;
+    position: absolute;
+    top: -1px;
+    width: calc(100% + 2px);
+}
+
+.markup-content-container {
+    font-size: 14px;
+
+    ::deep {
+        blockquote {
+            border-left: 3px solid colors.$editor-disabled-dark;
+            padding-left: 1em;
+        }
+
+        hr {
+            opacity: unset;
+        }
+
+        th, td {
+            border: 1px solid colors.$editor-font;
+        }
+    }
+}

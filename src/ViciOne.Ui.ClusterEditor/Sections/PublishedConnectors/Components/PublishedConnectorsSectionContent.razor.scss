@@ -1,0 +1,44 @@
+﻿@use "./../../../Styles/colors";
+
+.content-container {
+    display: flex;
+    height: 100%;
+
+    .text-truncated {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .connector-with-icon-cell {
+        display: grid;
+        grid-template-columns: 24px auto;
+
+        > .icon {
+            align-items: center;
+            display: grid;
+
+            ::deep svg {
+                cursor: unset;
+                height: 24px;
+                width: 24px;
+            }
+        }
+
+        > .value {
+            @extend .text-truncated;
+            line-height: 24px;
+            padding-left: 5px;
+        }
+    }
+
+    ::deep .scrollable-grid {
+        border: none;
+        overflow: auto;
+        user-select: none;
+
+        .grabable-row {
+            cursor: grab;
+        }
+    }
+}

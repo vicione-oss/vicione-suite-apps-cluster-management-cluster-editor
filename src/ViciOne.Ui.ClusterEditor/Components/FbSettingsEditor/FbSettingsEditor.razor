@@ -1,0 +1,305 @@
+﻿@using ViciOne.Ui.Blazor.Components.CheckBox
+@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using TechnicalTerms=ViciOne.Ui.Localization.Resources.TechnicalTerms
+@using LocalTechnicalTerms=ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+
+<DxDialog @ref="@_refDialog"
+          CloseOnEscape="@_closeOnEscape"
+          CloseOnOutsideClick="false"
+          Closing="@OnDialogClosingAsync"
+          Header="@($"{LocalTechnicalTerms.FunctionBlock} - {CommonVocabulary.SettingPlural}")"
+          Height="@(_isFullscreen ? DialogSizes.FullscreenHeight : DialogSizes.LargeHeight)"
+          Showing="@OnDialogShowingAsync"
+          Width="@(_isFullscreen ? DialogSizes.FullscreenWidth : DialogSizes.LargeWidth)">
+
+    <Body>
+        <div class="content-container">
+            <div class="content">
+                <DxGrid @ref="_refGrid"
+                        AllowGroup="false"
+                        AllowSort="false"
+                        ColumnResizeMode="GridColumnResizeMode.Disabled"
+                        CssClass="dialog-grid"
+                        CustomizeEditModel="@OnCustomizeEditModel"
+                        Data="_settings"
+                        EditCanceling="@OnGridEditCancelling"
+                        EditMode="@GridEditMode.EditCell"
+                        EditModelSaving="@OnGridEditModelSaving"
+                        EditStart="@OnGridEditStart"
+                        SearchText="@SearchText"
+                        SearchTextParseMode="GridSearchTextParseMode.ExactMatch"
+                        ShowAllRows="true"
+                        UnboundColumnData="@OnUnboundColumnData">
+                    <Columns>
+
+                        <DxGridDataColumn Caption="@CommonVocabulary.Name"
+                                          DataRowEditorVisible="false"
+                                          FieldName="@NameColumnKey"
+                                          FixedPosition="GridColumnFixedPosition.Left"
+                                          ShowInColumnChooser="false"
+                                          VisibleIndex="1"
+                                          Width="240px">
+
+                            <CellEditTemplate Context="cetCtx">
+                                <span>
+                                    @(((IGrouping<string, FbSetting>)cetCtx.DataItem).Key)
+                                </span>
+                            </CellEditTemplate>
+                        </DxGridDataColumn>
+
+                        <DxGridDataColumn Caption="@CommonVocabulary.All"
+                                          FieldName="@AllColumnKey"
+                                          FixedPosition="GridColumnFixedPosition.Left"
+                                          ShowInColumnChooser="false"
+                                          UnboundType="GridUnboundColumnType.Object"
+                                          Visible="@(_settings.First().Count() > 1)"
+                                          VisibleIndex="2"
+                                          MinWidth="128">
+
+                            <CellDisplayTemplate Context="cdtCtx">
+                                @{
+                                    var dataItem = (IGrouping<string, FbSetting>)cdtCtx.DataItem;
+                                    var fbName = "All";
+                                    var isAnySettingModified = IsAnySettingModified(dataItem);
+
+                                    if (IsBooleanDataItem(dataItem, out var _))
+                                    {
+                                        var boolValue = (bool?)GetCellValue(fbName, dataItem);
+                                        var AllowIndeterminateState = boolValue is null;
+
+                                        <CheckBox Value="@boolValue"
+                                                  ValueChanged="@(async (bool? value) => OnCheckedChanged(dataItem, value, fbName))"
+                                                  AllowIndeterminateState="@AllowIndeterminateState" />
+                                    }
+                                    else
+                                    {
+                                        <span class="@(isAnySettingModified ? "modified" : "regular")">
+                                            <SearchHighlighter SearchText="@SearchText"
+                                                               Text="@(GetCellValue(fbName, dataItem)?.ToString() ?? string.Empty)" />
+                                        </span>
+                                    }
+                                }
+                            </CellDisplayTemplate>
+
+                            <CellEditTemplate Context="cetCtx">
+                                @{
+                                    var dataItem = (IGrouping<string, FbSetting>)cetCtx.DataItem;
+                                    var fbName = cetCtx.DataColumn.FieldName;
+                                    var setting = GetSetting(fbName, dataItem);
+
+                                    if (IsBooleanDataItem(dataItem, out var isNullableBoolean))
+                                    {
+                                        var boolValue = (bool?)GetCellValue(fbName, dataItem);
+                                        <CheckBox Value="@boolValue"
+                                                  ValueChanged="@(async (bool? value) => OnCheckedChanged(dataItem, value, fbName))"
+                                                  AllowIndeterminateState="@isNullableBoolean" />
+                                    }
+                                    else
+                                    {
+                                        <CascadingValue Name="FocusOnEditStart"
+                                                        Value="true">
+
+                                            <div @onfocusin="(_) => SetInitialValues(dataItem)"
+                                                 @onpointerdown:stopPropagation>
+
+                                                <UniversalInput @bind-Value:get="@GetCellValue(fbName, dataItem)"
+                                                                @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
+                                                                FallbackValueType="@setting.SettingType" />
+                                            </div>
+
+                                            <div class="validation-message-container">
+                                                @if (!string.IsNullOrEmpty(_validationMessage))
+                                                {
+                                                    <span title="@_validationMessage">
+                                                        @_validationMessage
+                                                    </span>
+                                                }
+                                            </div>
+                                        </CascadingValue>
+                                    }
+                                }
+                            </CellEditTemplate>
+                        </DxGridDataColumn>
+
+                        @foreach (var setting in _settings.First())
+                        {
+                            <DxGridDataColumn Caption="@setting.FbName"
+                                              FieldName="@setting.FbName"
+                                              UnboundType="GridUnboundColumnType.String"
+                                              MinWidth="128">
+
+                                <CellDisplayTemplate Context="cdtCtx">
+                                    @{
+                                        var dataItem = (IGrouping<string, FbSetting>)cdtCtx.DataItem;
+                                        var fbName = cdtCtx.DataColumn.FieldName;
+                                        var setting = GetSetting(fbName, dataItem);
+
+                                        if (IsBooleanDataItem(dataItem, out var isNullableBoolean))
+                                        {
+                                            var boolValue = (bool?)setting.Value;
+                                            <CheckBox Value="@boolValue"
+                                                      ValueChanged="@(async (bool? value) => OnCheckedChanged(dataItem, value, fbName))"
+                                                      AllowIndeterminateState="@isNullableBoolean" />
+                                        }
+                                        else
+                                        {
+                                            <span class="@(setting.IsModified ? "modified" : "regular")">
+                                                <SearchHighlighter SearchText="@SearchText"
+                                                                   Text="@(setting.Value?.ToString() ?? string.Empty)" />
+                                            </span>
+                                        }
+                                    }
+                                </CellDisplayTemplate>
+
+                                <CellEditTemplate Context="cetCtx">
+                                    @{
+                                        var dataItem = (IGrouping<string, FbSetting>)cetCtx.DataItem;
+                                        var fbName = cetCtx.DataColumn.FieldName;
+                                        var setting = GetSetting(fbName, dataItem);
+
+                                        if (IsBooleanDataItem(dataItem, out var isNullableBoolean))
+                                        {
+                                            var boolValue = (bool?)GetCellValue(fbName, dataItem);
+                                            <CheckBox Value="@boolValue"
+                                                      ValueChanged="@(async (bool? value) => OnCheckedChanged(dataItem, value, fbName))"
+                                                      AllowIndeterminateState="@isNullableBoolean" />
+                                        }
+                                        else
+                                        {
+                                            <CascadingValue Name="FocusOnEditStart"
+                                                            Value="true">
+
+                                                <div @onfocusin="(_) => SetInitialValues(dataItem)"
+                                                     @onpointerdown:stopPropagation>
+
+                                                    <UniversalInput @bind-Value:get="@setting.Value"
+                                                                    @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
+                                                                    FallbackValueType="@setting.SettingType" />
+                                                </div>
+
+                                                <div class="validation-message-container">
+                                                    @if (!string.IsNullOrEmpty(_validationMessage))
+                                                    {
+                                                        <span title="@_validationMessage">
+                                                            @_validationMessage
+                                                        </span>
+                                                    }
+                                                </div>
+                                            </CascadingValue>
+                                        }
+                                    }
+                                </CellEditTemplate>
+                            </DxGridDataColumn>
+                        }
+
+                        <DxGridDataColumn Caption="@CommonVocabulary.Comment"
+                                          DataRowEditorVisible="false"
+                                          FieldName="@CommentColumnKey"
+                                          FixedPosition="GridColumnFixedPosition.Right"
+                                          ShowInColumnChooser="false"
+                                          UnboundType="GridUnboundColumnType.String"
+                                          Width="328px" />
+                    </Columns>
+                </DxGrid>
+            </div>
+        </div>
+    </Body>
+
+    <HeaderToolbarItems>
+        <DxToolbarItem Alignment="ToolbarItemAlignment.Right">
+            <Template Context="tplCtx">
+                <div class="search-container">
+                    <SearchBox TextChanged="OnSearchTextChanged" />
+                </div>
+            </Template>
+        </DxToolbarItem>
+
+        <DxToolbarItem AdaptiveText="@Localization.FbSettingsEditor.ShowTemplatePlural"
+                       Alignment="ToolbarItemAlignment.Right"
+                       Tooltip="@Localization.FbSettingsEditor.ShowTemplatePlural"
+                       Visible="false">
+
+            <Template Context="tplCtx">
+                @{ var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu; }
+                <button class="btn btn-toolbar disabled @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty) icon-badge"
+                        style="--badge-number: @_templateCount;">
+
+                    @((MarkupString)SvgIcons.action_show_template)
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+
+        <DxToolbarItem AdaptiveText="@_editTemplatesText"
+                       Alignment="ToolbarItemAlignment.Right"
+                       Tooltip="@_editTemplatesText"
+                       Visible="false">
+
+            <Template Context="tplCtx">
+                @{ var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu; }
+                <button class="btn btn-toolbar disabled @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
+
+                    @((MarkupString)SvgIcons.action_edit_template)
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+
+        <DxToolbarItem AdaptiveText="@Localization.FbSettingsEditor.ColumnChooser"
+                       Alignment="ToolbarItemAlignment.Right"
+                       Tooltip="@Localization.FbSettingsEditor.ColumnChooser">
+
+            <Template Context="tplCtx">
+                @{ var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu; }
+                <button @onclick="OnShowColumnChooser"
+                        class="btn btn-toolbar @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)"
+                        id="@_columnChooserId">
+
+                    @((MarkupString)SvgIcons.action_column_chooser)
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+
+        <DxToolbarItem AdaptiveText="@TechnicalTerms.Fullscreen"
+                       Alignment="ToolbarItemAlignment.Right"
+                       Tooltip="@TechnicalTerms.Fullscreen">
+
+            <Template Context="tplCtx">
+                @{ var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu; }
+                <button @onclick="async () => await OnFullscreenButtonClickedAsync()"
+                        class="btn btn-toolbar icon-padding
+                                               @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)
+                                               @(_isFullscreen ? "active" : string.Empty)">
+
+                    @((MarkupString)SvgIcons.toolbar_main_fullscreen)
+
+                    @if (adaptiveTextVisible)
+                    {
+                        <span>@tplCtx.AdaptiveText</span>
+                    }
+                </button>
+            </Template>
+        </DxToolbarItem>
+    </HeaderToolbarItems>
+
+    <Footer>
+        <DxDialogFooterButton OnClick="@OnDialogOkAsync"
+                              Text="@CommonVocabulary.Ok" />
+
+        <DxDialogFooterButton OnClick="@OnCloseAsync"
+                              Text="@CommonVocabulary.Cancel" />
+    </Footer>
+</DxDialog>

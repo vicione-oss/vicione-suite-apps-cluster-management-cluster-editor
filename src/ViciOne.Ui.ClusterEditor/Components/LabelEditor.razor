@@ -1,0 +1,28 @@
+﻿@using TechnicalTerms=ViciOne.Ui.Localization.Resources.TechnicalTerms
+@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using LocalCommonVocabulary=ViciOne.Ui.ClusterEditor.Localization.Resources.CommonVocabulary
+
+<DxDialog @ref="_refDialog"
+          CloseOnEscape="true"
+          CloseOnOutsideClick="false"
+          Header="@(TechnicalTerms.Label + " " + LocalCommonVocabulary.Editor)"
+          Height="@DialogSizes.LargeHeight"
+          PreventDefaultContextMenu="@ContextMenuSettings.UseCustomMenu"
+          Width="@DialogSizes.LargeWidth">
+
+    <Body>
+        <div class="label-editor-content-container"
+             style="--label-editor-visibility: @_editorVisibility;">
+
+                <textarea id="label-editor-content-area"></textarea>
+        </div>
+    </Body>
+
+    <Footer>
+        <DxDialogFooterButton OnClick=@OnDialogOk
+                              Text="@CommonVocabulary.Ok" />    
+        
+        <DxDialogFooterButton OnClick=@OnDialogCancel
+                              Text="@CommonVocabulary.Cancel" />
+    </Footer>
+</DxDialog>

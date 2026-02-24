@@ -1,0 +1,14 @@
+﻿@using ViciOne.Ui.Blazor.Components.ContextMenu.Components
+@using ViciOne.Ui.ClusterEditor.Components.ContextMenu
+@using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized
+@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+
+@inherits SpecializedContextMenuBase<PublishedConnectorsSectionContextMenuContext>;
+
+<ContextMenu @ref="ContextMenu"
+             VisibilityChanged="@OnContextMenuVisibilityChanged">
+
+    <ContextMenuItem IconCssClass="@ContextMenuIcon.Delete"
+                     OnClick="@RemovePublishedConnectorClick"
+                     Text="@CommonVocabulary.RemoveVerb" />
+</ContextMenu>

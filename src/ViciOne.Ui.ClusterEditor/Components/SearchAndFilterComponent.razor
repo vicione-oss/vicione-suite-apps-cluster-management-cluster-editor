@@ -1,0 +1,73 @@
+﻿@using ViciOne.Ui.Localization.Resources
+@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+
+<div class="search-and-filter-container">
+    @if (ShowHeading)
+    {
+        <div class="search-heading">
+            @CommonVocabulary.Search
+        </div>
+    }
+
+    <div class="search-body">
+        <SearchBox TextChanged="OnSearchTextChanged" />
+
+        <div class="command-buttons-heading">
+            @Localization.SearchAndFilterComponent.SelectAndShow
+        </div>
+
+        <div class="command-buttons-container"
+             style="--filter-button-column-count: @_filterButtonGridColumnCount; --system-button-column-count: @_systemButtonGridColumnCount">
+
+            @{
+                var counter = 0;
+
+                foreach (var filterButton in FilterButtons)
+                {
+                    <div @onclick="filterButton.InvokeOnFilterClickedFn"
+                         class="command-button @(filterButton.IsActive ? "active" : string.Empty) @(filterButton.IsDisabled ? "disabled" : string.Empty)"
+                         style="grid-column: @(counter * 2 + 1)"
+                         title="@filterButton.Title">
+
+                        @filterButton.Icon
+                    </div>
+
+                    counter++;
+                }
+
+                counter = Math.Max(1, counter);
+
+                if (ShowGroupingButtons)
+                {
+                    <div @onclick="OnExpandAllGroups"
+                    class="command-button @(GroupingButtonsEnabled ? string.Empty : "disabled")"
+                    style="grid-column: @(counter * 2 + 1)"
+                    title="@(string.Format(UserActions.ExpandSomething, CommonVocabulary.All))">
+
+                        @((MarkupString)SvgIcons.expand_all_groups)
+                    </div>
+
+                    <div @onclick="OnCollapseAllGroups"
+                    class="command-button @(GroupingButtonsEnabled ? string.Empty : "disabled")"
+                    style="grid-column: @(counter * 2 + 3)"
+                    title="@string.Format(UserActions.CollapseSomething, CommonVocabulary.All)">
+
+                        @((MarkupString)SvgIcons.collapse_all_groups)
+                    </div>
+                }
+
+                if (ShowColumnChooser)
+                {
+                    <div @onclick="OnColumnChooserAsync"
+                         id="@_columnChooserId"
+                         class="command-button"
+                         style="grid-column: @(counter * 2 + 5)"
+                         title="@Localization.SearchAndFilterComponent.ColumnChooser">
+
+                        @((MarkupString)SvgIcons.column_chooser)
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

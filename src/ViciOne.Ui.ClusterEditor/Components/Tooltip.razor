@@ -1,0 +1,54 @@
+﻿<div @ref="_refTooltipContainer"
+     class="tooltip-container @(_isVisible ? "visible" : string.Empty)"
+     data-observer-id="@_observerId"
+     style="--tooltip-position-left: @Razor.GetCssPx(_positionLeft);
+            --tooltip-position-top: @Razor.GetCssPx(_positionTop);">
+
+    @if (_info is not null)
+    {
+        @if (_info.Header is not null)
+        {
+            <div class="tooltip-header">
+                @_info.Header
+            </div>
+        }
+
+        @if (_info.Type == TooltipInfoType.Line)
+        {
+            <div class="tooltip-content line">
+                @foreach (var line in _info.Content)
+                {
+                    if (line is null)
+                    {
+                        <div class="separator" />
+                    }
+                    else if (string.IsNullOrEmpty(line.ElementAtOrDefault(0)))
+                    {
+                        <div class="space" />
+                    }
+                    else
+                    {
+                        <span>@(line.ElementAtOrDefault(0) ?? "")</span>
+                    }
+                }
+            </div>
+        }
+        else if (_info.Type == TooltipInfoType.Table)
+        {
+            <div class="tooltip-content table">
+                @foreach (var line in _info.Content)
+                {
+                    if (line is null)
+                    {
+                        <div class="separator" />
+                    }
+                    else
+                    {
+                        <span class="label">@(line.ElementAtOrDefault(0) ?? "")</span>
+                        <span class="value">@(line.ElementAtOrDefault(1) ?? "")</span>
+                    }
+                }
+            </div>
+        }
+    }
+</div>
