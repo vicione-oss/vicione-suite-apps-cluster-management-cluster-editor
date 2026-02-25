@@ -30,8 +30,7 @@ public sealed partial class Index : ComponentBase, IDisposable
     {
         IndexService.SaveFailed -= OnSaveFailed;
 
-        if (DataManagementService is not null)
-            DataManagementService.MessageToastRequested -= MessageToastRequested;
+        DataManagementService?.MessageToastRequested -= MessageToastRequested;
 
         IndexService.Dispose();
     }
