@@ -182,8 +182,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         _diagram.Nodes.Removed -= OnDiagramNodesRemoved;
         _diagram.ZoomChanged -= OnDiagramZoomChanged;
 
-        if (_labelEditor is not null)
-            _labelEditor.LabelEditorClosed -= OnLabelEditorClosed;
+        _labelEditor?.LabelEditorClosed -= OnLabelEditorClosed;
 
         DiagramEventService.ContainerLoaded -= OnContainerLoaded;
         DiagramEventService.DiagramFocusRequested -= OnDiagramFocusRequestedAsync;
@@ -314,10 +313,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
-        {
-            if (_labelEditor is not null)
-                _labelEditor.LabelEditorClosed += OnLabelEditorClosed;
-        }
+            _labelEditor?.LabelEditorClosed += OnLabelEditorClosed;
     }
 
     private async Task OnContainerGhostDragEnterAsync(MouseEventArgs e)

@@ -13,6 +13,7 @@
 - Updated to .NET 10
 - Replaced local Breadcrumb implementation with `ViciOne.Ui.Blazor.Components.Breadcrumb`
 - Replaced `DxSpinEdit` with `ViciOne.Ui.Blazor.Components.SpinEdit`
+- Improved expand & collapse button states in `DataPortSection`
 
 ### Updated external references
 

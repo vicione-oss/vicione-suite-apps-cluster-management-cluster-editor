@@ -37,6 +37,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
     private DxDialog? _confirmDeleteDialogRef;
     private DataPortEditTemplateContext? _editTemplateContext;
     private int _elementsAddedWhileFiltered;
+    private bool _groupingButtonsEnabled;
     private readonly List<ITreeNode> _highlightedNodes = [];
     private readonly string _plusIconCssClass = MonochromeIconName.PlusSlim.GetCssClasses(MonochromeIconSize.SmallMedium).ToSpaceSeparated();
     private readonly TreeEditor.Builder.TreeBuilder _treeBuilder = new();
@@ -73,6 +74,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         LinkDestinationDialogService.DataPortTreeNodeSelected -= OnDataPortTreeNodeSelected;
         TreeAdapter.OnDeleteNodeUserConfirmationRequest = null;
         TreeAdapter.DataPortWithLinksDoubleClicked -= OnDataPortWithLinksDoubleClickedAsync;
+        _treeBuilder.Notifications.RootNodesUpdated -= OnRootNodesUpdated;
 
         if (_editTemplateContext is not null)
         {
@@ -121,7 +123,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
     {
         CreateEditTemplateContext();
         TryInitDataPortTree();
-
+        await UpdateGroupingButtonState();
         await RefreshPossibleDataPortsAsync();
     }
 
@@ -251,11 +253,14 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         TreeAdapter.OnDeleteNodeUserConfirmationRequest = OnDeleteNodeUserConfirmationRequestAsync;
         TreeAdapter.DataPortWithLinksDoubleClicked += OnDataPortWithLinksDoubleClickedAsync;
 
+        _treeBuilder.Notifications.RootNodesUpdated += OnRootNodesUpdated;
+
         // If the component gets initialized after cluster was loaded
         if (!Datastore.HasBuilder)
             return;
 
         CreateEditTemplateContext();
+        await UpdateGroupingButtonState();
 
         await RefreshPossibleDataPortsAsync();
     }
@@ -286,6 +291,9 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         TreeAdapter.SortNodeChildren(node);
         _treeBuilder.Notifications.NotifyNodeChanged(node, ChangedNodeDetail.Icons);
     }
+
+    private async void OnRootNodesUpdated()
+        => await UpdateGroupingButtonState();
 
     private void OnTreeEditorExternalDrop(ITreeNode nodeDroppedOn, DropZone dropZone)
     {
@@ -363,5 +371,11 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         {
             ReassignBuilderFailed(Logger, ex, Datastore.Builder.Cluster.Id, Datastore.Builder.Cluster.Version);
         }
+    }
+
+    private async Task UpdateGroupingButtonState()
+    {
+        _groupingButtonsEnabled = TreeAdapter.GetRootNodes().Any();
+        await InvokeAsync(StateHasChanged);
     }
 }

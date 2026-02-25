@@ -174,8 +174,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         ClusterBuilderEventBuffer.ConnectorPropertiesChanged -= OnPropertyChanged;
         ContainerEditorRequest.ContainerEditorRequestedAsync -= OnContainerEditorRequestedAsync;
 
-        if (_currentContainerNode is not null)
-            _currentContainerNode.SizeChanged -= OnCurrentContainerNodeSizeChanged;
+        _currentContainerNode?.SizeChanged -= OnCurrentContainerNodeSizeChanged;
 
         if (_scrollContainer is not null)
         {
@@ -184,8 +183,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
             _scrollContainer.Dispose();
         }
 
-        if (_selectionBehavior is not null)
-            _selectionBehavior.SelectedConnectorChanged -= OnSelectedConnectorChanged;
+        _selectionBehavior?.SelectedConnectorChanged -= OnSelectedConnectorChanged;
 
         Cleanup();
 
