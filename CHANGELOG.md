@@ -7,6 +7,7 @@
 - Added license
 - Fixed DataPort highlighting
 - Fixed possible 'Create a new DataPort' bug after loading a cluster 
+- Fixed context menu in `Settings Editor`
 
 ### Changed
 
