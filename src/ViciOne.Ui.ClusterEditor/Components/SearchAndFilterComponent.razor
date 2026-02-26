@@ -29,7 +29,17 @@
                          style="grid-column: @(counter * 2 + 1)"
                          title="@filterButton.Title">
 
-                        @filterButton.Icon
+                        @if (filterButton.Icon is not null)
+                        {
+                            @filterButton.Icon
+                        }
+
+                        @if (filterButton.MonochromeIconName is not null)
+                        {
+                            <MonochromeIcon Name="filterButton.MonochromeIconName.Value"
+                                            Size="MonochromeIconSize.SmallMedium" />
+                        }
+
                     </div>
 
                     counter++;
@@ -40,19 +50,21 @@
                 if (ShowGroupingButtons)
                 {
                     <div @onclick="OnExpandAllGroups"
-                    class="command-button @(GroupingButtonsEnabled ? string.Empty : "disabled")"
-                    style="grid-column: @(counter * 2 + 1)"
-                    title="@(string.Format(UserActions.ExpandSomething, CommonVocabulary.All))">
+                         class="command-button @(GroupingButtonsEnabled ? string.Empty : "disabled")"
+                         style="grid-column: @(counter * 2 + 1)"
+                         title="@(string.Format(UserActions.ExpandSomething, CommonVocabulary.All))">
 
-                        @((MarkupString)SvgIcons.expand_all_groups)
+                        <MonochromeIcon Name="MonochromeIconName.ExpandAll"
+                                        Size="MonochromeIconSize.SmallMedium" />
                     </div>
 
                     <div @onclick="OnCollapseAllGroups"
-                    class="command-button @(GroupingButtonsEnabled ? string.Empty : "disabled")"
-                    style="grid-column: @(counter * 2 + 3)"
-                    title="@string.Format(UserActions.CollapseSomething, CommonVocabulary.All)">
+                         class="command-button @(GroupingButtonsEnabled ? string.Empty : "disabled")"
+                         style="grid-column: @(counter * 2 + 3)"
+                         title="@string.Format(UserActions.CollapseSomething, CommonVocabulary.All)">
 
-                        @((MarkupString)SvgIcons.collapse_all_groups)
+                        <MonochromeIcon Name="MonochromeIconName.CollapseAll"
+                                        Size="MonochromeIconSize.SmallMedium" />
                     </div>
                 }
 
@@ -64,7 +76,8 @@
                          style="grid-column: @(counter * 2 + 5)"
                          title="@Localization.SearchAndFilterComponent.ColumnChooser">
 
-                        @((MarkupString)SvgIcons.column_chooser)
+                        <MonochromeIcon Name="MonochromeIconName.ColumnChooserMenu"
+                                        Size="MonochromeIconSize.SmallMedium" />
                     </div>
                 }
             }

@@ -1,5 +1,4 @@
-﻿using ViciOne.Ui.ClusterEditor.Resources;
-using ViciOne.Ui.MonochromeIcons.Core.Enums;
+﻿using ViciOne.Ui.MonochromeIcons.Core.Enums;
 using ViciOne.Ui.MonochromeIcons.Core.Extensions;
 
 namespace ViciOne.Ui.ClusterEditor.Components.ContextMenu;
@@ -8,8 +7,6 @@ namespace ViciOne.Ui.ClusterEditor.Components.ContextMenu;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Ordering", "VO2002:Wrong field order", Justification = "s_iconSize cannot be ordered alphabetically, as this would result in it being referenced before its definition")]
 internal static class ContextMenuIcon
 {
-    private const string SvgPrefix = "data:image/svg+xml;utf8,";
-
     private static readonly MonochromeIconSize s_iconSize = MonochromeIconSize.Small;
 
     private static readonly string s_addContainer = MonochromeIconName.ContainerAdd.GetCssClasses(s_iconSize).ToSpaceSeparated();
@@ -39,8 +36,8 @@ internal static class ContextMenuIcon
     private static readonly string s_selectFunctionBlockOutputConnectors = MonochromeIconName.SelectConnectorsOutput.GetCssClasses(s_iconSize).ToSpaceSeparated();
     private static readonly string s_settingsEdit = MonochromeIconName.GearSolid.GetCssClasses(s_iconSize).ToSpaceSeparated();
     private static readonly string s_substract = MonochromeIconName.MinusSlim.GetCssClasses(s_iconSize).ToSpaceSeparated();
-    private static readonly string s_textLabelBringToFront = SvgPrefix + SvgIcons.several_to_front;
-    private static readonly string s_textLabelSendToBack = SvgPrefix + SvgIcons.several_to_back;
+    private static readonly string s_textLabelBringToFront = MonochromeIconName.SeveralToFront.GetCssClasses(s_iconSize).ToSpaceSeparated();
+    private static readonly string s_textLabelSendToBack = MonochromeIconName.SeveralToBack.GetCssClasses(s_iconSize).ToSpaceSeparated();
 
     internal static string AddContainer => s_addContainer;
     internal static string AddLabel => s_addLabel;

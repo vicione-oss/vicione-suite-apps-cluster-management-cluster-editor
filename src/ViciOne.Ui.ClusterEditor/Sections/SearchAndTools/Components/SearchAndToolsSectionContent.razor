@@ -58,9 +58,11 @@
             <div class="searchfilter-buttons">
                 <div @onclick="OnFilterAttachedClick"
                      class="searchfilter-button st-button">
-                    <div class="searchfilter-button-icon">
-                        @((MarkupString)SvgIcons.searchandtools_section_attached)
-                    </div>
+
+                    <MonochromeIcon CssClass="searchfilter-button-icon"
+                                    Name="MonochromeIconName.Attached"
+                                    Size="MonochromeIconSize.SmallMedium" />
+
                     <div class="searchfilter-button-text">
                         @LocalCommonVocabulary.Attached
                     </div>
@@ -68,9 +70,11 @@
                 <div></div>
                 <div @onclick="OnFilterSelectedClick"
                      class="searchfilter-button st-button">
-                    <div class="searchfilter-button-icon">
-                        @((MarkupString)SvgIcons.searchandtools_section_selected)
-                    </div>
+
+                    <MonochromeIcon CssClass="searchfilter-button-icon"
+                                    Name="MonochromeIconName.Selected"
+                                    Size="MonochromeIconSize.SmallMedium" />
+
                     <div class="searchfilter-button-text">
                         @CommonVocabulary.Selected
                     </div>
@@ -87,15 +91,15 @@
                                 Text="@CommonVocabulary.SelectVerb">
 
                 <SearchAndToolsChildItem Enabled="_selectEnabled"
-                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_all)"
+                                         IconName="MonochromeIconName.SelectAll"
                                          OnClickCallback="@OnSelectAllClick"
                                          Text="@CommonVocabulary.All" />
                 <SearchAndToolsChildItem Enabled="_selectEnabled"
-                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_invert)"
+                                         IconName="MonochromeIconName.Invert"
                                          OnClickCallback="@OnSelectInvertClick"
                                          Text="@CommonVocabulary.InvertVerb" />
                 <SearchAndToolsChildItem Enabled="_selectClearEnabled"
-                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_clear)"
+                                         IconName="MonochromeIconName.Clear"
                                          OnClickCallback="@OnSelectClearClick"
                                          Text="@CommonVocabulary.ClearVerb" />
                 <div class="content-divider"></div>
@@ -105,22 +109,22 @@
                                 Text="@CommonVocabulary.TraceVerb">
 
                 <SearchAndToolsChildItem Enabled="@_traceEnabled"
-                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_predecessors)"
+                                         IconName="MonochromeIconName.AllPredecessors"
                                          OnClickCallback="@OnTracePredecessorsClick"
                                          Text="@LocalTechnicalTerms.PredecessorPlural" />
                 <SearchAndToolsChildItem Enabled="@_traceEnabled"
-                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_predecessor)"
+                                         IconName="MonochromeIconName.Predecessor"
                                          OnClickCallback="@OnTracePredecessorClick"
                                          Text="@LocalTechnicalTerms.Predecessor" />
                 <SearchAndToolsChildItem Enabled="@_traceEnabled"
-                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_successor)"
+                                         IconName="MonochromeIconName.Successor"
                                          OnClickCallback="@OnTraceSuccessorClick"
                                          Text="@LocalTechnicalTerms.Successor" />
                 <SearchAndToolsChildItem Enabled="@_traceEnabled"
-                                         IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_successors)"
+                                         IconName="MonochromeIconName.AllSuccessors"
                                          OnClickCallback="@OnTraceSuccessorsClick"
                                          Text="@LocalTechnicalTerms.SuccessorPlural" />
-                <SearchAndToolsChildItem IconMarkup="@((MarkupString)SvgIcons.searchandtools_section_clear)"
+                <SearchAndToolsChildItem IconName="MonochromeIconName.Clear"
                                          OnClickCallback="@OnTraceClearClick"
                                          Text="@CommonVocabulary.ClearVerb" />
                 <div class="content-divider"></div>
@@ -156,11 +160,11 @@
                                 Text="@CommonVocabulary.ArrangeVerb">
 
                 <SearchAndToolsChildItem Enabled="@_arrangeEnabled"
-                                         IconMarkup="@((MarkupString)SvgIcons.several_to_front)"
+                                         IconName="MonochromeIconName.SeveralToFront"
                                          OnClickCallback="@OnToFrontClick"
                                          Text="@Localization.SearchAndToolsSection.ToFront" />
                 <SearchAndToolsChildItem Enabled="@_arrangeEnabled"
-                                         IconMarkup="@((MarkupString)SvgIcons.several_to_back)"
+                                         IconName="MonochromeIconName.SeveralToBack"
                                          OnClickCallback="@OnToBackClick"
                                          Text="@Localization.SearchAndToolsSection.ToBack" />
             </SearchAndToolsItem>

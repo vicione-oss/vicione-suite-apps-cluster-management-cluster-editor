@@ -119,14 +119,21 @@
     }
 }
 
-.btn.btn-toolbar.smaller-icon {
-    align-content: center;
-    height: 32px;
-    justify-content: center;
-    width: 32px;
+.btn.btn-toolbar {
 
-    ::deep > svg {
-        height: 24px;
-        width: 24px;
+    &.smaller-icon {
+        align-content: center;
+        height: 32px;
+        justify-content: center;
+        width: 32px;
+
+        ::deep > svg {
+            height: 24px;
+            width: 24px;
+        }
+    }
+
+    &.disabled {
+        color: colors.$editor-background-hover;
     }
 }

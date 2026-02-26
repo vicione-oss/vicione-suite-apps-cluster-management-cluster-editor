@@ -3,12 +3,15 @@
 
 .command-button {
     cursor: pointer;
+    height: 24px;
 
     &:hover:not(.disabled) {
         background-color: colors.$editor-background-hover;
     }
 
     &.active {
+        color: colors.$editor-accent;
+
         ::deep svg path {
             fill: colors.$editor-accent;
         }
@@ -16,6 +19,7 @@
 
     &.disabled {
         cursor: default;
+        color: colors.$editor-background-hover;
 
         ::deep svg path {
             fill: colors.$editor-background-hover;

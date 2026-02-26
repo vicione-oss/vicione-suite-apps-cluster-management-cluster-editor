@@ -13,7 +13,6 @@ using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
-using ViciOne.Ui.ClusterEditor.Resources;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components.Localization;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.ContextMenu;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
@@ -203,7 +202,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
                 Action = SortChildNodes,
                 Description = DataPortSection.NodeActionSortChildren,
                 EnabledFunc = (node) => dataPortNode.Children.Count > 1,
-                Icon = new SvgIcon(SvgIcons.dataport_section_sort_children),
+                Icon = new TreeEditorActionButtonMonochromeIcon(MonochromeIconName.SortChildren),
             });
         }
 

@@ -76,11 +76,13 @@
 
                                 @if (_zoomActive)
                                 {
-                                    @((MarkupString)SvgIcons.zoom_100)
+                                    <MonochromeIcon Name="@MonochromeIconName.Zoom100"
+                                                    Size="@MonochromeIconSize.SmallMedium" />
                                 }
                                 else
                                 {
-                                    @((MarkupString)SvgIcons.zoom_to_fit);
+                                    <MonochromeIcon Name="@MonochromeIconName.ZoomToFit"
+                                                    Size="@MonochromeIconSize.SmallMedium" />
                                 }
                             </div>
                         </div>

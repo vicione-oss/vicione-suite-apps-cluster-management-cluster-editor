@@ -6,11 +6,13 @@
 
     @if (_isInput)
     {
-        @((MarkupString)SvgIcons.connector_dragging_connector_in)
+        <MonochromeIcon Name="MonochromeIconName.ConnectorDraggingConnectorIn"
+                        Size="MonochromeIconSize.Medium" />
     }
     else
     {
-        @((MarkupString)SvgIcons.connector_dragging_connector_out)
+        <MonochromeIcon Name="MonochromeIconName.ConnectorDraggingConnectorOut"
+                        Size="MonochromeIconSize.Medium" />
     }
 
 </div>

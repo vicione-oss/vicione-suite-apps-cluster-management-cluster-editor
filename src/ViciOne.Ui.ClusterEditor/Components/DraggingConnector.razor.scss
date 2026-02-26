@@ -1,4 +1,5 @@
 ﻿.dragging-connector {
+    color: var(--connector-color);
     height: 32px;
     left: var(--left);
     position: fixed;
@@ -6,8 +7,4 @@
     visibility: var(--visible);
     width: 32px;
     z-index: 10;
-
-    ::deep svg rect {
-        fill: var(--connector-color);
-    }
 }

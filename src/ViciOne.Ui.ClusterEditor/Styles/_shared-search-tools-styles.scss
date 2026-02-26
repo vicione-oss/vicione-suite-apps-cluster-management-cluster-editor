@@ -33,9 +33,5 @@
     &.disabled {
         cursor: default;
         color: colors.$editor-disabled;
-
-        ::deep svg path, polygon {
-            fill: colors.$editor-disabled;
-        }
     }
 }
