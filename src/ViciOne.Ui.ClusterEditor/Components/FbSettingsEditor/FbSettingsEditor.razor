@@ -9,6 +9,7 @@
           Closing="@OnDialogClosingAsync"
           Header="@($"{LocalTechnicalTerms.FunctionBlock} - {CommonVocabulary.SettingPlural}")"
           Height="@(_isFullscreen ? DialogSizes.FullscreenHeight : DialogSizes.LargeHeight)"
+          PreventDefaultContextMenu="@ContextMenuSettings.UseCustomMenu"
           Showing="@OnDialogShowingAsync"
           Width="@(_isFullscreen ? DialogSizes.FullscreenWidth : DialogSizes.LargeWidth)">
 

@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
+using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
@@ -17,13 +18,14 @@ public class FbSettingsEditorTests
         ctx.SetupDevExpressBlazor();
         ctx.SetupDatastore();
         ctx.SetupSelectionManager();
+        ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
         ctx.Services.TryAddScoped(_ => Substitute.For<IFbSettingsEditorRequest>());
         ctx.Services.TryAddScoped<FullscreenService>();
 
         ctx.CreateDiagramInstance();
 
         // Act
-        var component = ctx.RenderComponent<ClusterEditor.Components.FbSettingsEditor.FbSettingsEditor>();
+        var component = ctx.RenderComponent<FbSettingsEditor>();
 
         // Assert
         Assert.NotNull(component);

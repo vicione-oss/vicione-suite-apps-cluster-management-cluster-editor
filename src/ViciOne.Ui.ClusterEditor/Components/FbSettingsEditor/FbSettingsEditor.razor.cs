@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DevExpress.Blazor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.Blazor.Components.Extensions;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Localization;
@@ -39,6 +40,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
 #pragma warning restore CS0649 
     private string? _validationMessage;
 
+    [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private Datastore Datastore { get; set; } = default!;
     [Inject] private IFbSettingsEditorRequest FbSettingsEditorRequest { get; set; } = default!;
     [Inject] private FullscreenService FullscreenService { get; set; } = default!;
