@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.ClusterEditor.Models;
-using ViciOne.Ui.ClusterEditor.Resources;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
+using ViciOne.Ui.MonochromeIcons.Core.Enums;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Property.Components;
 
@@ -43,8 +43,8 @@ public sealed partial class PropertySectionContent<TPropertyGridContext> : Compo
 
         var groupByCategoryButton = new FilterButton()
         {
-            Icon = (MarkupString)SvgIcons.property_section_group_by_category,
             IsActive = PropertyGridState.GroupByCategory,
+            MonochromeIconName = MonochromeIconName.GroupByCategory,
             Title = Localization.PropertySection.EntriesGroupTooltip
         };
         groupByCategoryButton.OnFilterClickedFn = () =>

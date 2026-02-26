@@ -61,85 +61,6 @@ namespace ViciOne.Ui.ClusterEditor.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;path fill=&quot;#B1B1B1&quot; fill-rule=&quot;evenodd&quot; d=&quot;M26.56 13.56c.45 0 .82.37.82.81v12.2c0 .44-.37.8-.82.8h-8.12a.81.81 0 0 1-.82-.8v-6.5h8.94v-2.45h-8.93v-3.25c0-.44.36-.8.8-.8h8.13Zm0 10.56h-8.12v2.44h8.12v-2.43ZM22.5 6.25c.9 0 1.63.73 1.63 1.63v4.87h-.82V7.87a.81.81 0 0 0-.81-.8h-13a.81.81 0 0 0-.81.8v16.25c0 .45.36.82.81.82h7.31v.81H9.5c-.9 0-1.63-.73-1.63-1.63V7.88c0-.9.73-1.62 1.63-1.62h13Zm4.06 14.63h-8.12v2.43h8.12v-2.43Zm-2.43-2.85v1.63H16v-1.63h8 [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string action_column_chooser {
-            get {
-                return ResourceManager.GetString("action_column_chooser", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;g fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;&gt;&lt;path fill=&quot;#B1B1B1&quot; d=&quot;M24.13 14.38v12.18h-8.94V14.38h8.94Zm-5.55-8.13c.3 0 .6.09.87.25-.1.3-.15.6-.18.92l-.12-.12a.81.81 0 0 0-.57-.24h-9.9a.81.81 0 0 0-.8.82v16.25c0 .44.36.8.8.8h5.7v.82h-5.7c-.89 0-1.62-.73-1.62-1.62V7.88c0-.9.73-1.63 1.63-1.63h9.89Zm3.9 10.94h-5.65v1.16h2.1v5.78h1.42v-5.78h2.13v-1.16Zm.83-4.5v.87h-.81v-1.09c.26.1.53.17.81.21Z&quot;/&gt;&lt;path fill=&quot;#DEDEDE&quot; d=&quot;m24.83 4.22 1.38.57-.25 1.07c.07.05.13.11 [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string action_edit_template {
-            get {
-                return ResourceManager.GetString("action_edit_template", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;g fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;&gt;&lt;path fill=&quot;#B1B1B1&quot; d=&quot;M24.13 14.38v12.18h-8.94V14.38h8.94Zm-5.55-8.13c.43 0 .84.17 1.15.48l3.1 3.1c.31.31.48.72.48 1.16v2.57h-.81V11a.81.81 0 0 0-.24-.58l-3.1-3.11a.81.81 0 0 0-.58-.24h-9.9a.81.81 0 0 0-.8.82v16.25c0 .44.36.8.8.8h5.7v.82h-5.7c-.89 0-1.62-.73-1.62-1.63V7.88c0-.9.73-1.62 1.63-1.62h9.89Zm3.9 10.94h-5.65v1.16h2.1v5.77h1.42v-5.77h2.13v-1.16Z&quot;/&gt;&lt;rect width=&quot;12&quot; height=&quot;12&quot; fill=&quot;#7295C2&quot; rx=&quot;6&quot; transf [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string action_show_template {
-            get {
-                return ResourceManager.GetString("action_show_template", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 24 24&quot;&gt;&lt;path d=&quot;M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z&quot; /&gt;&lt;/svg&gt;.
-        /// </summary>
-        internal static string add {
-            get {
-                return ResourceManager.GetString("add", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot; &gt;
-        ///    &lt;g id=&quot;dark/icon/32x32/standard/collapse-all-rows&quot; stroke=&quot;none&quot; stroke-width=&quot;1&quot; fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;&gt;
-        ///        &lt;path d=&quot;M28,17 L28,25 L20,25 L20,17 L28,17 Z M26.4130738,20.370219 L21.2585935,20.370219 L21.2585935,21.6588391 L26.4130738,21.6588391 L26.4130738,20.370219 Z M21,15 L21,16 L19,16 L19,16.999 L5,17 L5,15 L21,15 Z M21,11 L21,13 L5,13 L5,11 L21,11 Z M21,7 L21,9 L5,9 L5,7 L21,7 Z&quot; id=&quot;Icon&quot; fill=&quot;#FFFFFF&quot;&gt;&lt;/path&gt;
-        ///    &lt;/g&gt; [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string collapse_all_groups {
-            get {
-                return ResourceManager.GetString("collapse-all-groups", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot; &gt;
-        ///    &lt;g id=&quot;dark/icon/32x32/standard/column-chooser&quot; stroke=&quot;none&quot; stroke-width=&quot;1&quot; fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;&gt;
-        ///        &lt;path d=&quot;M27,10 L27,4 L9,4 L9,10 L27,10 L27,10 Z M8,8 L8,11 L7,11 L7,15 L21,15 L21,11 L22.999,10.999 L23,29 L5,29 L5,8 L8,8 Z M21,23 L7,23 L7,27 L21,27 L21,23 Z M21,17 L7,17 L7,21 L21,21 L21,17 Z M25,6 L25,8 L11,8 L11,6 L25,6 Z&quot; id=&quot;icon&quot; fill=&quot;#FFFFFF&quot;&gt;&lt;/path&gt;
-        ///    &lt;/g&gt;
-        ///&lt;/svg&gt;.
-        /// </summary>
-        internal static string column_chooser {
-            get {
-                return ResourceManager.GetString("column-chooser", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;g fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;&gt;&lt;rect width=&quot;11&quot; height=&quot;11&quot; x=&quot;10.5&quot; y=&quot;10.5&quot; fill=&quot;#7295C2&quot; rx=&quot;.96&quot;/&gt;&lt;path fill=&quot;#FFF&quot; d=&quot;M10.5 7.06 7.06 10.5 6.03 9.47l1.74-1.74H2.5V6.27h5.27L6.03 4.53 7.06 3.5l3.44 3.44-.06.06.06.06Z&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;.
-        /// </summary>
-        internal static string connector_dragging_connector_in {
-            get {
-                return ResourceManager.GetString("connector-dragging_connector-in", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;g fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;&gt;&lt;rect width=&quot;11&quot; height=&quot;11&quot; x=&quot;10.5&quot; y=&quot;10.5&quot; fill=&quot;#7295C2&quot; rx=&quot;.96&quot;/&gt;&lt;path fill=&quot;#FFF&quot; d=&quot;m28.5 7.06-3.44 3.44-1.03-1.03 1.74-1.74H20.5V6.27h5.27l-1.74-1.74 1.03-1.03 3.44 3.44-.06.06.06.06Z&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;.
-        /// </summary>
-        internal static string connector_dragging_connector_out {
-            get {
-                return ResourceManager.GetString("connector-dragging_connector-out", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 24 24&quot;&gt;&lt;title&gt;arrow-down-right&lt;/title&gt;&lt;path fill=&quot;#DEDEDE&quot; d=&quot;M21.5 14.5L16 20L10.5 14.5L11.91 13.09L15 16.17V10.5C15 8 13 6 10.5 6H4V4H10.5C14.09 4 17 6.91 17 10.5V16.17L20.09 13.08L21.5 14.5Z&quot; /&gt;&lt;/svg&gt;.
         /// </summary>
         internal static string dataflow_structure_block_jump_into {
@@ -154,50 +75,6 @@ namespace ViciOne.Ui.ClusterEditor.Resources {
         internal static string dataflow_structure_block_jump_to {
             get {
                 return ResourceManager.GetString("dataflow_structure-block_jump-to", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;path d=&quot;m11.685 14.4-.001 7.447 2.264-2.245L15 20.644l-2.949 2.922L11 24.61l-1.052-1.042L7 20.644l1.051-1.042 2.261 2.242V14.4h1.373ZM27 22.4a1 1 0 0 1 0 2h-6a1 1 0 0 1 0-2h6Zm0-5a1 1 0 0 1 0 2h-8a1 1 0 0 1 0-2h8ZM8 7.4l1.052 1.042L12 11.365l-1.05 1.042-2.265-2.245v7.447H7.314l-.001-7.444-2.26 2.242L4 11.365l2.948-2.923L7.998 7.4Zm19 5a1 1 0 0 1 0 2H17a1 1 0 0 1 0-2h10Zm0-5a1 1 0 0 1 0 2H15a1 1 0 0 1 0-2h12Z&quot; fill=&quot;#FFF&quot; fill-rule=&quot;evenodd&quot;/&gt;&lt;/svg [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string dataport_section_sort_children {
-            get {
-                return ResourceManager.GetString("dataport_section_sort_children", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot; &gt;
-        ///    &lt;g id=&quot;dark/icon/32x32/standard/expand-all-rows&quot; stroke=&quot;none&quot; stroke-width=&quot;1&quot; fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;&gt;
-        ///        &lt;path d=&quot;M28,22 L28,30 L20,30 L20,22 L28,22 Z M24.4801437,23.4372888 L23.1915236,23.4372888 L23.1914286,25.37 L21.2585935,25.370219 L21.2585935,26.6588391 L23.1914286,26.6585714 L23.1915236,28.5917692 L24.4801437,28.5917692 L24.48,26.6585714 L26.4130738,26.6588391 L26.4130738,25.370219 L24.48,25.37 L24.4801437,23.4372888  [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string expand_all_groups {
-            get {
-                return ResourceManager.GetString("expand-all-groups", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; fill=&quot;#FFF&quot; viewBox=&quot;0 0 32 32&quot;&gt;
-        ///  &lt;path fill-rule=&quot;evenodd&quot; d=&quot;M9 24a1 1 0 0 1 1-1h20a1 1 0 0 1 0 2H10a1 1 0 0 1-1-1m-4-8a1 1 0 0 1 1-1h20a1 1 0 0 1 0 2H6a1 1 0 0 1-1-1M1 8a1 1 0 0 1 1-1h20a1 1 0 0 1 0 2H2a1 1 0 0 1-1-1&quot; style=&quot;stroke-width:2&quot;/&gt;
-        ///&lt;/svg&gt;.
-        /// </summary>
-        internal static string property_section_group_by_category {
-            get {
-                return ResourceManager.GetString("property-section_group-by-category", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg viewBox=&quot;0 0 32 32&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;
-        ///  &lt;g style=&quot;fill:#4ff;fill-opacity:1&quot;&gt;
-        ///    &lt;path d=&quot;M22.58 10 29 16.004 22.58 22H3l4.538-5.946L3 10Z&quot; fill=&quot;#FFF&quot; style=&quot;fill:#fff;fill-opacity:1&quot; fill-rule=&quot;evenodd&quot;/&gt;
-        ///  &lt;/g&gt;
-        ///&lt;/svg&gt;.
-        /// </summary>
-        internal static string published_connector_dragging {
-            get {
-                return ResourceManager.GetString("published_connector_dragging", resourceCulture);
             }
         }
         
@@ -224,27 +101,6 @@ namespace ViciOne.Ui.ClusterEditor.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; xmlns:xlink=&quot;http://www.w3.org/1999/xlink&quot; viewBox=&quot;0 0 32 32&quot;&gt;
-        ///  &lt;path d=&quot;M13.111 6H6.89C6.396 6 6 6.4 6 6.889v6.222c0 .489.396.889.889.889h6.222c.493 0 .889-.4.889-.889V6.89A.889.889 0 0 0 13.111 6Zm-4 6.222L6.89 10l.627-.627 1.595 1.591 3.373-3.373.627.631-4 4Zm4 5.778H6.89c-.493 0-.889.4-.889.889v6.222c0 .489.396.889.889.889h6.222c.493 0 .889-.4.889-.889V18.89a.889.889 0 0 0-.889-.889Zm-4 6.222L6.89 22l.627-.627 1.595 1.591 3.373-3.373.627.631-4 4ZM25.111 6H18.89 [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string searchandtools_section_all {
-            get {
-                return ResourceManager.GetString("searchandtools-section_all", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;
-        ///  &lt;path fill=&quot;#DEDEDE&quot; fill-rule=&quot;evenodd&quot; d=&quot;M14 6a1 1 0 0 0-2 0v5a1 1 0 0 0 2 0v-1h1v1a2 2 0 1 1-4 0V6a2 2 0 1 1 4 0v1h5l5 5v15H9v-4h1v3h14V12.415L19.585 8H13V7h1V6Zm-4 3v1H8v11h8v-9.79l1 1.04V22H7V9h3Zm0-2v1H9V7h1Z&quot;/&gt;
-        ///&lt;/svg&gt;.
-        /// </summary>
-        internal static string searchandtools_section_attached {
-            get {
-                return ResourceManager.GetString("searchandtools-section_attached", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;
         ///  &lt;path d=&quot;M23 7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14Zm0 1H9a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1Zm-2.513 3 1.346 1.502-4.33 3.915 4.33 3.915-1.346 1.501L16 17.776l-4.487 4.057-1.346-1.501 4.33-3.915-4.33-3.915L11.513 11 16 15.057 20.487 11Z&quot; fill=&quot;#DEDEDE&quot; fill-rule=&quot;evenodd&quot;/&gt;
         ///&lt;/svg&gt;.
@@ -252,70 +108,6 @@ namespace ViciOne.Ui.ClusterEditor.Resources {
         internal static string searchandtools_section_clear {
             get {
                 return ResourceManager.GetString("searchandtools-section_clear", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;
-        ///  &lt;path d=&quot;M20 18a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h8Zm0 1h-8v8h8v-8Zm-7-8a1 1 0 0 1 1 1v5h-3a1 1 0 0 0-.993.883L10 18v3H5a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h8Zm2.887-7 .042 2.423.214.003c.108.004.216.01.323.016 2.255.086 4.485.964 6.221 2.74.115.113.226.229.334.347a9.068 9.068 0 0 1 2.46 5.127c.052.337.087.677.105 1.018l.008.247H28l-.272.38-.19.267c-.876 1.224-2.704 3.788-2.888 4.103l-3.046-4.75h2.132v-.237c-.06-1.9-.85 [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string searchandtools_section_invert {
-            get {
-                return ResourceManager.GetString("searchandtools-section_invert", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;
-        ///  &lt;path d=&quot;M20.267 8c.736 0 1.333.597 1.333 1.333v13.334c0 .736-.597 1.333-1.333 1.333h-8.534a1.333 1.333 0 0 1-1.333-1.333V9.333c0-.736.597-1.333 1.333-1.333h8.534Zm0 1.333h-8.534v13.334h8.534V9.333ZM19.2 10.667v2.666h-6.4v-2.666h6.4Zm-14.709 12v-1.334h4.491V20h-4.49v-1.333l-2.246 2 2.245 2Z&quot; fill=&quot;#DEDEDE&quot; fill-rule=&quot;evenodd&quot;/&gt;
-        ///&lt;/svg&gt;.
-        /// </summary>
-        internal static string searchandtools_section_predecessor {
-            get {
-                return ResourceManager.GetString("searchandtools-section_predecessor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;
-        ///  &lt;path d=&quot;M20.267 8c.736 0 1.333.597 1.333 1.333v13.334c0 .736-.597 1.333-1.333 1.333h-8.534a1.333 1.333 0 0 1-1.333-1.333V9.333c0-.736.597-1.333 1.333-1.333h8.534Zm0 1.333h-8.534v13.334h8.534V9.333ZM19.2 10.667v2.666h-6.4v-2.666h6.4Zm-16.954 8V20h4.49v1.333h-4.49v1.334l-2.246-2 2.246-2Zm2.245-4V16h4.491v1.333h-4.49v1.334l-2.246-2 2.245-2Z&quot; fill=&quot;#DEDEDE&quot; fill-rule=&quot;evenodd&quot;/&gt;
-        ///&lt;/svg&gt;.
-        /// </summary>
-        internal static string searchandtools_section_predecessors {
-            get {
-                return ResourceManager.GetString("searchandtools-section_predecessors", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;
-        ///  &lt;path fill=&quot;#DEDEDE&quot; fill-rule=&quot;evenodd&quot; d=&quot;M13.111 6H6.89C6.396 6 6 6.4 6 6.889v6.222c0 .489.396.889.889.889h6.222c.493 0 .889-.4.889-.889V6.89A.889.889 0 0 0 13.111 6Zm-4 6.222L6.89 10l.627-.627 1.595 1.591 3.373-3.373.627.631-4 4Zm4 5.778H6.89c-.493 0-.889.4-.889.889v6.222c0 .489.396.889.889.889h6.222c.493 0 .889-.4.889-.889V18.89a.889.889 0 0 0-.889-.889Zm-4 6.222L6.89 22l.627-.627 1.595 1.591 3.373-3.373.627.631-4 4ZM25.111 6c.493 0 .889.4 [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string searchandtools_section_selected {
-            get {
-                return ResourceManager.GetString("searchandtools-section_selected", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;
-        ///  &lt;path d=&quot;M20.267 8c.736 0 1.333.597 1.333 1.333v13.334c0 .736-.597 1.333-1.333 1.333h-8.534a1.333 1.333 0 0 1-1.333-1.333V9.333c0-.736.597-1.333 1.333-1.333h8.534Zm0 1.333h-8.534v13.334h8.534V9.333ZM19.2 10.667v2.666h-6.4v-2.666h6.4Zm8.305 2.666V12h-4.492v-1.333h4.492V9.333l2.245 2-2.245 2Z&quot; fill=&quot;#DEDEDE&quot; fill-rule=&quot;evenodd&quot;/&gt;
-        ///&lt;/svg&gt;.
-        /// </summary>
-        internal static string searchandtools_section_successor {
-            get {
-                return ResourceManager.GetString("searchandtools-section_successor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;
-        ///  &lt;path d=&quot;M20.267 8c.736 0 1.333.597 1.333 1.333v13.334c0 .736-.597 1.333-1.333 1.333h-8.534a1.333 1.333 0 0 1-1.333-1.333V9.333c0-.736.597-1.333 1.333-1.333h8.534Zm0 1.333h-8.534v13.334h8.534V9.333ZM19.2 10.667v2.666h-6.4v-2.666h6.4Zm10.55 2.666V12H25.26v-1.333h4.491V9.333l2.246 2-2.246 2Zm-2.245 4V16h-4.492v-1.333h4.492v-1.334l2.245 2-2.245 2Z&quot; fill=&quot;#DEDEDE&quot; fill-rule=&quot;evenodd&quot;/&gt;
-        ///&lt;/svg&gt;.
-        /// </summary>
-        internal static string searchandtools_section_successors {
-            get {
-                return ResourceManager.GetString("searchandtools-section_successors", resourceCulture);
             }
         }
         
@@ -338,24 +130,6 @@ namespace ViciOne.Ui.ClusterEditor.Resources {
         internal static string searchbox_search {
             get {
                 return ResourceManager.GetString("searchbox-search", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;path d=&quot;M26 17a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h8Zm0 1h-8v8h8v-8Zm-4-9a1 1 0 0 1 1 1l-.001 6H17a1 1 0 0 0-.993.883L16 17v5.999L10 23a1 1 0 0 1-1-1v-6h6a1 1 0 0 0 .993-.883L16 15V9h6Zm-8-4a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h8Zm0 1H6v8h8V6Z&quot; fill=&quot;rgb(222, 222, 222)&quot; fill-rule=&quot;evenodd&quot;/&gt;&lt;/svg&gt;.
-        /// </summary>
-        internal static string several_to_back {
-            get {
-                return ResourceManager.GetString("several_to-back", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;path d=&quot;M25 16a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-3h1v3h8v-8h-3v-1h3Zm-5-5a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h8Zm-5-5a1 1 0 0 1 1 1v3h-1V7H7v8h3v1H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h8Z&quot; fill=&quot;rgb(222, 222, 222)&quot; fill-rule=&quot;evenodd&quot;/&gt;&lt;/svg&gt;.
-        /// </summary>
-        internal static string several_to_front {
-            get {
-                return ResourceManager.GetString("several_to-front", resourceCulture);
             }
         }
         
@@ -412,33 +186,6 @@ namespace ViciOne.Ui.ClusterEditor.Resources {
         internal static string topology_section_server_network {
             get {
                 return ResourceManager.GetString("topology-section_server_network", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;path fill=&quot;#DEDEDE&quot; fill-rule=&quot;evenodd&quot; d=&quot;M17 17v8H9v-8h8Zm-1 1h-6v6h6v-6Zm1-11v8H9V7h8Zm-1 1h-6v6h6V8Z&quot;/&gt;&lt;/svg&gt;.
-        /// </summary>
-        internal static string uncheck_all {
-            get {
-                return ResourceManager.GetString("uncheck_all", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;defs&gt;&lt;clipPath id=&quot;zoom_100&quot;&gt;&lt;path d=&quot;M9 0c5 0 9 4 9 9 0 2.12-.72 4.05-1.92 5.59L22 20.6 20.5 22l-5.87-5.96A8.98 8.98 0 0 1 9 18c-5 0-9-4-9-9s4-9 9-9Zm0 2C5.1 2 2 5.1 2 9s3.1 7 7 7 7-3.1 7-7-3.1-7-7-7Zm-.39 4.68c.47 0 .82.15 1.05.44.23.3.34.75.35 1.35v.73c0 .62-.11 1.08-.34 1.4-.23.3-.58.46-1.05.46-.46 0-.81-.15-1.04-.46-.24-.3-.36-.75-.36-1.35v-.73c0-.62.11-1.08.34-1.38.23-.31.58-.46 1.05-.46Zm3.41 0c.47 0 .82.15 1.05.44.23.3.34.75.35 1.35v.73c0  [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string zoom_100 {
-            get {
-                return ResourceManager.GetString("zoom_100", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;&lt;defs&gt;&lt;clipPath id=&quot;zoom_to_fit&quot;&gt;&lt;path d=&quot;M9 0c5 0 9 4 9 9 0 2.12-.72 4.05-1.92 5.59L22 20.6 20.5 22l-5.87-5.96A8.98 8.98 0 0 1 9 18c-5 0-9-4-9-9s4-9 9-9Zm0 2C5.1 2 2 5.1 2 9s3.1 7 7 7 7-3.1 7-7-3.1-7-7-7Zm-3 8v2h2v1H5v-3h1Zm7 0v3h-3v-1h2v-2h1ZM8 5v1H6v2H5V5h3Zm5 0v3h-1V6h-2V5h3Z&quot;/&gt;&lt;/clipPath&gt;&lt;/defs&gt;&lt;g clip-path=&quot;url(#zoom_to_fit)&quot; transform=&quot;translate(5 5)&quot;&gt;&lt;path fill=&quot;#FFF&quot; d=&quot;M0 0h22v22H0V0z&quot;/&gt;&lt;/g&gt;&lt;/svg&gt;.
-        /// </summary>
-        internal static string zoom_to_fit {
-            get {
-                return ResourceManager.GetString("zoom_to_fit", resourceCulture);
             }
         }
     }

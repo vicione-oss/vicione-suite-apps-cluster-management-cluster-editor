@@ -117,15 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="action_column_chooser" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;&lt;path fill="#B1B1B1" fill-rule="evenodd" d="M26.56 13.56c.45 0 .82.37.82.81v12.2c0 .44-.37.8-.82.8h-8.12a.81.81 0 0 1-.82-.8v-6.5h8.94v-2.45h-8.93v-3.25c0-.44.36-.8.8-.8h8.13Zm0 10.56h-8.12v2.44h8.12v-2.43ZM22.5 6.25c.9 0 1.63.73 1.63 1.63v4.87h-.82V7.87a.81.81 0 0 0-.81-.8h-13a.81.81 0 0 0-.81.8v16.25c0 .45.36.82.81.82h7.31v.81H9.5c-.9 0-1.63-.73-1.63-1.63V7.88c0-.9.73-1.62 1.63-1.62h13Zm4.06 14.63h-8.12v2.43h8.12v-2.43Zm-2.43-2.85v1.63H16v-1.63h8.13Zm2.43-3.66h-8.12v2.44h8.12v-2.43Z"/&gt;&lt;/svg&gt;</value>
-  </data>
-  <data name="action_edit_template" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;&lt;g fill="none" fill-rule="evenodd"&gt;&lt;path fill="#B1B1B1" d="M24.13 14.38v12.18h-8.94V14.38h8.94Zm-5.55-8.13c.3 0 .6.09.87.25-.1.3-.15.6-.18.92l-.12-.12a.81.81 0 0 0-.57-.24h-9.9a.81.81 0 0 0-.8.82v16.25c0 .44.36.8.8.8h5.7v.82h-5.7c-.89 0-1.62-.73-1.62-1.62V7.88c0-.9.73-1.63 1.63-1.63h9.89Zm3.9 10.94h-5.65v1.16h2.1v5.78h1.42v-5.78h2.13v-1.16Zm.83-4.5v.87h-.81v-1.09c.26.1.53.17.81.21Z"/&gt;&lt;path fill="#DEDEDE" d="m24.83 4.22 1.38.57-.25 1.07c.07.05.13.11.18.18l1.07-.25.57 1.38-.93.58V8l.93.58-.57 1.38-1.07-.25c-.05.07-.11.13-.18.18l.25 1.07-1.38.57-.58-.93H24l-.58.93-1.38-.57.25-1.07a3.18 3.18 0 0 1-.18-.18l-1.07.25-.57-1.38.93-.58v-.25l-.93-.58.57-1.38 1.07.25c.05-.07.11-.13.18-.18l-.25-1.07 1.38-.57.58.93h.25l.58-.93Zm.19.57-.51.82h-.77l-.5-.82-.66.28.21.94-.2.18-.15.16-.18.2-.94-.22-.28.65.82.51v.77l-.82.5.28.66.94-.21.18.2.16.15.2.18-.22.94.65.28.51-.82h.77l.5.82.66-.28-.21-.94.2-.18.15-.16.18-.2.94.22.28-.65-.82-.51v-.77l.82-.5-.28-.66-.94.21-.18-.2-.16-.15-.2-.18.22-.94-.65-.28Zm-.9 1.56a1.48 1.48 0 0 1 1.08.45 1.54 1.54 0 0 1 .33 1.67 1.54 1.54 0 0 1-1.4.93 1.48 1.48 0 0 1-1.08-.45 1.54 1.54 0 0 1-.33-1.67 1.54 1.54 0 0 1 1.4-.93Zm0 .3A1.24 1.24 0 0 0 23 7.4c-.05.15-.08.3-.08.48 0 .17.03.32.09.47a1.24 1.24 0 0 0 .65.65 1.17 1.17 0 0 0 .94 0 1.24 1.24 0 0 0 .66-.65 1.17 1.17 0 0 0 0-.94 1.24 1.24 0 0 0-.65-.66c-.15-.06-.3-.1-.48-.1Z"/&gt;&lt;/g&gt;&lt;/svg&gt;</value>
-  </data>
-  <data name="action_show_template" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;&lt;g fill="none" fill-rule="evenodd"&gt;&lt;path fill="#B1B1B1" d="M24.13 14.38v12.18h-8.94V14.38h8.94Zm-5.55-8.13c.43 0 .84.17 1.15.48l3.1 3.1c.31.31.48.72.48 1.16v2.57h-.81V11a.81.81 0 0 0-.24-.58l-3.1-3.11a.81.81 0 0 0-.58-.24h-9.9a.81.81 0 0 0-.8.82v16.25c0 .44.36.8.8.8h5.7v.82h-5.7c-.89 0-1.62-.73-1.62-1.63V7.88c0-.9.73-1.62 1.63-1.62h9.89Zm3.9 10.94h-5.65v1.16h2.1v5.77h1.42v-5.77h2.13v-1.16Z"/&gt;&lt;rect width="12" height="12" fill="#7295C2" rx="6" transform="translate(18 2)"/&gt;&lt;/g&gt;&lt;/svg&gt;</value>
-  </data>
   <data name="dataflow_structure-block_jump-into" xml:space="preserve">
     <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"&gt;&lt;title&gt;arrow-down-right&lt;/title&gt;&lt;path fill="#DEDEDE" d="M21.5 14.5L16 20L10.5 14.5L11.91 13.09L15 16.17V10.5C15 8 13 6 10.5 6H4V4H10.5C14.09 4 17 6.91 17 10.5V16.17L20.09 13.08L21.5 14.5Z" /&gt;&lt;/svg&gt;</value>
   </data>
@@ -146,77 +137,15 @@
     &lt;/g&gt;
 &lt;/svg&gt;</value>
   </data>
-  <data name="published_connector_dragging" xml:space="preserve">
-    <value>&lt;svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg"&gt;
-  &lt;g style="fill:#4ff;fill-opacity:1"&gt;
-    &lt;path d="M22.58 10 29 16.004 22.58 22H3l4.538-5.946L3 10Z" fill="#FFF" style="fill:#fff;fill-opacity:1" fill-rule="evenodd"/&gt;
-  &lt;/g&gt;
-&lt;/svg&gt;</value>
-  </data>
-  <data name="searchandtools-section_all" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 32 32"&gt;
-  &lt;path d="M13.111 6H6.89C6.396 6 6 6.4 6 6.889v6.222c0 .489.396.889.889.889h6.222c.493 0 .889-.4.889-.889V6.89A.889.889 0 0 0 13.111 6Zm-4 6.222L6.89 10l.627-.627 1.595 1.591 3.373-3.373.627.631-4 4Zm4 5.778H6.89c-.493 0-.889.4-.889.889v6.222c0 .489.396.889.889.889h6.222c.493 0 .889-.4.889-.889V18.89a.889.889 0 0 0-.889-.889Zm-4 6.222L6.89 22l.627-.627 1.595 1.591 3.373-3.373.627.631-4 4ZM25.111 6H18.89c-.493 0-.889.4-.889.889v6.222c0 .489.396.889.889.889h6.222c.493 0 .889-.4.889-.889V6.89A.889.889 0 0 0 25.111 6Zm-4 6.222L18.89 10l.627-.627 1.595 1.591 3.373-3.373.627.631-4 4Zm4 5.778H18.89c-.493 0-.889.4-.889.889v6.222c0 .489.396.889.889.889h6.222c.493 0 .889-.4.889-.889V18.89a.889.889 0 0 0-.889-.889Zm-4 6.222L18.89 22l.627-.627 1.595 1.591 3.373-3.373.627.631-4 4Z" fill="#DEDEDE" fill-rule="evenodd"/&gt;
-&lt;/svg&gt;</value>
-  </data>
-  <data name="searchandtools-section_attached" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;
-  &lt;path fill="#DEDEDE" fill-rule="evenodd" d="M14 6a1 1 0 0 0-2 0v5a1 1 0 0 0 2 0v-1h1v1a2 2 0 1 1-4 0V6a2 2 0 1 1 4 0v1h5l5 5v15H9v-4h1v3h14V12.415L19.585 8H13V7h1V6Zm-4 3v1H8v11h8v-9.79l1 1.04V22H7V9h3Zm0-2v1H9V7h1Z"/&gt;
-&lt;/svg&gt;</value>
-  </data>
   <data name="searchandtools-section_clear" xml:space="preserve">
     <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;
   &lt;path d="M23 7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14Zm0 1H9a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1Zm-2.513 3 1.346 1.502-4.33 3.915 4.33 3.915-1.346 1.501L16 17.776l-4.487 4.057-1.346-1.501 4.33-3.915-4.33-3.915L11.513 11 16 15.057 20.487 11Z" fill="#DEDEDE" fill-rule="evenodd"/&gt;
 &lt;/svg&gt;</value>
   </data>
-  <data name="searchandtools-section_invert" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;
-  &lt;path d="M20 18a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h8Zm0 1h-8v8h8v-8Zm-7-8a1 1 0 0 1 1 1v5h-3a1 1 0 0 0-.993.883L10 18v3H5a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h8Zm2.887-7 .042 2.423.214.003c.108.004.216.01.323.016 2.255.086 4.485.964 6.221 2.74.115.113.226.229.334.347a9.068 9.068 0 0 1 2.46 5.127c.052.337.087.677.105 1.018l.008.247H28l-.272.38-.19.267c-.876 1.224-2.704 3.788-2.888 4.103l-3.046-4.75h2.132v-.237c-.06-1.9-.853-3.8-2.315-5.225a7.98 7.98 0 0 0-3.4-1.949 7.6 7.6 0 0 0-1.822-.25l-.238.003.037 2.132-4.802-2.962c.174-.107 1.045-.74 1.99-1.435l.611-.45c.867-.64 1.684-1.247 1.976-1.464l.084-.062.03-.022Z" fill="#DEDEDE" fill-rule="evenodd"/&gt;
-&lt;/svg&gt;</value>
-  </data>
-  <data name="searchandtools-section_predecessor" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;
-  &lt;path d="M20.267 8c.736 0 1.333.597 1.333 1.333v13.334c0 .736-.597 1.333-1.333 1.333h-8.534a1.333 1.333 0 0 1-1.333-1.333V9.333c0-.736.597-1.333 1.333-1.333h8.534Zm0 1.333h-8.534v13.334h8.534V9.333ZM19.2 10.667v2.666h-6.4v-2.666h6.4Zm-14.709 12v-1.334h4.491V20h-4.49v-1.333l-2.246 2 2.245 2Z" fill="#DEDEDE" fill-rule="evenodd"/&gt;
-&lt;/svg&gt;</value>
-  </data>
-  <data name="searchandtools-section_predecessors" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;
-  &lt;path d="M20.267 8c.736 0 1.333.597 1.333 1.333v13.334c0 .736-.597 1.333-1.333 1.333h-8.534a1.333 1.333 0 0 1-1.333-1.333V9.333c0-.736.597-1.333 1.333-1.333h8.534Zm0 1.333h-8.534v13.334h8.534V9.333ZM19.2 10.667v2.666h-6.4v-2.666h6.4Zm-16.954 8V20h4.49v1.333h-4.49v1.334l-2.246-2 2.246-2Zm2.245-4V16h4.491v1.333h-4.49v1.334l-2.246-2 2.245-2Z" fill="#DEDEDE" fill-rule="evenodd"/&gt;
-&lt;/svg&gt;</value>
-  </data>
-  <data name="searchandtools-section_selected" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;
-  &lt;path fill="#DEDEDE" fill-rule="evenodd" d="M13.111 6H6.89C6.396 6 6 6.4 6 6.889v6.222c0 .489.396.889.889.889h6.222c.493 0 .889-.4.889-.889V6.89A.889.889 0 0 0 13.111 6Zm-4 6.222L6.89 10l.627-.627 1.595 1.591 3.373-3.373.627.631-4 4Zm4 5.778H6.89c-.493 0-.889.4-.889.889v6.222c0 .489.396.889.889.889h6.222c.493 0 .889-.4.889-.889V18.89a.889.889 0 0 0-.889-.889Zm-4 6.222L6.89 22l.627-.627 1.595 1.591 3.373-3.373.627.631-4 4ZM25.111 6c.493 0 .889.4.889.889v6.222a.889.889 0 0 1-.889.889H18.89a.889.889 0 0 1-.889-.889V6.89c0-.489.396-.889.889-.889h6.222ZM25 7h-6v6h6V7Zm.111 11c.493 0 .889.4.889.889v6.222a.889.889 0 0 1-.889.889H18.89a.889.889 0 0 1-.889-.889V18.89c0-.489.396-.889.889-.889h6.222ZM25 19h-6v6h6v-6Z"/&gt;
-&lt;/svg&gt;</value>
-  </data>
-  <data name="searchandtools-section_successor" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;
-  &lt;path d="M20.267 8c.736 0 1.333.597 1.333 1.333v13.334c0 .736-.597 1.333-1.333 1.333h-8.534a1.333 1.333 0 0 1-1.333-1.333V9.333c0-.736.597-1.333 1.333-1.333h8.534Zm0 1.333h-8.534v13.334h8.534V9.333ZM19.2 10.667v2.666h-6.4v-2.666h6.4Zm8.305 2.666V12h-4.492v-1.333h4.492V9.333l2.245 2-2.245 2Z" fill="#DEDEDE" fill-rule="evenodd"/&gt;
-&lt;/svg&gt;</value>
-  </data>
-  <data name="searchandtools-section_successors" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;
-  &lt;path d="M20.267 8c.736 0 1.333.597 1.333 1.333v13.334c0 .736-.597 1.333-1.333 1.333h-8.534a1.333 1.333 0 0 1-1.333-1.333V9.333c0-.736.597-1.333 1.333-1.333h8.534Zm0 1.333h-8.534v13.334h8.534V9.333ZM19.2 10.667v2.666h-6.4v-2.666h6.4Zm10.55 2.666V12H25.26v-1.333h4.491V9.333l2.246 2-2.246 2Zm-2.245 4V16h-4.492v-1.333h4.492v-1.334l2.245 2-2.245 2Z" fill="#DEDEDE" fill-rule="evenodd"/&gt;
-&lt;/svg&gt;</value>
-  </data>
-  <data name="several_to-back" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;&lt;path d="M26 17a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h8Zm0 1h-8v8h8v-8Zm-4-9a1 1 0 0 1 1 1l-.001 6H17a1 1 0 0 0-.993.883L16 17v5.999L10 23a1 1 0 0 1-1-1v-6h6a1 1 0 0 0 .993-.883L16 15V9h6Zm-8-4a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h8Zm0 1H6v8h8V6Z" fill="rgb(222, 222, 222)" fill-rule="evenodd"/&gt;&lt;/svg&gt;</value>
-  </data>
-  <data name="several_to-front" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;&lt;path d="M25 16a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-3h1v3h8v-8h-3v-1h3Zm-5-5a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1h-8a1 1 0 0 1-1-1v-8a1 1 0 0 1 1-1h8Zm-5-5a1 1 0 0 1 1 1v3h-1V7H7v8h3v1H7a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h8Z" fill="rgb(222, 222, 222)" fill-rule="evenodd"/&gt;&lt;/svg&gt;</value>
-  </data>
   <data name="toolbar_main-fullscreen" xml:space="preserve">
     <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;
                             &lt;path d="M10.615 20 12 21.385 7.154 26.23l2.077 2.077L3 29l.692-6.23 2.077 2.076L10.615 20Zm10.77 0 4.846 4.846 2.077-2.077L29 29l-6.23-.692 2.076-2.077L20 21.385 21.385 20ZM3 3l6.23.692L7.155 5.77 12 10.615 10.615 12 5.77 7.154 3.692 9.23 3 3Zm26 0-.692 6.23-2.077-2.076L21.385 12 20 10.615l4.846-4.846-2.077-2.077L29 3Z" fill="#FFF" fill-rule="evenodd" /&gt;
                         &lt;/svg&gt;</value>
-  </data>
-  <data name="uncheck_all" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;&lt;path fill="#DEDEDE" fill-rule="evenodd" d="M17 17v8H9v-8h8Zm-1 1h-6v6h6v-6Zm1-11v8H9V7h8Zm-1 1h-6v6h6V8Z"/&gt;&lt;/svg&gt;</value>
-  </data>
-  <data name="zoom_100" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;&lt;defs&gt;&lt;clipPath id="zoom_100"&gt;&lt;path d="M9 0c5 0 9 4 9 9 0 2.12-.72 4.05-1.92 5.59L22 20.6 20.5 22l-5.87-5.96A8.98 8.98 0 0 1 9 18c-5 0-9-4-9-9s4-9 9-9Zm0 2C5.1 2 2 5.1 2 9s3.1 7 7 7 7-3.1 7-7-3.1-7-7-7Zm-.39 4.68c.47 0 .82.15 1.05.44.23.3.34.75.35 1.35v.73c0 .62-.11 1.08-.34 1.4-.23.3-.58.46-1.05.46-.46 0-.81-.15-1.04-.46-.24-.3-.36-.75-.36-1.35v-.73c0-.62.11-1.08.34-1.38.23-.31.58-.46 1.05-.46Zm3.41 0c.47 0 .82.15 1.05.44.23.3.34.75.35 1.35v.73c0 .62-.11 1.08-.34 1.4-.23.3-.58.46-1.05.46-.46 0-.81-.15-1.04-.46-.24-.3-.36-.75-.36-1.35v-.73c0-.62.11-1.08.34-1.38.23-.31.58-.46 1.05-.46Zm-6.27.04V11h-.71V7.58l-1.05.35v-.6l1.67-.61h.09Zm2.86.53c-.23 0-.4.09-.51.26-.11.18-.17.45-.17.83v.97c0 .4.05.7.16.89.12.2.29.29.53.29.23 0 .4-.09.5-.27.11-.18.17-.46.18-.85v-.96c0-.4-.06-.7-.17-.88-.1-.19-.28-.28-.52-.28Zm3.41 0c-.23 0-.4.09-.51.26-.11.18-.17.45-.17.83v.97c0 .4.05.7.16.89.12.2.29.29.53.29.23 0 .4-.09.5-.27.11-.18.17-.46.18-.85v-.96c0-.4-.06-.7-.17-.88-.1-.19-.28-.28-.52-.28Z"/&gt;&lt;/clipPath&gt;&lt;/defs&gt;&lt;g clip-path="url(#zoom_100)" transform="translate(5 5)"&gt;&lt;path fill="#FFF" d="M0 0h22v22H0V0z"/&gt;&lt;/g&gt;&lt;/svg&gt;</value>
-  </data>
-  <data name="zoom_to_fit" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;&lt;defs&gt;&lt;clipPath id="zoom_to_fit"&gt;&lt;path d="M9 0c5 0 9 4 9 9 0 2.12-.72 4.05-1.92 5.59L22 20.6 20.5 22l-5.87-5.96A8.98 8.98 0 0 1 9 18c-5 0-9-4-9-9s4-9 9-9Zm0 2C5.1 2 2 5.1 2 9s3.1 7 7 7 7-3.1 7-7-3.1-7-7-7Zm-3 8v2h2v1H5v-3h1Zm7 0v3h-3v-1h2v-2h1ZM8 5v1H6v2H5V5h3Zm5 0v3h-1V6h-2V5h3Z"/&gt;&lt;/clipPath&gt;&lt;/defs&gt;&lt;g clip-path="url(#zoom_to_fit)" transform="translate(5 5)"&gt;&lt;path fill="#FFF" d="M0 0h22v22H0V0z"/&gt;&lt;/g&gt;&lt;/svg&gt;</value>
   </data>
   <data name="searchbox-filter" xml:space="preserve">
     <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;
@@ -227,15 +156,6 @@
     <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;
   &lt;path fill="#dedede" fill-rule="evenodd" d="M14.364 7a7.333 7.333 0 0 1 7.363 7.364 7.349 7.349 0 0 1-1.573 4.57L25 23.854 23.773 25l-4.802-4.876a7.348 7.348 0 0 1-4.607 1.603A7.333 7.333 0 0 1 7 14.364 7.333 7.333 0 0 1 14.364 7Zm0 1.636a5.692 5.692 0 0 0-5.728 5.728 5.692 5.692 0 0 0 5.728 5.727 5.692 5.692 0 0 0 5.727-5.727 5.692 5.692 0 0 0-5.727-5.728z"/&gt;
 &lt;/svg&gt;</value>
-  </data>
-  <data name="connector-dragging_connector-in" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;&lt;g fill="none" fill-rule="evenodd"&gt;&lt;rect width="11" height="11" x="10.5" y="10.5" fill="#7295C2" rx=".96"/&gt;&lt;path fill="#FFF" d="M10.5 7.06 7.06 10.5 6.03 9.47l1.74-1.74H2.5V6.27h5.27L6.03 4.53 7.06 3.5l3.44 3.44-.06.06.06.06Z"/&gt;&lt;/g&gt;&lt;/svg&gt;</value>
-  </data>
-  <data name="connector-dragging_connector-out" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;&lt;g fill="none" fill-rule="evenodd"&gt;&lt;rect width="11" height="11" x="10.5" y="10.5" fill="#7295C2" rx=".96"/&gt;&lt;path fill="#FFF" d="m28.5 7.06-3.44 3.44-1.03-1.03 1.74-1.74H20.5V6.27h5.27l-1.74-1.74 1.03-1.03 3.44 3.44-.06.06.06.06Z"/&gt;&lt;/g&gt;&lt;/svg&gt;</value>
-  </data>
-  <data name="dataport_section_sort_children" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"&gt;&lt;path d="m11.685 14.4-.001 7.447 2.264-2.245L15 20.644l-2.949 2.922L11 24.61l-1.052-1.042L7 20.644l1.051-1.042 2.261 2.242V14.4h1.373ZM27 22.4a1 1 0 0 1 0 2h-6a1 1 0 0 1 0-2h6Zm0-5a1 1 0 0 1 0 2h-8a1 1 0 0 1 0-2h8ZM8 7.4l1.052 1.042L12 11.365l-1.05 1.042-2.265-2.245v7.447H7.314l-.001-7.444-2.26 2.242L4 11.365l2.948-2.923L7.998 7.4Zm19 5a1 1 0 0 1 0 2H17a1 1 0 0 1 0-2h10Zm0-5a1 1 0 0 1 0 2H15a1 1 0 0 1 0-2h12Z" fill="#FFF" fill-rule="evenodd"/&gt;&lt;/svg&gt;</value>
   </data>
   <data name="topology-section_application" xml:space="preserve">
     <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"&gt;&lt;path fill="currentColor" d="M21 2H3c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h18c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2m0 5H3V4h18z"/&gt;&lt;/svg&gt;</value>
@@ -251,34 +171,5 @@
   </data>
   <data name="topology-section_server_network" xml:space="preserve">
     <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"&gt;&lt;path fill="currentColor" d="M13 19h1a1 1 0 0 1 1 1h7v2h-7a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1H2v-2h7a1 1 0 0 1 1-1h1v-2H4a1 1 0 0 1-1-1v-4a1 1 0 0 1 1-1h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1h-7zM4 3h16a1 1 0 0 1 1 1v4a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1m5 4h1V5H9zm0 8h1v-2H9zM5 5v2h2V5zm0 8v2h2v-2z"/&gt;&lt;/svg&gt;</value>
-  </data>
-  <data name="property-section_group-by-category" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" fill="#FFF" viewBox="0 0 32 32"&gt;
-  &lt;path fill-rule="evenodd" d="M9 24a1 1 0 0 1 1-1h20a1 1 0 0 1 0 2H10a1 1 0 0 1-1-1m-4-8a1 1 0 0 1 1-1h20a1 1 0 0 1 0 2H6a1 1 0 0 1-1-1M1 8a1 1 0 0 1 1-1h20a1 1 0 0 1 0 2H2a1 1 0 0 1-1-1" style="stroke-width:2"/&gt;
-&lt;/svg&gt;</value>
-  </data>
-  <data name="collapse-all-groups" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" &gt;
-    &lt;g id="dark/icon/32x32/standard/collapse-all-rows" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"&gt;
-        &lt;path d="M28,17 L28,25 L20,25 L20,17 L28,17 Z M26.4130738,20.370219 L21.2585935,20.370219 L21.2585935,21.6588391 L26.4130738,21.6588391 L26.4130738,20.370219 Z M21,15 L21,16 L19,16 L19,16.999 L5,17 L5,15 L21,15 Z M21,11 L21,13 L5,13 L5,11 L21,11 Z M21,7 L21,9 L5,9 L5,7 L21,7 Z" id="Icon" fill="#FFFFFF"&gt;&lt;/path&gt;
-    &lt;/g&gt;
-&lt;/svg&gt;</value>
-  </data>
-  <data name="expand-all-groups" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" &gt;
-    &lt;g id="dark/icon/32x32/standard/expand-all-rows" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"&gt;
-        &lt;path d="M28,22 L28,30 L20,30 L20,22 L28,22 Z M24.4801437,23.4372888 L23.1915236,23.4372888 L23.1914286,25.37 L21.2585935,25.370219 L21.2585935,26.6588391 L23.1914286,26.6585714 L23.1915236,28.5917692 L24.4801437,28.5917692 L24.48,26.6585714 L26.4130738,26.6588391 L26.4130738,25.370219 L24.48,25.37 L24.4801437,23.4372888 Z M19,26 L19,28 L9,28 L9,26 L19,26 Z M19,23 L19,25 L9,25 L9,23 L19,23 Z M21,20 L21,21 L19,21 L19,22 L5,22 L5,20 L21,20 Z M25,17 L25,19 L9,19 L9,17 L25,17 Z M21,14 L21,16 L5,16 L5,14 L21,14 Z M25,11 L25,13 L9,13 L9,11 L25,11 Z M25,8 L25,10 L9,10 L9,8 L25,8 Z M25,5 L25,7 L9,7 L9,5 L25,5 Z M21,2 L21,4 L5,4 L5,2 L21,2 Z" id="Icon" fill="#FFFFFF"&gt;&lt;/path&gt;
-    &lt;/g&gt;
-&lt;/svg&gt;</value>
-  </data>
-  <data name="column-chooser" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" &gt;
-    &lt;g id="dark/icon/32x32/standard/column-chooser" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd"&gt;
-        &lt;path d="M27,10 L27,4 L9,4 L9,10 L27,10 L27,10 Z M8,8 L8,11 L7,11 L7,15 L21,15 L21,11 L22.999,10.999 L23,29 L5,29 L5,8 L8,8 Z M21,23 L7,23 L7,27 L21,27 L21,23 Z M21,17 L7,17 L7,21 L21,21 L21,17 Z M25,6 L25,8 L11,8 L11,6 L25,6 Z" id="icon" fill="#FFFFFF"&gt;&lt;/path&gt;
-    &lt;/g&gt;
-&lt;/svg&gt;</value>
-  </data>
-  <data name="add" xml:space="preserve">
-    <value>&lt;svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"&gt;&lt;path d="M19,13H13V19H11V13H5V11H11V5H13V11H19V13Z" /&gt;&lt;/svg&gt;</value>
   </data>
 </root>

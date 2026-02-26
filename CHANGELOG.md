@@ -14,6 +14,7 @@
 - Replaced local Breadcrumb implementation with `ViciOne.Ui.Blazor.Components.Breadcrumb`
 - Replaced `DxSpinEdit` with `ViciOne.Ui.Blazor.Components.SpinEdit`
 - Improved expand & collapse button states in `DataPortSection`
+- Exchanged various SVG icons with icons from `ViciOne.Ui.MonochromeIcons`
 
 ### Updated external references
 

@@ -1,14 +1,18 @@
 ﻿@using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Services.Localization
 @using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using ViciOne.Ui.MonochromeIcons.Core.Extensions
+
 
 @if (TreeAdapter is not null)
 {
     <div class="dataflow-section-container">
-        <SearchBox TextChanged="@OnFilterTextChanged">
-            <SearchBoxButton Action="@OnCreateNewDataflowClicked"
-                             Icon="@SvgIcons.add"
-                             Tooltip="@DataflowStructureTreeAdapter.AddDataflow" />
-        </SearchBox>
+        <div class="search-box-with-add-button">
+            <SearchBox TextChanged="@OnFilterTextChanged" />
+            <ViciOne.Ui.Blazor.Components.Button.Button CssClass="add-button"
+                                                        IconCssClass="@_addIconCssClass"
+                                                        OnClick="@OnCreateNewDataflowClicked"
+                                                        Title="@DataflowStructureTreeAdapter.AddDataflow" />
+        </div>
 
         <div class="added-while-filtered-info">
             @if (_dataflowsAddedWhileFiltered > 0)

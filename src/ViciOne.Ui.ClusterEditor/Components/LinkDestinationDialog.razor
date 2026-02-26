@@ -32,7 +32,8 @@
                 <button @onclick="OnExpandAllGroups"
                         class="btn btn-toolbar smaller-icon @(_groupingButtonsEnabled ? string.Empty : "disabled") @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
 
-                    @((MarkupString)SvgIcons.expand_all_groups)
+                    <MonochromeIcon Name="MonochromeIconName.ExpandAll"
+                                    Size="MonochromeIconSize.SmallMedium" />
 
                     @if (adaptiveTextVisible)
                     {
@@ -53,7 +54,8 @@
                 <button @onclick="OnCollapseAllGroups"
                         class="btn btn-toolbar smaller-icon @(_groupingButtonsEnabled ? string.Empty : "disabled") @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
 
-                    @((MarkupString)SvgIcons.collapse_all_groups)
+                    <MonochromeIcon Name="MonochromeIconName.CollapseAll"
+                                    Size="MonochromeIconSize.SmallMedium" />
 
                     @if (adaptiveTextVisible)
                     {
@@ -72,10 +74,11 @@
                     var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
                 }
                 <button @onclick="OnShowColumnChooser"
-                        class="btn btn-toolbar @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)"
+                        class="btn btn-toolbar smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)"
                         id="@_columnChooserId">
 
-                    @((MarkupString)SvgIcons.action_column_chooser)
+                    <MonochromeIcon Name="MonochromeIconName.ColumnChooserEditor"
+                                    Size="MonochromeIconSize.SmallMedium" />
 
                     @if (adaptiveTextVisible)
                     {

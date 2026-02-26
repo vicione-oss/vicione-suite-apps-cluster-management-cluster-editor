@@ -20,8 +20,27 @@
     right: 0;
     top: 0;
 
-    ::deep .search-box-container {
+    .search-box-with-add-button {
+        display: grid;
+        grid-template-columns: auto min-content;
         padding: 12px;
+
+        ::deep .add-button {
+            background-color: inherit;
+            border-width: 0px;
+            height: 24px;
+            width: 24px;
+            outline: 1px solid colors.$editor-border;
+            transition: background-color .3s ease-in-out;
+
+            &:hover {
+                background-color: colors.$editor-background-dark-hover;
+            }
+
+            .icon {
+                margin-left: 0px;
+            }
+        }
     }
 
     ::deep .tree-editor-container {

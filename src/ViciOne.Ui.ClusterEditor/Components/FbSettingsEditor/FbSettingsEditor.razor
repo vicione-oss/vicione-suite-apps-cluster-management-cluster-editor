@@ -221,10 +221,11 @@
 
             <Template Context="tplCtx">
                 @{ var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu; }
-                <button class="btn btn-toolbar disabled @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty) icon-badge"
+                <button class="btn btn-toolbar disabled smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty) icon-badge"
                         style="--badge-number: @_templateCount;">
 
-                    @((MarkupString)SvgIcons.action_show_template)
+                    <MonochromeIcon Name="MonochromeIconName.TemplateBadge"
+                                    Size="MonochromeIconSize.SmallMedium" />
 
                     @if (adaptiveTextVisible)
                     {
@@ -241,9 +242,10 @@
 
             <Template Context="tplCtx">
                 @{ var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu; }
-                <button class="btn btn-toolbar disabled @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
+                <button class="btn btn-toolbar disabled smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
 
-                    @((MarkupString)SvgIcons.action_edit_template)
+                    <MonochromeIcon Name="MonochromeIconName.TemplateManagement"
+                                    Size="MonochromeIconSize.SmallMedium" />
 
                     @if (adaptiveTextVisible)
                     {
@@ -260,10 +262,11 @@
             <Template Context="tplCtx">
                 @{ var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu; }
                 <button @onclick="OnShowColumnChooser"
-                        class="btn btn-toolbar @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)"
+                        class="btn btn-toolbar smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)"
                         id="@_columnChooserId">
 
-                    @((MarkupString)SvgIcons.action_column_chooser)
+                    <MonochromeIcon Name="MonochromeIconName.ColumnChooserEditor"
+                                    Size="MonochromeIconSize.SmallMedium" />
 
                     @if (adaptiveTextVisible)
                     {

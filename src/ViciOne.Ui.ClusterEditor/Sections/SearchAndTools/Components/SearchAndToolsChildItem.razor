@@ -1,15 +1,8 @@
 ﻿<div @onclick="OnClickCallback"
      class="content-item st-button @(Enabled ? "" : "disabled")">
     <div class="content-icon">
-        @if (IconMarkup is not null)
-        {
-            @IconMarkup
-        }
-        else if (IconName is not null)
-        {
-            <MonochromeIcon Name="IconName.Value"
-                            Size="MonochromeIconSize.SmallMedium" />
-        }
+        <MonochromeIcon Name="IconName"
+                        Size="MonochromeIconSize.SmallMedium" />
     </div>
     <div class="content-text">
         @Text
