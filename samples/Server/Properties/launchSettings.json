@@ -3,6 +3,7 @@
         "BlazorServer": {
             "commandName": "Project",
             "dotnetRunMessages": true,
+            "hotReloadEnabled": false,
             "launchBrowser": false,
             "applicationUrl": "http://localhost:57006",
             "environmentVariables": {
