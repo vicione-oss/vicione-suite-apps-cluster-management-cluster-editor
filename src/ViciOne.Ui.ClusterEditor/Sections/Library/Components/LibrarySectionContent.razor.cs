@@ -29,6 +29,8 @@ public sealed partial class LibrarySectionContent : ComponentBase, IDisposable
         _treeBuilder.DragAndDrop.DragStarted -= OnTreeDragStarted;
 
         ((LibraryTreeAdapter)_treeBuilder.Adapter).DblClick -= OnTreeDblClick;
+
+        _treeBuilder.Dispose();
     }
 
     private void FilterNodes(string filterText)

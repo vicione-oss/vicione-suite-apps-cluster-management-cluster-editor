@@ -9,7 +9,6 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.MonochromeIcons.Core.Enums;
 using ViciOne.Ui.MonochromeIcons.Core.Extensions;
 using ViciOne.Ui.Shared.Dx.Components;
-using ViciOne.Ui.TreeEditor.Builder.Interface.Enums;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Dataflow.Components;
@@ -35,17 +34,8 @@ public sealed partial class DataflowSection : ComponentBase, IDisposable
 
         TreeAdapter.DeleteStarted -= OnDataflowDeleteStartedAsync;
         _treeBuilder.Selection.SelectionChanged -= OnSelectionChanged;
-    }
 
-    private static Type? GetNodeTemplate(ITreeNode node, TemplateType templateType)
-    {
-        if (node is DataflowStructureTreeNode dataflowNode && templateType == TemplateType.NodeDisplay)
-        {
-            if (dataflowNode.Editing)
-                return typeof(StructureTreeDataflowEditNode);
-        }
-
-        return null;
+        _treeBuilder.Dispose();
     }
 
     private async void OnBuilderChangedAsync()

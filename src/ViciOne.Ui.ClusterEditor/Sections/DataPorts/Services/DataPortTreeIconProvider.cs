@@ -36,7 +36,7 @@ internal sealed class DataPortTreeIconProvider() : IDataPortTreeIconProvider
 
             var icon = ColoredIconFactory.GetDataPortIcon(color, dataPortDirection, hasInputLinks, hasOutputLinks, size);
             if (!string.IsNullOrEmpty(icon))
-                return new SvgIcon(icon);
+                return new SvgIcon(icon) { UseIncludedColors = true };
         }
 
         return null;

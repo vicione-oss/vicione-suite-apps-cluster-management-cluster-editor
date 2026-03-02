@@ -6,4 +6,14 @@
     ::deep dxbl-context-menu {
         position: absolute;
     }
+
+    ::deep .tree-editor-container {
+        --vo-ui-tree-editor-color-background: transparent;
+        --vo-ui-tree-editor-color-node-background: transparent;
+
+        .expand-button .icon, .guideline {
+            // necessary because bootstrap breaks the layout otherwise
+            box-sizing: unset;
+        }
+    }
 }

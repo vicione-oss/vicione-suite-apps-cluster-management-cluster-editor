@@ -16,13 +16,10 @@
         @include sections.action-button-container-styles();
         @include sections.node-with-icon-styles();
 
-        .tree-node {
-            .node-drop-zone-container {
-                // !important because on deployment it can be possible that
-                // stylesheets are not loaded in the correct order
-                --drop-zone-colour: transparent !important;
-            }
+        --vo-ui-tree-editor-color-drop-area-valid: transparent;
+        --vo-ui-tree-editor-color-drop-area-invalid: transparent;
 
+        .tree-node {
             &.highlighted {
                 border: 1px solid colors.$editor-accent;
                 margin: -1px;

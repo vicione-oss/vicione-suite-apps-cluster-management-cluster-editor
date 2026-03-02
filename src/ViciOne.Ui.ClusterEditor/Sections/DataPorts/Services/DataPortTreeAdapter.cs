@@ -13,6 +13,7 @@ using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
+using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components.Localization;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.ContextMenu;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
@@ -366,6 +367,18 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
         }
     }
 
+    private static Type? GetTemplateMapping(ITreeNode node, TemplateType templateType)
+        => templateType switch
+        {
+            TemplateType.NodeDisplay => node switch
+            {
+                DataPortNodeModel dataPortNode => dataPortNode.IsEditModeActive ? typeof(DataPortEditNodeTemplate) : null,
+                _ => null
+            },
+            TemplateType.Node => typeof(DataPortChildNode),
+            _ => null
+        };
+
     public ITreeNode? GetTreeNode(DataPortTreeNode dataPortTreeNode)
     {
         DataPortNodeModel? treeNode = null;
@@ -637,6 +650,9 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
         Builder.DragAndDrop.DragEnded += OnDragEnded;
         Builder.DragAndDrop.Dragged += OnDragged;
         Builder.DragAndDrop.DragStarted += OnDragStarted;
+
+        Builder.Guidelines.Show = true;
+        Builder.Template.Mapping = GetTemplateMapping;
     }
 
     private void SortChildNodes(NodeButton _, VisibleActionArguments e)
