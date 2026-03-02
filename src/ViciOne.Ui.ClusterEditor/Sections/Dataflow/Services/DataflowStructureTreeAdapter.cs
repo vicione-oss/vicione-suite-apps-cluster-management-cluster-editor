@@ -10,6 +10,7 @@ using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.Comparer;
 using ViciOne.Ui.ClusterEditor.Resources;
+using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Components;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Models;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
@@ -237,6 +238,17 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
             _ => string.Empty
         };
 
+    private static Type? GetNodeTemplate(ITreeNode node, TemplateType templateType)
+    {
+        if (node is DataflowStructureTreeNode dataflowNode && templateType == TemplateType.NodeDisplay)
+        {
+            if (dataflowNode.Editing)
+                return typeof(StructureTreeDataflowEditNode);
+        }
+
+        return null;
+    }
+
     public override ITreeNode? GetParent(ITreeNode node)
     {
         if (node is ContainerStructureTreeNode containerNode)
@@ -371,6 +383,9 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
     {
         Builder.Expansion.ExpansionChanged += OnExpansionChanged;
         Builder.Selection.SelectionChanged += OnSelectionChanged;
+
+        Builder.Guidelines.Show = true;
+        Builder.Template.Mapping = GetNodeTemplate;
     }
 
     private void StartEditDataflow(DataflowStructureTreeNode dataflowNode)

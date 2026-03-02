@@ -72,9 +72,11 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         DragService.DraggingEnded -= OnConnectorDraggingEnded;
         DragService.DraggingStarted -= OnConnectorDraggingStarted;
         LinkDestinationDialogService.DataPortTreeNodeSelected -= OnDataPortTreeNodeSelected;
+
         TreeAdapter.OnDeleteNodeUserConfirmationRequest = null;
         TreeAdapter.DataPortWithLinksDoubleClicked -= OnDataPortWithLinksDoubleClickedAsync;
         _treeBuilder.Notifications.RootNodesUpdated -= OnRootNodesUpdated;
+        _treeBuilder.Dispose();
 
         if (_editTemplateContext is not null)
         {
@@ -314,18 +316,6 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         if (Datastore.Builder.Editors.DataPortTreeNode.CanAssignConnector(dataPortTreeNode, connector))
             Datastore.Builder.Editors.DataPortTreeNode.AssignConnector(dataPortTreeNode, connector);
     }
-
-    private static Type? OnTreeEditorTemplateMapping(ITreeNode node, TemplateType templateType)
-        => templateType switch
-        {
-            TemplateType.NodeDisplay => node switch
-            {
-                DataPortNodeModel dataPortNode => dataPortNode.IsEditModeActive ? typeof(DataPortEditNodeTemplate) : null,
-                _ => null
-            },
-            TemplateType.Node => typeof(DataPortChildNode),
-            _ => null
-        };
 
     [LoggerMessage(1, LogLevel.Error, "Failed to reassign builder with cluster id:{ClusterId} v{Version}", EventName = "ReassignBuilderFailed")]
     public static partial void ReassignBuilderFailed(ILogger logger, Exception ex, Guid ClusterId, Version Version);

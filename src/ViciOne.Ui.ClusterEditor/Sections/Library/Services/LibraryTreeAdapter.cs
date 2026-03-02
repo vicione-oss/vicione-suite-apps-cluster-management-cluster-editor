@@ -141,5 +141,6 @@ internal sealed class LibraryTreeAdapter : TreeAdapter
         Builder.Selection.SelectionChanged += OnSelectionChanged;
 
         Builder.DragAndDrop.EnableOutbound = true;
+        Builder.Guidelines.Show = true;
     }
 }

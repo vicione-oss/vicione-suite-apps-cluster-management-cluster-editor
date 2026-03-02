@@ -34,6 +34,8 @@ public sealed partial class TopologySectionContent : IDisposable
 
         _editTemplateContext.Cancel -= OnPropertyEditCancel;
         _editTemplateContext.Confirm -= OnPropertyEditConfirm;
+
+        _treeBuilder.Dispose();
     }
 
     [LoggerMessage(1, LogLevel.Error, "Failed to reassign builder with cluster id:{ClusterId} v{Version}", EventName = "ReassignBuilderFailed")]
@@ -131,17 +133,6 @@ public sealed partial class TopologySectionContent : IDisposable
 
         model.IsEditModeActive = false;
         _treeBuilder.Notifications.NotifyNodeChanged(model, ChangedNodeDetail.None);
-    }
-
-    private static Type? OnTreeEditorTemplateMapping(ITreeNode node, TemplateType templateType)
-    {
-        if (templateType == TemplateType.NodeDisplay)
-        {
-            if (node is TopologyTreeViewModel topologyNode && topologyNode.IsEditModeActive)
-                return typeof(TopologyNodeEditTemplate);
-        }
-
-        return null;
     }
 
     private void TryInitTreeAdapter()

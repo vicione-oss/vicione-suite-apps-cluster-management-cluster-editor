@@ -9,6 +9,7 @@ using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Resources;
 using ViciOne.Ui.ClusterEditor.Sections.Localization;
+using ViciOne.Ui.ClusterEditor.Sections.Topology.Components;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Factories;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Models;
@@ -296,6 +297,17 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
         _ => string.Empty
     };
 
+    private static Type? GetTemplateMapping(ITreeNode node, TemplateType templateType)
+    {
+        if (templateType == TemplateType.NodeDisplay)
+        {
+            if (node is TopologyTreeViewModel topologyNode && topologyNode.IsEditModeActive)
+                return typeof(TopologyNodeEditTemplate);
+        }
+
+        return null;
+    }
+
     public override bool HasChildren(ITreeNode node)
     {
         if (node is TopologyTreeViewModel model)
@@ -390,6 +402,9 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
     {
         Builder.Expansion.ExpansionChanged += OnExpansionChanged;
         Builder.Selection.SelectionChanged += OnSelectionChanged;
+
+        Builder.Guidelines.Show = true;
+        Builder.Template.Mapping = GetTemplateMapping;
 
         RebuildTree();
     }
