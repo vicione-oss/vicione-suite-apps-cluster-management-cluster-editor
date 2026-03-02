@@ -26,12 +26,12 @@ public class DataManagementService(Datastore datastore, DiagramService diagramSe
     public Task ForceRootContainerReload()
         => _datastore.LoadContainer(_datastore.Builder.Cluster.Dataflows.First().Root, _diagramService, true);
 
-    public async void LoadDataflow(ClusterBuilder builder)
+    public Task LoadDataflow(ClusterBuilder builder)
     {
         builder.InitSettings();
         _libraryService.CreateLibraryEntries(builder.GetFunctionBlockDesigns());
 
-        await _datastore.Load(builder, _diagramService);
+        return _datastore.Load(builder, _diagramService);
     }
 
     public void LoadFunctionBlockDesigns(IEnumerable<Guid> fbDesigns)

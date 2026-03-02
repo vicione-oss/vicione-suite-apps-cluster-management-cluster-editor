@@ -16,6 +16,7 @@
 - Replaced `DxSpinEdit` with `ViciOne.Ui.Blazor.Components.SpinEdit`
 - Improved expand & collapse button states in `DataPortSection`
 - Exchanged various SVG icons with icons from `ViciOne.Ui.MonochromeIcons`
+- Changed signature of `LoadDataflow` method from void to Task in `DataManagementService`
 
 ### Updated external references
 
