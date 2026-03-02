@@ -93,7 +93,7 @@ Version:
 
 ### CI Components ###
 include:
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-restore@2.1.1
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-restore@2.2.2
     inputs:
       image: ${IMAGE_NAME}
       rules: *rules
@@ -103,7 +103,7 @@ include:
       tags:
         - ${RUNNER_TAG}
   ### Test & Build
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-build@2.1.1
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-build@2.2.2
     inputs:
       image: ${IMAGE_NAME}
       rules: *rules
@@ -126,7 +126,7 @@ include:
       tags:
         - ${RUNNER_TAG}
   ### NuGet Packages
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-pack@2.1.1
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-pack@2.2.2
     inputs:
       image: ${IMAGE_NAME}
       rules: *rules
@@ -137,7 +137,7 @@ include:
         - 'echo "PackageVersion: ${PackageVersion:-notAssigned}"'
       tags:
         - ${RUNNER_TAG}
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-nuget-push@2.1.1
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-nuget-push@2.2.2
     inputs:
       image: ${IMAGE_NAME}
       source: "JFrogViciOne"
