@@ -16,7 +16,7 @@ public interface IDataManagementService
     event Func<ClusterBuilder, Task>? SaveRequested;
 
     Task ForceRootContainerReload();
-    void LoadDataflow(ClusterBuilder builder);
+    Task LoadDataflow(ClusterBuilder builder);
     void LoadFunctionBlockDesigns(IEnumerable<Guid> fbDesigns);
     void PrepareClusterSerialization();
     Task ShowMessageToast(LogLevel logLevel, string message, Action clickCallback);
