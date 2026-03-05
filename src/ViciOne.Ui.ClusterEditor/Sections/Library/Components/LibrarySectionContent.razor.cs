@@ -19,7 +19,7 @@ public sealed partial class LibrarySectionContent : ComponentBase, IDisposable
     private readonly TreeEditor.Builder.TreeBuilder _treeBuilder = new();
 
     [Inject] private DataManagementService DataManagementService { get; set; } = default!;
-    [Inject] private LibraryService LibraryService { get; set; } = default!;
+    [Inject] private ILibraryService LibraryService { get; set; } = default!;
 
     public void Dispose()
     {

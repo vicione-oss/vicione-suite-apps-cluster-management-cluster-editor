@@ -89,7 +89,7 @@ internal static class TestContextExtensions
 
     public static TestContext SetupDataManagementService(this TestContext ctx)
     {
-        ctx.Services.TryAddScoped<LibraryService>();
+        ctx.SetupLibraryService();
         ctx.SetupDiagramService();
 
         ctx.Services.TryAddScoped<DataManagementService>();
@@ -153,6 +153,13 @@ internal static class TestContextExtensions
         ctx.SetupDiagramService();
 
         ctx.Services.TryAddScoped<DragService>();
+
+        return ctx;
+    }
+
+    public static TestContext SetupLibraryService(this TestContext ctx)
+    {
+        ctx.Services.TryAddScoped<ILibraryService, LibraryService>();
 
         return ctx;
     }

@@ -10,11 +10,11 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
-public class DataManagementService(Datastore datastore, DiagramService diagramService, LibraryService libraryService, ILogger<DataManagementService> logger) : IDataManagementService
+internal class DataManagementService(Datastore datastore, DiagramService diagramService, ILibraryService libraryService, ILogger<DataManagementService> logger) : IDataManagementService
 {
     private readonly Datastore _datastore = datastore;
     private readonly DiagramService _diagramService = diagramService;
-    private readonly LibraryService _libraryService = libraryService;
+    private readonly ILibraryService _libraryService = libraryService;
 
     public event Func<Task>? ExportRequested;
     public event Func<Task>? ImportRequested;

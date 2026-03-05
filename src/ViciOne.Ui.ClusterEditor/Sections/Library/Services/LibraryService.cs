@@ -6,7 +6,7 @@ using ViciOne.Ui.ClusterEditor.Sections.Library.Models;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Library.Services;
 
-public sealed class LibraryService
+internal sealed class LibraryService : ILibraryService
 {
     public IEnumerable<LibraryEntry>? DraggingEntries { get; set; } = null!;
     public IEnumerable<LibraryEntry> LibraryEntries { get; private set; } = [];
