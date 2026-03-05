@@ -70,7 +70,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
     [Inject] private DragService DragService { get; set; } = default!;
     [Inject] private InputEventService InputEventService { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
-    [Inject] private LibraryService LibraryService { get; set; } = default!;
+    [Inject] private ILibraryService LibraryService { get; set; } = default!;
     [Inject] private LinkDestinationDialogService LinkDestinationDialogService { get; set; } = default!;
     [Inject] private IPropertyGridController<DataflowToolbarPropertyGridContext> PropertyGridController { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;

@@ -10,7 +10,6 @@ using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarDataflow.Models;
 using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
-using ViciOne.Ui.ClusterEditor.Sections.Library.Services;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
@@ -31,7 +30,7 @@ public class NodeEditorTests
         ctx.SetupConnectorService();
         ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuRequest<NodeEditorContextMenuContext>>());
         ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
-        ctx.Services.TryAddScoped<LibraryService>();
+        ctx.SetupLibraryService();
         ctx.SetupResizeObserver();
         ctx.SetupConnectorSelectionDialogService();
         ctx.SetupLinkDestinationDialogService();

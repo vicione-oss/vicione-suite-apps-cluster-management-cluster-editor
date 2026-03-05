@@ -7,7 +7,7 @@ internal static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddLibrarySection(this IServiceCollection services)
     {
-        services.AddScoped<LibraryService>();
+        services.AddScoped<ILibraryService, LibraryService>();
 
         return services;
     }
