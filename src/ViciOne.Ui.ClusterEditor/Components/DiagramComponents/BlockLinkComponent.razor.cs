@@ -18,7 +18,7 @@ public sealed partial class BlockLinkComponent : ComponentBase
 
     private string? _highlightColor;
 
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 

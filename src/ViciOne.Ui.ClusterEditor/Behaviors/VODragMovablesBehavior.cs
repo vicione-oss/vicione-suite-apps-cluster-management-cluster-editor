@@ -17,7 +17,7 @@ namespace ViciOne.Ui.ClusterEditor.Behaviors;
 // Blazor.Diagrams.Core.Behaviors
 internal sealed class VODragMovablesBehavior : Behavior
 {
-    private readonly Datastore _datastore;
+    private readonly IDatastore _datastore;
     private readonly DiagramEventService _diagramEventService;
     private readonly DiagramService _diagramService;
     private Dictionary<MovableModel, Point> _initialModelPositions = [];
@@ -29,7 +29,7 @@ internal sealed class VODragMovablesBehavior : Behavior
     public bool IsMoving => _initialModelPositions.Count > 0;
 
     public VODragMovablesBehavior(
-        Datastore datastore,
+        IDatastore datastore,
         Diagram diagram,
         DiagramEventService diagramEventService,
         DiagramService diagramService,

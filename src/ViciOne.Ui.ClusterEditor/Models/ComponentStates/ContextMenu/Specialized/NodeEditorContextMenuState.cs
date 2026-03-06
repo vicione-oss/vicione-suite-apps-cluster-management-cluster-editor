@@ -14,7 +14,7 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Models.ComponentStates.ContextMenu.Specialized;
 
-public sealed class NodeEditorContextMenuState(SelectionManager selectionManager, Datastore datastore, DiagramService diagramService) : IContextMenuState<NodeEditorContextMenuContext>
+public sealed class NodeEditorContextMenuState(SelectionManager selectionManager, IDatastore datastore, DiagramService diagramService) : IContextMenuState<NodeEditorContextMenuContext>
 {
     public bool AlignmentButtonsEnabled { get; private set; }
     public bool ConnectorsWizardEnabled { get; private set; }

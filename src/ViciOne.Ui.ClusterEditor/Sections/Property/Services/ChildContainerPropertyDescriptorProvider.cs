@@ -9,7 +9,7 @@ using LocalCommonVocabulary = ViciOne.Ui.ClusterEditor.Localization.Resources.Co
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Property.Services;
 
-internal sealed class ChildContainerPropertyDescriptorProvider<TContext>(Datastore datastore)
+internal sealed class ChildContainerPropertyDescriptorProvider<TContext>(IDatastore datastore)
     : IPropertyDescriptorProvider<TContext, ChildContainer>
 {
     public IEnumerable<IPropertyDescriptor<ChildContainer>> GetPropertyDescriptors(TContext context)

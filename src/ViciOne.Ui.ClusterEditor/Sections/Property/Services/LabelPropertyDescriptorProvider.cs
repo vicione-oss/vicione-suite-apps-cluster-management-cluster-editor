@@ -8,7 +8,7 @@ using ViciOne.Ui.Localization.Resources;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Property.Services;
 
-internal sealed class LabelPropertyDescriptorProvider<TContext>(Datastore datastore)
+internal sealed class LabelPropertyDescriptorProvider<TContext>(IDatastore datastore)
     : IPropertyDescriptorProvider<TContext, Label>
 {
     public IEnumerable<IPropertyDescriptor<Label>> GetPropertyDescriptors(TContext context)

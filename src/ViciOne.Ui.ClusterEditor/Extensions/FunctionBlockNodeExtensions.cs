@@ -11,14 +11,14 @@ namespace ViciOne.Ui.ClusterEditor.Extensions;
 
 internal static class FunctionBlockNodeExtensions
 {
-    private static FbSetting CreateFbSetting(Datastore datastore, FunctionBlock functionBlock, Setting setting)
+    private static FbSetting CreateFbSetting(IDatastore datastore, FunctionBlock functionBlock, Setting setting)
     {
         var settingDesign = datastore.Builder.ResolveSettingDesign(setting);
         var settingType = DataTypeCompatibilityValidator.DetermineValueType(settingDesign.SettingType);
         return new FbSetting(settingDesign.DefaultValue, functionBlock, setting, settingType);
     }
 
-    public static IEnumerable<FbSetting> GetSettings(this IEnumerable<FunctionBlockNode> functionBlockNodes, Datastore datastore)
+    public static IEnumerable<FbSetting> GetSettings(this IEnumerable<FunctionBlockNode> functionBlockNodes, IDatastore datastore)
         => datastore.DataflowDiagramMapping
             .GetModels(functionBlockNodes)
             .SelectMany(fb => fb.Settings.Select(setting => CreateFbSetting(datastore, fb, setting)));

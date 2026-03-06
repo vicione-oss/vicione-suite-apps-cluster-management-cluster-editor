@@ -41,7 +41,7 @@ public sealed partial class DebugSectionContent : ComponentBase
 
     [Inject] private ClusterBuilderEventBuffer ClusterBuilderEventBuffer { get; set; } = default!;
     [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
 
     private async Task GenerateBlocksAsync(IEnumerable<Guid> uniqueIds, int amount)

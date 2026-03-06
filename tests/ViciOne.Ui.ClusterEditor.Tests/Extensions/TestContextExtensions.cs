@@ -30,7 +30,7 @@ internal static class TestContextExtensions
         connector.Links.Returns([]);
 
         var comparer = ctx.Services.GetRequiredService<ComparerService>();
-        var datastore = ctx.Services.GetRequiredService<Datastore>();
+        var datastore = ctx.Services.GetRequiredService<IDatastore>();
         var diagramService = ctx.Services.GetRequiredService<DiagramService>();
         var node = new FunctionBlockNode();
 
@@ -115,7 +115,7 @@ internal static class TestContextExtensions
         ctx.Services.TryAddScoped<DiagramEventService>();
         ctx.Services.TryAddScoped<ClusterBuilderEventBuffer>();
 
-        ctx.Services.TryAddScoped<Datastore>();
+        ctx.Services.TryAddScoped<IDatastore, Datastore>();
 
         return ctx;
     }

@@ -30,7 +30,7 @@ public sealed partial class DataflowToolbar : ComponentBase, IDisposable
     private bool _expanded;
     private int? _sidebarFluidWidth;
 
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private IPropertyGridController<DataflowToolbarPropertyGridContext> PropertyGridController { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
     [Inject] private ToolbarService ToolbarService { get; set; } = default!;

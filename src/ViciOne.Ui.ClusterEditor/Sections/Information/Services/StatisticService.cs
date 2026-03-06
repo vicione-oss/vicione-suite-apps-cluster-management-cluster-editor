@@ -13,11 +13,11 @@ internal sealed class StatisticService : IDisposable
 {
     private ClusterBuilder? _clusterBuilder;
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;
-    private readonly Datastore _datastore;
+    private readonly IDatastore _datastore;
 
     public event Action<Statistic>? StatisticChanged;
 
-    public StatisticService(ClusterBuilderEventBuffer clusterBuilderEventBuffer, Datastore datastore)
+    public StatisticService(ClusterBuilderEventBuffer clusterBuilderEventBuffer, IDatastore datastore)
     {
         _clusterBuilderEventBuffer = clusterBuilderEventBuffer;
         _datastore = datastore;

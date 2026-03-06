@@ -14,7 +14,7 @@ using LocalTechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.Tech
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Property.Services;
 
-internal sealed class FunctionBlockPropertyDescriptorProvider<TContext>(Datastore datastore)
+internal sealed class FunctionBlockPropertyDescriptorProvider<TContext>(IDatastore datastore)
     : IPropertyDescriptorProvider<TContext, FunctionBlock>
 {
     public IEnumerable<IPropertyDescriptor<FunctionBlock>> GetPropertyDescriptors(TContext context)

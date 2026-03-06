@@ -10,7 +10,7 @@ using ViciOne.Ui.ClusterEditor.Services;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Property.Services;
 
-internal sealed class ConnectorInputPropertyDescriptorProvider<TContext>(Datastore datastore,
+internal sealed class ConnectorInputPropertyDescriptorProvider<TContext>(IDatastore datastore,
     ConnectorInputPropertyDescriptorFactory propertyDescriptorFactory)
         : IPropertyDescriptorProvider<TContext, ConnectorInput>
             where TContext : class, IHasSelectedConnectors

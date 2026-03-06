@@ -20,7 +20,7 @@ internal static class TooltipDataPortData
 {
     private static readonly CompositeFormat s_compositeMoreLinks = CompositeFormat.Parse(Localization.TooltipData.MoreLinks);
 
-    private static List<List<string>?> GetDataPortMarkerTooltipContent(Datastore datastore, BlockNodeConnector connector)
+    private static List<List<string>?> GetDataPortMarkerTooltipContent(IDatastore datastore, BlockNodeConnector connector)
     {
         var content = new List<List<string>?>();
 
@@ -51,7 +51,7 @@ internal static class TooltipDataPortData
         return content;
     }
 
-    public static TooltipInfo GetDataPortMarkerTooltipInfo(Datastore datastore, MouseEventArgs e, BlockNodeConnector connector, Rectangle parentBounds)
+    public static TooltipInfo GetDataPortMarkerTooltipInfo(IDatastore datastore, MouseEventArgs e, BlockNodeConnector connector, Rectangle parentBounds)
     {
         var content = GetDataPortMarkerTooltipContent(datastore, connector);
 
@@ -182,7 +182,7 @@ internal static class TooltipDataPortData
         return content;
     }
 
-    public static TooltipInfo GetDataPortTooltipInfo(Datastore datastore, MouseEventArgs e, DataPortNodeModel treeNode, Rectangle parentBounds)
+    public static TooltipInfo GetDataPortTooltipInfo(IDatastore datastore, MouseEventArgs e, DataPortNodeModel treeNode, Rectangle parentBounds)
     {
         var info = new TooltipInfo()
         {

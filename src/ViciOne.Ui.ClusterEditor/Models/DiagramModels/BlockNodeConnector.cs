@@ -24,7 +24,7 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
     private const double RelativeLuminanceThreshold = 0.6;
 
     private readonly ComparerService _comparerService;
-    private readonly Datastore _datastore;
+    private readonly IDatastore _datastore;
     private readonly DiagramService _diagramService;
     private bool _hasDefaultEventEnabled = true;
     private bool _hasDefaultMarkAsChangedOnlyIfNotEqual = true;
@@ -61,7 +61,7 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
     public BlockNodeConnector(
         ComparerService comparerService,
         Cluster.Model.IConnector connector,
-        Datastore datastore,
+        IDatastore datastore,
         DiagramService diagramService,
         BlockNode node,
         bool isInput) : base(node, isInput ? PortAlignment.Left : PortAlignment.Right)

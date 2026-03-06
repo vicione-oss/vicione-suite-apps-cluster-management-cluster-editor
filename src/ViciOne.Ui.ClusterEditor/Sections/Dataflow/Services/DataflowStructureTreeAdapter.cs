@@ -34,7 +34,7 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;
     private readonly Dictionary<ChildContainer, ContainerStructureTreeNode> _containerMap = [];
     private readonly Dictionary<Cluster.Model.Dataflow, DataflowStructureTreeNode> _dataflowMap = [];
-    private readonly Datastore _datastore;
+    private readonly IDatastore _datastore;
     private readonly DiagramEventService _diagramEventService;
     private readonly DiagramService _diagramService;
     private readonly Dictionary<FunctionBlock, FunctionBlockStructureTreeNode> _functionBlockMap = [];
@@ -44,7 +44,7 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
 
     public DataflowStructureTreeAdapter(
         ClusterBuilderEventBuffer clusterBuilderEventBuffer,
-        Datastore datastore,
+        IDatastore datastore,
         DiagramService diagramService,
         DiagramEventService diagramEventService,
         SelectionManager selectionManager)

@@ -8,7 +8,7 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
-public sealed class TraceService(ClusterBuilderEventBuffer clusterBuilderEventBuffer, Datastore datastore, DiagramEventService diagramEventService, DiagramService diagramService, SelectionManager selectionManager) : IDisposable
+public sealed class TraceService(ClusterBuilderEventBuffer clusterBuilderEventBuffer, IDatastore datastore, DiagramEventService diagramEventService, DiagramService diagramService, SelectionManager selectionManager) : IDisposable
 {
     private TraceOptions? _lastTraceOptions;
 

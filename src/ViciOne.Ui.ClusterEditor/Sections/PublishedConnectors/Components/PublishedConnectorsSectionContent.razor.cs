@@ -35,7 +35,7 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
     [Inject] private IContextMenuRequest<PublishedConnectorsSectionContextMenuContext> ContextMenuRequest { get; set; } = default!;
     [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
     [Inject] private ILogger<PublishedConnectorsSectionContent> Logger { get; set; } = default!;
     [Inject] private PublishedConnectorsService PublishedConnectorsService { get; set; } = default!;

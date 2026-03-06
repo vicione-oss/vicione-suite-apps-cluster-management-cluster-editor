@@ -7,7 +7,7 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Helpers;
 
-internal class SearchBlocksService(Datastore datastore, DiagramService diagramService)
+internal class SearchBlocksService(IDatastore datastore, DiagramService diagramService)
 {
     private int _currentIndex = -1;
     private List<BlockNode>? _result;

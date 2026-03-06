@@ -13,7 +13,7 @@ public sealed partial class StructureTreeDataflowEditNode : NodeTemplateBase, ID
     private bool _anyErrors;
     private DataflowEditModel? _dataflowEditModel;
 
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private IPropertyGridController<DataflowStructureTreeNode> PropertyGridController { get; set; } = default!;
     [Inject] private IPropertyGridMessageStore<DataflowStructureTreeNode> PropertyGridMessageStore { get; set; } = default!;
 

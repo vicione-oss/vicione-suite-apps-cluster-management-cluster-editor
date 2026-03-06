@@ -8,7 +8,7 @@ using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
-public sealed class LinkDestinationDialogService(Datastore datastore)
+public sealed class LinkDestinationDialogService(IDatastore datastore)
 {
     public IEnumerable<DataGridConnectorWrapper> ConnectorWrappers { get; private set; } = [];
     public IEnumerable<DataGridDataPortWrapper> DataPortWrappers { get; private set; } = [];

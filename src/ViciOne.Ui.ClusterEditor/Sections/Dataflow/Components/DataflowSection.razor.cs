@@ -22,7 +22,7 @@ public sealed partial class DataflowSection : ComponentBase, IDisposable
     private int _dataflowsAddedWhileFiltered;
     private readonly TreeEditor.Builder.TreeBuilder _treeBuilder = new();
 
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramEventService DiagramEventService { get; set; } = default!;
     [Inject] private ILogger<DataflowSection> Logger { get; set; } = default!;
     [Inject] private DataflowStructureTreeAdapter TreeAdapter { get; set; } = default!;

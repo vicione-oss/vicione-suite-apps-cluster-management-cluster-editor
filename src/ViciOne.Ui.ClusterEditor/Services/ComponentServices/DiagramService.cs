@@ -9,14 +9,14 @@ namespace ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 public sealed class DiagramService : IDisposable
 {
-    private readonly Datastore _datastore;
+    private readonly IDatastore _datastore;
     private readonly DiagramEventService _diagramEventService;
 
     public Diagram Diagram { get; set; } = null!;
     public DiagramState DiagramState { get; } = new();
     public BlockNodeLink? DraggingLink { get; set; }
 
-    public DiagramService(Datastore datastore, DiagramEventService diagramEventService)
+    public DiagramService(IDatastore datastore, DiagramEventService diagramEventService)
     {
         _datastore = datastore;
         _diagramEventService = diagramEventService;

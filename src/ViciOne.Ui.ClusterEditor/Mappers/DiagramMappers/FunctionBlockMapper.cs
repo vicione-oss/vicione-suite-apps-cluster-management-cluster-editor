@@ -22,7 +22,7 @@ internal static partial class FunctionBlockMapper
 {
     internal static async Task<FunctionBlockNode> CreateNodeAsync(
         ComparerService comparerService,
-        Datastore datastore,
+        IDatastore datastore,
         DiagramService diagramService,
         FunctionBlock functionBlock,
         IJSRuntime jsRuntime,
@@ -57,7 +57,7 @@ internal static partial class FunctionBlockMapper
 
     private static List<BlockNodeConnector?[]> GenerateConnectors(
         ComparerService comparerService,
-        Datastore datastore,
+        IDatastore datastore,
         DiagramService diagramService,
         FunctionBlock functionBlock,
         FunctionBlockNode functionBlockNode)
@@ -126,7 +126,7 @@ internal static partial class FunctionBlockMapper
     private static partial Regex ImageTextRegex();
 
     internal static void PropertyChanged(
-        Datastore datastore,
+        IDatastore datastore,
         FunctionBlock functionBlock,
         FunctionBlockNode functionBlockNode,
         string propertyName)
@@ -160,7 +160,7 @@ internal static partial class FunctionBlockMapper
         functionBlockNode.RefreshAll();
     }
 
-    internal static void UpdatePosition(Datastore datastore, FunctionBlockNode functionBlockNode)
+    internal static void UpdatePosition(IDatastore datastore, FunctionBlockNode functionBlockNode)
     {
         var functionBlock = datastore.DataflowDiagramMapping.GetModel(functionBlockNode);
         datastore.Builder.Editors.FunctionBlock.SetLocation(

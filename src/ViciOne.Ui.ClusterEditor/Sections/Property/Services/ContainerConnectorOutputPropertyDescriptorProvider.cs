@@ -8,7 +8,7 @@ using ViciOne.Ui.ClusterEditor.Services;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Property.Services;
 
-internal sealed class ContainerConnectorOutputPropertyDescriptorProvider<TContext>(Datastore datastore)
+internal sealed class ContainerConnectorOutputPropertyDescriptorProvider<TContext>(IDatastore datastore)
     : IPropertyDescriptorProvider<TContext, ContainerConnectorOutput>
 {
     public IEnumerable<IPropertyDescriptor<ContainerConnectorOutput>> GetPropertyDescriptors(TContext context)

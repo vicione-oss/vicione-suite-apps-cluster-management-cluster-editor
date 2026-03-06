@@ -21,7 +21,7 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
     private bool _tooltipVisible;
 
     [Inject] private BoundsService BoundsService { get; set; } = default!;
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private TooltipService TooltipService { get; set; } = default!;
 
     protected override void Calculate()

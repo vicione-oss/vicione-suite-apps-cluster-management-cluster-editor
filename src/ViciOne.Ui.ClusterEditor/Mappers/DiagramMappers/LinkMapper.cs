@@ -9,7 +9,7 @@ namespace ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
 
 internal static class LinkMapper
 {
-    internal static BlockNodeLink CreateLink(Datastore datastore, Link link)
+    internal static BlockNodeLink CreateLink(IDatastore datastore, Link link)
     {
         if (link.SourceConnector is null)
             throw new InvalidOperationException("Link missing source connector");
@@ -29,7 +29,7 @@ internal static class LinkMapper
         return nodeLink;
     }
 
-    internal static void ReloadLinks(Datastore datastore, DiagramService diagramService, IEnumerable<Link> links)
+    internal static void ReloadLinks(IDatastore datastore, DiagramService diagramService, IEnumerable<Link> links)
     {
         diagramService.Diagram.Links.Remove(datastore.DataflowDiagramMapping.GetDiagramModels(links));
 

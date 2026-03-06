@@ -15,7 +15,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
 internal sealed class PublishedConnectorsService : IDisposable
 {
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;
-    private readonly Datastore _datastore;
+    private readonly IDatastore _datastore;
     private readonly DiagramService _diagramService;
     private readonly DragService _dragService;
     private bool _moveOccured;
@@ -30,7 +30,7 @@ internal sealed class PublishedConnectorsService : IDisposable
 
     public PublishedConnectorsService(
         ClusterBuilderEventBuffer clusterBuilderEventBuffer,
-        Datastore datastore,
+        IDatastore datastore,
         DiagramService diagramService,
         DragService dragService)
     {

@@ -17,7 +17,7 @@ public sealed class ChildContainerNode : BlockNode
 
     internal ChildContainerNode(Point? point = null) : base(point) { }
 
-    internal async Task RemoveConnectorsAsync(IEnumerable<BlockNodeConnector> connectors, Datastore datastore, IJSRuntime jsRuntime, CancellationToken cancellationToken)
+    internal async Task RemoveConnectorsAsync(IEnumerable<BlockNodeConnector> connectors, IDatastore datastore, IJSRuntime jsRuntime, CancellationToken cancellationToken)
     {
         cancellationToken.ThrowIfCancellationRequested();
 

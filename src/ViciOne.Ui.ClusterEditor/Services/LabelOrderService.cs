@@ -5,7 +5,7 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
-public class LabelOrderService(Datastore datastore, DiagramService diagramService)
+public class LabelOrderService(IDatastore datastore, DiagramService diagramService)
 {
     public void BringToFront(IEnumerable<LabelNode> labelNodes)
     {

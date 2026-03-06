@@ -41,7 +41,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
     private string? _validationMessage;
 
     [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private IFbSettingsEditorRequest FbSettingsEditorRequest { get; set; } = default!;
     [Inject] private FullscreenService FullscreenService { get; set; } = default!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;

@@ -11,7 +11,7 @@ using ViciOne.Ui.ClusterEditor.Services;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Property.Services;
 
-internal sealed class ContainerConnectorInputPropertyDescriptorProvider<TContext>(Datastore datastore,
+internal sealed class ContainerConnectorInputPropertyDescriptorProvider<TContext>(IDatastore datastore,
     ConnectorInputPropertyDescriptorFactory propertyDescriptorFactory)
         : IPropertyDescriptorProvider<TContext, ContainerConnectorInput>
             where TContext : class, IHasSelectedConnectors

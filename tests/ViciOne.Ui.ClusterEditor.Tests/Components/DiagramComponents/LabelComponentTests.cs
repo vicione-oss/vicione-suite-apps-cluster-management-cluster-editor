@@ -25,7 +25,7 @@ public class LabelComponentTests
         var diagram = ctx.Services.GetRequiredService<DiagramService>().Diagram;
         var labelNode = new LabelNode(new Point(0, 0));
 
-        ctx.Services.GetRequiredService<Datastore>().DataflowDiagramMapping.Add(new(), labelNode);
+        ctx.Services.GetRequiredService<IDatastore>().DataflowDiagramMapping.Add(new(), labelNode);
 
         // Act
         var component = ctx.RenderComponent<LabelComponent>(parameters => parameters

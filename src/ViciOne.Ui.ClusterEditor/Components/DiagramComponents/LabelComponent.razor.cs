@@ -25,7 +25,7 @@ public sealed partial class LabelComponent : ComponentBase
     [CascadingParameter] internal Diagram? Diagram { get; set; }
 
     [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramEventService DiagramEventService { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
 

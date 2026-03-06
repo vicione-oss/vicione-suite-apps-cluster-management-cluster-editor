@@ -18,7 +18,7 @@ namespace ViciOne.Ui.ClusterEditor.Behaviors;
 internal class VODragNewLinkBehavior : Behavior
 {
     private Model? _currentModel;
-    private readonly Datastore _datastore;
+    private readonly IDatastore _datastore;
     private readonly DiagramEventService _diagramEventService;
     private readonly DiagramService _diagramService;
     private readonly InputEventService _inputEventService;
@@ -26,7 +26,7 @@ internal class VODragNewLinkBehavior : Behavior
     private PositionAnchor? _targetPositionAnchor;
 
     public VODragNewLinkBehavior(
-        Datastore datastore,
+        IDatastore datastore,
         Diagram diagram,
         DiagramEventService diagramEventService,
         DiagramService diagramService,

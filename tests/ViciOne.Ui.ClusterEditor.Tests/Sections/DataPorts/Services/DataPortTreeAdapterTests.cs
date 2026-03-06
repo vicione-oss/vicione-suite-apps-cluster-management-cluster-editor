@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Blazor.Diagrams;
 using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
 using NSubstitute;
 using ViciOne.Cluster.Builder;
 using ViciOne.TreeBuilder.NodeTypes;
@@ -13,7 +12,6 @@ using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
-using ViciOne.Ui.Shared.Dx.Services;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Icons;
 using Xunit;
 
@@ -23,7 +21,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
 {
     private readonly DataPortTreeAdapter _adapter;
     private readonly ClusterBuilder _builder;
-    private readonly Datastore _datastore;
+    private readonly IDatastore _datastore;
     private readonly DiagramService _diagramService;
     private readonly DragService _dragService;
     private readonly ClusterBuilderEventBuffer _eventBuffer;
@@ -37,7 +35,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
     {
         _mockContextMenuRequest = Substitute.For<IContextMenuRequest<DataPortAddChildNodeContextMenuContext>>();
         _eventBuffer = new();
-        _datastore = new(_eventBuffer, new([], Substitute.For<ILogger<ComparerService>>()), new(), Substitute.For<IJSRuntime>(), Substitute.For<ILogger<Datastore>>());
+        _datastore = Substitute.For<IDatastore>();
         _diagramService = new(_datastore, new())
         {
             Diagram = new BlazorDiagram()
@@ -60,6 +58,8 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
 
         var dependencyResolver = Substitute.For<IDependencyResolver>();
         _builder = new ClusterBuilder(dependencyResolver);
+
+        _datastore.Builder.Returns(_builder);
     }
 
     public async ValueTask DisposeAsync()
@@ -165,7 +165,6 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
             nodeReference: new NodeReference { Id = "test-id" });
 
         _mockIconProvider.GetDataPointIcon(childNode, 24, Arg.Any<IClusterCache>()).Returns((IIcon?)null);
-        await _datastore.Load(_builder, _diagramService);
 
         // Act
         var result = _adapter.GetIcons(childNode).ToList();
@@ -186,7 +185,6 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
 
         var expectedIcon = new SvgIcon("<svg>datapoint</svg>");
         _mockIconProvider.GetDataPointIcon(childNode, 24, Arg.Any<IClusterCache>()).Returns(expectedIcon);
-        await _datastore.Load(_builder, _diagramService);
 
         // Act
         var result = _adapter.GetIcons(childNode).ToList();
