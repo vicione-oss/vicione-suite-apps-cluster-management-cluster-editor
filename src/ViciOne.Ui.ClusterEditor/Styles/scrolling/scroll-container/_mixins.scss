@@ -1,6 +1,0 @@
-﻿@mixin adjust-styles($width: 10px, $offset-x: 5px, $offset-y: 5px)
-{
-    --scroll-container-width: #{$width};
-    --scroll-container-offset-x: #{$offset-x};
-    --scroll-container-offset-y: #{$offset-y};
-}

@@ -460,7 +460,7 @@ src/ViciOne.Ui.ClusterEditor/wwwroot/icons/monochrome-icons
 src/ViciOne.Ui.ClusterEditor/Styles/icons/monochrome-icons
 
 # Files unpacked by target 'ConfigureDxLib'
-src/ViciOne.Ui.ClusterEditor/Styles/scrollbar
+src/ViciOne.Ui.ClusterEditor/Styles/scrolling
 
 # Files unpacked by target 'ConfigureDesignTargets'
 src/ViciOne.Ui.ClusterEditor/Styles/design
