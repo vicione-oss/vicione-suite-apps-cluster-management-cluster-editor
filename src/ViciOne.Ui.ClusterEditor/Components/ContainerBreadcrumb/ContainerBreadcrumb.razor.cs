@@ -22,7 +22,7 @@ public sealed partial class ContainerBreadcrumb : ComponentBase, IDisposable
     private bool _shouldRender = true;
 
     [Inject] private ClusterBuilderEventBuffer ClusterBuilderEventBuffer { get; set; } = default!;
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramEventService DiagramEventService { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
 

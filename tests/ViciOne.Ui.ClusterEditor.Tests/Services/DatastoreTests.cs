@@ -27,7 +27,7 @@ public sealed class DatastoreTests : IAsyncDisposable
 {
     private readonly ClusterBuilder _builder;
     private readonly TestContext _ctx;
-    private readonly Datastore _datastore;
+    private readonly IDatastore _datastore;
     private readonly DiagramService _diagramService;
     private readonly Guid _fbDesignId;
     private readonly SelectionManager _selectionManager;
@@ -41,11 +41,11 @@ public sealed class DatastoreTests : IAsyncDisposable
         _ctx.Services.AddSingleton(new ComparerService([], Substitute.For<ILogger<ComparerService>>()));
         _ctx.Services.AddScoped<DiagramEventService>();
         _ctx.Services.AddScoped<ClusterBuilderEventBuffer>();
-        _ctx.Services.AddScoped<Datastore>();
+        _ctx.Services.AddScoped<IDatastore, Datastore>();
         _ctx.Services.AddScoped<DiagramService>();
         _ctx.Services.AddScoped<SelectionManager>();
 
-        _datastore = _ctx.Services.GetRequiredService<Datastore>();
+        _datastore = _ctx.Services.GetRequiredService<IDatastore>();
         _diagramService = _ctx.Services.GetRequiredService<DiagramService>();
         _selectionManager = _ctx.Services.GetRequiredService<SelectionManager>();
         _diagramService.Diagram = new BlazorDiagram();

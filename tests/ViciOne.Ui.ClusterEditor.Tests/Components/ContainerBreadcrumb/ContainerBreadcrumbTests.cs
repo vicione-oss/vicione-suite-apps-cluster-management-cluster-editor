@@ -41,7 +41,7 @@ public sealed class ContainerBreadcrumbTests : IDisposable
         Ctx.SetupDiagramService();
         Ctx.CreateDiagramInstance();
         Ctx.JSInterop.Mode = JSRuntimeMode.Loose;
-        var datastore = Ctx.Services.GetRequiredService<Datastore>();
+        var datastore = Ctx.Services.GetRequiredService<IDatastore>();
         var diagramService = Ctx.Services.GetRequiredService<DiagramService>();
 
         // Create a function block design for testing

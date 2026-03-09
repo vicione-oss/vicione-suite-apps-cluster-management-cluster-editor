@@ -53,7 +53,7 @@ internal static class DataPortTreeNodeExtensions
         newChild.AssignValuesAndProperties(clusterTreeNode, rootNode.Builder);
     }
 
-    public static string GetPath(this DataPortTreeNode dataPortTreeNode, Datastore datastore)
+    public static string GetPath(this DataPortTreeNode dataPortTreeNode, IDatastore datastore)
     {
         List<string> pathParts = [];
         IHasDataPortTreeNodes hasTreeNodes = dataPortTreeNode;
@@ -76,7 +76,7 @@ internal static class DataPortTreeNodeExtensions
             };
     }
 
-    public static IEnumerable<BlockNodeConnector> GetValidTargetConnectors(this DataPortTreeNode dataPortTreeNode, Datastore datastore)
+    public static IEnumerable<BlockNodeConnector> GetValidTargetConnectors(this DataPortTreeNode dataPortTreeNode, IDatastore datastore)
     {
         var targetConnectors = datastore.DataflowDiagramMapping.GetConnectors()
             .Where(c => datastore.Builder.Editors.DataPortTreeNode.CanAssignConnector(dataPortTreeNode, c is ContainerConnector ? c.GetUnderlyingConnector() : (Connector)c));

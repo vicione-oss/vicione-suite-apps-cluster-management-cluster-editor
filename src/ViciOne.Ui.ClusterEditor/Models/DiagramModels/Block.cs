@@ -22,7 +22,7 @@ public class Block
     public Block()
     { }
 
-    public Block(Datastore datastore, BlockNode node)
+    public Block(IDatastore datastore, BlockNode node)
     {
         var nodeModel = datastore.DataflowDiagramMapping.GetModel(node);
 

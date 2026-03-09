@@ -23,7 +23,7 @@ public sealed partial class TopologySectionContent : IDisposable
     private readonly string _plusIconCssClass = MonochromeIconName.PlusSlim.GetCssClasses(MonochromeIconSize.SmallMedium).ToSpaceSeparated();
     private readonly TreeEditor.Builder.TreeBuilder _treeBuilder = new();
 
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private ILogger<TopologySectionContent> Logger { get; set; } = default!;
     [Inject] private TopologyTreeAdapter TreeAdapter { get; set; } = default!;
 

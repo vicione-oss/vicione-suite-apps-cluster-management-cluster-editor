@@ -8,7 +8,7 @@ using ViciOne.Ui.ClusterEditor.Services;
 
 namespace ViciOne.Ui.ClusterEditor.Models.ComponentStates.ContextMenu.Specialized;
 
-public sealed class BlockNodeConnectorContextMenuState(Datastore datastore, SelectionManager selectionManager) : IContextMenuState<BlockNodeConnectorContextMenuContext>
+public sealed class BlockNodeConnectorContextMenuState(IDatastore datastore, SelectionManager selectionManager) : IContextMenuState<BlockNodeConnectorContextMenuContext>
 {
     public bool AddConnectorToParentContainerEnabled { get; private set; }
     public bool CancelConnectorPublicationEnabled { get; private set; }

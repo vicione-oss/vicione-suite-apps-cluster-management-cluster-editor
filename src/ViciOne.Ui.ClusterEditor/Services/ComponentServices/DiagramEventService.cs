@@ -18,7 +18,7 @@ public sealed class DiagramEventService
     public event Action<ChildContainer>? ContainerRemoved;
     public event Func<Task>? DiagramFocusRequested;
     public event Action? DiagramPointerLeave;
-    public event Action<Datastore, IConnector?>? DraggingLinkChanged;
+    public event Action<IDatastore, IConnector?>? DraggingLinkChanged;
     public event Action<MouseEventArgs>? EdgeDraggingPointerMove;
     public event Action<MouseEventArgs>? EdgeDraggingPointerUp;
     public event Action<bool>? EdgeDraggingVisibilityChangeRequested;
@@ -54,7 +54,7 @@ public sealed class DiagramEventService
     public void InvokeDiagramPointerLeave()
         => DiagramPointerLeave?.Invoke();
 
-    public void InvokeDraggingLinkChanged(Datastore datastore, IConnector? connector)
+    public void InvokeDraggingLinkChanged(IDatastore datastore, IConnector? connector)
         => DraggingLinkChanged?.Invoke(datastore, connector);
 
     public void InvokeEdgeDraggingPointerMove(MouseEventArgs e)

@@ -28,7 +28,7 @@ public sealed partial class NodeEditorContextMenu : SpecializedContextMenuWithSt
     [Inject] private ClusterBuilderEventBuffer ClusterBuilderEventBuffer { get; set; } = default!;
     [Inject] private ConnectorSelectionDialogService ConnectorSelectionDialogService { get; set; } = default!;
     [Inject] private IContainerEditorRequest ContainerEditorRequest { get; set; } = default!;
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramEventService DiagramEventService { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
     [Inject] private IFbSettingsEditorRequest FbSettingsEditorRequest { get; set; } = default!;

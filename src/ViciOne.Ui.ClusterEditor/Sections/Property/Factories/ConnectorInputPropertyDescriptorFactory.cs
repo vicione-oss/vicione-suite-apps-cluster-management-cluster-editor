@@ -13,7 +13,7 @@ using PropertyGridConstants = ViciOne.Ui.Blazor.Components.PropertyGrid.Constant
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Property.Factories;
 
-internal sealed class ConnectorInputPropertyDescriptorFactory(Datastore datastore,
+internal sealed class ConnectorInputPropertyDescriptorFactory(IDatastore datastore,
     NumericPropertyDescriptorBuilderProvider numericPropertyDescriptorBuilderProvider,
     IEnumerable<INumericValueTypeDescriptor> numericValueTypeDescriptors)
 {

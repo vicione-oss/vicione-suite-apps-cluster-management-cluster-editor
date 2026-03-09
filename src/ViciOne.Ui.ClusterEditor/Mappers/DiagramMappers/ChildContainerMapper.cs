@@ -22,7 +22,7 @@ internal static class ChildContainerMapper
     internal static async Task<ChildContainerNode> CreateNodeAsync(
         ComparerService comparerService,
         ChildContainer container,
-        Datastore datastore,
+        IDatastore datastore,
         DiagramService diagramService,
         IJSRuntime jsRuntime,
         CancellationToken cancellationToken)
@@ -58,7 +58,7 @@ internal static class ChildContainerMapper
         ChildContainerNode childContainerNode,
         ChildContainer childContainer,
         ComparerService comparerService,
-        Datastore datastore,
+        IDatastore datastore,
         DiagramService diagramService)
     {
         var result = new List<BlockNodeConnector?[]>();
@@ -103,7 +103,7 @@ internal static class ChildContainerMapper
     internal static void PropertyChanged(
         ChildContainer container,
         ChildContainerNode containerNode,
-        Datastore datastore,
+        IDatastore datastore,
         string propertyName)
     {
         switch (propertyName)
@@ -133,7 +133,7 @@ internal static class ChildContainerMapper
         ComparerService comparerService,
         ChildContainer container,
         ChildContainerNode containerNode,
-        Datastore datastore,
+        IDatastore datastore,
         DiagramService diagramService,
         IJSRuntime jsRuntime,
         CancellationToken cancellationToken = default)
@@ -156,7 +156,7 @@ internal static class ChildContainerMapper
         datastore.DataflowDiagramMapping.Add(container, containerNode);
     }
 
-    internal static void UpdatePosition(Datastore datastore, ChildContainerNode containerNode)
+    internal static void UpdatePosition(IDatastore datastore, ChildContainerNode containerNode)
     {
         var container = datastore.DataflowDiagramMapping.GetModel(containerNode);
         datastore.Builder.Editors.Container.SetLocation(

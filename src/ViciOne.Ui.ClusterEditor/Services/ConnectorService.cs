@@ -12,7 +12,7 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
-public sealed class ConnectorService(Datastore datastore, DiagramService diagramService, SelectionManager selectionManager)
+public sealed class ConnectorService(IDatastore datastore, DiagramService diagramService, SelectionManager selectionManager)
 {
     public void DeleteInvisibleLinks(IEnumerable<Link> links)
     {

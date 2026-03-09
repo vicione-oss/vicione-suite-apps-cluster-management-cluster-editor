@@ -56,7 +56,7 @@ internal static class LabelMapper
         labelNode.Refresh();
     }
 
-    internal static void UpdatePosition(Datastore datastore, LabelNode labelNode)
+    internal static void UpdatePosition(IDatastore datastore, LabelNode labelNode)
     {
         var label = datastore.DataflowDiagramMapping.GetModel(labelNode);
         datastore.Builder.Editors.Label.SetLocation(

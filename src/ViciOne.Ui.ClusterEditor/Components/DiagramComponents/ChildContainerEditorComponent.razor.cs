@@ -14,7 +14,7 @@ public sealed partial class ChildContainerEditorComponent : ComponentBase
     [CascadingParameter] internal Diagram? Diagram { get; set; }
 
     [Inject] private BoundsService BoundsService { get; set; } = default!;
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private TooltipService TooltipService { get; set; } = default!;
 
     [Parameter] public ChildContainerNode? Node { get; set; }

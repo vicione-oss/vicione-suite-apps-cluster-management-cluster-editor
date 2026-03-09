@@ -64,7 +64,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     [Inject] private IPropertyGridController<ContainerEditorPropertyGridContext> ContainerEditorPropertyGridController { get; set; } = default!;
     [Inject] private IContainerEditorRequest ContainerEditorRequest { get; set; } = default!;
     [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;

@@ -13,7 +13,7 @@ public sealed partial class PropertySectionContent<TPropertyGridContext> : Compo
 {
     private readonly List<FilterButton> _filterButtons = [];
 
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramEventService DiagramEventService { get; set; } = default!;
     [Inject] private IPropertyGridEvents<TPropertyGridContext> PropertyGridEvents { get; set; } = default!;
     [Inject] private IPropertyGridState<TPropertyGridContext> PropertyGridState { get; set; } = default!;

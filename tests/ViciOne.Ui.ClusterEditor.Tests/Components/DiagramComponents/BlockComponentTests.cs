@@ -41,7 +41,7 @@ public class BlockComponentTests
         var diagram = ctx.Services.GetRequiredService<DiagramService>().Diagram;
         var childContainerNode = new ChildContainerNode();
 
-        ctx.Services.GetRequiredService<Datastore>().DataflowDiagramMapping.Add(new(), childContainerNode);
+        ctx.Services.GetRequiredService<IDatastore>().DataflowDiagramMapping.Add(new(), childContainerNode);
 
         // Act
         var component = ctx.RenderComponent<BlockComponent>(parameters => parameters

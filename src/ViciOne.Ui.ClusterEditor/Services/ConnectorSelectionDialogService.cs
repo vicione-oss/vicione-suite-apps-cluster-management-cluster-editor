@@ -8,7 +8,7 @@ using ViciOne.Ui.ClusterEditor.Models;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
-public sealed class ConnectorSelectionDialogService(Datastore datastore, SelectionManager selectionManager)
+public sealed class ConnectorSelectionDialogService(IDatastore datastore, SelectionManager selectionManager)
 {
     public IEnumerable<DataGridConnectorWrapper> Connectors { get; private set; } = [];
     public bool Visible { get; set; }

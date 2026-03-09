@@ -21,7 +21,7 @@ public sealed partial class DataPortEditNodeTemplate : NodeTemplateBase, IDispos
     [CascadingParameter]
     private DataPortEditTemplateContext EditTemplateContext { get; set; } = default!;
 
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private IPropertyGridController<DataPortChildNodeEditContext> PropertyGridController { get; set; } = default!;
     [Inject] private IPropertyGridEvents<DataPortChildNodeEditContext> PropertyGridEvents { get; set; } = default!;
     [Inject] private IPropertyGridMessageStore<DataPortChildNodeEditContext> PropertyGridMessageStore { get; set; } = default!;

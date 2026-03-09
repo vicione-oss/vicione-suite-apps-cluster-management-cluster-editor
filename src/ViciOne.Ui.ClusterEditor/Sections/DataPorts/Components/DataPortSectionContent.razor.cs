@@ -44,7 +44,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
 
     [Inject] private IContextMenuRequest<AddDataPortContextMenuContext> AddDataPortContextMenuRequest { get; set; } = default!;
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DragService DragService { get; set; } = default!;
     [Inject] private LinkDestinationDialogService LinkDestinationDialogService { get; set; } = default!;
     [Inject] private ILogger<DataPortSectionContent> Logger { get; set; } = default!;

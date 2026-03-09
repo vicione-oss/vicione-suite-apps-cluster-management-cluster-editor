@@ -20,7 +20,7 @@ public sealed partial class BlockNodeConnectorContextMenu : SpecializedContextMe
 {
     private CancellationTokenSource? _removeConnectorFromContainerCts;
 
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramEventService DiagramEventService { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;

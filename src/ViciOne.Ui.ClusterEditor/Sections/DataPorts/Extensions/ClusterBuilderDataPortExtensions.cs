@@ -41,7 +41,7 @@ internal static class ClusterBuilderDataPortExtensions
         return nodeType;
     }
 
-    public static DataPort GetOrCreateDataPort(this ClusterBuilder builder, Datastore datastore, DataPortRootNodeModel rootNode,
+    public static DataPort GetOrCreateDataPort(this ClusterBuilder builder, IDatastore datastore, DataPortRootNodeModel rootNode,
         DataPortChildNodeModel dataPortNode)
     {
         var nodeType = GetNodeTypeOrThrow(rootNode, dataPortNode);

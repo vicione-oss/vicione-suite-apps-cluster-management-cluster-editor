@@ -9,7 +9,7 @@ using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 
 namespace ViciOne.Ui.ClusterEditor.Models.Data;
 
-internal sealed class DataflowDiagramMapping
+public sealed class DataflowDiagramMapping
 {
     private readonly Dictionary<IConnector, BlockNodeConnector> _blockNodeConnectorMap = [];
     private readonly Dictionary<ChildContainer, ChildContainerNode> _childContainerNodeMap = [];

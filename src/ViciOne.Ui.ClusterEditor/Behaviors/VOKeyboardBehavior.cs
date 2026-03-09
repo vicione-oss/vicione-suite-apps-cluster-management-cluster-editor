@@ -14,12 +14,12 @@ namespace ViciOne.Ui.ClusterEditor.Behaviors;
 internal sealed class VOKeyboardBehavior : Behavior
 {
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;
-    private readonly Datastore _datastore;
+    private readonly IDatastore _datastore;
     private readonly DiagramEventService _diagramEventService;
     private readonly DiagramService _diagramService;
 
     public VOKeyboardBehavior(
-        Datastore datastore,
+        IDatastore datastore,
         ClusterBuilderEventBuffer clusterBuilderEventBuffer,
         Diagram diagram,
         DiagramEventService diagramEventService,

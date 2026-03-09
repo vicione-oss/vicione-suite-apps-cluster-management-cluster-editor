@@ -18,7 +18,7 @@ internal static class ConnectorMapper
 {
     public static BlockNodeConnector CreateNodeConnector(
         ComparerService comparerService,
-        Datastore datastore,
+        IDatastore datastore,
         DiagramService diagramService,
         BlockNode blockNode,
         IConnector connector)
@@ -63,7 +63,7 @@ internal static class ConnectorMapper
     public static void Init(DiagramEventService diagramEventService)
         => diagramEventService.DraggingLinkChanged += OnDraggingLinkChanged;
 
-    private static void OnDraggingLinkChanged(Datastore datastore, IConnector? connector)
+    private static void OnDraggingLinkChanged(IDatastore datastore, IConnector? connector)
     {
         var nodeConnectors = datastore.DataflowDiagramMapping
             .GetInputNodeConnectors();

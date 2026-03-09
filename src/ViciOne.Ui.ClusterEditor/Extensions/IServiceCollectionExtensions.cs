@@ -54,7 +54,7 @@ public static class IServiceCollectionExtensions
         services.AddScoped<DataManagementService>();
         services.AddScoped<IDataManagementService>(sp => sp.GetRequiredService<DataManagementService>());
         services.AddScoped<IDataPortTreeIconProvider, DataPortTreeIconProvider>();
-        services.AddScoped<Datastore>();
+        services.AddScoped<IDatastore, Datastore>();
         services.AddScoped<DiagramEventService>();
         services.AddScoped<DiagramService>();
         services.AddScoped<FullscreenService>();

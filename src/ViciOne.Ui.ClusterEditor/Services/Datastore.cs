@@ -31,7 +31,7 @@ using Link = ViciOne.Cluster.Model.Link;
 namespace ViciOne.Ui.ClusterEditor.Services;
 
 [SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "TODO")]
-public sealed partial class Datastore : IAsyncDisposable
+internal sealed partial class Datastore : IDatastore, IAsyncDisposable
 {
     private ClusterBuilder? _builder;
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;
@@ -48,8 +48,8 @@ public sealed partial class Datastore : IAsyncDisposable
     public Cluster.Model.Container ActiveContainer { get; private set; } = new();
     public Dataflow ActiveDataflow { get; private set; } = new();
     public ClusterBuilder Builder => _builder ?? throw new InvalidOperationException($"Use method {nameof(Load)} to init the builder");
-    internal DataflowDiagramMapping DataflowDiagramMapping { get; } = new();
-    internal bool HasBuilder => _builder is not null;
+    public DataflowDiagramMapping DataflowDiagramMapping { get; } = new();
+    public bool HasBuilder => _builder is not null;
     public IEnumerable<Cluster.Model.Engine> ValidDataflowEngines { get; private set; } = [];
 
     public event Action? ActiveDataflowChanged;

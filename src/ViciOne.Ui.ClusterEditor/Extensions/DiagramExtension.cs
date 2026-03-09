@@ -45,7 +45,7 @@ internal static class DiagramExtension
         );
     }
 
-    public static Point GetRelativeGridPoint(this Diagram diagram, Point clientPoint, Datastore datastore)
+    public static Point GetRelativeGridPoint(this Diagram diagram, Point clientPoint, IDatastore datastore)
     {
         var relativePoint = diagram.GetRelativeMousePoint(clientPoint.X, clientPoint.Y);
         var gridPoint = datastore.Builder.GetGridPoint(new((int)relativePoint.X, (int)relativePoint.Y));

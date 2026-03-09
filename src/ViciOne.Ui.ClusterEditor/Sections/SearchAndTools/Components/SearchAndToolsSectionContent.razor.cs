@@ -35,7 +35,7 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
     private bool _traceEnabled;
     private bool _traceExpanded = true;
 
-    [Inject] private Datastore Datastore { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramEventService DiagramEventService { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
     [Inject] private LabelOrderService LabelOrderService { get; set; } = default!;
