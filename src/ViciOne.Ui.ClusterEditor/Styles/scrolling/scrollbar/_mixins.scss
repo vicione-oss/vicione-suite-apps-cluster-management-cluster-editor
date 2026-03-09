@@ -1,6 +1,0 @@
-﻿@mixin adjust-styles($bg: transparent, $bg-hover: rgb(52, 52, 52, 0.15), $slider-bg: rgb(68, 68, 68), $border-width: 1px) {
-    --scrollbar-container-bg: #{$bg};
-    --scrollbar-container-bg-hover: #{$bg-hover};
-    --scrollbar-container-slider-bg: #{$slider-bg};
-    --scrollbar-container-border-width: #{$border-width};
-}
