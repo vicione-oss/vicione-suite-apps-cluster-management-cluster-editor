@@ -9,7 +9,10 @@ using Connector = ViciOne.Cluster.Model.Connector;
 
 namespace ViciOne.Ui.ClusterEditor.Models;
 
-public sealed class DataGridConnectorWrapper(IConnector connector, ConnectorDesign connectorDesign, FunctionBlockDesign functionBlockDesign) : IDragable
+public sealed class DataGridConnectorWrapper(IConnector connector,
+    ConnectorDesign connectorDesign,
+    FunctionBlockDesign functionBlockDesign,
+    ConnectorMarkerType destinationMarker = ConnectorMarkerType.None) : IDragable
 {
     public IConnector Connector { get; } = connector;
     public string ConnectorName => Connector.Name;
@@ -17,6 +20,7 @@ public sealed class DataGridConnectorWrapper(IConnector connector, ConnectorDesi
     public string ConnectorTypeName => DataTypeCompatibilityValidator.DetermineValueType(ConnectorType).Name;
     public string Description => Connector.Description ?? string.Empty;
     public string DesignName => functionBlockDesign.Name;
+    public ConnectorMarkerType DestinationMarker { get; } = destinationMarker;
     public Guid FunctionBlockId => Connector.FunctionBlock.Id;
     public string FunctionBlockName => Connector.FunctionBlock.Name;
     public bool IsInput => Connector is IConnectorInput;

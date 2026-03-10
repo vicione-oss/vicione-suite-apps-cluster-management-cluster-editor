@@ -17,6 +17,7 @@
 - Improved expand & collapse button states in `DataPortSection`
 - Exchanged various SVG icons with icons from `ViciOne.Ui.MonochromeIcons`
 - Changed signature of `LoadDataflow` method from void to Task in `DataManagementService`
+- Double click on nodes in `DataPorts` and `Published Conntectors` section highlights the corresponding markers
 
 ### Updated external references
 

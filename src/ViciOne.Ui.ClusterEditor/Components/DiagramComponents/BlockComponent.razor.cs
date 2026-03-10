@@ -57,7 +57,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     public void Dispose()
     {
         Node!.Changed -= OnNodeChanged;
-        LinkDestinationDialogService.ConnectorSelected -= OnLinkDestinationDialogConnectorSelectedAsync;
+        LinkDestinationDialogService.ConnectorSelected -= OnLinkDestinationDialogConnectorSelected;
         DiagramEventService.BlockNodesUpdateRequested -= OnBlockNodesUpdateRequestedAsync;
 
         GC.SuppressFinalize(this);
@@ -265,12 +265,27 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         _block = new(Datastore, Node);
 
         Node.Changed += OnNodeChanged;
-        LinkDestinationDialogService.ConnectorSelected += OnLinkDestinationDialogConnectorSelectedAsync;
+        LinkDestinationDialogService.ConnectorSelected += OnLinkDestinationDialogConnectorSelected;
         DiagramEventService.BlockNodesUpdateRequested += OnBlockNodesUpdateRequestedAsync;
     }
 
-    private async void OnLinkDestinationDialogConnectorSelectedAsync(Connector selectedConnector)
-        => await ConnectorService.ShowAndSelectConnectorAsync(selectedConnector);
+    private async void OnLinkDestinationDialogConnectorSelected(Connector selectedConnector, ConnectorMarkerType markerType)
+    {
+        switch (markerType)
+        {
+            case ConnectorMarkerType.None:
+                await ConnectorService.ShowAndSelectConnector(selectedConnector);
+                break;
+            case ConnectorMarkerType.DataPort:
+                await ConnectorService.ShowAndSelectDataPortConnectorMarker(selectedConnector);
+                break;
+            case ConnectorMarkerType.Published:
+                await ConnectorService.ShowAndSelectPublishedConnectorMarker(selectedConnector);
+                break;
+            default:
+                break;
+        }
+    }
 
     private void OnMarkerClick(bool controlKeyPressed, ConnectorMarker connectorMarker)
     {
@@ -317,7 +332,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
                     ? connectorMarker.Links[0].SourceConnector!
                     : connectorMarker.Links[0].DestinationConnector!;
 
-                await ConnectorService.ShowAndSelectConnectorAsync(targetConnector);
+                await ConnectorService.ShowAndSelectConnector(targetConnector);
             }
         }
         else

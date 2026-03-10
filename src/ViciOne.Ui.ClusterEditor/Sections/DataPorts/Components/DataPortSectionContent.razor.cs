@@ -190,7 +190,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
                 ? dataPortTreeNode.Links.First().SourceConnector!
                 : dataPortTreeNode.Links.First().DestinationConnector!;
 
-            await ConnectorService.ShowAndSelectConnectorAsync(connectorToHighlight);
+            await ConnectorService.ShowAndSelectDataPortConnectorMarker(connectorToHighlight);
         }
         else
         {

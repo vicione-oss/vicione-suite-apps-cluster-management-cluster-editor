@@ -8,15 +8,12 @@ using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
-using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.Comparer;
 using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
-using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Resources;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
 using ViciOne.Ui.ClusterEditor.Services;
-using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ColorableIcons;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Components;
@@ -35,8 +32,6 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
     [Inject] private IContextMenuRequest<PublishedConnectorsSectionContextMenuContext> ContextMenuRequest { get; set; } = default!;
     [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
-    [Inject] private IDatastore Datastore { get; set; } = default!;
-    [Inject] private DiagramService DiagramService { get; set; } = default!;
     [Inject] private ILogger<PublishedConnectorsSectionContent> Logger { get; set; } = default!;
     [Inject] private PublishedConnectorsService PublishedConnectorsService { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
@@ -248,17 +243,7 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
         if (dataItem is null || dataItem is not DataGridConnectorWrapper publishedConnector)
             return;
 
-        var connector = publishedConnector.Connector;
-        var functionBlock = connector.FunctionBlock;
-        var containerToLoad = functionBlock.Container;
-
-        await Datastore.LoadContainer(containerToLoad, DiagramService);
-        BlockNode node = Datastore.DataflowDiagramMapping.GetDiagramModel(functionBlock);
-
-        if (!DiagramService.Diagram.IsNodeInViewport(node))
-            DiagramService.Diagram.PanToNode(node);
-
-        SelectionManager.SetSelection(Datastore.DataflowDiagramMapping.GetDiagramModel(connector));
+        await ConnectorService.ShowAndSelectPublishedConnectorMarker(publishedConnector.Connector);
     }
 
     private void OnRowPointerDown(MouseEventArgs e, int rowIndex)

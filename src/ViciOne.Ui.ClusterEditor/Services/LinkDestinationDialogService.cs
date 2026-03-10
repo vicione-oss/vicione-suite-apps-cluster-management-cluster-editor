@@ -17,13 +17,13 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
     public DataPortTreeNode? SourceDataPortTreeNode { get; private set; }
     public bool Visible { get; set; }
 
-    public event Action<Connector>? ConnectorSelected;
+    public event Action<Connector, ConnectorMarkerType>? ConnectorSelected;
     public event Action<DataPortTreeNode>? DataPortTreeNodeSelected;
     public event Action<IEnumerable<Link>>? LinksToDeleteSelected;
     public event Action? VisibilityChanged;
 
-    public void InvokeConnectorSelected(Connector connector)
-        => ConnectorSelected?.Invoke(connector);
+    public void InvokeConnectorSelected(Connector connector, ConnectorMarkerType marker)
+        => ConnectorSelected?.Invoke(connector, marker);
 
     public void InvokeDataPortSelected(DataPortTreeNode dataPortTreeNode)
         => DataPortTreeNodeSelected?.Invoke(dataPortTreeNode);
@@ -107,7 +107,8 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
             .Where(connector => connector is not null)
             .Select(connector => new DataGridConnectorWrapper(connector!,
                 datastore.Builder.ResolveConnectorDesign(connector!),
-                datastore.Builder.ResolveFunctionBlockDesign(connector!.FunctionBlock.DesignId)))];
+                datastore.Builder.ResolveFunctionBlockDesign(connector!.FunctionBlock.DesignId),
+                ConnectorMarkerType.DataPort))];
 
         SourceDataPortTreeNode = sourceDataPortTreeNode;
     }
