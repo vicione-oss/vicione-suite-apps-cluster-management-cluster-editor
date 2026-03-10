@@ -1,7 +1,7 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
-    <ViciOneUiMonochromeIconsVersion>4.2.0</ViciOneUiMonochromeIconsVersion>
+    <ViciOneUiMonochromeIconsVersion>4.3.0</ViciOneUiMonochromeIconsVersion>
     <ViciOneClusterBuilderVersion>0.12.0-ci2373243690</ViciOneClusterBuilderVersion>
   </PropertyGroup>
   <ItemGroup>
@@ -20,7 +20,7 @@
     <PackageVersion Include="ViciOne.Core.Dataflow.DataModel.Generation" Version="0.51.0" />
     <PackageVersion Include="ViciOne.ManagedEngine.Serialization" Version="0.62.0" />
     <PackageVersion Include="ViciOne.Suite.System.DataPort" Version="0.15.0" />
-    <PackageVersion Include="ViciOne.Ui.Blazor.Components" Version="5.3.0" />
+    <PackageVersion Include="ViciOne.Ui.Blazor.Components" Version="5.5.0" />
     <PackageVersion Include="ViciOne.Ui.Design" Version="1.0.1" />
     <PackageVersion Include="ViciOne.Ui.Localization" Version="3.1.0" />
     <PackageVersion Include="ViciOne.Ui.MonochromeIcons.Assets" Version="$(ViciOneUiMonochromeIconsVersion)" />

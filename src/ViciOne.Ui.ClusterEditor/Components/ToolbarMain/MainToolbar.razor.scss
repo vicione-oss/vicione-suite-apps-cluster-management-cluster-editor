@@ -2,7 +2,7 @@
 @use "./../../Styles/mixins";
 
 .btn.btn-toolbar {
-    padding: 4px;
+    padding: 0px;
 
     &.active {
         ::deep > svg {
@@ -34,17 +34,16 @@
     }
 }
 
-::deep .main-toolbar {
-    grid-column: 2;
-
-    & .dxbl-toolbar-btn-ellipsis {
-        height: 34px;
-    }
-}
-
 .sidebar-top-container {
     background-color: colors.$editor-background;
-    color: colors.$editor-font;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
     height: 64px;
     padding: 16px 32px;
+}
+
+span {
+    &.active {
+        color: colors.$editor-accent;
+    }
 }
