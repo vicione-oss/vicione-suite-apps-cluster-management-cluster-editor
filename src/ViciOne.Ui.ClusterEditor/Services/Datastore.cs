@@ -569,6 +569,7 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         foreach (var functionBlock in container.FunctionBlocks)
         {
             var node = await FunctionBlockMapper.CreateNodeAsync(_comparerService, this, diagramService, functionBlock, _jsRuntime, cancellationToken);
+            node.HasPortsInitialized = true;
             DataflowDiagramMapping.Add(functionBlock, node);
         }
 
