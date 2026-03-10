@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.ClusterEditor.Localization.Resources;
@@ -10,7 +10,7 @@ internal sealed class ShortNamePropertyDescriptor<TContainerConnector> : Propert
     where TContainerConnector : ContainerConnector
 {
     [SetsRequiredMembers]
-    public ShortNamePropertyDescriptor(ConnectorEditor editor)
+    public ShortNamePropertyDescriptor(IConnectorEditor editor)
     {
         Category = CommonVocabulary.Data;
         GetDefaultValue = (instance) => instance.Connector.ShortName;

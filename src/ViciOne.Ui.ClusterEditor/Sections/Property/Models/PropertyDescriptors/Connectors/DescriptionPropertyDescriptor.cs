@@ -1,5 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.Localization.Resources;
@@ -10,7 +10,7 @@ internal sealed class DescriptionPropertyDescriptor<TConnector> : PropertyDescri
     where TConnector : class, IConnector
 {
     [SetsRequiredMembers]
-    public DescriptionPropertyDescriptor(ConnectorEditor editor)
+    public DescriptionPropertyDescriptor(IConnectorEditor editor)
     {
         CanBeSetToNull = true;
         Category = CommonVocabulary.Appearance;

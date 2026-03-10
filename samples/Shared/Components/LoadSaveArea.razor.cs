@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using Shared.ClusterSerialization;
 using Shared.Services;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 
 namespace Shared.Components;
 
@@ -31,7 +31,7 @@ public sealed partial class LoadSaveArea : ComponentBase, IDisposable
         }
     }
 
-    private Task OnClusterLoaded(ClusterBuilder builder)
+    private Task OnClusterLoaded(IClusterBuilder builder)
     {
         IndexService.LoadCluster(builder);
         return Task.CompletedTask;

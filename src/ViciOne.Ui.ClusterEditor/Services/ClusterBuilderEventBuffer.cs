@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Timers;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
@@ -14,7 +14,7 @@ public sealed partial class ClusterBuilderEventBuffer : IDisposable
     };
     private bool _manualBatchInProgress;
 
-    private ClusterBuilder Builder { get; set; } = default!;
+    private IClusterBuilder Builder { get; set; } = default!;
 
     public ClusterBuilderEventBuffer()
         => _bufferTimer.Elapsed += OnBufferTimerElapsed;
@@ -92,7 +92,7 @@ public sealed partial class ClusterBuilderEventBuffer : IDisposable
         FireEvents();
     }
 
-    public void SetBuilder(ClusterBuilder builder)
+    public void SetBuilder(IClusterBuilder builder)
     {
         DetachBuilderEvents();
         Builder = builder;

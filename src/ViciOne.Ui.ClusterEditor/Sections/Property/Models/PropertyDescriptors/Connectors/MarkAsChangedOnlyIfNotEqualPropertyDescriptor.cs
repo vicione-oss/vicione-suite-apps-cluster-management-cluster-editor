@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.ClusterEditor.Localization.Resources;
@@ -10,7 +11,7 @@ internal sealed class MarkAsChangedOnlyIfNotEqualPropertyDescriptor<TConnector> 
     where TConnector : class, IConnector
 {
     [SetsRequiredMembers]
-    public MarkAsChangedOnlyIfNotEqualPropertyDescriptor(ConnectorEditor editor)
+    public MarkAsChangedOnlyIfNotEqualPropertyDescriptor(IConnectorEditor editor)
     {
         Category = CommonVocabulary.Data;
         GetDefaultValue = (instance) => ConnectorDefaults.MarkAsChangedOnlyIfNotEqual;

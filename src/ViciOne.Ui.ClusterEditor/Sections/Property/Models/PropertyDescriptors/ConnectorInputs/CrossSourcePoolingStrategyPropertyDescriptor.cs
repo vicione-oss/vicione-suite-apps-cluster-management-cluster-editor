@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
 using ViciOne.Core.Contracts.DataModel;
@@ -16,7 +16,7 @@ internal sealed class CrossSourcePoolingStrategyPropertyDescriptor<TConnectorInp
         where TConnectorInput : class, IConnectorInput
 {
     [SetsRequiredMembers]
-    public CrossSourcePoolingStrategyPropertyDescriptor(ClusterBuilder clusterBuilder,
+    public CrossSourcePoolingStrategyPropertyDescriptor(IClusterBuilder clusterBuilder,
         Func<TConnectorInput, ConnectorInput> connectorInputSelector)
     {
         var editor = clusterBuilder.Editors.Connector;

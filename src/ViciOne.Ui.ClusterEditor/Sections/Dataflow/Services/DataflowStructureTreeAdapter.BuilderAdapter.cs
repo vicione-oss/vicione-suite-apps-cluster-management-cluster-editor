@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Models;
 using ViciOne.Ui.TreeEditor.Builder.Interface.NodeIdentifier;
@@ -280,7 +280,7 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
         InvokeChildrenChanged(updatedParents.Distinct());
     }
 
-    public void UseBuilder(ClusterBuilder newBuilder)
+    public void UseBuilder(IClusterBuilder newBuilder)
     {
         // Null check to secure against the internal `[...] = null!` assignment
         if (_clusterBuilder is not null)

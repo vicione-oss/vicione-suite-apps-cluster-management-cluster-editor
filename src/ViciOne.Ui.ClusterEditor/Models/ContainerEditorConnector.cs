@@ -1,10 +1,10 @@
 ﻿using System;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 
 namespace ViciOne.Ui.ClusterEditor.Models;
 
-public sealed class ContainerEditorConnector(ConnectorEditor editor)
+public sealed class ContainerEditorConnector(IConnectorEditor editor)
 {
     public required ContainerEditorConnectorBackup Backup { get; init; }
     public BlockNodeConnector? BlockNodeConnector { get; set; }

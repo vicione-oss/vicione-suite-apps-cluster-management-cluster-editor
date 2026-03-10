@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Helpers;
@@ -29,7 +29,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Dataflow.Services;
 internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDisposable
 {
 #pragma warning disable CA2213 // Disposable fields should be disposed
-    private ClusterBuilder _clusterBuilder = default!;
+    private IClusterBuilder _clusterBuilder = default!;
 #pragma warning restore CA2213 // Disposable fields should be disposed
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;
     private readonly Dictionary<ChildContainer, ContainerStructureTreeNode> _containerMap = [];

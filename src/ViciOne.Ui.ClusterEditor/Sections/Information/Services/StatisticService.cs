@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Sections.Information.Models;
@@ -11,7 +11,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Information.Services;
 
 internal sealed class StatisticService : IDisposable
 {
-    private ClusterBuilder? _clusterBuilder;
+    private IClusterBuilder? _clusterBuilder;
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;
     private readonly IDatastore _datastore;
 

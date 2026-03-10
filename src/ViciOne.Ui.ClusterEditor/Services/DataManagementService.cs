@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
@@ -21,12 +21,12 @@ internal class DataManagementService(IDatastore datastore, DiagramService diagra
     public event Func<Task>? LoadFunctionBlockDesignsRequested;
     public event Func<LogLevel, string, Action, Task>? MessageToastRequested;
     public event Func<Task>? NewRequested;
-    public event Func<ClusterBuilder, Task>? SaveRequested;
+    public event Func<IClusterBuilder, Task>? SaveRequested;
 
     public Task ForceRootContainerReload()
         => _datastore.LoadContainer(_datastore.Builder.Cluster.Dataflows.First().Root, _diagramService, true);
 
-    public Task LoadDataflow(ClusterBuilder builder)
+    public Task LoadDataflow(IClusterBuilder builder)
     {
         builder.InitSettings();
         _libraryService.CreateLibraryEntries(builder.GetFunctionBlockDesigns());

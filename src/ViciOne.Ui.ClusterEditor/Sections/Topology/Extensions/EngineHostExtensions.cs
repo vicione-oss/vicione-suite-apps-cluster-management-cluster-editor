@@ -1,11 +1,11 @@
-﻿using ViciOne.Cluster.Builder;
+﻿using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Topology.Extensions;
 
 internal static class EngineHostExtensions
 {
-    public static void Apply(this EngineHost target, EngineHostEditor editor, EngineHost source)
+    public static void Apply(this EngineHost target, IEngineHostEditor editor, EngineHost source)
     {
         if (!string.IsNullOrEmpty(source.Description))
             editor.SetDescription(target, source.Description);

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using Microsoft.AspNetCore.Components.Web;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
@@ -16,7 +16,7 @@ namespace ViciOne.Ui.ClusterEditor.Helpers;
 
 internal static class TooltipConnectorData
 {
-    private static List<List<string>?> GetConnectorTooltipContent(ClusterBuilder builder, IConnector connector)
+    private static List<List<string>?> GetConnectorTooltipContent(IClusterBuilder builder, IConnector connector)
     {
         var content = new List<List<string>?>();
 
@@ -62,7 +62,7 @@ internal static class TooltipConnectorData
         return content;
     }
 
-    public static TooltipInfo GetConnectorTooltipInfo(ClusterBuilder clusterBuilder, MouseEventArgs e, BlockNodeConnector connector, Rectangle parentBounds)
+    public static TooltipInfo GetConnectorTooltipInfo(IClusterBuilder clusterBuilder, MouseEventArgs e, BlockNodeConnector connector, Rectangle parentBounds)
     {
         var content = GetConnectorTooltipContent(clusterBuilder, connector.Connector);
 
@@ -79,7 +79,7 @@ internal static class TooltipConnectorData
         return info;
     }
 
-    public static TooltipInfo GetParentConnectorTooltipInfo(ClusterBuilder clusterBuilder, MouseEventArgs e, BlockNodeConnector connector, Rectangle parentBounds)
+    public static TooltipInfo GetParentConnectorTooltipInfo(IClusterBuilder clusterBuilder, MouseEventArgs e, BlockNodeConnector connector, Rectangle parentBounds)
     {
         ArgumentNullException.ThrowIfNull(connector.ParentContainerConnector, nameof(connector.ParentContainerConnector));
 

@@ -42,7 +42,7 @@ internal sealed class DesignLoader(
         return new()
         {
             Name = assemblyName.Name!,
-            Version = new(assemblyVersion.Major, assemblyVersion.Minor, assemblyVersion.Build),
+            Version = $"{assemblyVersion.Major}.{assemblyVersion.Minor}.{assemblyVersion.Build}",
         };
     }
 
@@ -134,8 +134,6 @@ internal sealed class DesignLoader(
         return systemDataPortDependency;
     }
 
-    private static Version ToVersion(SemVersion version)
-        => version.IsPrerelease
-            ? new Version((int)version.Major, (int)version.Minor, (int)version.Patch)
-            : version.ToVersion();
+    private static string ToVersion(SemVersion version)
+        => $"{(int)version.Major}.{(int)version.Minor}.{(int)version.Patch}";
 }

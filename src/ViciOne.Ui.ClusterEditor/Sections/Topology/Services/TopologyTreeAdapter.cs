@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Helpers;
@@ -26,7 +27,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Topology.Services;
 
 internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
 {
-    private ClusterBuilder? _builder;
+    private IClusterBuilder? _builder;
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;
     private readonly List<TopologyTreeViewModel> _clusterNodeGroups = [];
     private TopologyTreeViewModel? _currentlyEditedNodeModel;
@@ -91,7 +92,7 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
         _builder.Editors.Cluster.AddNodeGroup();
     }
 
-    internal void BuildClusterTree(ClusterBuilder builder)
+    internal void BuildClusterTree(IClusterBuilder builder)
     {
         _clusterNodeGroups.Clear();
         _builder = builder;
