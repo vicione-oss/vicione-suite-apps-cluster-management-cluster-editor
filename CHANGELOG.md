@@ -14,6 +14,7 @@
 - Updated to .NET 10
 - Replaced local Breadcrumb implementation with `ViciOne.Ui.Blazor.Components.Breadcrumb`
 - Replaced `DxSpinEdit` with `ViciOne.Ui.Blazor.Components.SpinEdit`
+- Replaced `DxToolbar` in MainToolbar with `ViciOne.Ui.Blazor.Components.Toolbar`
 - Improved expand & collapse button states in `DataPortSection`
 - Exchanged various SVG icons with icons from `ViciOne.Ui.MonochromeIcons`
 - Changed signature of `LoadDataflow` method from void to Task in `DataManagementService`

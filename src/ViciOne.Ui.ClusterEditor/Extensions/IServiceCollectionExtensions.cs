@@ -9,6 +9,7 @@ using ViciOne.Ui.ClusterEditor.Components.ContainerEditor;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarDataflow.Extensions;
+using ViciOne.Ui.ClusterEditor.Components.ToolbarMain.Extensions;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.ComponentStates.ContextMenu.Specialized;
 using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
@@ -91,6 +92,8 @@ public static class IServiceCollectionExtensions
         services.AddToolbarDataflow();
 
         services.AddContainerBreadcrumb();
+
+        services.AddMainToolbar();
 
         services.AddDebugSection();
 

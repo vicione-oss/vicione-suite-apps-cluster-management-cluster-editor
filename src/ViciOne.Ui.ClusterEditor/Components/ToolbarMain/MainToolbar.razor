@@ -1,166 +1,75 @@
-﻿@using ViciOne.Ui.Localization.Resources
+﻿@using ViciOne.Ui.Blazor.Components.Toolbar.Components
+@using ViciOne.Ui.Blazor.Components.Toolbar.Enums
+@using ViciOne.Ui.Localization.Resources
 @using TechnicalTerms=ViciOne.Ui.Localization.Resources.TechnicalTerms
-@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
 
 <div class="sidebar-top-container">
-    <DxToolbar CssClass="main-toolbar"
-               ItemRenderStyleMode="@ToolbarRenderStyleMode.Plain">
+    <Toolbar>
+        <ToolbarButton Enabled="@_alignButtonsEnabledState"
+                       IconName="@MonochromeIconName.AlignTop"
+                       OnClick="@(() => OnNodeAlignRequested(Alignment.Top))"
+                       Text="@UserActions.AlignTop"
+                       TextVisibility="TextVisibility.MenuOnly"
+                       Tooltip="@UserActions.AlignTop"/>
 
-        <Items>
-            <DxToolbarItem AdaptiveText="@UserActions.AlignTop"
-                           BeginGroup="false"
-                           Click="@(() => OnNodeAlignRequested(Alignment.Top))"
-                           Enabled="@_alignButtonsEnabledState"
-                           Name="Align top"
-                           Tooltip="@UserActions.AlignTop">
+        <ToolbarButton Enabled="@_alignButtonsEnabledState"
+                       IconName="@MonochromeIconName.AlignTopByLowestElement"
+                       OnClick="@(() => OnNodeAlignRequested(Alignment.TopByLowestElement))"
+                       Text="@UserActions.AlignTopByLowest"
+                       TextVisibility="TextVisibility.MenuOnly"
+                       Tooltip="@UserActions.AlignTopByLowest"/>
+    
+        <ToolbarButton Enabled="@_alignButtonsEnabledState"
+                       IconName="@MonochromeIconName.AlignBottom"
+                       OnClick="@(() => OnNodeAlignRequested(Alignment.Bottom))"
+                       Text="@UserActions.AlignBottom"
+                       TextVisibility="TextVisibility.MenuOnly"
+                       Tooltip="@UserActions.AlignBottom"/>
 
-                <Template>
-                    @{ var adaptiveTextVisible = context.HiddenToAdaptiveMenu && !_isFullscreen; }
+        <ToolbarButton Enabled="@_alignButtonsEnabledState"
+                       IconName="@MonochromeIconName.AlignLeft"
+                       OnClick="@(() => OnNodeAlignRequested(Alignment.Left))"
+                       Text="@UserActions.AlignLeft"
+                       TextVisibility="TextVisibility.MenuOnly"
+                       Tooltip="@UserActions.AlignLeft"/>
+    
+        <ToolbarButton Enabled="@_alignButtonsEnabledState"
+                       IconName="@MonochromeIconName.AlignRight"
+                       OnClick="@(() => OnNodeAlignRequested(Alignment.Right))"
+                       Text="@UserActions.AlignRight"
+                       TextVisibility="TextVisibility.MenuOnly"
+                       Tooltip="@UserActions.AlignRight"/>
+    
+        <ToolbarGroup>
+            <ToolbarContent>
+                <ZoomDisplay Enabled="@DiagramService.DiagramState.IsInitialized"/>
+            </ToolbarContent>
+        </ToolbarGroup>
 
-                    <div class="btn btn-toolbar @(_alignButtonsEnabledState ? string.Empty : "disabled") @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
-                        <MonochromeIcon Name="MonochromeIconName.AlignTop"
-                                        Size="MonochromeIconSize.SmallMedium" />
+        <ToolbarGroup>
+            <ToolbarContent Enabled="@DiagramService.DiagramState.IsInitialized"
+                            OnClick="@(() => OnToggleFullscreenClickAsync())"
+                            Tooltip="@TechnicalTerms.Fullscreen">
+                @{ var adaptiveTextVisible = context.IsInMenu(); }
+                <div class="btn btn-toolbar @(DiagramService.DiagramState.IsInitialized ? string.Empty : "disabled") @(_isFullscreen ? "active" : string.Empty) @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
+                    @((MarkupString)SvgIcons.toolbar_main_fullscreen)
+                </div>
 
-                        @if (adaptiveTextVisible)
-                        {
-                            <span>@context.AdaptiveText</span>
-                        }
-                    </div>
-                </Template>
-            </DxToolbarItem>
+                @if (adaptiveTextVisible)
+                {
+                    <span class="@(_isFullscreen ? "active" : string.Empty)">@TechnicalTerms.Fullscreen</span>
+                }
+            </ToolbarContent>
+        </ToolbarGroup>
 
-            <DxToolbarItem AdaptiveText="@UserActions.AlignTopByLowest"
-                           Click="@(() => OnNodeAlignRequested(Alignment.TopByLowestElement))"
-                           Enabled="@_alignButtonsEnabledState"
-                           Name="Align top by lowest element"
-                           Tooltip="@UserActions.AlignTopByLowest">
-
-                <Template>
-                    @{ var adaptiveTextVisible = context.HiddenToAdaptiveMenu && !_isFullscreen; }
-
-                    <div class="btn btn-toolbar @(_alignButtonsEnabledState ? string.Empty : "disabled") @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
-                        <MonochromeIcon Name="MonochromeIconName.AlignTopByLowestElement"
-                                        Size="MonochromeIconSize.SmallMedium" />
-
-                        @if (adaptiveTextVisible)
-                        {
-                            <span>@context.AdaptiveText</span>
-                        }
-                    </div>
-                </Template>
-            </DxToolbarItem>
-
-            <DxToolbarItem AdaptiveText="@UserActions.AlignBottom"
-                           Click="@(() => OnNodeAlignRequested(Alignment.Bottom))"
-                           Enabled="@_alignButtonsEnabledState"
-                           Name="Align bottom"
-                           Tooltip="@UserActions.AlignBottom">
-
-                <Template>
-                    @{ var adaptiveTextVisible = context.HiddenToAdaptiveMenu && !_isFullscreen; }
-
-                    <div class="btn btn-toolbar @(_alignButtonsEnabledState ? string.Empty : "disabled") @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
-                        <MonochromeIcon Name="MonochromeIconName.AlignBottom"
-                                        Size="MonochromeIconSize.SmallMedium" />
-
-                        @if (adaptiveTextVisible)
-                        {
-                            <span>@context.AdaptiveText</span>
-                        }
-                    </div>
-                </Template>
-            </DxToolbarItem>
-
-            <DxToolbarItem AdaptiveText="@UserActions.AlignLeft"
-                           Click="@(() => OnNodeAlignRequested(Alignment.Left))"
-                           Enabled="@_alignButtonsEnabledState"
-                           Name="Align left"
-                           Tooltip="@UserActions.AlignLeft">
-
-                <Template>
-                    @{ var adaptiveTextVisible = context.HiddenToAdaptiveMenu && !_isFullscreen; }
-
-                    <div class="btn btn-toolbar @(_alignButtonsEnabledState ? string.Empty : "disabled") @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
-                        <MonochromeIcon Name="MonochromeIconName.AlignLeft"
-                                        Size="MonochromeIconSize.SmallMedium" />
-
-                        @if (adaptiveTextVisible)
-                        {
-                            <span>@context.AdaptiveText</span>
-                        }
-                    </div>
-                </Template>
-            </DxToolbarItem>
-
-            <DxToolbarItem AdaptiveText="@UserActions.AlignRight"
-                           Click="@(() => OnNodeAlignRequested(Alignment.Right))"
-                           Enabled="@_alignButtonsEnabledState"
-                           Name="Align right"
-                           Tooltip="@UserActions.AlignRight">
-
-                <Template>
-                    @{ var adaptiveTextVisible = context.HiddenToAdaptiveMenu && !_isFullscreen; }
-
-                    <div class="btn btn-toolbar @(_alignButtonsEnabledState ? string.Empty : "disabled") @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
-                        <MonochromeIcon Name="MonochromeIconName.AlignRight"
-                                        Size="MonochromeIconSize.SmallMedium" />
-
-                        @if (adaptiveTextVisible)
-                        {
-                            <span>@context.AdaptiveText</span>
-                        }
-                    </div>
-                </Template>
-            </DxToolbarItem>
-
-            <DxToolbarItem BeginGroup="true">
-                <Template>
-                    <ZoomDisplay Enabled="@DiagramService.DiagramState.IsInitialized" />
-                </Template>
-            </DxToolbarItem>
-
-            <DxToolbarItem AdaptiveText="@TechnicalTerms.Fullscreen"
-                           BeginGroup="true"
-                           Click="@OnToggleFullscreenClickAsync"
+        <ToolbarGroup>
+            <ToolbarButton Active="@DiagramService.DiagramState.IsMinimapVisible"
                            Enabled="@DiagramService.DiagramState.IsInitialized"
-                           Name="Toggle fullscreen"
-                           Tooltip="@TechnicalTerms.Fullscreen">
-
-                <Template>
-                    @{ var adaptiveTextVisible = context.HiddenToAdaptiveMenu && !_isFullscreen; }
-
-                    <div class="btn btn-toolbar @(DiagramService.DiagramState.IsInitialized ? string.Empty : "disabled") @(_isFullscreen ? "active" : string.Empty) @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
-                        @((MarkupString)SvgIcons.toolbar_main_fullscreen)
-
-                        @if (adaptiveTextVisible)
-                        {
-                            <span>@context.AdaptiveText</span>
-                        }
-                    </div>
-                </Template>
-            </DxToolbarItem>
-
-            <DxToolbarItem AdaptiveText="@Localization.MainToolbar.Minimap"
-                           BeginGroup="true"
-                           Click="@(() => DiagramService.RequestMinimapVisibilityChange(!DiagramService.DiagramState.IsMinimapVisible))"
-                           Enabled="@DiagramService.DiagramState.IsInitialized"
-                           Name="Toggle Minimap"
-                           Tooltip="@Localization.MainToolbar.Minimap">
-
-                <Template>
-                    @{ var adaptiveTextVisible = context.HiddenToAdaptiveMenu && !_isFullscreen; }
-
-                    <div class="btn btn-toolbar @(DiagramService.DiagramState.IsInitialized ? string.Empty : "disabled") @(DiagramService.DiagramState.IsMinimapVisible ? "active" : string.Empty) @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
-                        <MonochromeIcon Name="MonochromeIconName.MinimapLight"
-                                        Size="MonochromeIconSize.SmallMedium" />
-
-                        @if (adaptiveTextVisible)
-                        {
-                            <span>@context.AdaptiveText</span>
-                        }
-                    </div>
-                </Template>
-            </DxToolbarItem>
-        </Items>
-    </DxToolbar>
+                           IconName="@MonochromeIconName.MinimapLight"
+                           OnClick="@(() => DiagramService.RequestMinimapVisibilityChange(!DiagramService.DiagramState.IsMinimapVisible))"
+                           Text="@Localization.MainToolbar.Minimap"
+                           TextVisibility="TextVisibility.MenuOnly"
+                           Tooltip="@Localization.MainToolbar.Minimap"/>
+        </ToolbarGroup>
+    </Toolbar>
 </div>

@@ -1,5 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using Bunit;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using ViciOne.Ui.Blazor.Components.Breadcrumb.Components;
+using ViciOne.Ui.Blazor.Components.Toolbar.Components;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarMain;
+using ViciOne.Ui.ClusterEditor.Components.ToolbarMain.Extensions;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
@@ -13,7 +17,10 @@ public class MainToolbarTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
+
+        ctx.ComponentFactories.AddStub<Toolbar>();
+        ctx.Services.AddMainToolbar();
+
         ctx.SetupDiagramService();
         ctx.Services.TryAddScoped<FullscreenService>();
         ctx.SetupSelectionManager();
