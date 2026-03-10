@@ -100,8 +100,8 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
         {
             var focusedDataItem = _refGrid!.GetFocusedDataItem();
 
-            if (focusedDataItem is DataGridConnectorWrapper publishedConnectorWrapper)
-                DialogService.InvokeConnectorSelected((Connector)publishedConnectorWrapper.Connector);
+            if (focusedDataItem is DataGridConnectorWrapper connectorWrapper)
+                DialogService.InvokeConnectorSelected((Connector)connectorWrapper.Connector, connectorWrapper.DestinationMarker);
             else if (focusedDataItem is DataGridDataPortWrapper dataPortWrapper)
                 DialogService.InvokeDataPortSelected(dataPortWrapper.DataPortTreeNode);
         }
@@ -186,7 +186,7 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
         await _refDialog.CloseAsync();
 
         if (dataItem is DataGridConnectorWrapper connectorWrapper)
-            DialogService.InvokeConnectorSelected((Connector)connectorWrapper.Connector);
+            DialogService.InvokeConnectorSelected((Connector)connectorWrapper.Connector, connectorWrapper.DestinationMarker);
         else if (dataItem is DataGridDataPortWrapper dataPortWrapper)
             DialogService.InvokeDataPortSelected(dataPortWrapper.DataPortTreeNode);
     }

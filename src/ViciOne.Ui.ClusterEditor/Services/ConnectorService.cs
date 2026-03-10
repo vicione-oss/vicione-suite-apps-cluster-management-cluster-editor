@@ -30,7 +30,30 @@ public sealed class ConnectorService(IDatastore datastore, DiagramService diagra
         return ConnectorColor.Get(DataTypeCompatibilityValidator.DetermineValueType(connectorType));
     }
 
-    public async Task ShowAndSelectConnectorAsync(Connector targetConnector)
+    public async Task ShowAndSelectConnector(IConnector targetConnector)
+    {
+        await ShowConnector(targetConnector);
+
+        selectionManager.SetSelection(datastore.DataflowDiagramMapping.GetDiagramModel(targetConnector));
+    }
+
+    public async Task ShowAndSelectDataPortConnectorMarker(IConnector targetConnector)
+    {
+        await ShowConnector(targetConnector);
+
+        selectionManager.DeselectAll();
+        selectionManager.Select(datastore.DataflowDiagramMapping.GetDiagramModel(targetConnector).DataPortConnectorMarker);
+    }
+
+    public async Task ShowAndSelectPublishedConnectorMarker(IConnector targetConnector)
+    {
+        await ShowConnector(targetConnector);
+
+        selectionManager.DeselectAll();
+        selectionManager.Select(datastore.DataflowDiagramMapping.GetDiagramModel(targetConnector).PublishedConnectorMarker);
+    }
+
+    private async Task ShowConnector(IConnector targetConnector)
     {
         var targetFunctionBlock = targetConnector.FunctionBlock;
         var containerToLoad = targetFunctionBlock.Container;
@@ -39,7 +62,5 @@ public sealed class ConnectorService(IDatastore datastore, DiagramService diagra
 
         if (!diagramService.Diagram!.IsNodeInViewport(node))
             diagramService.Diagram!.PanToNode(node);
-
-        selectionManager.SetSelection(datastore.DataflowDiagramMapping.GetDiagramModel(targetConnector));
     }
 }
