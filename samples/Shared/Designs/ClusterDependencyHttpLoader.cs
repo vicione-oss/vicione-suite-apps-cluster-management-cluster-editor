@@ -69,19 +69,19 @@ public sealed class ClusterDependencyHttpLoader : IDisposable
     public void Dispose()
         => _client.Dispose();
 
-    public async Task<ClusterDependencyHttpLoaderResult> DownloadAndExtractAsync(string name, Version version, CancellationToken cancellationToken)
+    public async Task<ClusterDependencyHttpLoaderResult> DownloadAndExtractAsync(string name, string version, CancellationToken cancellationToken)
     {
-        var sourceUri = CreateUri(name, version.ToString(), RuntimeInformation.RuntimeIdentifier);
+        var sourceUri = CreateUri(name, version, RuntimeInformation.RuntimeIdentifier);
         var targetPath = Path.Combine(
             _downloadPath,
             name,
-            version.ToString());
+            version);
 
         var result = new ClusterDependencyHttpLoaderResult(sourceUri.AbsoluteUri, targetPath);
 
         try
         {
-            DeleteExistingVersions(name, version.ToString());
+            DeleteExistingVersions(name, version);
 
             if (DependencyPathExists(targetPath))
             {

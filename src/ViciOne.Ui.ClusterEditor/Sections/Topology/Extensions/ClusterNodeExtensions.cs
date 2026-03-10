@@ -1,11 +1,11 @@
-﻿using ViciOne.Cluster.Builder;
+﻿using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Topology.Extensions;
 
 public static class ClusterNodeExtensions
 {
-    public static void Apply(this ClusterNode target, ClusterNodeEditor editor, ClusterNode source)
+    public static void Apply(this ClusterNode target, IClusterNodeEditor editor, ClusterNode source)
     {
         editor.SetComputePowerLevel(target, source.ComputePowerLevel);
 

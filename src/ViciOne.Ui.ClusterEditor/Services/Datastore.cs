@@ -11,7 +11,7 @@ using Blazor.Diagrams.Core.Models;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using Newtonsoft.Json;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
@@ -33,7 +33,7 @@ namespace ViciOne.Ui.ClusterEditor.Services;
 [SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "TODO")]
 internal sealed partial class Datastore : IDatastore, IAsyncDisposable
 {
-    private ClusterBuilder? _builder;
+    private IClusterBuilder? _builder;
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;
     private readonly ComparerService _comparerService;
     private readonly DiagramEventService _diagramEventService;
@@ -47,7 +47,7 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
 
     public Cluster.Model.Container ActiveContainer { get; private set; } = new();
     public Dataflow ActiveDataflow { get; private set; } = new();
-    public ClusterBuilder Builder => _builder ?? throw new InvalidOperationException($"Use method {nameof(Load)} to init the builder");
+    public IClusterBuilder Builder => _builder ?? throw new InvalidOperationException($"Use method {nameof(Load)} to init the builder");
     public DataflowDiagramMapping DataflowDiagramMapping { get; } = new();
     public bool HasBuilder => _builder is not null;
     public IEnumerable<Cluster.Model.Engine> ValidDataflowEngines { get; private set; } = [];
@@ -475,7 +475,7 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
     public IEnumerable<IConnector> GetVisibleConnectorModels(IEnumerable<BlockNodeConnector> blockNodeConnectors)
         => blockNodeConnectors.Select(GetVisibleConnectorModel);
 
-    public async Task Load(ClusterBuilder builder, DiagramService diagramService)
+    public async Task Load(IClusterBuilder builder, DiagramService diagramService)
     {
         _builder = builder;
         _clusterBuilderEventBuffer.SetBuilder(builder);

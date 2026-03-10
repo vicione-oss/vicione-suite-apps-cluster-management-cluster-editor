@@ -7,6 +7,7 @@ using Bunit.TestDoubles;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Core.Dataflow.DataModel;
 using ViciOne.Ui.Blazor.Components.Breadcrumb.Components;

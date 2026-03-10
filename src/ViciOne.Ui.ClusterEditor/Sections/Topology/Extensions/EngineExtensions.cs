@@ -1,10 +1,10 @@
-﻿using ViciOne.Cluster.Builder;
+﻿using ViciOne.Cluster.Builder.Abstractions;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Topology.Extensions;
 
 internal static class EngineExtensions
 {
-    public static void Apply(this Cluster.Model.Engine target, EngineEditor editor, Cluster.Model.Engine source)
+    public static void Apply(this Cluster.Model.Engine target, IEngineEditor editor, Cluster.Model.Engine source)
     {
         editor.SetEnabled(target, source.Enabled);
         editor.SetEngineType(target, source.EngineType);

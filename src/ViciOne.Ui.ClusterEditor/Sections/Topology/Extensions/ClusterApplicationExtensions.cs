@@ -1,11 +1,11 @@
-﻿using ViciOne.Cluster.Builder;
+﻿using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Topology.Extensions;
 
 internal static class ClusterApplicationExtensions
 {
-    public static void Apply(this ClusterApplication target, ClusterApplicationEditor editor, ClusterApplication source)
+    public static void Apply(this ClusterApplication target, IClusterApplicationEditor editor, ClusterApplication source)
     {
         if (!string.IsNullOrEmpty(source.Description))
             editor.SetDescription(target, source.Description);

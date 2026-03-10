@@ -1,11 +1,11 @@
-﻿using ViciOne.Cluster.Builder;
+﻿using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Topology.Extensions;
 
 public static class ClusterNodeGroupExtensions
 {
-    public static void Apply(this ClusterNodeGroup target, ClusterNodeGroupEditor editor, ClusterNodeGroup source)
+    public static void Apply(this ClusterNodeGroup target, IClusterNodeGroupEditor editor, ClusterNodeGroup source)
     {
         if (!string.IsNullOrEmpty(source.Description))
             editor.SetDescription(target, source.Description);

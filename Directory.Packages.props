@@ -2,6 +2,7 @@
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <ViciOneUiMonochromeIconsVersion>4.2.0</ViciOneUiMonochromeIconsVersion>
+    <ViciOneClusterBuilderVersion>0.12.0-ci2373243690</ViciOneClusterBuilderVersion>
   </PropertyGroup>
   <ItemGroup>
     <GlobalPackageReference Include="ViciOne.CodeAnalysis" Version="1.4.0" />
@@ -14,8 +15,8 @@
     <PackageVersion Include="StronglyTypedId" Version="0.2.1" />
     <PackageVersion Include="System.IO.Abstractions" Version="22.0.14" />
     <PackageVersion Include="System.Reflection.MetadataLoadContext" Version="10.0.3" />
-    <PackageVersion Include="ViciOne.Cluster.Model" Version="0.11.0" />
-    <PackageVersion Include="ViciOne.Cluster.Builder" Version="0.11.0" />
+    <PackageVersion Include="ViciOne.Cluster.Model" Version="$(ViciOneClusterBuilderVersion)" />
+    <PackageVersion Include="ViciOne.Cluster.Builder" Version="$(ViciOneClusterBuilderVersion)" />
     <PackageVersion Include="ViciOne.Core.Dataflow.DataModel.Generation" Version="0.51.0" />
     <PackageVersion Include="ViciOne.ManagedEngine.Serialization" Version="0.62.0" />
     <PackageVersion Include="ViciOne.Suite.System.DataPort" Version="0.15.0" />

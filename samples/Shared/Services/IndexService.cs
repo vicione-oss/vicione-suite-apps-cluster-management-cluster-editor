@@ -5,6 +5,7 @@ using Shared.ClusterSerialization;
 using Shared.Designs;
 using Shared.Extensions;
 using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Ui.ClusterEditor.Services;
 
 namespace Shared.Services;
@@ -20,12 +21,12 @@ public sealed class IndexService : IDisposable
     private readonly IJSRuntime _jsRuntime;
     private readonly ILogger<IndexService> _logger;
 
-    public ClusterBuilder Builder { get; private set; } = default!;
+    public IClusterBuilder Builder { get; private set; } = default!;
     public IDesignProvider DesignLoader => _designProvider;
     public bool DisplayDebugArea { get; private set; }
     public Action? StateHasChanged { get; set; }
 
-    public event Func<ClusterBuilder, Task>? ClusterLoaded;
+    public event Func<IClusterBuilder, Task>? ClusterLoaded;
     public event Func<Task>? SaveFailed;
 
     public IndexService(
@@ -61,7 +62,7 @@ public sealed class IndexService : IDisposable
         return new ClusterBuilder(cluster, _dependencyResolver);
     }
 
-    private async Task<ClusterBuilder?> CreateClusterFromJs()
+    private async Task<IClusterBuilder?> CreateClusterFromJs()
     {
         if (_createClusterFromJsCts is not null)
         {
@@ -98,7 +99,7 @@ public sealed class IndexService : IDisposable
         return null;
     }
 
-    private ClusterBuilder CreateNewCluster()
+    private IClusterBuilder CreateNewCluster()
         => new ClusterBuilder(_dependencyResolver).AddDemoElements();
 
     public void Dispose()
@@ -128,13 +129,13 @@ public sealed class IndexService : IDisposable
         await LoadFunctionBlockDesignsIntoManagement();
     }
 
-    private async Task InvokeClusterLoaded(ClusterBuilder builder)
+    private async Task InvokeClusterLoaded(IClusterBuilder builder)
     {
         if (ClusterLoaded is null)
             return;
 
         var tasks = ClusterLoaded.GetInvocationList()
-            .Cast<Func<ClusterBuilder, Task>>()
+            .Cast<Func<IClusterBuilder, Task>>()
             .Select(async handler =>
             {
                 try
@@ -172,7 +173,7 @@ public sealed class IndexService : IDisposable
         await Task.WhenAll(tasks);
     }
 
-    public void LoadCluster(ClusterBuilder builder)
+    public void LoadCluster(IClusterBuilder builder)
     {
         Builder = builder;
 
@@ -228,7 +229,7 @@ public sealed class IndexService : IDisposable
             _logger.LogInformation("Created a new ClusterBuilder with ID {ClusterId}", Builder.Cluster.Id);
     }
 
-    private async Task OnDataManagementServiceSaveRequested(ClusterBuilder builder)
+    private async Task OnDataManagementServiceSaveRequested(IClusterBuilder builder)
     {
         var json = ClusterSerializer.Serialize(Builder.Cluster);
         var success = await _jsRuntime.InvokeAsync<bool>("ViciOne.File.save", DefaultSaveSlot, json);

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.TreeBuilder.NodeTypes;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
@@ -12,7 +12,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 
 internal static class ClusterBuilderDataPortExtensions
 {
-    public static void EnsureSystemDataPortDependencyExists(this ClusterBuilder builder, IRulesetProvider rulesetProvider)
+    public static void EnsureSystemDataPortDependencyExists(this IClusterBuilder builder, IRulesetProvider rulesetProvider)
     {
         // Ensure the SystemDataPortDependency gets added independent of dataPortType
         var systemDataPortDependency = rulesetProvider.GetSystemDataPortDependency();
@@ -22,7 +22,7 @@ internal static class ClusterBuilderDataPortExtensions
         }
     }
 
-    public static DataPort GetDataPort(this ClusterBuilder builder, DataPortChildNodeModel dataPortNode)
+    public static DataPort GetDataPort(this IClusterBuilder builder, DataPortChildNodeModel dataPortNode)
     {
         var successor = dataPortNode.GetRootSuccessor();
         var dataPortId = successor.Id.Value;
@@ -41,7 +41,7 @@ internal static class ClusterBuilderDataPortExtensions
         return nodeType;
     }
 
-    public static DataPort GetOrCreateDataPort(this ClusterBuilder builder, IDatastore datastore, DataPortRootNodeModel rootNode,
+    public static DataPort GetOrCreateDataPort(this IClusterBuilder builder, IDatastore datastore, DataPortRootNodeModel rootNode,
         DataPortChildNodeModel dataPortNode)
     {
         var nodeType = GetNodeTypeOrThrow(rootNode, dataPortNode);
@@ -81,7 +81,7 @@ internal static class ClusterBuilderDataPortExtensions
     }
 
     public static DataPortTreeNode GetOrCreateDataPortTreeNode(
-        this ClusterBuilder builder,
+        this IClusterBuilder builder,
         DataPort dataPort,
         DataPortChildNodeModel childNode)
     {
@@ -130,14 +130,14 @@ internal static class ClusterBuilderDataPortExtensions
         }
     }
 
-    public static void RemoveUnusedSystemDataPortDependency(this ClusterBuilder builder, IRulesetProvider rulesetProvider)
+    public static void RemoveUnusedSystemDataPortDependency(this IClusterBuilder builder, IRulesetProvider rulesetProvider)
     {
         // Remove SystemDataPortDependency if we have no DataPorts in the cluster anymore
         if (builder.Cache.DataPorts.Count == 0)
             builder.Editors.Cluster.RemoveDependency(rulesetProvider.GetSystemDataPortDependency());
     }
 
-    public static void SetCustomDataPortProperties(this ClusterBuilder builder, DataPort dataPort, DataPortChildNodeModel dataPortNode)
+    public static void SetCustomDataPortProperties(this IClusterBuilder builder, DataPort dataPort, DataPortChildNodeModel dataPortNode)
     {
         foreach (var customProperty in dataPortNode.Properties.OfType<DataPortNodeModelCustomProperty>())
         {
@@ -149,7 +149,7 @@ internal static class ClusterBuilderDataPortExtensions
     }
 
     public static void SetCustomDataPortTreeNodeProperties(
-        this ClusterBuilder builder,
+        this IClusterBuilder builder,
         DataPortTreeNode clusterTreeNode,
         DataPortChildNodeModel childNode)
     {
@@ -162,7 +162,7 @@ internal static class ClusterBuilderDataPortExtensions
         }
     }
 
-    public static void SetSystemDataPortProperties(this ClusterBuilder builder, DataPort dataPort, DataPortChildNodeModel dataPortNode, ITreeBuilder treeBuilder)
+    public static void SetSystemDataPortProperties(this IClusterBuilder builder, DataPort dataPort, DataPortChildNodeModel dataPortNode, ITreeBuilder treeBuilder)
     {
         var directionProperty = dataPortNode.GetSystemProperty<DataPortDirection>();
         if (directionProperty is not null && directionProperty.TypedValue != dataPort.Direction)
@@ -177,7 +177,7 @@ internal static class ClusterBuilderDataPortExtensions
     }
 
     public static void SetSystemDataPortTreeNodeProperties(
-        this ClusterBuilder builder,
+        this IClusterBuilder builder,
         DataPortTreeNode clusterTreeNode,
         DataPortChildNodeModel childNode)
     {

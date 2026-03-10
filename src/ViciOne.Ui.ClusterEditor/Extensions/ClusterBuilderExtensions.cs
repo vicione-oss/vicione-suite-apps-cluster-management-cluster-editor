@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
 using ViciOne.Core.Dataflow.DataModel;
@@ -11,7 +11,7 @@ namespace ViciOne.Ui.ClusterEditor.Extensions;
 
 internal static class ClusterBuilderExtensions
 {
-    public static IEnumerable<DataPort> GetDataPortsLinkedToConnector(this ClusterBuilder builder, IConnector connector)
+    public static IEnumerable<DataPort> GetDataPortsLinkedToConnector(this IClusterBuilder builder, IConnector connector)
     {
         if (connector is IConnectorInput input)
         {
@@ -33,7 +33,7 @@ internal static class ClusterBuilderExtensions
         }
     }
 
-    public static IEnumerable<FunctionBlockDesign> GetFunctionBlockDesigns(this ClusterBuilder builder)
+    public static IEnumerable<FunctionBlockDesign> GetFunctionBlockDesigns(this IClusterBuilder builder)
     {
         var lst = new List<FunctionBlockDesign>();
 
@@ -43,7 +43,7 @@ internal static class ClusterBuilderExtensions
         return lst;
     }
 
-    public static void InitSettings(this ClusterBuilder builder)
+    public static void InitSettings(this IClusterBuilder builder)
     {
         builder.Settings.AllowTypeConversionViaLink = false;
         builder.Settings.GridEnabled = true;

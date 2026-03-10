@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Geometry;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.Data;
@@ -19,7 +19,7 @@ public interface IDatastore : IAsyncDisposable
 {
     Container ActiveContainer { get; }
     Dataflow ActiveDataflow { get; }
-    ClusterBuilder Builder { get; }
+    IClusterBuilder Builder { get; }
     DataflowDiagramMapping DataflowDiagramMapping { get; }
     bool HasBuilder { get; }
     IEnumerable<Cluster.Model.Engine> ValidDataflowEngines { get; }
@@ -45,7 +45,7 @@ public interface IDatastore : IAsyncDisposable
     IEnumerable<BlockNodeConnector> GetValidTargetConnectors(IEnumerable<Connector> connectors, bool visibleLink);
     IConnector GetVisibleConnectorModel(BlockNodeConnector blockNodeConnector);
     IEnumerable<IConnector> GetVisibleConnectorModels(IEnumerable<BlockNodeConnector> blockNodeConnectors);
-    Task Load(ClusterBuilder builder, DiagramService diagramService);
+    Task Load(IClusterBuilder builder, DiagramService diagramService);
     Task LoadContainer(Container container, DiagramService diagramService, bool force = false);
     Task MoveToNewContainerAsync(DiagramService diagramService, Point newContainerLocation, IEnumerable<FunctionBlock> functionBlocks, IEnumerable<ChildContainer> containers, IEnumerable<Label> labels, SelectionManager selectionManager);
     void Remove(ChildContainerNode containerNode);

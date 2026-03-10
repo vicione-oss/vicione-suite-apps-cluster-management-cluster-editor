@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
 using ViciOne.Core.Contracts;
@@ -19,7 +19,7 @@ internal sealed class ConnectorInputPropertyDescriptorFactory(IDatastore datasto
 {
     private static NumericPropertyDescriptor<TConnector, TValue, TInterval, TLimit>?
         CreateNumericPropertyDescritor<TConnector, TValue, TInterval, TLimit>(TInterval interval, TLimit minimum, TLimit maximum,
-            ClusterBuilder clusterBuilder, Func<TConnector, ConnectorInput> connectorSelector, bool canBeSetToNull, TValue fallbackValue)
+            IClusterBuilder clusterBuilder, Func<TConnector, ConnectorInput> connectorSelector, bool canBeSetToNull, TValue fallbackValue)
                 where TConnector : class, IConnectorInput
                 where TInterval : struct
                 where TLimit : struct
@@ -39,7 +39,7 @@ internal sealed class ConnectorInputPropertyDescriptorFactory(IDatastore datasto
                     };
 
     private static PropertyDescriptor<TConnector, TValue>? CreatePropertyDescriptor<TConnector, TValue>(
-        ClusterBuilder clusterBuilder, Func<TConnector, ConnectorInput> connectorSelector, bool canBeSetToNull, TValue fallbackValue)
+        IClusterBuilder clusterBuilder, Func<TConnector, ConnectorInput> connectorSelector, bool canBeSetToNull, TValue fallbackValue)
             where TConnector : class, IConnectorInput
                 => new()
                 {

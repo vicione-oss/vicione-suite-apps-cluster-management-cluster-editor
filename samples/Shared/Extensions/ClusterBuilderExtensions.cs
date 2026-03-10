@@ -1,11 +1,11 @@
-﻿using ViciOne.Cluster.Builder;
+﻿using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 
 namespace Shared.Extensions;
 
 public static class ClusterBuilderExtensions
 {
-    public static ClusterBuilder AddDemoElements(this ClusterBuilder builder)
+    public static IClusterBuilder AddDemoElements(this IClusterBuilder builder)
     {
         if (builder.Cache.EngineGuids.Count == 0)
         {

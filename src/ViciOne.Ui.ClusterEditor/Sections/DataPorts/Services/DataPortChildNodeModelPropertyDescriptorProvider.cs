@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.TreeBuilder.UiControlTypes;
 using ViciOne.Ui.Blazor.Components.Extensions;
@@ -118,7 +118,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     }
 
     private SelectionPropertyDescriptor<DataPortChildNodeModel, DataPortDirection> GetDataPortDirectionPropertyData(
-        DataPortTreeNodeSystemProperty<DataPortDirection> directionProperty, Guid nodeId, ClusterBuilder clusterBuilder)
+        DataPortTreeNodeSystemProperty<DataPortDirection> directionProperty, Guid nodeId, IClusterBuilder clusterBuilder)
     {
         var selectableValues = new Lazy<SelectableValue<DataPortDirection>[]>(() =>
         {
@@ -288,7 +288,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     }
 
     private IPropertyDescriptor<DataPortChildNodeModel> GetStringPropertyData(DataPortTreeNodeSystemProperty<string> stringProperty,
-        DataPortChildNodeModel node, ClusterBuilder clusterBuilder)
+        DataPortChildNodeModel node, IClusterBuilder clusterBuilder)
     {
         propertyValueStore.Set(stringProperty.Name, stringProperty.TypedValue);
 
@@ -347,7 +347,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     }
 
     private SelectionPropertyDescriptor<DataPortChildNodeModel, string> GetValueTypePropertyData(DataPortChildNodeModel node,
-        DataPortTreeNodeSystemProperty<string> stringProperty, ClusterBuilder clusterBuilder)
+        DataPortTreeNodeSystemProperty<string> stringProperty, IClusterBuilder clusterBuilder)
     {
         var treeBuilder = node.RootNode.Builder;
         var selectableValues = new Lazy<SelectableValue<string>[]>(() =>

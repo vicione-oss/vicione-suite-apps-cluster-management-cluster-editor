@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using ViciOne.Cluster.Builder;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Constants;
 using ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
@@ -58,7 +59,7 @@ public sealed class DatastoreTests : IAsyncDisposable
         var clusterDependency = new ClusterDependency
         {
             Name = "TestDependency",
-            Version = new Version("1.0.0")
+            Version = "1.0.0"
         };
         dependencyResolver.ResolveFunctionBlockDesignDependency(_fbDesignId).Returns(clusterDependency);
 
