@@ -1,71 +1,73 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-    <!-- Versionierung -->
-    <PropertyGroup>
-        <VersionWithSuffix>$([System.IO.File]::ReadAllText('$(MsBuildThisFileDirectory)VERSION').Trim())</VersionWithSuffix>
-        <!-- Version 0.1.0 ist der Standard, wenn gar keine Version gefunden wird -->
-        <VersionPrefix Condition="$(VersionWithSuffix) == ''">0.1.0</VersionPrefix>
-        <VersionPrefix Condition="$(VersionWithSuffix.Contains('-')) == true">$(VersionWithSuffix.Substring(0, $(VersionWithSuffix.IndexOf('-'))))</VersionPrefix>
-        <VersionPrefix Condition="$(VersionWithSuffix.Contains('-')) == false">$(VersionWithSuffix)</VersionPrefix>
-        <!-- Im Standardfall gibt es keinen Suffix, wenn doch wird dieser angegeben -->
-        <VersionSuffix></VersionSuffix>
-        <VersionSuffix Condition="$(VersionWithSuffix.Contains('-')) == true">$(VersionWithSuffix.Substring($(VersionWithSuffix.IndexOf('-'))))</VersionSuffix>
-        <VersionSuffix Condition="$(VersionSuffix.Contains('-')) == true">$(VersionSuffix.Substring(1))</VersionSuffix>
-        <!-- Im Standardfall ist die PackageVersion gleich der normalen "Version" -->
-        <PackageVersion>$(VersionPrefix)</PackageVersion>
-        <PackageVersion Condition="$(VersionSuffix) != ''">$(PackageVersion)-$(VersionSuffix)</PackageVersion>
-        <!-- Wenn ein PackageVersionSuffix gegeben ist, wird dieser statt des normalen VersionPrefix verwendet -->
-        <PackageVersion Condition="$(PackageVersionSuffix) != ''">$(VersionPrefix).$(PackageVersionSuffix)</PackageVersion>
-    </PropertyGroup>
+  <!-- Versioning -->
+  <PropertyGroup>
+    <VersionWithSuffix>$([System.IO.File]::ReadAllText('$(MsBuildThisFileDirectory)VERSION').Trim())</VersionWithSuffix>
+    <!-- Version 0.1.0 is default if no other version is found -->
+    <VersionPrefix Condition="$(VersionWithSuffix) == ''">0.1.0</VersionPrefix>
+    <VersionPrefix Condition="$(VersionWithSuffix.Contains('-')) == true">$(VersionWithSuffix.Substring(0, $(VersionWithSuffix.IndexOf('-'))))</VersionPrefix>
+    <VersionPrefix Condition="$(VersionWithSuffix.Contains('-')) == false">$(VersionWithSuffix)</VersionPrefix>
+    <!-- If there is a given Suffix than this is used -->
+    <VersionSuffix></VersionSuffix>
+    <VersionSuffix Condition="$(VersionWithSuffix.Contains('-')) == true">$(VersionWithSuffix.Substring($(VersionWithSuffix.IndexOf('-'))))</VersionSuffix>
+    <VersionSuffix Condition="$(VersionSuffix.Contains('-')) == true">$(VersionSuffix.Substring(1))</VersionSuffix>
+    <!-- Normally the PackageVersion is eqaul to the normal "Version" -->
+    <PackageVersion>$(VersionPrefix)</PackageVersion>
+    <PackageVersion Condition="$(VersionSuffix) != ''">$(PackageVersion)-$(VersionSuffix)</PackageVersion>
+    <!-- If a PackageVersionSuffix exists it is used instead of VersionPrefix -->
+    <PackageVersion Condition="$(PackageVersionSuffix) != ''">$(VersionPrefix).$(PackageVersionSuffix)</PackageVersion>
+  </PropertyGroup>
 
-    <!-- Eigenschaften für alle Projekte des Repos -->
-    <PropertyGroup>
-        <TargetFramework>net10.0</TargetFramework>
-        <Description>-</Description>
-        <Product>ViciOne</Product>
-        <Company>ifm Software GmbH</Company>
-        <Year>$([System.DateTime]::Now.Year)</Year>
-        <Copyright>Copyright © ifm Software GmbH $(Year)</Copyright>
-        <NeutralLanguage>en-US</NeutralLanguage>
-        <Nullable>enable</Nullable>
-        <WarningsAsErrors>nullable</WarningsAsErrors>
-    </PropertyGroup>
+  <!-- Properties for all projects -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Description>-</Description>
+    <Product>ViciOne</Product>
+    <Company>ifm Software GmbH</Company>
+    <Year>$([System.DateTime]::Now.Year)</Year>
+    <Copyright>Copyright © ifm Software GmbH $(Year)</Copyright>
+    <NeutralLanguage>en-US</NeutralLanguage>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+  </PropertyGroup>
 
-    <PropertyGroup Condition="'$(NoBuild)' == 'true'">
-      <!-- Pack should use already-built outputs of references -->
-      <BuildProjectReferences>false</BuildProjectReferences>
-    </PropertyGroup>
+  <PropertyGroup Condition="'$(NoBuild)' == 'true'">
+    <!-- Pack should use already-built outputs of references -->
+    <BuildProjectReferences>false</BuildProjectReferences>
+  </PropertyGroup>
 
-    <!-- Für Repos die Projekte enthalten die als NuGet Paket veröffentlicht werden -->
-    <PropertyGroup>
-        <Authors>$(Company)</Authors>
-        <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
-    </PropertyGroup>
+  <!-- Properties for repos that are published as NuGet packages -->
+  <PropertyGroup>
+    <Authors>$(Company)</Authors>
+    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+  </PropertyGroup>
 
-    <ItemGroup Condition="$(MSBuildProjectDirectory.Contains('src'))">
-        <None Include="$(MSBuildThisFileDirectory)LICENSE.txt" Pack="true" PackagePath=""/>
-    </ItemGroup>
+  <ItemGroup Condition="$(MSBuildProjectDirectory.Contains('src'))">
+    <None Include="$(MSBuildThisFileDirectory)LICENSE.txt" Pack="true" PackagePath=""/>
+  </ItemGroup>
 
-    <!-- Geschwindigkeitsoptimierung für die CI-Pipelines -->
-    <PropertyGroup Condition="'$(CI)' != ''">
-        <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
-        <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
-        <RunAnalyzers>true</RunAnalyzers>
-    </PropertyGroup>
+  <!-- Optimizations for CI pipelines -->
+  <PropertyGroup Condition="'$(CI)' != ''">
+    <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
+    <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
+    <RunAnalyzers>true</RunAnalyzers>
+  </PropertyGroup>
 
-    <!-- CPM Warnung unterdrücken #440 -->
-    <PropertyGroup>
-        <NoWarn>$(NoWarn);NU1507</NoWarn>
-    </PropertyGroup>
+  <!-- Suppress CPM warning #440 -->
+  <PropertyGroup>
+    <NoWarn>$(NoWarn);NU1507</NoWarn>
+  </PropertyGroup>
 
-    <!-- Testprojekte sollen beim Veröffentlichen ignoriert und nicht als NuGet-Paket verpackt werden -->
-    <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('Tests')) And $(MSBuildProjectDirectory.Contains('tests'))">
-        <IsPackable>false</IsPackable>
-        <IsPublishable>false</IsPublishable>
-    </PropertyGroup>
+  <!-- Properties for test projects -->
+  <PropertyGroup Condition="$(MSBuildProjectName.EndsWith('Tests')) And $(MSBuildProjectDirectory.Contains('tests'))">
+    <OutputType>Exe</OutputType>
+    <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+    <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner> <!-- Microsoft Testing Platform command line experience -->
+  </PropertyGroup>
 
-    <!-- Beispielprojekte sollen beim Veröffentlichen ignoriert und nicht als NuGet-Paket verpackt werden -->
-    <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('samples'))">
-        <IsPackable>false</IsPackable>
-        <IsPublishable>false</IsPublishable>
-    </PropertyGroup>
+  <!-- Properties for sample projects -->
+  <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('samples'))">
+    <IsPackable>false</IsPackable>
+    <IsPublishable>false</IsPublishable>
+  </PropertyGroup>
 </Project>
