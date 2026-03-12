@@ -17,6 +17,7 @@
     <File Path="NuGet.Config" />
     <File Path="package.json" />
     <File Path="README.md" />
+    <File Path="testconfig.json" />
     <File Path="VERSION" />
   </Folder>
   <Folder Name="/src/">
