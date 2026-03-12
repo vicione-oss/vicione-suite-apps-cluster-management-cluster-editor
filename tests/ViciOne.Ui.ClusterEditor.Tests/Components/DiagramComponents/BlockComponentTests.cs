@@ -24,7 +24,6 @@ public class BlockComponentTests
         ctx.Services.AddBlockNodeConnectorContextMenu();
         ctx.SetupDataPortTreeAdapter();
         ctx.Services.TryAddScoped(_ => Substitute.For<IRulesetProvider>());
-        ctx.Services.TryAddScoped(_ => Substitute.For<IDataManagementService>());
         ctx.SetupLinkDestinationDialogService();
         ctx.SetupDiagramService();
         ctx.Services.TryAddScoped(_ => Substitute.For<IFbSettingsEditorRequest>());

@@ -10,7 +10,7 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
-internal class DataManagementService(IDatastore datastore, DiagramService diagramService, ILibraryService libraryService, ILogger<DataManagementService> logger) : IDataManagementService
+internal sealed class ClusterEditorManagement(IDatastore datastore, DiagramService diagramService, ILibraryService libraryService, ILogger<ClusterEditorManagement> logger) : IClusterEditorManagementInternal
 {
     private readonly IDatastore _datastore = datastore;
     private readonly DiagramService _diagramService = diagramService;
@@ -47,17 +47,17 @@ internal class DataManagementService(IDatastore datastore, DiagramService diagra
     public void PrepareClusterSerialization()
         => _datastore.SaveViewport(_diagramService);
 
-    public async Task RequestExport()
-        => await ExportRequested.InvokeEventAsync(logger, nameof(ExportRequested));
+    public Task RequestExport()
+        => ExportRequested.InvokeEventAsync(logger, nameof(ExportRequested));
 
-    public async Task RequestImport()
-        => await ImportRequested.InvokeEventAsync(logger, nameof(ImportRequested));
+    public Task RequestImport()
+        => ImportRequested.InvokeEventAsync(logger, nameof(ImportRequested));
 
-    public async Task RequestLoadFbDesigns()
-        => await LoadFunctionBlockDesignsRequested.InvokeEventAsync(logger, nameof(LoadFunctionBlockDesignsRequested));
+    public Task RequestLoadFbDesigns()
+        => LoadFunctionBlockDesignsRequested.InvokeEventAsync(logger, nameof(LoadFunctionBlockDesignsRequested));
 
-    public void RequestNew()
-        => NewRequested?.Invoke();
+    public Task RequestNew()
+        => NewRequested.InvokeEventAsync(logger, nameof(NewRequested));
 
     public async Task RequestSave()
     {

@@ -41,7 +41,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
 
     private readonly IContextMenuRequest<DataPortAddChildNodeContextMenuContext> _addChildNodeContextMenuRequest;
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;
-    private readonly IDataManagementService _dataManagementService;
+    private readonly IClusterEditorManagementInternal _dataManagementService;
     private readonly IDataPortTreeIconProvider _dataPortTreeIconProvider;
     private readonly IDatastore _datastore;
     private readonly DragService _dragService;
@@ -62,7 +62,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
         DragService dragService,
         IRulesetProvider rulesetProvider,
         ILogger<DataPortTreeAdapter> logger,
-        IDataManagementService dataManagementService,
+        IClusterEditorManagementInternal dataManagementService,
         IDataPortTreeIconProvider dataPortTreeIconProvider)
     {
         _addChildNodeContextMenuRequest = addChildNodeContextMenuRequest;

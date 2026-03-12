@@ -22,7 +22,7 @@ public sealed partial class Index : ComponentBase, IDisposable
     private string _messageToastTitle = string.Empty;
     private bool _messageToastVisible;
 
-    [Inject] private IDataManagementService? DataManagementService { get; set; }
+    [Inject] private IClusterEditorManagement? DataManagementService { get; set; }
     [Inject] private IndexService IndexService { get; set; } = default!;
     [Inject] private IServiceProvider ServiceProvider { get; set; } = default!;
 

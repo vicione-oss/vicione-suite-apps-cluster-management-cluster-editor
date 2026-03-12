@@ -14,8 +14,8 @@ public sealed class IndexService : IDisposable
 {
     private const int DefaultSaveSlot = 4;
 
+    private readonly IClusterEditorManagement _clusterEditorManagement;
     private CancellationTokenSource? _createClusterFromJsCts;
-    private readonly IDataManagementService _dataManagementService;
     private IDependencyResolver _dependencyResolver = default!;
     private readonly IDesignProvider _designProvider;
     private readonly IJSRuntime _jsRuntime;
@@ -30,21 +30,21 @@ public sealed class IndexService : IDisposable
     public event Func<Task>? SaveFailed;
 
     public IndexService(
-        IDataManagementService dataManagementService,
+        IClusterEditorManagement clusterEditorManagement,
         IDesignProvider designProvider,
         IJSRuntime jsRuntime,
         ILogger<IndexService> logger)
     {
-        _dataManagementService = dataManagementService;
+        _clusterEditorManagement = clusterEditorManagement;
         _designProvider = designProvider;
         _jsRuntime = jsRuntime;
         _logger = logger;
 
-        _dataManagementService.ExportRequested += OnDataManagementExportRequested;
-        _dataManagementService.ImportRequested += OnDataManagementImportRequested;
-        _dataManagementService.LoadFunctionBlockDesignsRequested += OnDataManagementLoadFunctionBlockDesignsRequested;
-        _dataManagementService.NewRequested += OnDataManagementNewRequested;
-        _dataManagementService.SaveRequested += OnDataManagementServiceSaveRequested;
+        _clusterEditorManagement.ExportRequested += OnDataManagementExportRequested;
+        _clusterEditorManagement.ImportRequested += OnDataManagementImportRequested;
+        _clusterEditorManagement.LoadFunctionBlockDesignsRequested += OnDataManagementLoadFunctionBlockDesignsRequested;
+        _clusterEditorManagement.NewRequested += OnDataManagementNewRequested;
+        _clusterEditorManagement.SaveRequested += OnDataManagementServiceSaveRequested;
     }
 
     internal async Task AddContainersAndRefresh()
@@ -53,7 +53,7 @@ public sealed class IndexService : IDisposable
         for (var i = 0; i < 5; i++)
             Builder.Editors.Container.AddContainer(root, $"Generated {i}", location: new Point(i * 200, 0));
 
-        await _dataManagementService.ForceRootContainerReload();
+        await _clusterEditorManagement.ForceRootContainerReload();
     }
 
     private ClusterBuilder CreateBuilder(string clusterJson)
@@ -104,11 +104,11 @@ public sealed class IndexService : IDisposable
 
     public void Dispose()
     {
-        _dataManagementService.ExportRequested -= OnDataManagementExportRequested;
-        _dataManagementService.ImportRequested -= OnDataManagementImportRequested;
-        _dataManagementService.LoadFunctionBlockDesignsRequested -= OnDataManagementLoadFunctionBlockDesignsRequested;
-        _dataManagementService.NewRequested -= OnDataManagementNewRequested;
-        _dataManagementService.SaveRequested -= OnDataManagementServiceSaveRequested;
+        _clusterEditorManagement.ExportRequested -= OnDataManagementExportRequested;
+        _clusterEditorManagement.ImportRequested -= OnDataManagementImportRequested;
+        _clusterEditorManagement.LoadFunctionBlockDesignsRequested -= OnDataManagementLoadFunctionBlockDesignsRequested;
+        _clusterEditorManagement.NewRequested -= OnDataManagementNewRequested;
+        _clusterEditorManagement.SaveRequested -= OnDataManagementServiceSaveRequested;
 
         Builder?.Dispose();
 
@@ -177,7 +177,7 @@ public sealed class IndexService : IDisposable
     {
         Builder = builder;
 
-        _dataManagementService.LoadDataflow(Builder);
+        _clusterEditorManagement.LoadDataflow(Builder);
     }
 
     /// <summary>
@@ -193,7 +193,7 @@ public sealed class IndexService : IDisposable
     private async Task LoadFunctionBlockDesignsIntoManagement()
     {
         var fbDesigns = await _designProvider.GetFunctionBlockDesignIds(null);
-        _dataManagementService.LoadFunctionBlockDesigns(fbDesigns);
+        _clusterEditorManagement.LoadFunctionBlockDesigns(fbDesigns);
     }
 
     public void OnCloseRequested()
@@ -239,5 +239,5 @@ public sealed class IndexService : IDisposable
     }
 
     public void PrepareClusterSerialization()
-        => _dataManagementService.PrepareClusterSerialization();
+        => _clusterEditorManagement.PrepareClusterSerialization();
 }

@@ -31,11 +31,11 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;
     private readonly List<TopologyTreeViewModel> _clusterNodeGroups = [];
     private TopologyTreeViewModel? _currentlyEditedNodeModel;
-    private readonly DataManagementService _dataManagementService;
+    private readonly IClusterEditorManagementInternal _dataManagementService;
 
     public Action<ITreeNode, Action>? OnDeleteNodeUserConfirmationRequest { get; set; }
 
-    public TopologyTreeAdapter(ClusterBuilderEventBuffer clusterBuilderEventBuffer, DataManagementService dataManagementService)
+    public TopologyTreeAdapter(ClusterBuilderEventBuffer clusterBuilderEventBuffer, IClusterEditorManagementInternal dataManagementService)
     {
         _clusterBuilderEventBuffer = clusterBuilderEventBuffer;
         _dataManagementService = dataManagementService;

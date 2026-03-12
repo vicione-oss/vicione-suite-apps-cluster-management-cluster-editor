@@ -11,7 +11,7 @@ public class FileSectionTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDataManagementService();
+        ctx.SetupClusterEditorManagement();
 
         // Act
         var component = ctx.RenderComponent<FileSection>();

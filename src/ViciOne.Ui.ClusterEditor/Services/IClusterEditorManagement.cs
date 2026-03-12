@@ -6,7 +6,8 @@ using ViciOne.Cluster.Builder.Abstractions;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
-public interface IDataManagementService
+
+public interface IClusterEditorManagement
 {
     event Func<Task>? ExportRequested;
     event Func<Task>? ImportRequested;
@@ -19,5 +20,4 @@ public interface IDataManagementService
     Task LoadDataflow(IClusterBuilder builder);
     void LoadFunctionBlockDesigns(IEnumerable<Guid> fbDesigns);
     void PrepareClusterSerialization();
-    Task ShowMessageToast(LogLevel logLevel, string message, Action clickCallback);
 }

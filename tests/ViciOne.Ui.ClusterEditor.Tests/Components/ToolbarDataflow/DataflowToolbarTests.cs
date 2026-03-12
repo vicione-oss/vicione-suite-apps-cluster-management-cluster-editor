@@ -37,7 +37,6 @@ public class DataflowToolbarTests
         ctx.Services.TryAddScoped<LabelOrderService>();
         ctx.SetupSelectionManager();
         ctx.Services.TryAddScoped<TraceService>();
-        ctx.SetupDataManagementService();
         ctx.Services.TryAddScoped<TopologyTreeAdapter>();
         ctx.Services.AddDataPortContextMenu();
         ctx.SetupDragService();

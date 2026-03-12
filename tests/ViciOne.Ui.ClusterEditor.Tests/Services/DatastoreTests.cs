@@ -22,7 +22,7 @@ using ViciOne.Ui.Shared.Dx.Services;
 using Xunit;
 using TestContext = Bunit.TestContext;
 
-namespace ViciOne.Ui.ClusterEditor.Tests.Services;
+namespace ViciOne.Ui.ClusterEditor.Tests.Services.Datastore;
 
 public sealed class DatastoreTests : IAsyncDisposable
 {
@@ -42,7 +42,7 @@ public sealed class DatastoreTests : IAsyncDisposable
         _ctx.Services.AddSingleton(new ComparerService([], Substitute.For<ILogger<ComparerService>>()));
         _ctx.Services.AddScoped<DiagramEventService>();
         _ctx.Services.AddScoped<ClusterBuilderEventBuffer>();
-        _ctx.Services.AddScoped<IDatastore, Datastore>();
+        _ctx.Services.AddScoped<IDatastore, ClusterEditor.Services.Datastore>();
         _ctx.Services.AddScoped<DiagramService>();
         _ctx.Services.AddScoped<SelectionManager>();
 

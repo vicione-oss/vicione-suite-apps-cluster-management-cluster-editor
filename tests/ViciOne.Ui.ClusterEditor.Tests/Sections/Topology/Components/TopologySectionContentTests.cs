@@ -15,7 +15,7 @@ public class TopologySectionContentTests
         using var ctx = new Bunit.TestContext();
         ctx.SetupDevExpressBlazor();
         ctx.SetupTreeEditorJs();
-        ctx.SetupDataManagementService();
+        ctx.SetupClusterEditorManagement();
         ctx.Services.TryAddScoped<TopologyTreeAdapter>();
 
         // Act

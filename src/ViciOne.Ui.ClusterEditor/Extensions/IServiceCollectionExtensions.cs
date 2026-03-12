@@ -52,8 +52,6 @@ public static class IServiceCollectionExtensions
         services.AddScoped<DragService>();
         services.AddScoped<ConnectorSelectionDialogService>();
         services.AddScoped<ConnectorService>();
-        services.AddScoped<DataManagementService>();
-        services.AddScoped<IDataManagementService>(sp => sp.GetRequiredService<DataManagementService>());
         services.AddScoped<IDataPortTreeIconProvider, DataPortTreeIconProvider>();
         services.AddScoped<IDatastore, Datastore>();
         services.AddScoped<DiagramEventService>();
@@ -97,6 +95,8 @@ public static class IServiceCollectionExtensions
 
         services.AddDebugSection();
 
+        services.AddClusterEditorManagement();
+
         if (rulesetProviderFactory is null)
         {
             services.TryAddScoped<IRulesetProvider, TRulesetProvider>();
@@ -106,6 +106,14 @@ public static class IServiceCollectionExtensions
             services.AddScoped<IRulesetProvider>(rulesetProviderFactory);
         }
 
+        return services;
+    }
+
+    private static IServiceCollection AddClusterEditorManagement(this IServiceCollection services)
+    {
+        services.AddScoped<ClusterEditorManagement>();
+        services.AddScoped<IClusterEditorManagement>(sp => sp.GetRequiredService<ClusterEditorManagement>());
+        services.AddScoped<IClusterEditorManagementInternal>(sp => sp.GetRequiredService<ClusterEditorManagement>());
         return services;
     }
 
