@@ -27,7 +27,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
     private readonly DragService _dragService;
     private readonly ClusterBuilderEventBuffer _eventBuffer;
     private readonly IContextMenuRequest<DataPortAddChildNodeContextMenuContext> _mockContextMenuRequest;
-    private readonly IDataManagementService _mockDataManagementService;
+    private readonly IClusterEditorManagementInternal _mockDataManagementService;
     private readonly IDataPortTreeIconProvider _mockIconProvider;
     private readonly ILogger<DataPortTreeAdapter> _mockLogger;
     private readonly IRulesetProvider _mockRulesetProvider;
@@ -44,7 +44,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         _dragService = new(new(), _diagramService, new());
         _mockRulesetProvider = Substitute.For<IRulesetProvider>();
         _mockLogger = Substitute.For<ILogger<DataPortTreeAdapter>>();
-        _mockDataManagementService = Substitute.For<IDataManagementService>();
+        _mockDataManagementService = Substitute.For<IClusterEditorManagementInternal>();
         _mockIconProvider = Substitute.For<IDataPortTreeIconProvider>();
 
         _adapter = new DataPortTreeAdapter(

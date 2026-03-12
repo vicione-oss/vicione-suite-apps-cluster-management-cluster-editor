@@ -58,6 +58,18 @@ internal static class TestContextExtensions
         return ctx;
     }
 
+    public static TestContext SetupClusterEditorManagement(this TestContext ctx)
+    {
+        ctx.SetupLibraryService();
+        ctx.SetupDiagramService();
+
+        ctx.Services.TryAddScoped<ClusterEditorManagement>();
+        ctx.Services.TryAddScoped<IClusterEditorManagement>(sp => sp.GetRequiredService<ClusterEditorManagement>());
+        ctx.Services.TryAddScoped<IClusterEditorManagementInternal>(sp => sp.GetRequiredService<ClusterEditorManagement>());
+
+        return ctx;
+    }
+
     public static TestContext SetupConnectorSelectionDialogService(this TestContext ctx)
     {
         ctx.SetupDatastore();
@@ -87,20 +99,10 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupDataManagementService(this TestContext ctx)
-    {
-        ctx.SetupLibraryService();
-        ctx.SetupDiagramService();
-
-        ctx.Services.TryAddScoped<DataManagementService>();
-
-        return ctx;
-    }
-
     public static TestContext SetupDataPortTreeAdapter(this TestContext ctx)
     {
         ctx.Services.AddDataPortAddChildNodeContextMenu();
-        ctx.Services.TryAddScoped(_ => Substitute.For<IDataManagementService>());
+        ctx.SetupClusterEditorManagement();
         ctx.SetupDatastore();
         ctx.Services.TryAddScoped<IDataPortTreeIconProvider, DataPortTreeIconProvider>();
 

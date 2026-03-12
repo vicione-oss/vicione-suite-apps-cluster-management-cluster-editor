@@ -15,7 +15,7 @@ public class LibrarySectionContentTests
         using var ctx = new Bunit.TestContext();
         ctx.SetupDevExpressBlazor();
         ctx.SetupTreeEditorJs();
-        ctx.SetupDataManagementService();
+        ctx.SetupClusterEditorManagement();
         ctx.SetupResizeObserver();
         ctx.Services.AddScoped<InputEventService>();
 

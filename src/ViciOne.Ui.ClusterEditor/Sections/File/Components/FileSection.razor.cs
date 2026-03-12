@@ -12,5 +12,5 @@ public sealed partial class FileSection : ComponentBase
 #endif
 
     [Inject]
-    private DataManagementService DataManagementService { get; set; } = default!;
+    private IClusterEditorManagementInternal DataManagementService { get; set; } = default!;
 }

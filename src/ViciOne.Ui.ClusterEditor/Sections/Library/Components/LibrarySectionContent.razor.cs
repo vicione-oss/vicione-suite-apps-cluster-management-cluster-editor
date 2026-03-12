@@ -18,7 +18,7 @@ public sealed partial class LibrarySectionContent : ComponentBase, IDisposable
     private readonly string _openIconCssClass = MonochromeIconName.Open.GetCssClasses(MonochromeIconSize.Small).ToSpaceSeparated();
     private readonly TreeEditor.Builder.TreeBuilder _treeBuilder = new();
 
-    [Inject] private DataManagementService DataManagementService { get; set; } = default!;
+    [Inject] private IClusterEditorManagementInternal DataManagementService { get; set; } = default!;
     [Inject] private ILibraryService LibraryService { get; set; } = default!;
 
     public void Dispose()

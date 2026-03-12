@@ -15,7 +15,7 @@ public class InfrastructureToolbarTests
         ctx.SetupDevExpressBlazor();
         ctx.SetupTreeEditorJs();
         ctx.Services.AddExpandableMenu();
-        ctx.SetupDataManagementService();
+        ctx.SetupClusterEditorManagement();
         ctx.SetupDataflowStructureTreeAdapter();
         ctx.SetupStatisticService();
         ctx.SetupDatastore();
