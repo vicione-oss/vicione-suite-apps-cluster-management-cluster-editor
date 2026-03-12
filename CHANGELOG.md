@@ -23,16 +23,9 @@
 
 ### Updated external references
 
-- `Microsoft.AspNetCore.Components.WebAssembly` package, updated to version `10.0.3`
-- `Microsoft.AspNetCore.Components.WebAssembly.DevServer` package, updated to version `10.0.3`
-- `Microsoft.AspNetCore.Components.WebAssembly.Server` package, updated to version `10.0.3`
-- `Microsoft.AspNetCore.Mvc.Testing` package, updated to version `10.0.3`
-- `Microsoft.Extensions.Configuration` package, updated to version `10.0.3`
-- `Microsoft.Extensions.Configuration.Binder` package, updated to version `10.0.3`
+- `Microsoft` packages, update to version `10.0.4`
 - `Microsoft.Extensions.Diagnostics.Testing` package, updated to version `10.2.0`
-- `Microsoft.Extensions.Localization` package, updated to version `10.0.3`
 - `Microsoft.NET.Test.Sdk` package, updated to version `18.0.1`
-- `System.Reflection.MetadataLoadContext` package, updated to version `10.0.3`
 - `ViciOne.Cluster.Builder` package, updated to `0.12.0-ci2373243690`
 - `ViciOne.Ui.Blazor.Components` package, updated to version `5.3.0`
 - `ViciOne.Ui.Localization` package, updated to version `3.1.0`
