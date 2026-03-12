@@ -44,7 +44,8 @@ public sealed class BlockNodeLink : LinkModel, IDiagramModel, IDisposable
         Changed += OnLinkChanged;
     }
 
-    public void Dispose() => Changed -= OnLinkChanged;
+    public void Dispose()
+        => Changed -= OnLinkChanged;
 
     internal void FocusAttachedNode(double t)
     {

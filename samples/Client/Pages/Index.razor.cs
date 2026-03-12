@@ -31,8 +31,6 @@ public sealed partial class Index : ComponentBase, IDisposable
         IndexService.SaveFailed -= OnSaveFailed;
 
         DataManagementService?.MessageToastRequested -= MessageToastRequested;
-
-        IndexService.Dispose();
     }
 
     private async Task HideLoader()
