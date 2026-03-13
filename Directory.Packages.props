@@ -38,7 +38,7 @@
     <PackageVersion Include="ViciOne.Ui.Shared.Dx" Version="0.18.0" />
     <PackageVersion Include="ViciOne.Ui.TreeEditor" Version="2.0.0" />
     <PackageVersion Include="ViciOne.Suite.Sdk.Backend" Version="1.0.0" />
-    <PackageVersion Include="ViciOne.TreeBuilder" Version="0.6.0" />
+    <PackageVersion Include="ViciOne.TreeBuilder" Version="1.1.0" />
     <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2" />
     <PackageVersion Include="Z.Blazor.Diagrams" Version="3.0.4" />
   </ItemGroup>

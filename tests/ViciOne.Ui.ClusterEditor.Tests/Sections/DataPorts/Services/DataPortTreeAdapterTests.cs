@@ -80,7 +80,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         var iconMarkup = "<svg>test</svg>";
         var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(iconName);
 
-        _mockIconProvider.GetIconMarkupString(iconName).Returns(iconMarkup);
+        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns(iconMarkup);
 
         // Act
         var result1 = _adapter.GetIcons(rootNode).ToList();
@@ -91,7 +91,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         Assert.Equal(iconMarkup, ((SvgIcon)result1[0]).MarkupString);
         Assert.Single(result2);
         Assert.Equal(iconMarkup, ((SvgIcon)result2[0]).MarkupString);
-        _mockIconProvider.Received(2).GetIconMarkupString(iconName);
+        _mockIconProvider.Received(2).GetSvgIcon(rootNode.Builder, iconName);
     }
 
     [Fact]
@@ -103,14 +103,14 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
             icon: customIcon,
             nodeReference: new NodeReference { Id = "test-id" });
 
-        _mockIconProvider.GetIconMarkupString(customIcon).Returns(string.Empty);
+        _mockIconProvider.GetSvgIcon(childNode.RootNode.Builder, customIcon).Returns(string.Empty);
 
         // Act
         var result = _adapter.GetIcons(childNode).ToList();
 
         // Assert
         Assert.Empty(result);
-        _mockIconProvider.Received(1).GetIconMarkupString(customIcon);
+        _mockIconProvider.Received(1).GetSvgIcon(childNode.RootNode.Builder, customIcon);
     }
 
     [Fact]
@@ -122,14 +122,14 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
             icon: customIcon,
             nodeReference: new NodeReference { Id = "test-id" });
 
-        _mockIconProvider.GetIconMarkupString(customIcon).Returns((string?)null);
+        _mockIconProvider.GetSvgIcon(childNode.RootNode.Builder, customIcon).Returns((string?)null);
 
         // Act
         var result = _adapter.GetIcons(childNode).ToList();
 
         // Assert
         Assert.Empty(result);
-        _mockIconProvider.Received(1).GetIconMarkupString(customIcon);
+        _mockIconProvider.Received(1).GetSvgIcon(childNode.RootNode.Builder, customIcon);
     }
 
     [Fact]
@@ -142,7 +142,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
             icon: customIcon,
             nodeReference: new NodeReference { Id = "test-id" });
 
-        _mockIconProvider.GetIconMarkupString(customIcon).Returns(iconMarkup);
+        _mockIconProvider.GetSvgIcon(childNode.RootNode.Builder, customIcon).Returns(iconMarkup);
 
         // Act
         var result = _adapter.GetIcons(childNode).ToList();
@@ -150,7 +150,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         // Assert
         Assert.Single(result);
         Assert.IsType<SvgIcon>(result[0]);
-        _mockIconProvider.Received(1).GetIconMarkupString(customIcon);
+        _mockIconProvider.Received(1).GetSvgIcon(childNode.RootNode.Builder, customIcon);
     }
 
     [Theory]
@@ -207,14 +207,14 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
             icon: null,
             nodeReference: new NodeReference { Id = nodeTypeId });
 
-        _mockIconProvider.GetIconMarkupString(nodeTypeIconName).Returns((string?)null);
+        _mockIconProvider.GetSvgIcon(childNode.RootNode.Builder, nodeTypeIconName).Returns((string?)null);
 
         // Act
         var result = _adapter.GetIcons(childNode).ToList();
 
         // Assert
         Assert.Empty(result);
-        _mockIconProvider.Received(1).GetIconMarkupString(nodeTypeIconName);
+        _mockIconProvider.Received(1).GetSvgIcon(childNode.RootNode.Builder, nodeTypeIconName);
     }
 
     [Fact]
@@ -230,7 +230,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
             icon: null,
             nodeReference: new NodeReference { Id = nodeTypeId });
 
-        _mockIconProvider.GetIconMarkupString(nodeTypeIconName).Returns(iconMarkup);
+        _mockIconProvider.GetSvgIcon(childNode.RootNode.Builder, nodeTypeIconName).Returns(iconMarkup);
 
         // Act
         var result = _adapter.GetIcons(childNode).ToList();
@@ -238,7 +238,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         // Assert
         Assert.Single(result);
         Assert.IsType<SvgIcon>(result[0]);
-        _mockIconProvider.Received(1).GetIconMarkupString(nodeTypeIconName);
+        _mockIconProvider.Received(1).GetSvgIcon(childNode.RootNode.Builder, nodeTypeIconName);
     }
 
     [Fact]
@@ -254,7 +254,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
 
         // Assert
         Assert.Empty(result);
-        _mockIconProvider.DidNotReceive().GetIconMarkupString(Arg.Any<string>());
+        _mockIconProvider.DidNotReceive().GetSvgIcon(Arg.Any<TreeBuilder.TreeBuilder>(), Arg.Any<string>());
         _mockIconProvider.DidNotReceive().GetDataPointIcon(Arg.Any<DataPortChildNodeModel>(), Arg.Any<int>(), Arg.Any<IClusterCache>());
     }
 
@@ -265,14 +265,14 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         var iconName = "test-icon";
         var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(string.Empty, [iconName]);
 
-        _mockIconProvider.GetIconMarkupString(iconName).Returns((string?)null);
+        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns((string?)null);
 
         // Act
         var result = _adapter.GetIcons(rootNode).ToList();
 
         // Assert
         Assert.Empty(result);
-        _mockIconProvider.Received(1).GetIconMarkupString(iconName);
+        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, iconName);
     }
 
     [Fact]
@@ -282,14 +282,14 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         var iconName = "test-icon";
         var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(string.Empty, [iconName]);
 
-        _mockIconProvider.GetIconMarkupString(iconName).Returns(string.Empty);
+        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns(string.Empty);
 
         // Act
         var result = _adapter.GetIcons(rootNode).ToList();
 
         // Assert
         Assert.Empty(result);
-        _mockIconProvider.Received(1).GetIconMarkupString(iconName);
+        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, iconName);
     }
 
     [Fact]
@@ -300,7 +300,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         var iconMarkup = "<svg>test</svg>";
         var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(string.Empty, [iconName]);
 
-        _mockIconProvider.GetIconMarkupString(iconName).Returns(iconMarkup);
+        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns(iconMarkup);
 
         // Act
         var result = _adapter.GetIcons(rootNode).ToList();
@@ -308,7 +308,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         // Assert
         Assert.Single(result);
         Assert.IsType<SvgIcon>(result[0]);
-        _mockIconProvider.Received(1).GetIconMarkupString(iconName);
+        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, iconName);
     }
 
     [Fact]
@@ -322,7 +322,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
 
         // Assert
         Assert.Empty(result);
-        _mockIconProvider.DidNotReceive().GetIconMarkupString(Arg.Any<string>());
+        _mockIconProvider.DidNotReceive().GetSvgIcon(Arg.Any<TreeBuilder.TreeBuilder>(), Arg.Any<string>());
         _mockIconProvider.DidNotReceive().GetDataPointIcon(Arg.Any<DataPortChildNodeModel>(), Arg.Any<int>(), Arg.Any<IClusterCache>());
     }
 
@@ -337,7 +337,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
 
         // Assert
         Assert.Empty(result);
-        _mockIconProvider.DidNotReceive().GetIconMarkupString(Arg.Any<string>());
+        _mockIconProvider.DidNotReceive().GetSvgIcon(Arg.Any<TreeBuilder.TreeBuilder>(), Arg.Any<string>());
         _mockIconProvider.DidNotReceive().GetDataPointIcon(Arg.Any<DataPortChildNodeModel>(), Arg.Any<int>(), Arg.Any<IClusterCache>());
     }
 
@@ -348,14 +348,14 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         var iconName = "test-icon";
         var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(iconName);
 
-        _mockIconProvider.GetIconMarkupString(iconName).Returns(string.Empty);
+        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns(string.Empty);
 
         // Act
         var result = _adapter.GetIcons(rootNode).ToList();
 
         // Assert
         Assert.Empty(result);
-        _mockIconProvider.Received(1).GetIconMarkupString(iconName);
+        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, iconName);
     }
 
     [Fact]
@@ -365,14 +365,14 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         var iconName = "valid-icon";
         var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(iconName);
 
-        _mockIconProvider.GetIconMarkupString(iconName).Returns((string?)null);
+        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns((string?)null);
 
         // Act
         var result = _adapter.GetIcons(rootNode).ToList();
 
         // Assert
         Assert.Empty(result);
-        _mockIconProvider.Received(1).GetIconMarkupString(iconName);
+        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, iconName);
     }
 
     [Fact]
@@ -383,7 +383,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         var iconMarkup = "<svg>valid</svg>";
         var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(iconName);
 
-        _mockIconProvider.GetIconMarkupString(iconName).Returns(iconMarkup);
+        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns(iconMarkup);
 
         // Act
         var result = _adapter.GetIcons(rootNode).ToList();
@@ -391,7 +391,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         // Assert
         Assert.Single(result);
         Assert.IsType<SvgIcon>(result[0]);
-        _mockIconProvider.Received(1).GetIconMarkupString(iconName);
+        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, iconName);
     }
 
     [Fact]
@@ -410,8 +410,8 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
             icon: childIconName,
             nodeReference: new NodeReference { Id = "test-id" });
 
-        _mockIconProvider.GetIconMarkupString(rootIconName).Returns(rootIconMarkup);
-        _mockIconProvider.GetIconMarkupString(childIconName).Returns(childIconMarkup);
+        _mockIconProvider.GetSvgIcon(rootNode.Builder, rootIconName).Returns(rootIconMarkup);
+        _mockIconProvider.GetSvgIcon(rootNode.Builder, childIconName).Returns(childIconMarkup);
 
         // Act
         var rootResult = _adapter.GetIcons(rootNode).ToList();
@@ -420,8 +420,8 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         // Assert
         Assert.Single(rootResult);
         Assert.Single(childResult);
-        _mockIconProvider.Received(1).GetIconMarkupString(rootIconName);
-        _mockIconProvider.Received(1).GetIconMarkupString(childIconName);
+        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, rootIconName);
+        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, childIconName);
     }
 
     [Fact]
@@ -435,7 +435,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
 
         // Assert
         Assert.Empty(result);
-        _mockIconProvider.DidNotReceive().GetIconMarkupString(Arg.Any<string>());
+        _mockIconProvider.DidNotReceive().GetSvgIcon(Arg.Any<TreeBuilder.TreeBuilder>(), Arg.Any<string>());
         _mockIconProvider.DidNotReceive().GetDataPointIcon(Arg.Any<DataPortChildNodeModel>(), Arg.Any<int>(), Arg.Any<IClusterCache>());
     }
 }

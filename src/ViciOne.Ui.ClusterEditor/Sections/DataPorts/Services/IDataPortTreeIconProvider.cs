@@ -8,5 +8,5 @@ internal interface IDataPortTreeIconProvider
 {
     IIcon? GetDataPointIcon(DataPortChildNodeModel childNode, int size, IClusterCache clusterCache);
 
-    string? GetIconMarkupString(string iconName);
+    string? GetSvgIcon(TreeBuilder.TreeBuilder treeBuilder, string iconName);
 }

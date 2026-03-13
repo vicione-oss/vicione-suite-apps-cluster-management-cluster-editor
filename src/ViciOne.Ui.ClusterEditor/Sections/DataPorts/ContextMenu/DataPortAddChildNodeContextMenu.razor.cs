@@ -8,6 +8,7 @@ using ViciOne.Ui.ClusterEditor.Models.Data;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
+using ViciOne.Ui.ColorableIcons;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.ContextMenu;
 
@@ -42,12 +43,14 @@ public sealed partial class DataPortAddChildNodeContextMenu : SpecializedContext
         }
 
         var dataPortDirection = possibleChild.GetRootSuccessor().GetSystemProperty<DataPortDirection>()?.TypedValue;
-        var icon = TreeBuilder.TreeBuilder.GetIconMarkupString(
-            possibleChild.Icon ?? string.Empty,
-            color,
-            dataPortDirection.TranslateToTreeBuilderModel());
+
+        var icon = possibleChild.Icon != "datapoint"
+            ? possibleChild.RootNode.Builder.GetSvgIcon(possibleChild.Icon ?? string.Empty)
+            : ColoredIconFactory.GetDataPortIcon(color, dataPortDirection ?? DataPortDirection.In, true, true);
 
         icon = icon?.Replace("viewBox=\"0 0 32 32\"", "viewBox=\"4 4 28 28\" width=\"16\" height=\"16\"",
+            StringComparison.InvariantCulture);
+        icon = icon?.Replace("currentColor", DataPortColorConstants.ColorEditorFont,
             StringComparison.InvariantCulture);
 
         var iconBase64Encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(icon ?? string.Empty));
