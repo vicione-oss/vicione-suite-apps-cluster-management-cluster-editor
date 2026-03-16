@@ -866,7 +866,10 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
             return;
 
         foreach (var node in _draggingNodes)
+        {
             node.ReinitializePorts();
+            node.HasPortsInitialized = true;
+        }
 
         _draggingNodes.Clear();
         DiagramEventService.RequestDiagramFocus();
