@@ -31,8 +31,8 @@ internal sealed class DataPortTreeIconProvider() : IDataPortTreeIconProvider
 
             var dataPortDirection = childNode.GetRootSuccessor().GetSystemProperty<DataPortDirection>()?.TypedValue ?? DataPortDirection.InOut;
 
-            var hasInputLinks = clusterCache.DataPortTreeNodeGuids[childNode.Id.Value].IncomingLinks.Count != 0;
-            var hasOutputLinks = clusterCache.DataPortTreeNodeGuids[childNode.Id.Value].OutgoingLinks.Count != 0;
+            var hasInputLinks = clusterCache.DataPortTreeNodeIds[childNode.Id.Value].IncomingLinks.Count != 0;
+            var hasOutputLinks = clusterCache.DataPortTreeNodeIds[childNode.Id.Value].OutgoingLinks.Count != 0;
 
             var icon = ColoredIconFactory.GetDataPortIcon(color, dataPortDirection, hasInputLinks, hasOutputLinks, size);
             if (!string.IsNullOrEmpty(icon))

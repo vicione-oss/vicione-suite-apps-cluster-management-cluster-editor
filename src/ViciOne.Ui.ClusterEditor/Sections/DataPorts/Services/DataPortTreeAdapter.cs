@@ -246,7 +246,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
             if (n is not DataPortNodeModel dpNode)
                 return;
 
-            if (_datastore.Builder.Cache.DataPortTreeNodeGuids.ContainsKey(dpNode.Id.Value) && _datastore.Builder.Cache.DataPortTreeNodeGuids[dpNode.Id.Value].Links.Any())
+            if (_datastore.Builder.Cache.DataPortTreeNodeIds.ContainsKey(dpNode.Id.Value) && _datastore.Builder.Cache.DataPortTreeNodeIds[dpNode.Id.Value].Links.Any())
                 DataPortWithLinksDoubleClicked?.Invoke(node);
             else
                 Builder.Expansion.ChangeExpansion(node, !((DataPortNodeModel)node).Expanded);
@@ -527,7 +527,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
             if (treeNode is not DataPortNodeModel dataPortNode)
                 continue;
 
-            var dataPortTreeNode = _datastore.Builder.Cache.DataPortTreeNodeGuids.GetValueOrDefault(dataPortNode.Id.Value);
+            var dataPortTreeNode = _datastore.Builder.Cache.DataPortTreeNodeIds.GetValueOrDefault(dataPortNode.Id.Value);
             if (dataPortTreeNode is null)
                 continue;
 
@@ -621,7 +621,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
         }
         else
         {
-            var treeNode = _datastore.Builder.Cache.DataPortTreeNodeGuids[childNode.Id.Value];
+            var treeNode = _datastore.Builder.Cache.DataPortTreeNodeIds[childNode.Id.Value];
             childNode.AssignValuesAndProperties(treeNode, root.Builder);
         }
     }

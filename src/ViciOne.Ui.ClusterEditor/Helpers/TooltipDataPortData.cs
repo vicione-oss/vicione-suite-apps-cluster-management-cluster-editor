@@ -192,7 +192,7 @@ internal static class TooltipDataPortData
             Type = TooltipInfoType.Line
         };
 
-        if (datastore.Builder.Cache.DataPortTreeNodeGuids.TryGetValue(treeNode.Id.Value, out var dataPortTreeNode))
+        if (datastore.Builder.Cache.DataPortTreeNodeIds.TryGetValue(treeNode.Id.Value, out var dataPortTreeNode))
         {
             var content = GetDataPortTooltipContent(dataPortTreeNode);
             info.Content.AddRange(content);

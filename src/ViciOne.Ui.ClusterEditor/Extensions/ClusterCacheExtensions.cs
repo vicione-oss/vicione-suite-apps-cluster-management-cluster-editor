@@ -9,13 +9,13 @@ namespace ViciOne.Ui.ClusterEditor.Extensions;
 internal static class ClusterCacheExtensions
 {
     public static IEnumerable<Cluster.Model.Engine> GetUnusedEngines(this IClusterCache cache)
-        => cache.EngineGuids.Values.Where(engine =>
+        => cache.EngineIds.Values.Where(engine =>
             !cache.GetDataPorts(engine).Any() &&
             !cache.GetFunctionBlocks(engine).Any());
 
     public static IEnumerable<Cluster.Model.Engine> GetUsedEngines(this IClusterCache cache, Dataflow dataflow)
     {
-        foreach (var engine in cache.EngineGuids.Values)
+        foreach (var engine in cache.EngineIds.Values)
         {
             // HACK: Da eine Engine nur in einem Dataflow genutzt werden kann, können wir zur nächsten Engine springen,
             //       sobald wir ein Element finden, was im angefragten Dataflow steckt.

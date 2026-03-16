@@ -48,5 +48,5 @@ internal static class EngineDisplayText
         => Get(builder, functionBlock.Engine);
 
     internal static int GetEngineIndex(IClusterBuilder builder, Cluster.Model.Engine engine)
-        => builder.Cache.EngineGuids.Values.ToList().IndexOf(engine);
+        => builder.Cache.EngineIds.Values.ToList().IndexOf(engine);
 }

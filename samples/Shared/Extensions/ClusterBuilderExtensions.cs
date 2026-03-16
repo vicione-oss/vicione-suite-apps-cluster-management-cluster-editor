@@ -7,7 +7,7 @@ public static class ClusterBuilderExtensions
 {
     public static IClusterBuilder AddDemoElements(this IClusterBuilder builder)
     {
-        if (builder.Cache.EngineGuids.Count == 0)
+        if (builder.Cache.EngineIds.Count == 0)
         {
             var nodeGroup = builder.Editors.Cluster.AddNodeGroup("NodeGroup");
             var node = builder.Editors.NodeGroup.AddNode(nodeGroup, "Node");
