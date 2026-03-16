@@ -2,6 +2,9 @@
     const ViciOne = window.ViciOne ?? {};
 
     /**
+     * It is assumed that this object doesn't store any relevant state between two start() calls
+     * All the values should be set at the beginning of a move
+     *
      * @class
      * @memberof ViciOne
      */
@@ -74,17 +77,12 @@
     NodeMove._svgElements = [];
 
 
-    /**
-     * @param {number} clientX
-     * @param {number} clientY
-     */
-    NodeMove._end = function (clientX, clientY) {
+    NodeMove._end = function () {
         cancelAnimationFrame(NodeMove._moveFrameId);
+        NodeMove._moveFrameId = null;
 
         document.removeEventListener('pointermove', NodeMove._move);
         document.removeEventListener('pointerup', NodeMove._up);
-
-        NodeMove._netObjRef.invokeMethodAsync('JsMoveEndAsync', clientX, clientY);
     };
 
     /**
@@ -135,6 +133,43 @@
     };
 
     /**
+     * @param {object} netObjRef - DotNetObjectReference
+     * @param {number} gridSize
+     * @param {string[]} dataIds
+     * @param {number} diagramZoom
+     * @param {[number, number]} containerPos
+     * @param {[number, number]} pan
+     * @param {[number, number]} cursorPos
+     */
+    NodeMove._init = function (netObjRef, gridSize, dataIds, diagramZoom, containerPos, pan, cursorPos) {
+        if (NodeMove._moveFrameId) {
+            NodeMove._end();
+        }
+
+        NodeMove._netObjRef = netObjRef;
+
+        NodeMove._htmlElements = [...document.querySelectorAll('.diagram-html-layer .diagram-node')].filter(e => dataIds.includes(e.dataset.nodeId));
+        NodeMove._htmlElementPositions = NodeMove._htmlElements.map(e => [parseInt(e.style.left, 10), parseInt(e.style.top, 10)]);
+
+        NodeMove._svgElements = [...document.querySelectorAll('.diagram-svg-layer .diagram-node')].filter(e => dataIds.includes(e.dataset.nodeId));
+        NodeMove._svgElementPositions = NodeMove._svgElements.map(e => {
+            const ctm = e.getCTM();
+            return [ctm.e, ctm.f];
+        });
+
+        NodeMove._gridSize = gridSize;
+        NodeMove._diagramZoom = diagramZoom;
+        NodeMove._containerPos = containerPos;
+        NodeMove._currentPan = pan;
+        NodeMove._initialCursorPos = cursorPos;
+
+        NodeMove._firstMove = true;
+
+        document.addEventListener('pointermove', NodeMove._move);
+        document.addEventListener('pointerup', NodeMove._up);
+    };
+
+    /**
      * @param {PointerEvent} e
      */
     NodeMove._move = function (e) {
@@ -149,10 +184,46 @@
     };
 
     /**
-     * @param {PointerEvent} e
+     * @param {string[]} linkIds
+     * @param {string[]} linkSourceIds
+     * @param {double[]} linkSourcePosXs
+     * @param {double[]} linkSourcePosYs
+     * @param {string[]} linkTargetIds
+     * @param {double[]} linkTargetPosXs
+     * @param {double[]} linkTargetPosYs
      */
-    NodeMove._up = function (e) {
-        NodeMove._end(e.clientX, e.clientY);
+    NodeMove._setLinkData = function (linkIds,
+        linkSourceIds,
+        linkSourcePosXs,
+        linkSourcePosYs,
+        linkTargetIds,
+        linkTargetPosXs,
+        linkTargetPosYs) {
+
+        NodeMove._linkData = [];
+        for (let i = 0; i < linkIds.length; i++) {
+            NodeMove._linkData.push({
+                id: linkIds[i],
+                sourceId: linkSourceIds[i],
+                sourcePos: [linkSourcePosXs[i], linkSourcePosYs[i]],
+                targetId: linkTargetIds[i],
+                targetPos: [linkTargetPosXs[i], linkTargetPosYs[i]]
+            });
+        }
+
+        NodeMove._linkEleMap = new Map();
+        [...document.querySelectorAll('.diagram-svg-layer .diagram-link')]
+            .filter(e => linkIds.includes(e.dataset.linkId))
+            .forEach(e => NodeMove._linkEleMap.set(e.dataset.linkId, e));
+
+        NodeMove._linkNodeEleMap = new Map();
+        [...document.querySelectorAll('.diagram-node')]
+            .filter(e => linkSourceIds.includes(e.dataset.nodeId) || linkTargetIds.includes(e.dataset.nodeId))
+            .forEach(e => NodeMove._linkNodeEleMap.set(e.dataset.nodeId, e));
+    };
+
+    NodeMove._up = function () {
+        NodeMove._end();
     };
 
     NodeMove._updateLinks = function () {
@@ -205,20 +276,6 @@
         NodeMove._diagramZoom = zoomValue;
     };
 
-    NodeMove.reset = function () {
-        NodeMove._netObjRef = null;
-        NodeMove._htmlElements = [];
-        NodeMove._htmlElementPositions = [];
-        NodeMove._svgElements = [];
-        NodeMove._svgElementPositions = [];
-        NodeMove._firstMove = false;
-        NodeMove._lastMoveEvent = null;
-        NodeMove._linkData = [];
-        NodeMove._linkEleMap = null;
-        NodeMove._linkNodeEleMap = null;
-        NodeMove._moveFrameId = null;
-    };
-
     /**
      * @param {string[]} linkIds
      * @param {string[]} linkSourceIds
@@ -227,38 +284,6 @@
      * @param {string[]} linkTargetIds
      * @param {double[]} linkTargetPosXs
      * @param {double[]} linkTargetPosYs
-     */
-    NodeMove.setLinkData = function (linkIds,
-        linkSourceIds,
-        linkSourcePosXs,
-        linkSourcePosYs,
-        linkTargetIds,
-        linkTargetPosXs,
-        linkTargetPosYs) {
-
-        NodeMove._linkData = [];
-        for (let i = 0; i < linkIds.length; i++) {
-            NodeMove._linkData.push({
-                id: linkIds[i],
-                sourceId: linkSourceIds[i],
-                sourcePos: [linkSourcePosXs[i], linkSourcePosYs[i]],
-                targetId: linkTargetIds[i],
-                targetPos: [linkTargetPosXs[i], linkTargetPosYs[i]]
-            });
-        }
-
-        NodeMove._linkEleMap = new Map();
-        [...document.querySelectorAll('.diagram-svg-layer .diagram-link')]
-            .filter(e => linkIds.includes(e.dataset.linkId))
-            .forEach(e => NodeMove._linkEleMap.set(e.dataset.linkId, e));
-
-        NodeMove._linkNodeEleMap = new Map();
-        [...document.querySelectorAll('.diagram-node')]
-            .filter(e => linkSourceIds.includes(e.dataset.nodeId) || linkTargetIds.includes(e.dataset.nodeId))
-            .forEach(e => NodeMove._linkNodeEleMap.set(e.dataset.nodeId, e));
-    };
-
-    /**
      * @param {object} netObjRef - DotNetObjectReference
      * @param {number} gridSize
      * @param {string[]} dataIds
@@ -267,28 +292,18 @@
      * @param {[number, number]} pan
      * @param {[number, number]} cursorPos
      */
-    NodeMove.start = function (netObjRef, gridSize, dataIds, diagramZoom, containerPos, pan, cursorPos) {
-        NodeMove._netObjRef = netObjRef;
+    NodeMove.start = function (linkIds, linkSourceIds, linkSourcePosXs, linkSourcePosYs, linkTargetIds, linkTargetPosXs, linkTargetPosYs,
+        netObjRef, gridSize, dataIds, diagramZoom, containerPos, pan, cursorPos) {
 
-        NodeMove._htmlElements = [...document.querySelectorAll('.diagram-html-layer .diagram-node')].filter(e => dataIds.includes(e.dataset.nodeId));
-        NodeMove._htmlElementPositions = NodeMove._htmlElements.map(e => [parseInt(e.style.left, 10), parseInt(e.style.top, 10)]);
+        NodeMove._setLinkData(linkIds,
+            linkSourceIds,
+            linkSourcePosXs,
+            linkSourcePosYs,
+            linkTargetIds,
+            linkTargetPosXs,
+            linkTargetPosYs);
 
-        NodeMove._svgElements = [...document.querySelectorAll('.diagram-svg-layer .diagram-node')].filter(e => dataIds.includes(e.dataset.nodeId));
-        NodeMove._svgElementPositions = NodeMove._svgElements.map(e => {
-            const ctm = e.getCTM();
-            return [ctm.e, ctm.f];
-        });
-
-        NodeMove._gridSize = gridSize;
-        NodeMove._diagramZoom = diagramZoom;
-        NodeMove._containerPos = containerPos;
-        NodeMove._currentPan = pan;
-        NodeMove._initialCursorPos = cursorPos;
-
-        NodeMove._firstMove = true;
-
-        document.addEventListener('pointermove', NodeMove._move);
-        document.addEventListener('pointerup', NodeMove._up);
+        NodeMove._init(netObjRef, gridSize, dataIds, diagramZoom, containerPos, pan, cursorPos);
     };
 
     ViciOne.NodeMove = NodeMove;

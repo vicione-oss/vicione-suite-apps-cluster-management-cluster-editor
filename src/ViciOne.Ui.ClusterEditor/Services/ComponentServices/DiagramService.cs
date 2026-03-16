@@ -12,7 +12,7 @@ public sealed class DiagramService : IDisposable
     private readonly IDatastore _datastore;
     private readonly DiagramEventService _diagramEventService;
 
-    public Diagram Diagram { get; set; } = null!;
+    public Diagram Diagram { get; set; } = default!;
     public DiagramState DiagramState { get; } = new();
     public BlockNodeLink? DraggingLink { get; set; }
 
