@@ -59,7 +59,7 @@ internal sealed class StatisticService : IDisposable
             DataPortTreeNodesConnected = dataPortTreeNodesConnected,
             DataPortTreeNodesNotConnected = dataPortTreeNodes - dataPortTreeNodesConnected,
             Drivers = driverCount,
-            Engines = _clusterBuilder.Cache.EngineGuids.Count,
+            Engines = _clusterBuilder.Cache.EngineIds.Count,
             FbDesigns = _clusterBuilder.Cache.FunctionBlockDesigns.Count,
             Fbs = _clusterBuilder.Cache.FunctionBlocks.Count,
             Labels = _clusterBuilder.Cache.Labels.Count,

@@ -42,7 +42,7 @@ public sealed class DataPortTreeIconProviderTests
         // Arrange
         var dataType = typeof(int);
         var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(dataPortTransferMode: DataPortTransferMode.Periodic, dataTypeValue: dataType.Name);
-        _clusterCache.DataPortTreeNodeGuids[childNode.Id.Value].Returns(_dataPortTreeNode);
+        _clusterCache.DataPortTreeNodeIds[childNode.Id.Value].Returns(_dataPortTreeNode);
         var expectedColor = ConnectorColor.Get(dataType);
 
         // Act
@@ -59,7 +59,7 @@ public sealed class DataPortTreeIconProviderTests
     {
         // Arrange
         var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(dataPortTransferMode: DataPortTransferMode.Periodic, dataTypeValue: string.Empty);
-        _clusterCache.DataPortTreeNodeGuids[childNode.Id.Value].Returns(_dataPortTreeNode);
+        _clusterCache.DataPortTreeNodeIds[childNode.Id.Value].Returns(_dataPortTreeNode);
         var expectedColor = ConnectorColor.Get(typeof(object));
 
         // Act
@@ -76,7 +76,7 @@ public sealed class DataPortTreeIconProviderTests
     {
         // Arrange
         var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
-        _clusterCache.DataPortTreeNodeGuids[childNode.Id.Value].Returns(_dataPortTreeNode);
+        _clusterCache.DataPortTreeNodeIds[childNode.Id.Value].Returns(_dataPortTreeNode);
 
         // Act
         var result = _dataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
@@ -91,7 +91,7 @@ public sealed class DataPortTreeIconProviderTests
         // Arrange
         var dataType = typeof(int);
         var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(dataPortTransferMode: DataPortTransferMode.None, dataTypeValue: nameof(Int32));
-        _clusterCache.DataPortTreeNodeGuids[childNode.Id.Value].Returns(_dataPortTreeNode);
+        _clusterCache.DataPortTreeNodeIds[childNode.Id.Value].Returns(_dataPortTreeNode);
         var expectedColor = DataPortColors.Disabled;
 
         // Act
@@ -111,7 +111,7 @@ public sealed class DataPortTreeIconProviderTests
     {
         // Arrange
         var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(dataPortTransferMode: DataPortTransferMode.Periodic, dataTypeValue: nameof(Int32), dataPortDirection: dataPortDirection);
-        _clusterCache.DataPortTreeNodeGuids[childNode.Id.Value].Returns(_dataPortTreeNode);
+        _clusterCache.DataPortTreeNodeIds[childNode.Id.Value].Returns(_dataPortTreeNode);
 
         // Act
         var result = _dataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
@@ -136,7 +136,7 @@ public sealed class DataPortTreeIconProviderTests
     {
         // Arrange
         var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(dataPortTransferMode: DataPortTransferMode.Periodic, dataTypeValue: nameof(Int32));
-        _clusterCache.DataPortTreeNodeGuids[childNode.Id.Value].Returns(_dataPortTreeNode);
+        _clusterCache.DataPortTreeNodeIds[childNode.Id.Value].Returns(_dataPortTreeNode);
 
         // Act
         var result = _dataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);

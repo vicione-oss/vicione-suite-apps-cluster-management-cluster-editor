@@ -89,7 +89,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
     {
         if (parentNode is DataPortChildNodeModel childNode && childNode.Parent is not DataPortRootNodeModel)
         {
-            var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeGuids[childNode.Id.Value];
+            var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeIds[childNode.Id.Value];
 
             if (TransferDirectionIsPossible(connector, childNode) &&
                 Datastore.Builder.Editors.DataPortTreeNode.CanAssignConnector(dataPortTreeNode, connector) &&
@@ -179,7 +179,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
 
     private async void OnDataPortWithLinksDoubleClickedAsync(ITreeNode node)
     {
-        var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeGuids[((GuidNodeIdentifier)node.Id).Value];
+        var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeIds[((GuidNodeIdentifier)node.Id).Value];
 
         if (dataPortTreeNode is null || !dataPortTreeNode.Links.Any())
             return;
@@ -308,7 +308,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
             return;
 
         var connector = draggedBlockNodeConnector.Connector.GetUnderlyingConnector();
-        var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeGuids[((GuidNodeIdentifier)nodeDroppedOn.Id).Value];
+        var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeIds[((GuidNodeIdentifier)nodeDroppedOn.Id).Value];
 
         if (connector is null || dataPortTreeNode is null)
             return;

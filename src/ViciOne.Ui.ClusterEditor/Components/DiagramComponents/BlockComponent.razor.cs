@@ -234,7 +234,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
                 if (draggedItem is not DataPortNodeModel treeNode)
                     continue;
 
-                var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeGuids.GetValueOrDefault(treeNode.Id.Value);
+                var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeIds.GetValueOrDefault(treeNode.Id.Value);
                 if (dataPortTreeNode is null)
                     continue;
 

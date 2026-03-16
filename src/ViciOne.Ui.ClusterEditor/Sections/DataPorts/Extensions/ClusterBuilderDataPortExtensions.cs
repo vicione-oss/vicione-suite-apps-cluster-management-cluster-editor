@@ -26,7 +26,7 @@ internal static class ClusterBuilderDataPortExtensions
     {
         var successor = dataPortNode.GetRootSuccessor();
         var dataPortId = successor.Id.Value;
-        if (!builder.Cache.DataPortGuids.TryGetValue(dataPortId, out var dataPort))
+        if (!builder.Cache.DataPortIds.TryGetValue(dataPortId, out var dataPort))
             throw new InvalidOperationException($"DataPort {dataPortId} not found.");
 
         return dataPort;
@@ -50,7 +50,7 @@ internal static class ClusterBuilderDataPortExtensions
         var nodeTransferDirection = dataPortNode.GetSystemProperty<DataPortDirection>()?.TypedValue
             ?? DataPortDirection.Out;
 
-        if (!builder.Cache.DataPortGuids.TryGetValue(dataPortId, out var dataPort))
+        if (!builder.Cache.DataPortIds.TryGetValue(dataPortId, out var dataPort))
         {
             var dataPortType = rootNode.Builder.Ruleset.Root?.Id
                 ?? throw new InvalidOperationException("The Builder ruleset for root is not set.");
@@ -141,7 +141,7 @@ internal static class ClusterBuilderDataPortExtensions
     {
         foreach (var customProperty in dataPortNode.Properties.OfType<DataPortNodeModelCustomProperty>())
         {
-            if (!builder.Cache.DataPortPropertyGuids.TryGetValue(customProperty.Id, out var dataPortProperty))
+            if (!builder.Cache.DataPortPropertyIds.TryGetValue(customProperty.Id, out var dataPortProperty))
                 dataPortProperty = builder.Editors.DataPort.AddProperty(customProperty.Reference.Id, dataPort, customProperty.Id);
 
             builder.Editors.DataPortProperty.SetValue(dataPortProperty, customProperty.Value);
@@ -155,7 +155,7 @@ internal static class ClusterBuilderDataPortExtensions
     {
         foreach (var customProperty in childNode.Properties.OfType<DataPortNodeModelCustomProperty>())
         {
-            if (!builder.Cache.DataPortPropertyGuids.TryGetValue(customProperty.Id, out var dataPortProperty))
+            if (!builder.Cache.DataPortPropertyIds.TryGetValue(customProperty.Id, out var dataPortProperty))
                 dataPortProperty = builder.Editors.DataPortTreeNode.AddProperty(customProperty.Reference.Id, clusterTreeNode, customProperty.Id);
 
             builder.Editors.DataPortProperty.SetValue(dataPortProperty, customProperty.Value);
