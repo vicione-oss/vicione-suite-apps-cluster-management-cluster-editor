@@ -1,22 +1,4 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <!-- Versioning -->
-  <PropertyGroup>
-    <VersionWithSuffix>$([System.IO.File]::ReadAllText('$(MsBuildThisFileDirectory)VERSION').Trim())</VersionWithSuffix>
-    <!-- Version 0.1.0 is default if no other version is found -->
-    <VersionPrefix Condition="$(VersionWithSuffix) == ''">0.1.0</VersionPrefix>
-    <VersionPrefix Condition="$(VersionWithSuffix.Contains('-')) == true">$(VersionWithSuffix.Substring(0, $(VersionWithSuffix.IndexOf('-'))))</VersionPrefix>
-    <VersionPrefix Condition="$(VersionWithSuffix.Contains('-')) == false">$(VersionWithSuffix)</VersionPrefix>
-    <!-- If there is a given Suffix than this is used -->
-    <VersionSuffix></VersionSuffix>
-    <VersionSuffix Condition="$(VersionWithSuffix.Contains('-')) == true">$(VersionWithSuffix.Substring($(VersionWithSuffix.IndexOf('-'))))</VersionSuffix>
-    <VersionSuffix Condition="$(VersionSuffix.Contains('-')) == true">$(VersionSuffix.Substring(1))</VersionSuffix>
-    <!-- Normally the PackageVersion is eqaul to the normal "Version" -->
-    <PackageVersion>$(VersionPrefix)</PackageVersion>
-    <PackageVersion Condition="$(VersionSuffix) != ''">$(PackageVersion)-$(VersionSuffix)</PackageVersion>
-    <!-- If a PackageVersionSuffix exists it is used instead of VersionPrefix -->
-    <PackageVersion Condition="$(PackageVersionSuffix) != ''">$(VersionPrefix).$(PackageVersionSuffix)</PackageVersion>
-  </PropertyGroup>
-
   <!-- Properties for all projects -->
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
