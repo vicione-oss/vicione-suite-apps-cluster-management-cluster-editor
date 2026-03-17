@@ -33,6 +33,7 @@ internal sealed class ClusterApplicationPropertyDescriptorProvider : IPropertyDe
 
         yield return new SelectionPropertyDescriptor<ClusterApplication, ClusterApplicationType>
         {
+            Enabled = (instance) => false,
             GetSelectableValues = (instance) => _typeSelectableValues.Value,
             GetValue = (instance) => instance.Type,
             Name = nameof(ClusterApplication.Type)
