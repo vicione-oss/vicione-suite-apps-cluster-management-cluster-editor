@@ -11,7 +11,8 @@ using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
-using ViciOne.Ui.Shared.Dx.Components;
+using ViciOne.Ui.MonochromeIcons.Core.Enums;
+using ViciOne.Ui.MonochromeIcons.Core.Extensions;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.SearchAndTools.Components;
 
@@ -20,15 +21,17 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
     private const string FilterAttachedToken = "::attached::";
     private const string FilterSelectedToken = "::selected::";
 
+    private static readonly string s_filterSolidIconCssClass =
+        MonochromeIconName.FilterSolid.GetCssClasses(MonochromeIconSize.SmallPlus2).ToSpaceSeparated();
+
     private bool _alignEnabled;
     private bool _alignExpanded = true;
     private bool _arrangeEnabled;
     private bool _arrangeExpanded = true;
-    private SearchBox? _filterSearchBoxRef;
-    private bool _processSearchTextChanged = true;
-    private SearchBox? _searchSearchBoxRef;
+    private string _filterText = string.Empty;
     private SearchBlocksService _searchService = null!;
     private SearchBlocksService _searchServiceFilter = null!;
+    private string _searchText = string.Empty;
     private bool _selectClearEnabled;
     private bool _selectEnabled;
     private bool _selectExpanded = true;
@@ -42,12 +45,41 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
     [Inject] private TraceService TraceService { get; set; } = default!;
 
+    private void ApplyFilter(string value)
+    {
+        _filterText = value;
+
+        ClearSearch();
+        ResetFilteredDiagramModels();
+
+        switch (_filterText)
+        {
+            case FilterAttachedToken:
+                FilterAttachedNodes();
+                break;
+            case FilterSelectedToken:
+                FilterSelectedNodes();
+                break;
+            case "":
+                break;
+            default:
+                FilterNodesByText(_filterText);
+                break;
+        }
+    }
+
+    private void ClearFilter()
+    {
+        ApplyFilter(string.Empty);
+
+        InvokeAsync(StateHasChanged);
+    }
+
     private void ClearSearch()
     {
         _searchService.Reset();
-        _processSearchTextChanged = false;
-        _searchSearchBoxRef?.SetTextAsync(string.Empty);
-        _processSearchTextChanged = true;
+
+        _searchText = string.Empty;
     }
 
     public void Dispose()
@@ -107,7 +139,7 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
         => align.ApplyToSelection(SelectionManager);
 
     private void OnContainerLoaded(Container _)
-        => _filterSearchBoxRef?.SetTextAsync(string.Empty);
+        => ClearFilter();
 
     private void OnDiagramNodeAmountChanged(NodeModel _)
     {
@@ -126,40 +158,19 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
     }
 
     private void OnFilterAttachedClick()
-        => _filterSearchBoxRef?.SetTextAsync(FilterAttachedToken);
+        => ApplyFilter(FilterAttachedToken);
 
     private void OnFilterAttachedRequested()
         => OnFilterAttachedClick();
 
     private void OnFilterClearRequested()
-        => _filterSearchBoxRef?.SetTextAsync(string.Empty);
+        => ClearFilter();
 
     private void OnFilterSelectedClick()
-        => _filterSearchBoxRef?.SetTextAsync(FilterSelectedToken);
+        => ApplyFilter(FilterSelectedToken);
 
     private void OnFilterSelectedRequested()
         => OnFilterSelectedClick();
-
-    private void OnFilterTextChanged(string filterText)
-    {
-        ClearSearch();
-        ResetFilteredDiagramModels();
-
-        switch (filterText)
-        {
-            case FilterAttachedToken:
-                FilterAttachedNodes();
-                break;
-            case FilterSelectedToken:
-                FilterSelectedNodes();
-                break;
-            case "":
-                break;
-            default:
-                FilterNodesByText(filterText);
-                break;
-        }
-    }
 
     protected override void OnInitialized()
     {
@@ -207,12 +218,11 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
             DiagramService.Diagram.PanToNode(prev);
     }
 
-    private void OnSearchTextChanged(string searchText)
+    private void OnSearchTextChanging(string value)
     {
-        if (!_processSearchTextChanged)
-            return;
+        _searchText = value;
 
-        _searchService.Search(searchText);
+        _searchService.Search(_searchText);
 
         var all = _searchService.GetAll();
         if (all is null)

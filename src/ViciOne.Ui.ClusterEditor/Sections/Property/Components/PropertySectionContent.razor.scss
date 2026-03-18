@@ -1,7 +1,0 @@
-﻿.tools-container {
-    /* Temporary disable input field, see #663 */
-    ::deep .search-input {
-        filter: opacity(0.2);
-        pointer-events: none;
-    }
-}

@@ -16,6 +16,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Library.Components;
 public sealed partial class LibrarySectionContent : ComponentBase, IDisposable
 {
     private readonly string _openIconCssClass = MonochromeIconName.Open.GetCssClasses(MonochromeIconSize.Small).ToSpaceSeparated();
+    private string _searchText = string.Empty;
     private readonly TreeEditor.Builder.TreeBuilder _treeBuilder = new();
 
     [Inject] private IClusterEditorManagementInternal DataManagementService { get; set; } = default!;
@@ -33,8 +34,8 @@ public sealed partial class LibrarySectionContent : ComponentBase, IDisposable
         _treeBuilder.Dispose();
     }
 
-    private void FilterNodes(string filterText)
-        => TreeAdapterHelper.FilterNodesByDisplayText(_treeBuilder, (node) => ((LibraryTreeNode)node).Parent, filterText);
+    private void FilterNodes()
+        => TreeAdapterHelper.FilterNodesByDisplayText(_treeBuilder, (node) => ((LibraryTreeNode)node).Parent, _searchText);
 
     private void OnCollapseAllGroups()
         => _treeBuilder.Expansion.ChangeExpansionForLayers(false);

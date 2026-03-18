@@ -24,6 +24,7 @@ public sealed partial class ConnectorSelectionDialog : ComponentBase, IDisposabl
     private bool _groupingButtonsEnabled;
     private DxDialog? _refDialog;
     private IGrid? _refGrid;
+    private string? _searchText;
     private readonly string _selectAllConnectorsText = CompositeFormats.SelectSomething($"{CommonVocabulary.All} {LocalTechnicalTerms.ConnectorPlural}") + " (" + LocalTechnicalTerms.IncludingSystemConnectors + ")";
     private readonly string _selectAllInputConnectorsText = CompositeFormats.SelectSomething($"{CommonVocabulary.All} {LocalTechnicalTerms.InputConnectorPlural}") + " (" + LocalTechnicalTerms.IncludingSystemConnectors + ")";
     private readonly string _selectAllOutputConnectorsText = CompositeFormats.SelectSomething($"{CommonVocabulary.All} {LocalTechnicalTerms.OutputConnectorPlural}") + " (" + LocalTechnicalTerms.IncludingSystemConnectors + ")";
@@ -35,8 +36,6 @@ public sealed partial class ConnectorSelectionDialog : ComponentBase, IDisposabl
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
     [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private ConnectorSelectionDialogService DialogService { get; set; } = default!;
-
-    private string? SearchText { get; set; }
 
     public void Dispose()
     {
@@ -50,17 +49,17 @@ public sealed partial class ConnectorSelectionDialog : ComponentBase, IDisposabl
 
     private IEnumerable<DataGridConnectorWrapper> GetSelectableDataItems()
     {
-        if (string.IsNullOrEmpty(SearchText))
+        if (string.IsNullOrEmpty(_searchText))
         {
             return _connectorWrappers;
         }
         else
         {
             return _connectorWrappers.Where(cw =>
-                cw.ParentName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                cw.ConnectorName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                cw.ConnectorTypeName.Contains(SearchText, StringComparison.OrdinalIgnoreCase) ||
-                cw.Description.Contains(SearchText, StringComparison.OrdinalIgnoreCase));
+                cw.ParentName.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
+                cw.ConnectorName.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
+                cw.ConnectorTypeName.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
+                cw.Description.Contains(_searchText, StringComparison.OrdinalIgnoreCase));
         }
     }
 
@@ -98,7 +97,7 @@ public sealed partial class ConnectorSelectionDialog : ComponentBase, IDisposabl
     {
         _refGrid?.DeselectDataItems(_selectedDataItems);
         _selectedDataItems = null;
-        SearchText = null;
+        _searchText = null;
     }
 
     private void OnDialogOk()

@@ -1,9 +1,10 @@
 ﻿@using System.Globalization
 @using ViciOne.Cluster.Model.Extensions
 @using ViciOne.Ui.Localization.Resources
-@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
-@using TechnicalTerms=ViciOne.Ui.Localization.Resources.TechnicalTerms
-@using LocalTechnicalTerms=ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+@using ViciOne.Ui.Shared.Dx.Components
+@using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using TechnicalTerms = ViciOne.Ui.Localization.Resources.TechnicalTerms
+@using LocalTechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
 
 <DxDialog @ref="_refDialog"
           CloseOnEscape="true"
@@ -19,7 +20,9 @@
         <DxToolbarItem Alignment="ToolbarItemAlignment.Right">
             <Template Context="tplCtx">
                 <div class="search-container">
-                    <SearchBox TextChanged="@((searchText) => SearchText = searchText)" />
+                    <ViciOne.Ui.Blazor.Components.SearchBox.SearchBox @bind-Text="@_searchText"
+                                                                      @bind-Text:event="TextChanging"
+                                                                      Placeholder="@CommonVocabulary.Search" />
                 </div>
             </Template>
         </DxToolbarItem>
@@ -258,7 +261,7 @@
                         CustomizeCellDisplayText="OnCustomizeCellDisplayText"
                         CustomSort="@OnCustomSort"
                         Data="@_connectorWrappers"
-                        SearchText="@SearchText"
+                        SearchText="@_searchText"
                         SearchTextParseMode="GridSearchTextParseMode.ExactMatch"
                         SelectedDataItemsChanged="OnSelectedDataItemsChanged"
                         SelectionMode="GridSelectionMode.Multiple"
@@ -281,7 +284,7 @@
                             <CellDisplayTemplate Context="cellContext">
                                 @{
                                     <div class="text-truncated" title="@cellContext.DisplayText">
-                                        <SearchHighlighter SearchText="@SearchText"
+                                        <SearchHighlighter SearchText="@_searchText"
                                                            Text="@cellContext.DisplayText.ToString()" />
                                     </div>
                                 }
@@ -309,7 +312,7 @@
                                             @GetIconMarkup(publishedConnector)
                                         </div>
                                         <div class="value">
-                                            <SearchHighlighter SearchText="@SearchText"
+                                            <SearchHighlighter SearchText="@_searchText"
                                                                Text="@cellContext.Value.ToString()" />
                                         </div>
                                     </div>
@@ -341,8 +344,8 @@
                             <CellDisplayTemplate Context="cellContext">
                                 @{
                                     <div class="text-truncated" title="@cellContext.DisplayText">
-                                        <SearchHighlighter SearchText="@SearchText"
-                                                            Text="@cellContext.DisplayText.ToString()" />
+                                        <SearchHighlighter SearchText="@_searchText"
+                                                           Text="@cellContext.DisplayText.ToString()" />
                                     </div>
                                 }
                             </CellDisplayTemplate>
@@ -365,8 +368,8 @@
                             <CellDisplayTemplate Context="cellContext">
                                 @{
                                     <div class="text-truncated" title="@cellContext.DisplayText">
-                                        <SearchHighlighter SearchText="@SearchText"
-                                                            Text="@cellContext.DisplayText.ToString()" />
+                                        <SearchHighlighter SearchText="@_searchText"
+                                                           Text="@cellContext.DisplayText.ToString()" />
                                     </div>
                                 }
                             </CellDisplayTemplate>

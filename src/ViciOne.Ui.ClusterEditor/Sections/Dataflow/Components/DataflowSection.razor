@@ -1,16 +1,21 @@
-﻿@using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Services.Localization
-@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
-@using ViciOne.Ui.MonochromeIcons.Core.Extensions
-
+﻿@using ViciOne.Ui.Blazor.Components.Button
+@using ViciOne.Ui.Blazor.Components.SectionRail.Components.ActionButtons
+@using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Services.Localization
+@using ViciOne.Ui.Shared.Dx.Components
+@using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
 
 @if (TreeAdapter is not null)
 {
     <div class="dataflow-section-container">
         <div class="search-box-with-add-button">
-            <SearchBox TextChanged="@OnFilterTextChanged" />
+            <ViciOne.Ui.Blazor.Components.SearchBox.SearchBox Placeholder="@CommonVocabulary.Search"
+                                                              Text="@_searchText"
+                                                              TextChanging="OnSearchTextChanging" />
+
             <ViciOne.Ui.Blazor.Components.Button.Button CssClass="add-button"
                                                         IconCssClass="@_addIconCssClass"
                                                         OnClick="@OnCreateNewDataflowClicked"
+                                                        Size="ViciOne.Ui.Blazor.Components.Button.Enums.ButtonSize.Small"
                                                         Title="@DataflowStructureTreeAdapter.AddDataflow" />
         </div>
 

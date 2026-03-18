@@ -102,39 +102,6 @@ namespace ViciOne.Ui.ClusterEditor.Resources {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;
-        ///  &lt;path d=&quot;M23 7a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h14Zm0 1H9a1 1 0 0 0-1 1v14a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1V9a1 1 0 0 0-1-1Zm-2.513 3 1.346 1.502-4.33 3.915 4.33 3.915-1.346 1.501L16 17.776l-4.487 4.057-1.346-1.501 4.33-3.915-4.33-3.915L11.513 11 16 15.057 20.487 11Z&quot; fill=&quot;#DEDEDE&quot; fill-rule=&quot;evenodd&quot;/&gt;
-        ///&lt;/svg&gt;.
-        /// </summary>
-        internal static string searchandtools_section_clear {
-            get {
-                return ResourceManager.GetString("searchandtools-section_clear", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;
-        ///  &lt;path fill=&quot;#dedede&quot; fill-rule=&quot;evenodd&quot; d=&quot;m22.955 10.97-5.543 4.573h-.017l.011 8.23-2.797-2.384v-5.837L9.044 10.97V8.227h13.91z&quot;/&gt;
-        ///&lt;/svg&gt;.
-        /// </summary>
-        internal static string searchbox_filter {
-            get {
-                return ResourceManager.GetString("searchbox-filter", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;
-        ///  &lt;path fill=&quot;#dedede&quot; fill-rule=&quot;evenodd&quot; d=&quot;M14.364 7a7.333 7.333 0 0 1 7.363 7.364 7.349 7.349 0 0 1-1.573 4.57L25 23.854 23.773 25l-4.802-4.876a7.348 7.348 0 0 1-4.607 1.603A7.333 7.333 0 0 1 7 14.364 7.333 7.333 0 0 1 14.364 7Zm0 1.636a5.692 5.692 0 0 0-5.728 5.728 5.692 5.692 0 0 0 5.728 5.727 5.692 5.692 0 0 0 5.727-5.727 5.692 5.692 0 0 0-5.727-5.728z&quot;/&gt;
-        ///&lt;/svg&gt;.
-        /// </summary>
-        internal static string searchbox_search {
-            get {
-                return ResourceManager.GetString("searchbox-search", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;
         ///                            &lt;path d=&quot;M10.615 20 12 21.385 7.154 26.23l2.077 2.077L3 29l.692-6.23 2.077 2.076L10.615 20Zm10.77 0 4.846 4.846 2.077-2.077L29 29l-6.23-.692 2.076-2.077L20 21.385 21.385 20ZM3 3l6.23.692L7.155 5.77 12 10.615 10.615 12 5.77 7.154 3.692 9.23 3 3Zm26 0-.692 6.23-2.077-2.076L21.385 12 20 10.615l4.846-4.846-2.077-2.077L29 3Z&quot; fill=&quot;#FFF&quot; fill-rule=&quot;evenodd&quot; /&gt;
         ///                        &lt;/svg&gt;.
         /// </summary>

@@ -9,10 +9,11 @@
     </ActionButtons>
 
     <Tools>
-        <SearchAndFilterComponent GroupingButtonsEnabled="true"
+        <SearchAndFilterComponent @bind-SearchText="_searchText"
+                                  @bind-SearchText:after="FilterNodes"
+                                  GroupingButtonsEnabled="true"
                                   OnCollapseAllGroups="@OnCollapseAllGroups"
                                   OnExpandAllGroups="@OnExpandAllGroups"
-                                  OnSearchTextChanged="@FilterNodes"
                                   ShowColumnChooser="false" />
     </Tools>
 

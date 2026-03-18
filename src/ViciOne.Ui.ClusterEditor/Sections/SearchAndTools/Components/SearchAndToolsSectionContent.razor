@@ -1,8 +1,9 @@
+@using ViciOne.Ui.Blazor.Components.SearchBox
 @using ViciOne.Ui.Blazor.Components.SectionRail.Components
 @using ViciOne.Ui.Localization.Resources
-@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
-@using LocalCommonVocabulary=ViciOne.Ui.ClusterEditor.Localization.Resources.CommonVocabulary
-@using LocalTechnicalTerms=ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+@using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using LocalCommonVocabulary = ViciOne.Ui.ClusterEditor.Localization.Resources.CommonVocabulary
+@using LocalTechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
 
 <SectionLayout>
     <Tools>
@@ -12,10 +13,9 @@
 
         <div class="searchfilter-container">
             <div></div>
-            <SearchBox @ref="_searchSearchBoxRef"
-                       ClearIcon="@((MarkupString)SvgIcons.searchandtools_section_clear)"
-                       TextChanged="OnSearchTextChanged"
-                       SearchIcon="@((MarkupString)SvgIcons.searchbox_search)" />
+            <SearchBox Placeholder="@CommonVocabulary.Search"
+                       Text="@_searchText"
+                       TextChanging="OnSearchTextChanging" />
             <div></div>
             <div class="searchfilter-buttons">
                 <div @onclick="OnSearchPreviousClick"
@@ -49,11 +49,10 @@
 
         <div class="searchfilter-container">
             <div></div>
-            <SearchBox @ref="_filterSearchBoxRef"
-                       ClearIcon="@((MarkupString)SvgIcons.searchandtools_section_clear)"
-                       NullText="@CommonVocabulary.Filter"
-                       TextChanged="OnFilterTextChanged"
-                       SearchIcon="@((MarkupString)SvgIcons.searchbox_filter)" />
+            <SearchBox IconCssClass="@s_filterSolidIconCssClass"
+                       Placeholder="@CommonVocabulary.Filter"
+                       Text="@_filterText"
+                       TextChanging="@ApplyFilter" />
             <div></div>
             <div class="searchfilter-buttons">
                 <div @onclick="OnFilterAttachedClick"

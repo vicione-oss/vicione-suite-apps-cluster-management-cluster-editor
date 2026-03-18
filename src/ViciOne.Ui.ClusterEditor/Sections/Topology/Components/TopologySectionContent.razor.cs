@@ -21,6 +21,7 @@ public sealed partial class TopologySectionContent : IDisposable
     private readonly TopologyEditTemplateContext _editTemplateContext = new();
     private int _elementsAddedWhileFiltered;
     private readonly string _plusIconCssClass = MonochromeIconName.PlusSlim.GetCssClasses(MonochromeIconSize.SmallMedium).ToSpaceSeparated();
+    private string _searchText = string.Empty;
     private readonly TreeEditor.Builder.TreeBuilder _treeBuilder = new();
 
     [Inject] private IDatastore Datastore { get; set; } = default!;
@@ -36,6 +37,14 @@ public sealed partial class TopologySectionContent : IDisposable
         _editTemplateContext.Confirm -= OnPropertyEditConfirm;
 
         _treeBuilder.Dispose();
+    }
+
+    private void FilterNodes()
+    {
+        TreeAdapter.FilterNodes(_searchText);
+
+        if (!_treeBuilder.Filter.IsFilterActive)
+            _elementsAddedWhileFiltered = 0;
     }
 
     [LoggerMessage(1, LogLevel.Error, "Failed to reassign builder with cluster id:{ClusterId} v{Version}", EventName = "ReassignBuilderFailed")]
@@ -90,14 +99,6 @@ public sealed partial class TopologySectionContent : IDisposable
 
     private void OnExpandAllGroups()
         => _treeBuilder.Expansion.ChangeExpansionForLayers(true);
-
-    private void OnFilterTextChanged(string filterText)
-    {
-        TreeAdapter.FilterNodes(filterText);
-
-        if (!_treeBuilder.Filter.IsFilterActive)
-            _elementsAddedWhileFiltered = 0;
-    }
 
     protected override void OnInitialized()
     {

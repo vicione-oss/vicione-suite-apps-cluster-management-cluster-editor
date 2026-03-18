@@ -357,6 +357,7 @@
       <MonochromeIcon Include="expander-light-right" Size="16;24" />
       <MonochromeIcon Include="expander-light-top" Size="24" />
       <MonochromeIcon Include="export" Size="24" />
+      <MonochromeIcon Include="filter-solid" Size="18" />
       <MonochromeIcon Include="gear-solid" Size="16" />
       <MonochromeIcon Include="group-by-category" Size="24" />
       <MonochromeIcon Include="hamburger-menu" Size="24" />

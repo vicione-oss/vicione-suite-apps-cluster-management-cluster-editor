@@ -15,6 +15,7 @@
 - Replaced local Breadcrumb implementation with `ViciOne.Ui.Blazor.Components.Breadcrumb`
 - Replaced `DxSpinEdit` with `ViciOne.Ui.Blazor.Components.SpinEdit`
 - Replaced `DxToolbar` in MainToolbar with `ViciOne.Ui.Blazor.Components.Toolbar`
+- Replaced `ViciOne.Ui.Shared.Dx.SearchBox` with `ViciOne.Ui.Blazor.Components.SearchBox`
 - Improved expand & collapse button states in `DataPortSection`
 - Exchanged various SVG icons with icons from `ViciOne.Ui.MonochromeIcons`
 - Changed signature of `LoadDataflow` method from void to Task in `DataManagementService`
@@ -23,13 +24,13 @@
 
 ### Updated external references
 
-- `Microsoft` packages, update to version `10.0.4`
+- `Microsoft` packages, update to version `10.0.5`
 - `Microsoft.Extensions.Diagnostics.Testing` package, updated to version `10.2.0`
 - `Microsoft.NET.Test.Sdk` package, updated to version `18.0.1`
 - `ViciOne.Cluster.Builder` package, updated to `1.0.0`
-- `ViciOne.Ui.Blazor.Components` package, updated to version `5.3.0`
+- `ViciOne.Ui.Blazor.Components` package, updated to version `5.6.0`
 - `ViciOne.Ui.Localization` package, updated to version `3.1.0`
-- `ViciOne.Ui.MonochromeIcons` packages, updated to version `4.2.0`
+- `ViciOne.Ui.MonochromeIcons` packages, updated to version `4.5.0`
 - `ViciOne.Ui.TreeEditor` package, updated to version `2.0.0`
 - `xunit.runner.visualstudio` package, updated to version `3.1.5`
 - `xunit.v3` package, updated to version `3.2.2`

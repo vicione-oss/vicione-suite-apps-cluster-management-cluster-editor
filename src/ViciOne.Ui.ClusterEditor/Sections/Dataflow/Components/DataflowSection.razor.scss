@@ -22,6 +22,7 @@
 
     .search-box-with-add-button {
         display: grid;
+        column-gap: 8px;
         grid-template-columns: auto min-content;
         padding: 12px;
 
@@ -30,11 +31,20 @@
             border-width: 0px;
             height: 24px;
             width: 24px;
-            outline: 1px solid colors.$editor-border;
+            position: relative;
             transition: background-color .3s ease-in-out;
 
-            &:hover {
+            &:hover, &:focus {
                 background-color: colors.$editor-background-dark-hover;
+            }
+
+            &:after {
+                border: 1px solid colors.$editor-border;
+                border-radius: inherit;
+                content: " ";
+                height: 100%;
+                position: absolute;
+                width: 100%;
             }
 
             .icon {

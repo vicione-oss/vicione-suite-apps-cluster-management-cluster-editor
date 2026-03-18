@@ -20,6 +20,7 @@ public sealed partial class DataflowSection : ComponentBase, IDisposable
     private DataflowStructureTreeNode? _currentDeletingNode;
     private ITreeNode? _currentSelectedNode;
     private int _dataflowsAddedWhileFiltered;
+    private string _searchText = string.Empty;
     private readonly TreeEditor.Builder.TreeBuilder _treeBuilder = new();
 
     [Inject] private IDatastore Datastore { get; set; } = default!;
@@ -108,14 +109,6 @@ public sealed partial class DataflowSection : ComponentBase, IDisposable
         }
     }
 
-    private void OnFilterTextChanged(string newText)
-    {
-        TreeAdapter.FilterNodes(newText);
-
-        if (!_treeBuilder.Filter.IsFilterActive)
-            _dataflowsAddedWhileFiltered = 0;
-    }
-
     protected override void OnInitialized()
     {
         Datastore.BuilderChanged += OnBuilderChangedAsync;
@@ -131,6 +124,16 @@ public sealed partial class DataflowSection : ComponentBase, IDisposable
             return;
 
         TryInitTreeAdapter();
+    }
+
+    private void OnSearchTextChanging(string value)
+    {
+        _searchText = value;
+
+        TreeAdapter.FilterNodes(_searchText);
+
+        if (!_treeBuilder.Filter.IsFilterActive)
+            _dataflowsAddedWhileFiltered = 0;
     }
 
     private void OnSelectionChanged(ITreeNode treeNode, bool selected)

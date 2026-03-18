@@ -18,7 +18,9 @@ public sealed partial class SearchAndFilterComponent : ComponentBase
     [Parameter] public EventCallback OnCollapseAllGroups { get; set; }
     [Parameter] public EventCallback<string> OnColumnChooser { get; set; }
     [Parameter] public EventCallback OnExpandAllGroups { get; set; }
-    [Parameter] public EventCallback<string> OnSearchTextChanged { get; set; }
+    [Parameter] public bool SearchEnabled { get; set; } = true;
+    [Parameter] public string? SearchText { get; set; }
+    [Parameter] public EventCallback<string?> SearchTextChanged { get; set; }
     [Parameter] public bool ShowColumnChooser { get; set; } = true;
     [Parameter] public bool ShowGroupingButtons { get; set; } = true;
     [Parameter] public bool ShowHeading { get; set; } = true;
