@@ -1,9 +1,10 @@
-﻿using System.Reflection;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Reflection;
 using System.Runtime.Loader;
 
 namespace Shared.Designs;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "Instances of this type are not compared to each other")]
+[SuppressMessage("Performance", "CA1815:Override equals and operator equals on value types", Justification = "Instances of this type are not compared to each other")]
 public readonly struct TypeSearch
 {
     private readonly IReadOnlyCollection<string> _assemblyPaths;
@@ -42,7 +43,7 @@ public readonly struct TypeSearch
     private static List<string> GetAssemblyPaths(string directory)
         => [.. Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly)];
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2208:Argumentausnahmen korrekt instanziieren", Justification = "Es handelt sich um Parameter eines unbekannten Typs.")]
+    [SuppressMessage("Usage", "CA2208:Instantiate argument exceptions correctly", Justification = "Parameter type is unknown")]
     private List<AssemblyName> IdentifyAssembliesToLoad(IEnumerable<TypeInfo> availableTypes)
     {
         availableTypes = [.. availableTypes];

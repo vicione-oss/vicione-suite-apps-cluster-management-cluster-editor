@@ -1,10 +1,12 @@
-﻿using Shared.Designs;
+﻿using System.Diagnostics.CodeAnalysis;
+using Shared.Designs;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Core.Dataflow.DataModel;
 
 namespace Server.Designs;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Used in testing")]
 internal sealed partial class InMemoryPackagesStore : IDesignProvider
 {
     public IDependencyResolver CreateResolver()
@@ -19,7 +21,9 @@ internal sealed partial class InMemoryPackagesStore : IDesignProvider
 
     private ClusterDependencyPackage[] GetDependencyPackages()
     {
+#pragma warning disable IDE0028 // Simplify collection initialization - we can't use Preview features, check again after next language update
         Dictionary<ClusterDependency, ClusterDependencyPackage> packages = new(_packages.Count);
+#pragma warning restore IDE0028 // Simplify collection initialization
 
         foreach (var (dependency, storeItem) in _packages)
         {
@@ -54,8 +58,7 @@ internal sealed partial class InMemoryPackagesStore : IDesignProvider
         {
             if (item.Hide)
             {
-                if (logger.IsEnabled(LogLevel.Debug))
-                    logger.LogDebug("Cluster dependency {Dependency} version {Version} is hidden.", clusterDependency.Name, clusterDependency.Version);
+                LogHiddenDependency(logger, clusterDependency.Name, clusterDependency.Version);
                 yield break;
             }
 
@@ -63,7 +66,8 @@ internal sealed partial class InMemoryPackagesStore : IDesignProvider
                 yield return design;
             yield break;
         }
-        logger.LogError("Cluster dependency {Dependency} version {Version} can't be found.", clusterDependency.Name, clusterDependency.Version);
+
+        LogMissingDependency(logger, clusterDependency.Name, clusterDependency.Version);
     }
 
     private IReadOnlyCollection<FunctionBlockDesign> GetFunctionBlockDesigns()
@@ -84,4 +88,10 @@ internal sealed partial class InMemoryPackagesStore : IDesignProvider
 
         return requestedDesigns;
     }
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "Cluster dependency {Name} version {Version} is hidden.")]
+    private static partial void LogHiddenDependency(ILogger logger, string name, string version);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Cluster dependency {Name} version {Version} can't be found.")]
+    private static partial void LogMissingDependency(ILogger logger, string name, string version);
 }

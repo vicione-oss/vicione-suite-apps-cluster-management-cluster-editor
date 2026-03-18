@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -11,7 +12,7 @@ using ViciOne.Ui.ClusterEditor.Services;
 
 namespace BlazorWasm.Client.Pages;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "Components cannot be internal")]
+[SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "Components cannot be internal")]
 public sealed partial class Index : ComponentBase, IDisposable
 {
     private Task? _designLoadingTask = Task.CompletedTask;

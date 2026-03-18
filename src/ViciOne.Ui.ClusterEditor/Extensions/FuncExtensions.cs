@@ -76,6 +76,6 @@ internal static partial class FuncExtensions
         await Task.WhenAll(tasks);
     }
 
-    [LoggerMessage(1, LogLevel.Error, "Exception in {NameOfEvent} event handler", EventName = "LogFailedEventInvokation")]
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception in {NameOfEvent} event handler.")]
     internal static partial void LogFailedEventInvokation(ILogger logger, Exception ex, string nameOfEvent);
 }

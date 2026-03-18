@@ -1,12 +1,15 @@
-﻿using System.Linq;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using ViciOne.Core.Dataflow.DataModel;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Services;
 using Xunit;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Sections.Library.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Used in testing")]
 internal sealed class LibraryServiceTests
 {
+    [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Used in testing")]
     public sealed class CreateLibraryEntries
     {
         private readonly LibraryService _libraryService = new();

@@ -1,10 +1,11 @@
-﻿using ViciOne.Ui.MonochromeIcons.Core.Enums;
+﻿using System.Diagnostics.CodeAnalysis;
+using ViciOne.Ui.MonochromeIcons.Core.Enums;
 using ViciOne.Ui.MonochromeIcons.Core.Extensions;
 
 namespace ViciOne.Ui.ClusterEditor.Components.ContextMenu;
 
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Ordering", "VO2002:Wrong field order", Justification = "s_iconSize cannot be ordered alphabetically, as this would result in it being referenced before its definition")]
+[SuppressMessage("Ordering", "VO2002:Wrong field order", Justification = "s_iconSize cannot be ordered alphabetically, as this would result in it being referenced before its definition")]
 internal static class ContextMenuIcon
 {
     private static readonly MonochromeIconSize s_iconSize = MonochromeIconSize.Small;

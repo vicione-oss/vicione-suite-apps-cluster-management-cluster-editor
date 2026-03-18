@@ -1,6 +1,7 @@
 ﻿#if DEBUG
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
@@ -70,7 +71,7 @@ public sealed partial class DebugSectionContent : ComponentBase
         ClusterBuilderEventBuffer.EndBatchOperation();
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
+    [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
     private bool GenerateDataPortLink()
     {
         var cache = Datastore.Builder.Cache;
@@ -93,7 +94,7 @@ public sealed partial class DebugSectionContent : ComponentBase
         return true;
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
+    [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
     private bool GenerateHiddenLink()
     {
         var connectorEditor = Datastore.Builder.Editors.Connector;
@@ -121,7 +122,7 @@ public sealed partial class DebugSectionContent : ComponentBase
         return true;
     }
 
-    [System.Diagnostics.CodeAnalysis.SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
+    [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
     private bool GenerateVisibleLink()
     {
         var connectorEditor = Datastore.Builder.Editors.Connector;
