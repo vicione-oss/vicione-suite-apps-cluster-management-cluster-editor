@@ -357,6 +357,15 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
 
     public void SetValue(IConnectorInput input)
     {
+        if (Node is FunctionBlockNode fbNode)
+        {
+            if (input.Name == SystemConnectorNames.FunctionBlockEnabledName)
+            {
+                if (input.Value is bool inputValue)
+                    fbNode.Enabled = inputValue;
+            }
+        }
+
         var underlyingConnector = input.GetUnderlyingConnector();
         SetValue(underlyingConnector.Value, _datastore.Builder.ResolveDefaultValue(underlyingConnector));
     }
