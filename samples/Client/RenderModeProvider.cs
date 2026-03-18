@@ -1,9 +1,10 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using System.Diagnostics.CodeAnalysis;
+using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 
 namespace BlazorWasm.Client;
 
-[System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "Needed becuase of service initialisation.")]
+[SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "Necessary for service initialisation")]
 public class RenderModeProvider(bool useWasm = false)
 {
     private readonly IComponentRenderMode _contentRenderMode = useWasm ? new InteractiveWebAssemblyRenderMode(prerender: false) : new InteractiveServerRenderMode(prerender: false);

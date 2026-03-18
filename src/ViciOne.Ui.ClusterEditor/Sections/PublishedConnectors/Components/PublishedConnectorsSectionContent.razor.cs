@@ -328,7 +328,7 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
         }
     }
 
-    [LoggerMessage(1, LogLevel.Error, "Refresh PublishedConnectors failed")]
+    [LoggerMessage(Level = LogLevel.Error, Message = "Refresh PublishedConnectors failed.")]
     public static partial void RefreshPublishedConnectorsFailed(ILogger logger, Exception ex);
 
     private void SetFilterButtonsState()

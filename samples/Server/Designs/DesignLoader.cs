@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.Reflection;
 using Microsoft.Extensions.Options;
@@ -10,7 +11,8 @@ using ViciOne.Cluster.Model;
 
 namespace Server.Designs;
 
-internal sealed class DesignLoader(
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Used in testing")]
+internal sealed partial class DesignLoader(
     IClusterDependencyStore clusterDependencyStore,
     IFileSystem fileSystem,
     ILogger<DesignLoader> logger,
@@ -62,15 +64,17 @@ internal sealed class DesignLoader(
 
         if (_logger.IsEnabled(LogLevel.Information))
         {
-            _logger.LogInformation("Downloading {Count} Dependencies (skipped={Skipped}, errors={Errors}) took {Elapsed}",
+#pragma warning disable CA1873 // Avoid potentially expensive logging - there is a logger.IsEnabled check
+            LogDownloadComplete(_logger,
                 results.Count(r => r is { Skipped: false, Error: null }),
                 results.Count(r => r.Skipped),
                 results.Count(r => r.Error is not null),
                 watch.Elapsed);
+#pragma warning restore CA1873 // Avoid potentially expensive logging
         }
 
         foreach (var result in results.Where(k => k.Error is not null))
-            _logger.LogError(result.Error, "Failed to update {Name}", result.SourcePath);
+            LogUpdateFailed(_logger, result.Error, result.SourcePath);
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -103,11 +107,12 @@ internal sealed class DesignLoader(
 
                 if (component.Key.Name.Equals(systemDataPortDependency.Name, StringComparison.OrdinalIgnoreCase))
                     continue;
+
                 if (!packagesStore.TryAddPackage(dependency, component.Value))
-                    _logger.LogWarning("Failed to add package {Name} {Version} to store.", component.Key.Name, component.Key.Version);
+                    LogAddPackageFailed(_logger, component.Key.Name, ToVersion(component.Key.Version));
             }
 
-            _logger.LogInformation("Dependency loading done.");
+            LogDependencyLoadingDone(_logger);
 
             ClusterSerializer.SetTypedSerializerOptions();
         }
@@ -127,12 +132,28 @@ internal sealed class DesignLoader(
         var systemDataPortDependency = CreateDependency(dataportType);
 
         if (!packagesStore.TryAddPackage(systemDataPortDependency, [dataportType], [], true))
-            _logger.LogWarning("Failed to add System DataPort package {Name} {Version} to store.", systemDataPortDependency.Name, systemDataPortDependency.Version);
+            LogAddSystemDataPortPackageFailed(_logger, systemDataPortDependency.Name, systemDataPortDependency.Version);
+
         if (packagesStore is InMemoryPackagesStore inMemoryPackagesStore)
             inMemoryPackagesStore.SetSystemDataPortDependency(systemDataPortDependency);
 
         return systemDataPortDependency;
     }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to add package {Name} {Version} to store.")]
+    private static partial void LogAddPackageFailed(ILogger logger, string name, string version);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to add System DataPort package {Name} {Version} to store.")]
+    private static partial void LogAddSystemDataPortPackageFailed(ILogger logger, string name, string version);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Dependency loading done.")]
+    private static partial void LogDependencyLoadingDone(ILogger logger);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Downloading {Count} dependencies (skipped={Skipped}, errors={Errors}) took {Elapsed}.")]
+    private static partial void LogDownloadComplete(ILogger logger, int count, int skipped, int errors, TimeSpan elapsed);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to update {SourcePath}.")]
+    private static partial void LogUpdateFailed(ILogger logger, Exception? exception, string sourcePath);
 
     private static string ToVersion(SemVersion version)
         => $"{(int)version.Major}.{(int)version.Minor}.{(int)version.Patch}";

@@ -104,7 +104,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
     public override bool CanInboundDropAsChild(ITreeNode target)
         => ValidInboundDropTargets.Contains(target);
 
-    [LoggerMessage(1, LogLevel.Error, "Failed to build tree for DataPort {DataPortId}.", EventName = "CreateDataPortTreeFailed")]
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to build tree for DataPort {DataPortId}.")]
     public static partial void CreateDataPortTreeFailed(ILogger logger, Exception ex, Guid dataPortId);
 
     public override void Dismantle()

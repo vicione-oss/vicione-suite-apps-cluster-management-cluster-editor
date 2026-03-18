@@ -10,7 +10,7 @@ using ViciOne.Ui.ClusterEditor.Services;
 
 namespace Shared.Services;
 
-public sealed class IndexService : IDisposable
+public sealed partial class IndexService : IDisposable
 {
     private const int DefaultSaveSlot = 4;
 
@@ -83,17 +83,17 @@ public sealed class IndexService : IDisposable
         catch (TaskCanceledException ex)
         {
             // Expected during fast reload - suppress the exception
-            _logger.LogDebug(ex, $"{nameof(TaskCanceledException)} during {nameof(CreateClusterFromJs)}");
+            LogCreateClusterCanceled(_logger, ex);
         }
         catch (OperationCanceledException ex)
         {
             // Expected if the operation was canceld - suppress the exception
-            _logger.LogDebug(ex, $"{nameof(OperationCanceledException)} during {nameof(CreateClusterFromJs)}");
+            LogCreateClusterCanceled(_logger, ex);
         }
         catch (Exception ex)
         {
             // can happen if the cluster model has changed since last save
-            _logger.LogError(ex, "Failed to load cluster via JS.");
+            LogCreateClusterFailed(_logger, ex);
         }
 
         return null;
@@ -144,7 +144,7 @@ public sealed class IndexService : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Exception in {nameof(IndexService)}.{nameof(ClusterLoaded)} event handler");
+                    LogEventHandlerException(_logger, ex, $"{nameof(IndexService)}.{nameof(ClusterLoaded)}");
                 }
             });
 
@@ -166,7 +166,7 @@ public sealed class IndexService : IDisposable
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, $"Exception in {nameof(IndexService)}.{nameof(SaveFailed)} event handler");
+                    LogEventHandlerException(_logger, ex, $"{nameof(IndexService)}.{nameof(SaveFailed)}");
                 }
             });
 
@@ -195,6 +195,18 @@ public sealed class IndexService : IDisposable
         var fbDesigns = await _designProvider.GetFunctionBlockDesignIds(null);
         _clusterEditorManagement.LoadFunctionBlockDesigns(fbDesigns);
     }
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "Created a new ClusterBuilder with Id {ClusterId}.")]
+    private static partial void LogClusterCreation(ILogger logger, Guid clusterId);
+
+    [LoggerMessage(Level = LogLevel.Debug, Message = "CreateClusterFromJs canceled.")]
+    private static partial void LogCreateClusterCanceled(ILogger logger, Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to load cluster via JavaScript.")]
+    private static partial void LogCreateClusterFailed(ILogger logger, Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception in {FnName} event handler.")]
+    private static partial void LogEventHandlerException(ILogger logger, Exception ex, string fnName);
 
     public void OnCloseRequested()
     {
@@ -225,8 +237,7 @@ public sealed class IndexService : IDisposable
 
         await LoadFunctionBlockDesignsIntoManagement();
 
-        if (_logger.IsEnabled(LogLevel.Information))
-            _logger.LogInformation("Created a new ClusterBuilder with ID {ClusterId}", Builder.Cluster.Id);
+        LogClusterCreation(_logger, Builder.Cluster.Id);
     }
 
     private async Task OnDataManagementServiceSaveRequested(IClusterBuilder builder)

@@ -22,6 +22,9 @@ public sealed partial class LoadSaveArea : ComponentBase, IDisposable
     public void Dispose()
         => IndexService.ClusterLoaded -= OnClusterLoaded;
 
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to import cluster from {File}.")]
+    private static partial void LogFailedImport(ILogger logger, Exception ex, string file);
+
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -80,7 +83,7 @@ public sealed partial class LoadSaveArea : ComponentBase, IDisposable
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Failed to import cluster from {File}.", e.File.Name);
+            LogFailedImport(Logger, ex, e.File.Name);
         }
     }
 

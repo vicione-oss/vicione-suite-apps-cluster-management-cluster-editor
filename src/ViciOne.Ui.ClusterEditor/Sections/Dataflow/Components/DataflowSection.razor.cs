@@ -136,7 +136,7 @@ public sealed partial class DataflowSection : ComponentBase, IDisposable
     private void OnSelectionChanged(ITreeNode treeNode, bool selected)
         => _currentSelectedNode = treeNode;
 
-    [LoggerMessage(1, LogLevel.Error, "Failed to reassign builder with cluster id:{ClusterId} v{Version}", EventName = "ReassignBuilderFailed")]
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to reassign builder with cluster id:{ClusterId} v{Version}.")]
     public static partial void ReassignBuilderFailed(ILogger logger, Exception ex, Guid ClusterId, Version Version);
 
     private void TryInitTreeAdapter()

@@ -1,4 +1,5 @@
-﻿using System.IO.Abstractions;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.IO.Abstractions;
 using Microsoft.Extensions.Options;
 using Sdk.Backend.Modules;
 using Sdk.Messaging;
@@ -7,6 +8,7 @@ using ViciOne.Cluster.Model;
 
 namespace Server.Designs;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Used in testing")]
 internal sealed class ClusterDependencyStore(
     IFileSystem fileSystem,
     IOptions<ClusterDependencyHttpOptions> options,
