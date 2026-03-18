@@ -50,6 +50,10 @@ public sealed partial class LoadSaveArea : ComponentBase, IDisposable
     private async Task OnFileLoadClick(int saveSlot)
     {
         var json = await JSRuntime.InvokeAsync<string>("ViciOne.File.load", saveSlot);
+
+        if (json is null)
+          return;
+
         await IndexService.LoadClusterJson(json);
     }
 
