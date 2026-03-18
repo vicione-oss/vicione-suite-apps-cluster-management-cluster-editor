@@ -9,6 +9,7 @@ namespace ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 public sealed class FunctionBlockNode : BlockNode
 {
     internal string CycleFrequency { get; private set; } = string.Empty;
+    internal bool Enabled { get; set; } = true;
     internal string RunModeText { get; private set; } = string.Empty;
 
     internal FunctionBlockNode(Point? point = null) : base(point) { }

@@ -5,9 +5,7 @@
 ### Added
 
 - Added license
-- Fixed DataPort highlighting
-- Fixed possible 'Create a new DataPort' bug after loading a cluster 
-- Fixed context menu in `Settings Editor`
+- Added deactivated FunctionBlock representation
 
 ### Changed
 
@@ -21,6 +19,9 @@
 - Changed signature of `LoadDataflow` method from void to Task in `DataManagementService`
 - Double click on nodes in `DataPorts` and `Published Conntectors` section highlights the corresponding markers
 - Fixed potential wrong link positions of FunctionBlocks on first move after load
+- Fixed DataPort highlighting
+- Fixed possible 'Create a new DataPort' bug after loading a cluster
+- Fixed context menu in `Settings Editor`
 
 ### Updated external references
 

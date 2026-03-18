@@ -58,17 +58,25 @@
         }
     </div>
 
-    <div class="image-container @(IsImageVisible() ? "" : "invisible")">
-        <div class="block-image">
-            @if (string.IsNullOrEmpty(Node.ImageSrc))
+    <div class="block-image-container">
+        @if (IsImageVisible())
+        {
+            <div class="block-image">
+                @if (string.IsNullOrEmpty(Node.ImageSrc))
+                {
+                    <span>@Node.ImageText</span>
+                }
+                else
+                {
+                    <img src="@Node.ImageSrc" />
+                }
+            </div>
+
+            @if (_block.IsFunctionBlock && !((FunctionBlockNode)Node).Enabled)
             {
-                <span>@Node.ImageText</span>
+                <div class="block-image-disabled-overlay" />
             }
-            else
-            {
-                <img src="@Node.ImageSrc" />
-            }
-        </div>
+        }
     </div>
 
     @for (var (i, displayAll) = (0, ShouldDisplayAllConnectors()); i < Node.Connectors!.Count; i++)
