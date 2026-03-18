@@ -28,6 +28,7 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
     private FilterButton _inputFilterButton = new();
     private int _lastRowIndex;
     private FilterButton _outputFilterButton = new();
+    private string? _searchText;
 
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
     [Inject] private IContextMenuRequest<PublishedConnectorsSectionContextMenuContext> ContextMenuRequest { get; set; } = default!;
@@ -37,7 +38,6 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
 
     private bool DataAvailable => PublishedConnectorsService.PublishedConnectorWrappers.Any();
-    private string? SearchText { get; set; }
 
     public void Dispose()
     {

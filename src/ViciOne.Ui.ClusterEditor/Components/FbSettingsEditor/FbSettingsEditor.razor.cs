@@ -33,6 +33,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
     private DxDialog? _refDialog;
     private IGrid? _refGrid;
     private DotNetObjectReference<FbSettingsEditor>? _refObject;
+    private string? _searchText;
     private IEnumerable<IGrouping<string, FbSetting>> _settings = [];
 #pragma warning disable CS0649 // Field 'FbSettingsEditor._templateCount' is never assigned to, and will always have its default value 0
     // ToDo: Warnung deaktiviert, da Templates für FbSettings noch nicht implementiert sind und daher der Count immer 0 sein soll
@@ -46,8 +47,6 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
     [Inject] private FullscreenService FullscreenService { get; set; } = default!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
-
-    private string? SearchText { get; set; }
 
     public async ValueTask DisposeAsync()
     {
@@ -166,7 +165,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
         if (_isFullscreen)
             await FullscreenService.SetFullscreenAsync(false);
 
-        SearchText = string.Empty;
+        _searchText = string.Empty;
     }
 
     private async Task OnDialogOkAsync()
@@ -251,8 +250,8 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
         FullscreenService.FullscreenStateChanged += OnFullscreenStateChanged;
     }
 
-    private void OnSearchTextChanged(string searchText)
-        => SearchText = searchText;
+    private void OnSearchTextChanging(string searchText)
+        => _searchText = searchText;
 
     private void OnShowColumnChooser()
         => _refGrid?.ShowColumnChooser(new DialogDisplayOptions("#" + _columnChooserId, HorizontalAlignment.Right, VerticalAlignment.Top));

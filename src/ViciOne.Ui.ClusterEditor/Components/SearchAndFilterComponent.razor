@@ -1,5 +1,6 @@
-﻿@using ViciOne.Ui.Localization.Resources
-@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
+﻿@using ViciOne.Ui.Blazor.Components.SearchBox
+@using ViciOne.Ui.Localization.Resources
+@using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
 
 <div class="search-and-filter-container">
     @if (ShowHeading)
@@ -10,7 +11,10 @@
     }
 
     <div class="search-body">
-        <SearchBox TextChanged="OnSearchTextChanged" />
+        <SearchBox Enabled="@SearchEnabled"
+                   Placeholder="@CommonVocabulary.Search"
+                   Text="@SearchText"
+                   TextChanging="@SearchTextChanged" />
 
         <div class="command-buttons-heading">
             @Localization.SearchAndFilterComponent.SelectAndShow

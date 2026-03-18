@@ -40,6 +40,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
     private bool _groupingButtonsEnabled;
     private readonly List<ITreeNode> _highlightedNodes = [];
     private readonly string _plusIconCssClass = MonochromeIconName.PlusSlim.GetCssClasses(MonochromeIconSize.SmallMedium).ToSpaceSeparated();
+    private string _searchText = string.Empty;
     private readonly TreeEditor.Builder.TreeBuilder _treeBuilder = new();
 
     [Inject] private IContextMenuRequest<AddDataPortContextMenuContext> AddDataPortContextMenuRequest { get; set; } = default!;
@@ -83,6 +84,14 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
             _editTemplateContext.Cancel -= OnPropertyEditCancel;
             _editTemplateContext.Confirm -= OnPropertyEditConfirm;
         }
+    }
+
+    private void FilterNodes()
+    {
+        TreeAdapter.FilterNodes(_searchText);
+
+        if (!_treeBuilder.Filter.IsFilterActive)
+            _elementsAddedWhileFiltered = 0;
     }
 
     private void GetPossibleTargetNodes(ITreeNode parentNode, Connector connector, List<ITreeNode> nodesToHighlight)
@@ -234,14 +243,6 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
 
     private void OnExpandAllGroups()
         => _treeBuilder.Expansion.ChangeExpansionForLayers(true);
-
-    private void OnFilterTextChanged(string filterText)
-    {
-        TreeAdapter.FilterNodes(filterText);
-
-        if (!_treeBuilder.Filter.IsFilterActive)
-            _elementsAddedWhileFiltered = 0;
-    }
 
     protected override async Task OnInitializedAsync()
     {

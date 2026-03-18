@@ -26,6 +26,7 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
     private bool _okButtonEnabled;
     private DxDialog? _refDialog;
     private IGrid? _refGrid;
+    private string? _searchText;
     private IReadOnlyList<object>? _selectedDataItems;
     private bool _showConnectors;
     private bool _showDataPorts;
@@ -33,8 +34,6 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
     [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private LinkDestinationDialogService DialogService { get; set; } = default!;
-
-    private string? SearchText { get; set; }
 
     public void Dispose()
     {
@@ -71,7 +70,7 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
     private void OnDialogClosing()
     {
         DialogService.IsDeletionMode = false;
-        SearchText = null;
+        _searchText = null;
         _showConnectors = false;
         _showDataPorts = false;
     }

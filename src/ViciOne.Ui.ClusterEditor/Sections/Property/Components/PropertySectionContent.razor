@@ -6,14 +6,12 @@
 
 <SectionLayout>
     <Tools>
-        <div class="tools-container">
-            @* OnSearchTextChanged disabled, see #663 *@
-            <SearchAndFilterComponent FilterButtons="@_filterButtons"
-                                      GroupingButtonsEnabled="false"
-                                      OnSearchTextChanged="@((_) => {})"
-                                      ShowColumnChooser="false"
-                                      ShowGroupingButtons="false" />
-        </div>
+        @* Search disabled, see #663 *@
+        <SearchAndFilterComponent FilterButtons="@_filterButtons"
+                                  GroupingButtonsEnabled="false"
+                                  SearchEnabled="false"
+                                  ShowColumnChooser="false"
+                                  ShowGroupingButtons="false" />
     </Tools>
 
     <Content>

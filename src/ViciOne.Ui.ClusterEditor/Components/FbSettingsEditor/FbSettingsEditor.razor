@@ -1,7 +1,8 @@
 ﻿@using ViciOne.Ui.Blazor.Components.CheckBox
-@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
-@using TechnicalTerms=ViciOne.Ui.Localization.Resources.TechnicalTerms
-@using LocalTechnicalTerms=ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+@using ViciOne.Ui.Shared.Dx.Components
+@using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using LocalTechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+@using TechnicalTerms = ViciOne.Ui.Localization.Resources.TechnicalTerms
 
 <DxDialog @ref="@_refDialog"
           CloseOnEscape="@_closeOnEscape"
@@ -27,7 +28,7 @@
                         EditMode="@GridEditMode.EditCell"
                         EditModelSaving="@OnGridEditModelSaving"
                         EditStart="@OnGridEditStart"
-                        SearchText="@SearchText"
+                        SearchText="@_searchText"
                         SearchTextParseMode="GridSearchTextParseMode.ExactMatch"
                         ShowAllRows="true"
                         UnboundColumnData="@OnUnboundColumnData">
@@ -75,7 +76,7 @@
                                     else
                                     {
                                         <span class="@(isAnySettingModified ? "modified" : "regular")">
-                                            <SearchHighlighter SearchText="@SearchText"
+                                            <SearchHighlighter SearchText="@_searchText"
                                                                Text="@(GetCellValue(fbName, dataItem)?.ToString() ?? string.Empty)" />
                                         </span>
                                     }
@@ -145,7 +146,7 @@
                                         else
                                         {
                                             <span class="@(setting.IsModified ? "modified" : "regular")">
-                                                <SearchHighlighter SearchText="@SearchText"
+                                                <SearchHighlighter SearchText="@_searchText"
                                                                    Text="@(setting.Value?.ToString() ?? string.Empty)" />
                                             </span>
                                         }
@@ -210,7 +211,9 @@
         <DxToolbarItem Alignment="ToolbarItemAlignment.Right">
             <Template Context="tplCtx">
                 <div class="search-container">
-                    <SearchBox TextChanged="OnSearchTextChanged" />
+                    <ViciOne.Ui.Blazor.Components.SearchBox.SearchBox Placeholder="@CommonVocabulary.Search"
+                                                                      Text="@_searchText"
+                                                                      TextChanging="OnSearchTextChanging" />
                 </div>
             </Template>
         </DxToolbarItem>
