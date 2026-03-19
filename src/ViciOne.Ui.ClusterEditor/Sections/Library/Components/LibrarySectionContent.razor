@@ -11,7 +11,7 @@
     <Tools>
         <SearchAndFilterComponent @bind-SearchText="_searchText"
                                   @bind-SearchText:after="FilterNodes"
-                                  GroupingButtonsEnabled="true"
+                                  GroupingButtonsEnabled="@_groupingButtonsEnabled"
                                   OnCollapseAllGroups="@OnCollapseAllGroups"
                                   OnExpandAllGroups="@OnExpandAllGroups"
                                   ShowColumnChooser="false" />

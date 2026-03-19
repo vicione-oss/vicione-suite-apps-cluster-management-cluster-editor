@@ -16,7 +16,7 @@
     <Tools>
         <SearchAndFilterComponent @bind-SearchText="_searchText"
                                   @bind-SearchText:after="FilterNodes"
-                                  GroupingButtonsEnabled="true"
+                                  GroupingButtonsEnabled="@_groupingButtonsEnabled"
                                   OnCollapseAllGroups="@OnCollapseAllGroups"
                                   OnExpandAllGroups="@OnExpandAllGroups"
                                   ShowColumnChooser="false" />
@@ -51,10 +51,10 @@
     </Body>
 
     <Footer>
-        <DxDialogFooterButton OnClick="@OnDeleteNodeConfirmAsync"
+        <DxDialogFooterButton OnClick="@OnDeleteNodeConfirm"
                               Text="@CommonVocabulary.Yes" />
 
-        <DxDialogFooterButton OnClick="@OnDeleteNodeCancelAsync"
+        <DxDialogFooterButton OnClick="@OnDeleteNodeCancel"
                               Text="@CommonVocabulary.No" />
     </Footer>
 </DxDialog>
