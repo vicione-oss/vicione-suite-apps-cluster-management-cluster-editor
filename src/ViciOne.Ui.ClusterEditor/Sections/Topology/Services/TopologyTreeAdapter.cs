@@ -27,7 +27,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Topology.Services;
 
 internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
 {
-    private IClusterBuilder? _builder;
+    private IClusterBuilder? _clusterBuilder;
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;
     private readonly List<TopologyTreeViewModel> _clusterNodeGroups = [];
     private TopologyTreeViewModel? _currentlyEditedNodeModel;
@@ -54,7 +54,7 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
 
     private void AddTopologyNode(NodeButton _, VisibleActionArguments e)
     {
-        if (_builder is null)
+        if (_clusterBuilder is null)
             return;
 
         if (e.Node is not TopologyTreeViewModel nodeModel)
@@ -63,20 +63,20 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
         switch (nodeModel.DataItem)
         {
             case ClusterNodeGroup nodeGroup:
-                _builder.Editors.NodeGroup.AddNode(nodeGroup);
+                _clusterBuilder.Editors.NodeGroup.AddNode(nodeGroup);
                 break;
 
             case ClusterNode cNode:
-                _builder.Editors.Node.AddApplication(cNode, ClusterApplicationType.CoreOsStandalone);
+                _clusterBuilder.Editors.Node.AddApplication(cNode, ClusterApplicationType.CoreOsStandalone);
                 break;
 
             case ClusterApplication application:
-                _builder.Editors.Application.AddEngineHost(application);
+                _clusterBuilder.Editors.Application.AddEngineHost(application);
                 break;
 
             case EngineHost engineHost:
-                var name = _builder.Editors.Engine.GetUniqueName(engineHost, null, "New Engine");
-                _builder.Editors.EngineHost.AddEngine(engineHost, name, engineType: EngineDefaults.EngineType);
+                var name = _clusterBuilder.Editors.Engine.GetUniqueName(engineHost, null, "New Engine");
+                _clusterBuilder.Editors.EngineHost.AddEngine(engineHost, name, engineType: EngineDefaults.EngineType);
                 break;
         }
 
@@ -85,17 +85,17 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
 
     public void AddTopologyNodeGroup()
     {
-        if (_builder is null)
+        if (_clusterBuilder is null)
             return;
 
         // NodeGroups could contain NodeGroups but we skip this till November milestone
-        _builder.Editors.Cluster.AddNodeGroup();
+        _clusterBuilder.Editors.Cluster.AddNodeGroup();
     }
 
     internal void BuildClusterTree(IClusterBuilder builder)
     {
         _clusterNodeGroups.Clear();
-        _builder = builder;
+        _clusterBuilder = builder;
         RebuildTree();
 
         var firstNodeGroup = _clusterNodeGroups.FirstOrDefault();
@@ -127,7 +127,7 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
 
     private void DeleteTopologyNode(NodeButton _, VisibleActionArguments e)
     {
-        if (_builder is null)
+        if (_clusterBuilder is null)
             return;
 
         if (e.Node is not TopologyTreeViewModel nodeModel)
@@ -141,23 +141,23 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
             switch (nodeModel.DataItem)
             {
                 case ClusterNodeGroup nodeGroup:
-                    _builder.Editors.Cluster.RemoveNodeGroup(nodeGroup);
+                    _clusterBuilder.Editors.Cluster.RemoveNodeGroup(nodeGroup);
                     break;
 
                 case ClusterNode node:
-                    _builder.Editors.NodeGroup.RemoveNode(node);
+                    _clusterBuilder.Editors.NodeGroup.RemoveNode(node);
                     break;
 
                 case ClusterApplication application:
-                    _builder.Editors.Node.RemoveApplication(application);
+                    _clusterBuilder.Editors.Node.RemoveApplication(application);
                     break;
 
                 case EngineHost engineHost:
-                    _builder.Editors.Application.RemoveEngineHost(engineHost);
+                    _clusterBuilder.Editors.Application.RemoveEngineHost(engineHost);
                     break;
 
                 case Cluster.Model.Engine engine:
-                    _builder.Editors.EngineHost.RemoveEngine(engine);
+                    _clusterBuilder.Editors.EngineHost.RemoveEngine(engine);
                     break;
             }
         }
@@ -347,7 +347,7 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
 
     public void ProcessNodeChange(TopologyTreeViewModel model, object editItem)
     {
-        if (_builder is null)
+        if (_clusterBuilder is null)
             return;
 
         // edit item is a shallow copy of the orginal DataItem that contains the changes
@@ -355,31 +355,31 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
         {
             case ClusterNodeGroup nodeGroup:
                 var originalNodeGroup = (ClusterNodeGroup)model.DataItem;
-                originalNodeGroup.Apply(_builder.Editors.NodeGroup, nodeGroup);
+                originalNodeGroup.Apply(_clusterBuilder.Editors.NodeGroup, nodeGroup);
                 model.DisplayText = originalNodeGroup.Name;
                 break;
 
             case ClusterNode node:
                 var originalNode = (ClusterNode)model.DataItem;
-                originalNode.Apply(_builder.Editors.Node, node);
+                originalNode.Apply(_clusterBuilder.Editors.Node, node);
                 model.DisplayText = originalNode.Name;
                 break;
 
             case ClusterApplication application:
                 var originalApp = (ClusterApplication)model.DataItem;
-                originalApp.Apply(_builder.Editors.Application, application);
+                originalApp.Apply(_clusterBuilder.Editors.Application, application);
                 model.DisplayText = originalApp.Name;
                 break;
 
             case EngineHost engineHost:
                 var originalHost = (EngineHost)model.DataItem;
-                originalHost.Apply(_builder.Editors.EngineHost, engineHost);
+                originalHost.Apply(_clusterBuilder.Editors.EngineHost, engineHost);
                 model.DisplayText = originalHost.Name;
                 break;
 
             case Cluster.Model.Engine engine:
                 var originalEngine = (Cluster.Model.Engine)model.DataItem;
-                originalEngine.Apply(_builder.Editors.Engine, engine);
+                originalEngine.Apply(_clusterBuilder.Editors.Engine, engine);
                 model.DisplayText = originalEngine.Name;
                 break;
         }
@@ -389,11 +389,11 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
 
     private void RebuildTree()
     {
-        if (_builder is null)
+        if (_clusterBuilder is null)
             return;
 
         _clusterNodeGroups.Clear();
-        _clusterNodeGroups.AddRange(_builder.Cluster.NodeGroups.Select(TopologyTreeFactory.BuildTreeFromClusterNodeGroup));
+        _clusterNodeGroups.AddRange(_clusterBuilder.Cluster.NodeGroups.Select(TopologyTreeFactory.BuildTreeFromClusterNodeGroup));
 
         Builder.Reset();
         Builder.Filter.Apply();

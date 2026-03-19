@@ -15,6 +15,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Library.Components;
 
 public sealed partial class LibrarySectionContent : ComponentBase, IDisposable
 {
+    private bool _groupingButtonsEnabled;
     private readonly string _openIconCssClass = MonochromeIconName.Open.GetCssClasses(MonochromeIconSize.Small).ToSpaceSeparated();
     private string _searchText = string.Empty;
     private readonly TreeEditor.Builder.TreeBuilder _treeBuilder = new();
@@ -24,7 +25,7 @@ public sealed partial class LibrarySectionContent : ComponentBase, IDisposable
 
     public void Dispose()
     {
-        LibraryService.EntriesChanged -= OnLibraryEntriesChangedAsync;
+        LibraryService.EntriesChanged -= OnLibraryEntriesChanged;
 
         _treeBuilder.DragAndDrop.DragEnded -= LibraryService.InvokeDragEnded;
         _treeBuilder.DragAndDrop.DragStarted -= OnTreeDragStarted;
@@ -48,7 +49,7 @@ public sealed partial class LibrarySectionContent : ComponentBase, IDisposable
 
     protected override void OnInitialized()
     {
-        LibraryService.EntriesChanged += OnLibraryEntriesChangedAsync;
+        LibraryService.EntriesChanged += OnLibraryEntriesChanged;
 
         _treeBuilder.SetAdapter<LibraryTreeAdapter>();
         _treeBuilder.DragAndDrop.DisplayElementShadow = false;
@@ -60,9 +61,10 @@ public sealed partial class LibrarySectionContent : ComponentBase, IDisposable
         _treeBuilder.DragAndDrop.DragStarted += OnTreeDragStarted;
     }
 
-    private async void OnLibraryEntriesChangedAsync()
+    private async void OnLibraryEntriesChanged()
     {
         ((LibraryTreeAdapter)_treeBuilder.Adapter).SetEntries(LibraryService.LibraryEntries);
+        _groupingButtonsEnabled = _treeBuilder.Adapter.GetRootNodes().Any();
 
         await InvokeAsync(StateHasChanged);
     }

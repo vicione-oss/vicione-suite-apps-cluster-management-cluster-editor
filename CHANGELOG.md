@@ -6,6 +6,7 @@
 
 - Added license
 - Added deactivated FunctionBlock representation
+- Added dynamic expand/collapse button states in `Library` and `Cluster Topology` section
 
 ### Changed
 
