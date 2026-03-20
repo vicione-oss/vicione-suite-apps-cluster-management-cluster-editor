@@ -8,6 +8,7 @@
     border: 2px dashed rgb(90, 90, 90);
     bottom: calc(var(--canvas-grid-size) * -1 - 1px);
     left: calc(var(--canvas-grid-size) * var(--alignment-border-grid-cells) * -1 - 1px);
+    pointer-events: none;
     position: absolute;
     right: calc(var(--canvas-grid-size) * var(--alignment-border-grid-cells) * -1 - 1px);
     top: calc(var(--canvas-grid-size) * -1 - 1px);
