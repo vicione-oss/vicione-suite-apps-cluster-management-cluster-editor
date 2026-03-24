@@ -43,7 +43,9 @@ internal sealed class VODragMovablesBehavior : Behavior
         Diagram.PointerDown += OnDiagramPointerDown;
         Diagram.PointerUp += OnDiagramPointerUp;
         Diagram.ZoomChanged += OnDiagramZoomChanged;
+
         _diagramEventService.ContainerLoaded += OnContainerLoaded;
+        _diagramEventService.EdgeDraggingPointerUp += OnEdgeDraggingPointerUp;
     }
 
     public override void Dispose()
@@ -52,7 +54,9 @@ internal sealed class VODragMovablesBehavior : Behavior
         Diagram.PointerDown -= OnDiagramPointerDown;
         Diagram.PointerUp -= OnDiagramPointerUp;
         Diagram.ZoomChanged -= OnDiagramZoomChanged;
+
         _diagramEventService.ContainerLoaded -= OnContainerLoaded;
+        _diagramEventService.EdgeDraggingPointerUp -= OnEdgeDraggingPointerUp;
 
         _refObject?.Dispose();
     }
@@ -91,6 +95,18 @@ internal sealed class VODragMovablesBehavior : Behavior
         }
 
         Reset();
+    }
+
+    private void EndMove(double clientX, double clientY)
+    {
+        if (!IsMoving)
+            return;
+
+        Move(clientX, clientY);
+
+        var _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove._end", clientX, clientY);
+
+        End();
     }
 
     [JSInvokable]
@@ -150,17 +166,8 @@ internal sealed class VODragMovablesBehavior : Behavior
         Start(e.ClientX, e.ClientY);
     }
 
-    private void OnDiagramPointerUp(Model? model, global::Blazor.Diagrams.Core.Events.PointerEventArgs e)
-    {
-        if (!IsMoving)
-            return;
-
-        Move(e.ClientX, e.ClientY);
-
-        var _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove._end", e.ClientX, e.ClientY);
-
-        End();
-    }
+    private void OnDiagramPointerUp(Model? _, global::Blazor.Diagrams.Core.Events.PointerEventArgs e)
+        => EndMove(e.ClientX, e.ClientY);
 
     private void OnDiagramZoomChanged()
     {
@@ -169,6 +176,9 @@ internal sealed class VODragMovablesBehavior : Behavior
 
         var _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.diagramZoomChanged", Diagram.Zoom);
     }
+
+    private void OnEdgeDraggingPointerUp(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+        => EndMove(e.ClientX, e.ClientY);
 
     private void Reset()
     {
