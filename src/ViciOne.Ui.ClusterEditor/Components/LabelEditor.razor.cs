@@ -7,7 +7,7 @@ using ViciOne.Ui.Shared.Dx.Components;
 
 namespace ViciOne.Ui.ClusterEditor.Components;
 
-public sealed partial class LabelEditor : ComponentBase
+public sealed partial class LabelEditor : ComponentBase, IAsyncDisposable
 {
     private string _editorVisibility = "visible";
     private IJSObjectReference? _jsModule;
@@ -17,6 +17,23 @@ public sealed partial class LabelEditor : ComponentBase
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
 
     internal event Action<string>? LabelEditorClosed;
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_jsModule is not null)
+        {
+            try
+            {
+                await _jsModule.DisposeAsync();
+                _jsModule = null;
+            }
+            catch (JSDisconnectedException)
+            {
+                // JSDisconnectedException is trapped during module disposal
+                // in case Blazor's SignalR circuit is lost.
+            }
+        }
+    }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
