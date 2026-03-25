@@ -10,15 +10,21 @@ using ViciOne.Ui.ClusterEditor.Services;
 
 namespace Shared.Services;
 
-public sealed partial class IndexService : IDisposable
+public sealed partial class IndexService : IAsyncDisposable
 {
     private const int DefaultSaveSlot = 4;
 
     private readonly IClusterEditorManagement _clusterEditorManagement;
-    private CancellationTokenSource? _createClusterFromJsCts;
+    private CancellationTokenSource _createClusterFromJsCts = new();
+    private readonly SemaphoreSlim _createClusterFromJsCtsSemaphore = new(1);
     private IDependencyResolver _dependencyResolver = default!;
     private readonly IDesignProvider _designProvider;
+    private bool _disposed;
+    private CancellationTokenSource _forceContainerReloadCts = new();
+    private readonly SemaphoreSlim _forceContainerReloadCtsSemaphore = new(1);
     private readonly IJSRuntime _jsRuntime;
+    private CancellationTokenSource _loadClusterCts = new();
+    private readonly SemaphoreSlim _loadClusterCtsSemaphore = new(1);
     private readonly ILogger<IndexService> _logger;
 
     public IClusterBuilder Builder { get; private set; } = default!;
@@ -49,11 +55,37 @@ public sealed partial class IndexService : IDisposable
 
     internal async Task AddContainersAndRefresh()
     {
+        if (_disposed)
+            return;
+
         var root = Builder.Cluster.Dataflows.First().Root;
         for (var i = 0; i < 5; i++)
             Builder.Editors.Container.AddContainer(root, $"Generated {i}", location: new Point(i * 200, 0));
 
-        await _clusterEditorManagement.ForceRootContainerReload();
+        try
+        {
+            await _forceContainerReloadCtsSemaphore.WaitAsync();
+            try
+            {
+                await _forceContainerReloadCts.CancelAsync();
+                _forceContainerReloadCts.Dispose();
+                _forceContainerReloadCts = new CancellationTokenSource();
+
+                await _clusterEditorManagement.ForceRootContainerReload(_forceContainerReloadCts.Token);
+            }
+            finally
+            {
+                _forceContainerReloadCtsSemaphore.Release();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Nothing to do here, return gracefully
+        }
+        catch (ObjectDisposedException) when (_disposed)
+        {
+            // Semaphore or other object already disposed, nothing we can do, return gracefully
+        }
     }
 
     private ClusterBuilder CreateBuilder(string clusterJson)
@@ -64,20 +96,27 @@ public sealed partial class IndexService : IDisposable
 
     private async Task<IClusterBuilder?> CreateClusterFromJs()
     {
-        if (_createClusterFromJsCts is not null)
-        {
-            await _createClusterFromJsCts.CancelAsync();
-            _createClusterFromJsCts.Dispose();
-        }
-
-        _createClusterFromJsCts = new CancellationTokenSource();
+        if (_disposed)
+            return null;
 
         try
         {
-            if (await _jsRuntime.InvokeAsync<bool>("ViciOne.File.hasValue", _createClusterFromJsCts.Token, DefaultSaveSlot))
+            await _createClusterFromJsCtsSemaphore.WaitAsync();
+            try
             {
-                var json = await _jsRuntime.InvokeAsync<string>("ViciOne.File.load", _createClusterFromJsCts.Token, DefaultSaveSlot);
-                return CreateBuilder(json);
+                await _createClusterFromJsCts.CancelAsync();
+                _createClusterFromJsCts.Dispose();
+                _createClusterFromJsCts = new CancellationTokenSource();
+
+                if (await _jsRuntime.InvokeAsync<bool>("ViciOne.File.hasValue", _createClusterFromJsCts.Token, DefaultSaveSlot))
+                {
+                    var json = await _jsRuntime.InvokeAsync<string>("ViciOne.File.load", _createClusterFromJsCts.Token, DefaultSaveSlot);
+                    return CreateBuilder(json);
+                }
+            }
+            finally
+            {
+                _createClusterFromJsCtsSemaphore.Release();
             }
         }
         catch (TaskCanceledException ex)
@@ -87,12 +126,12 @@ public sealed partial class IndexService : IDisposable
         }
         catch (OperationCanceledException ex)
         {
-            // Expected if the operation was canceld - suppress the exception
+            // Expected if the operation was canceled - suppress the exception
             LogCreateClusterCanceled(_logger, ex);
         }
         catch (Exception ex)
         {
-            // can happen if the cluster model has changed since last save
+            // Can happen if the cluster model has changed since last save
             LogCreateClusterFailed(_logger, ex);
         }
 
@@ -102,8 +141,11 @@ public sealed partial class IndexService : IDisposable
     private IClusterBuilder CreateNewCluster()
         => new ClusterBuilder(_dependencyResolver).AddDemoElements();
 
-    public void Dispose()
+    public async ValueTask DisposeAsync()
     {
+        if (Interlocked.CompareExchange(ref _disposed, true, false))
+            return;
+
         _clusterEditorManagement.ExportRequested -= OnDataManagementExportRequested;
         _clusterEditorManagement.ImportRequested -= OnDataManagementImportRequested;
         _clusterEditorManagement.LoadFunctionBlockDesignsRequested -= OnDataManagementLoadFunctionBlockDesignsRequested;
@@ -112,8 +154,44 @@ public sealed partial class IndexService : IDisposable
 
         Builder?.Dispose();
 
-        _createClusterFromJsCts?.Cancel();
-        _createClusterFromJsCts?.Dispose();
+        await _createClusterFromJsCtsSemaphore.WaitAsync();
+        try
+        {
+            await _createClusterFromJsCts.CancelAsync();
+            _createClusterFromJsCts.Dispose();
+        }
+        finally
+        {
+            _createClusterFromJsCtsSemaphore.Release();
+        }
+
+        _createClusterFromJsCtsSemaphore.Dispose();
+
+        await _loadClusterCtsSemaphore.WaitAsync();
+        try
+        {
+            await _loadClusterCts.CancelAsync();
+            _loadClusterCts.Dispose();
+        }
+        finally
+        {
+            _loadClusterCtsSemaphore.Release();
+        }
+
+        _loadClusterCtsSemaphore.Dispose();
+
+        await _forceContainerReloadCtsSemaphore.WaitAsync();
+        try
+        {
+            await _forceContainerReloadCts.CancelAsync();
+            _forceContainerReloadCts.Dispose();
+        }
+        finally
+        {
+            _forceContainerReloadCtsSemaphore.Release();
+        }
+
+        _forceContainerReloadCtsSemaphore.Dispose();
     }
 
     public async Task InitCluster()
@@ -124,7 +202,7 @@ public sealed partial class IndexService : IDisposable
         var newBuilder = await CreateClusterFromJs() ?? CreateNewCluster();
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
-        LoadCluster(newBuilder);
+        await LoadCluster(newBuilder);
 
         await LoadFunctionBlockDesignsIntoManagement();
     }
@@ -173,11 +251,37 @@ public sealed partial class IndexService : IDisposable
         await Task.WhenAll(tasks);
     }
 
-    public void LoadCluster(IClusterBuilder builder)
+    public async Task LoadCluster(IClusterBuilder builder)
     {
+        if (_disposed)
+            return;
+
         Builder = builder;
 
-        _clusterEditorManagement.LoadDataflow(Builder);
+        try
+        {
+            await _loadClusterCtsSemaphore.WaitAsync();
+            try
+            {
+                await _loadClusterCts.CancelAsync();
+                _loadClusterCts.Dispose();
+                _loadClusterCts = new CancellationTokenSource();
+
+                await _clusterEditorManagement.LoadDataflow(Builder, _loadClusterCts.Token);
+            }
+            finally
+            {
+                _loadClusterCtsSemaphore.Release();
+            }
+        }
+        catch (OperationCanceledException)
+        {
+            // Nothing to do here, return gracefully
+        }
+        catch (ObjectDisposedException) when (_disposed)
+        {
+            // Semaphore or other object already disposed, nothing we can do, return gracefully
+        }
     }
 
     /// <summary>
@@ -233,7 +337,7 @@ public sealed partial class IndexService : IDisposable
     private async Task OnDataManagementNewRequested()
     {
         Builder = CreateNewCluster();
-        LoadCluster(Builder);
+        await LoadCluster(Builder);
 
         await LoadFunctionBlockDesignsIntoManagement();
 

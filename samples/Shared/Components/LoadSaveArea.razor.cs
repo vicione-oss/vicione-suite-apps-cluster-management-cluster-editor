@@ -35,10 +35,7 @@ public sealed partial class LoadSaveArea : ComponentBase, IDisposable
     }
 
     private Task OnClusterLoaded(IClusterBuilder builder)
-    {
-        IndexService.LoadCluster(builder);
-        return Task.CompletedTask;
-    }
+        => IndexService.LoadCluster(builder);
 
     private async Task OnFileClearClick(int saveSlot)
     {

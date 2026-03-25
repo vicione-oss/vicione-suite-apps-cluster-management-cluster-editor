@@ -475,8 +475,11 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
     public IEnumerable<IConnector> GetVisibleConnectorModels(IEnumerable<BlockNodeConnector> blockNodeConnectors)
         => blockNodeConnectors.Select(GetVisibleConnectorModel);
 
-    public async Task Load(IClusterBuilder builder, DiagramService diagramService)
+    public async Task Load(IClusterBuilder builder, DiagramService diagramService, CancellationToken cancellationToken)
     {
+        // Fast fail if cancellation has already been requested
+        cancellationToken.ThrowIfCancellationRequested();
+
         _builder = builder;
         _clusterBuilderEventBuffer.SetBuilder(builder);
 
@@ -484,47 +487,73 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
 
         var currentDataflow = Builder.Cluster.Dataflows.First();
 
-        await LoadContainer(currentDataflow.Root, diagramService);
+        await LoadContainer(currentDataflow.Root, diagramService, cancellationToken);
     }
 
-    public async Task LoadContainer(Cluster.Model.Container container, DiagramService diagramService, bool force = false)
+    public async Task LoadContainer(Cluster.Model.Container container, DiagramService diagramService, CancellationToken? externalCancellationToken = null, bool force = false)
     {
         // Dispose check needed because of possible race condition with DisposeAsync
         if (_disposed)
             return;
 
-        try
+        if (externalCancellationToken is null)
         {
-            var cancellationToken = CancellationToken.None;
+            // If there is no external cancellation token, we need to use the _loadContainerCts to cancel previous internal LoadContainer calls
+            // if a new one is made before the previous one finishes. We have to do it internally here to coordinate all occurences where LoadContainer
+            // is called, since the different callers don't know each other.
+            try
+            {
+                await _loadContainerCtsSemaphore.WaitAsync();
+                try
+                {
+                    // Cancel previous call to LoadContainer if there was one
+                    if (_loadContainerCts is not null)
+                    {
+                        await _loadContainerCts.CancelAsync();
+                        _loadContainerCts.Dispose();
+                    }
 
+                    _loadContainerCts = new CancellationTokenSource();
+                    await LoadContainerSafely(container, diagramService, _loadContainerCts.Token, force);
+                    _loadContainerCts = null;
+
+                }
+                finally
+                {
+                    _loadContainerCtsSemaphore.Release();
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                // Nothing to do here, return gracefully
+            }
+            catch (ObjectDisposedException) when (_disposed)
+            {
+                // Semaphore or other object already disposed, nothing we can do, return gracefully
+            }
+        }
+        else
+        {
+            // If there is an external cancellation token, we assume that the caller is responsible for cancelling previous calls
+            // to LoadContainer. We just cancel the last previous internal call if there is one. We also don't handle any Exceptions here because
+            // the caller need to know about them and must handle them, since they are responsible for the cancellation in this case.
             await _loadContainerCtsSemaphore.WaitAsync();
             try
             {
-                // Cancel previous call to LoadContainer if there was one
+                // Cancel previous internal call to LoadContainer if there was one
                 if (_loadContainerCts is not null)
                 {
                     await _loadContainerCts.CancelAsync();
                     _loadContainerCts.Dispose();
                 }
+                _loadContainerCts = null;
 
-                _loadContainerCts = new CancellationTokenSource();
-
-                cancellationToken = _loadContainerCts.Token;
+                await LoadContainerSafely(container, diagramService, externalCancellationToken.Value, force);
             }
             finally
             {
                 _loadContainerCtsSemaphore.Release();
             }
-
-            await LoadContainerSafely(container, diagramService, cancellationToken, force);
-        }
-        catch (OperationCanceledException)
-        {
-            // Nothing to do here, return gracefully
-        }
-        catch (ObjectDisposedException) when (_disposed)
-        {
-            // Semaphore or other object already disposed, nothing we can do, return gracefully
         }
     }
 
@@ -533,6 +562,9 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
 
     private async Task LoadContainerSafely(Cluster.Model.Container container, DiagramService diagramService, CancellationToken cancellationToken, bool force = false)
     {
+        // Fast fail if cancellation has already been requested
+        cancellationToken.ThrowIfCancellationRequested();
+
         if (ActiveContainer == container && !force)
             return;
 

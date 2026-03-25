@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Bunit;
 using Bunit.TestDoubles;
@@ -67,7 +68,7 @@ public sealed class ContainerBreadcrumbTests : IDisposable
         using var builder = new ClusterBuilder(dependencyResolver);
         builder.Cluster.Dataflows.First().Root = root;
 
-        await datastore.Load(builder, diagramService);
+        await datastore.Load(builder, diagramService, CancellationToken.None);
         await datastore.LoadContainer(current, diagramService);
     }
 

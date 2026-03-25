@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Extensions;
@@ -76,10 +77,10 @@ public sealed class DatastoreTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task DisposeAsync_CancelsLoadContainerOperation()
+    public async Task DisposeAsync_CancelsInternalLoadContainerOperation()
     {
         // Arrange
-        await _datastore.Load(_builder, _diagramService);
+        await _datastore.Load(_builder, _diagramService, CancellationToken.None);
         var container = _builder.Cluster.Dataflows[0].Root;
 
         // Act
@@ -96,7 +97,7 @@ public sealed class DatastoreTests : IAsyncDisposable
     public async Task DissolveContainerAsync_ExtractsAllChildrenAndSelectsThem()
     {
         // Arrange
-        await _datastore.Load(_builder, _diagramService);
+        await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
         // Add multiple children
         var fbNode1 = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(10, 10), Xunit.TestContext.Current.CancellationToken);
@@ -142,7 +143,7 @@ public sealed class DatastoreTests : IAsyncDisposable
     public async Task DissolveContainerAsync_ManagesAffectedLinksCorrectly()
     {
         // Arrange
-        await _datastore.Load(_builder, _diagramService);
+        await _datastore.Load(_builder, _diagramService, CancellationToken.None);
         var outerFbNode = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(50, 50), Xunit.TestContext.Current.CancellationToken);
         var innerFbNode = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(150, 50), Xunit.TestContext.Current.CancellationToken);
         var nestedFbNode = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(250, 50), Xunit.TestContext.Current.CancellationToken);
@@ -199,7 +200,7 @@ public sealed class DatastoreTests : IAsyncDisposable
     public async Task DissolveContainerAsync_PositionsChildrenRelativeToContainerPosition()
     {
         // Arrange
-        await _datastore.Load(_builder, _diagramService);
+        await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
         var fbNode1 = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(0, 0), Xunit.TestContext.Current.CancellationToken);
         var fbNode2 = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(180, 0), Xunit.TestContext.Current.CancellationToken);
@@ -258,7 +259,7 @@ public sealed class DatastoreTests : IAsyncDisposable
     public async Task DissolveContainerAsync_RemovesEmptyContainerFromDiagram()
     {
         // Arrange
-        await _datastore.Load(_builder, _diagramService);
+        await _datastore.Load(_builder, _diagramService, CancellationToken.None);
         var containerNode = await _datastore.AddContainerAsync(_diagramService, new Point(100, 100), Xunit.TestContext.Current.CancellationToken);
         var childContainer = _datastore.DataflowDiagramMapping.GetModel(containerNode);
 
@@ -274,7 +275,7 @@ public sealed class DatastoreTests : IAsyncDisposable
     public async Task DissolveContainerAsync_ReturnsGracefullyIfContainerDiagramModelIsNotFound()
     {
         // Arrange
-        await _datastore.Load(_builder, _diagramService);
+        await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
         var containerNode = await _datastore.AddContainerAsync(_diagramService, new Point(200, 200), Xunit.TestContext.Current.CancellationToken, []);
         var childContainer = _datastore.DataflowDiagramMapping.GetModel(containerNode);
@@ -288,7 +289,7 @@ public sealed class DatastoreTests : IAsyncDisposable
     public async Task DissolveContainerAsync_ReturnsGracefullyIfDisposeWasCalledBefore()
     {
         // Arrange
-        await _datastore.Load(_builder, _diagramService);
+        await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
         var containerNode = await _datastore.AddContainerAsync(_diagramService, new Point(200, 200), Xunit.TestContext.Current.CancellationToken, []);
         var childContainer = _datastore.DataflowDiagramMapping.GetModel(containerNode);
@@ -304,7 +305,7 @@ public sealed class DatastoreTests : IAsyncDisposable
     public async Task DissolveContainerAsync_WithDifferentContainers_ExecutesAllInParallel()
     {
         // Arrange
-        await _datastore.Load(_builder, _diagramService);
+        await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
         var fbNode1 = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(50, 50), Xunit.TestContext.Current.CancellationToken);
         var fb1 = _datastore.DataflowDiagramMapping.GetModel(fbNode1);
@@ -353,7 +354,7 @@ public sealed class DatastoreTests : IAsyncDisposable
     public async Task DissolveContainerAsync_WithDisposeAsyncDuringExecution_CancelsAllOperations()
     {
         // Arrange
-        await _datastore.Load(_builder, _diagramService);
+        await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
         var childContainers = new List<ChildContainer>();
 
@@ -384,7 +385,7 @@ public sealed class DatastoreTests : IAsyncDisposable
     public async Task DissolveContainerAsync_WithSameContainerMultipleTimes_ExecutesOnlyOnce()
     {
         // Arrange
-        await _datastore.Load(_builder, _diagramService);
+        await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
         var fbNode = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(50, 50), Xunit.TestContext.Current.CancellationToken);
         var functionBlock = _datastore.DataflowDiagramMapping.GetModel(fbNode);
@@ -420,7 +421,7 @@ public sealed class DatastoreTests : IAsyncDisposable
     public async Task LoadContainer_AfterDisposeAsync_DoesNotThrowObjectDisposedException()
     {
         // Arrange
-        await _datastore.Load(_builder, _diagramService);
+        await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
         // Act
         // Don't await the dispose task to simulate race condition
@@ -440,7 +441,7 @@ public sealed class DatastoreTests : IAsyncDisposable
     public async Task LoadContainer_CalledMultipleTimes_CancelsAndReplacesToken()
     {
         // Arrange
-        await _datastore.Load(_builder, _diagramService);
+        await _datastore.Load(_builder, _diagramService, CancellationToken.None);
         var container = _builder.Cluster.Dataflows[0].Root;
 
         // Act

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Builder.Abstractions;
@@ -16,8 +17,8 @@ public interface IClusterEditorManagement
     event Func<Task>? NewRequested;
     event Func<IClusterBuilder, Task>? SaveRequested;
 
-    Task ForceRootContainerReload();
-    Task LoadDataflow(IClusterBuilder builder);
+    Task ForceRootContainerReload(CancellationToken cancellationToken);
+    Task LoadDataflow(IClusterBuilder builder, CancellationToken cancellationToken);
     void LoadFunctionBlockDesigns(IEnumerable<Guid> fbDesigns);
     void PrepareClusterSerialization();
 }

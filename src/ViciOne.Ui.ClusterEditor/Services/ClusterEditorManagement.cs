@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Builder.Abstractions;
@@ -23,15 +24,23 @@ internal sealed class ClusterEditorManagement(IDatastore datastore, DiagramServi
     public event Func<Task>? NewRequested;
     public event Func<IClusterBuilder, Task>? SaveRequested;
 
-    public Task ForceRootContainerReload()
-        => _datastore.LoadContainer(_datastore.Builder.Cluster.Dataflows.First().Root, _diagramService, true);
-
-    public Task LoadDataflow(IClusterBuilder builder)
+    public Task ForceRootContainerReload(CancellationToken cancellationToken)
     {
+        // Fast fail if cancellation has already been requested
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return _datastore.LoadContainer(_datastore.Builder.Cluster.Dataflows.First().Root, _diagramService, cancellationToken, true);
+    }
+
+    public Task LoadDataflow(IClusterBuilder builder, CancellationToken cancellationToken)
+    {
+        // Fast fail if cancellation has already been requested
+        cancellationToken.ThrowIfCancellationRequested();
+
         builder.InitSettings();
         _libraryService.CreateLibraryEntries(builder.GetFunctionBlockDesigns());
 
-        return _datastore.Load(builder, _diagramService);
+        return _datastore.Load(builder, _diagramService, cancellationToken);
     }
 
     public void LoadFunctionBlockDesigns(IEnumerable<Guid> fbDesigns)
