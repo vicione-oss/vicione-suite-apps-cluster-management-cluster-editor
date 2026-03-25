@@ -45,8 +45,8 @@ public interface IDatastore : IAsyncDisposable
     IEnumerable<BlockNodeConnector> GetValidTargetConnectors(IEnumerable<Connector> connectors, bool visibleLink);
     IConnector GetVisibleConnectorModel(BlockNodeConnector blockNodeConnector);
     IEnumerable<IConnector> GetVisibleConnectorModels(IEnumerable<BlockNodeConnector> blockNodeConnectors);
-    Task Load(IClusterBuilder builder, DiagramService diagramService);
-    Task LoadContainer(Container container, DiagramService diagramService, bool force = false);
+    Task Load(IClusterBuilder builder, DiagramService diagramService, CancellationToken cancellationToken);
+    Task LoadContainer(Container container, DiagramService diagramService, CancellationToken? cancellationToken = null, bool force = false);
     Task MoveToNewContainerAsync(DiagramService diagramService, Point newContainerLocation, IEnumerable<FunctionBlock> functionBlocks, IEnumerable<ChildContainer> containers, IEnumerable<Label> labels, SelectionManager selectionManager);
     void Remove(ChildContainerNode containerNode);
     void Remove(FunctionBlockNode functionBlockNode);

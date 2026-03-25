@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
@@ -38,16 +39,35 @@ public sealed class ClusterEditorManagementTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task ForceRootContainerReload_CallsLoadContainerWithForceTrue_PassesDiagramService()
+    public async Task ForceRootContainerReload_CallsLoadContainerWithForceTrue_PassesDiagramService_PassesCancellationToken()
     {
         // Arrange
         SetUpBuilderWithRootContainer(out _, out var expectedRoot);
+        var ct = TestContext.Current.CancellationToken;
 
         // Act
-        await _sut.ForceRootContainerReload();
+        await _sut.ForceRootContainerReload(ct);
 
         // Assert
-        await _datastore.Received(1).LoadContainer(expectedRoot, _diagramService, true);
+        await _datastore.Received(1).LoadContainer(expectedRoot, _diagramService, ct, true);
+    }
+
+    [Fact]
+    public async Task ForceRootContainerReload_WithAlreadyCancelledToken_ThrowsCanceledOperationException()
+    {
+        // Arrange
+        SetUpBuilderWithRootContainer(out _, out var expectedRoot);
+        using (var cts = new CancellationTokenSource())
+        {
+            await cts.CancelAsync();
+
+            // Act
+            var act = () => _sut.ForceRootContainerReload(cts.Token);
+
+            // Assert
+            await act.Should().ThrowAsync<OperationCanceledException>();
+            await _datastore.Received(0).LoadContainer(expectedRoot, _diagramService, cts.Token, true);
+        }
     }
 
     [Fact]
@@ -66,13 +86,35 @@ public sealed class ClusterEditorManagementTests : IAsyncDisposable
         var cache = new ClusterCache();
         builder.Cache.Returns(cache);
 
-        // Act
-        await _sut.LoadDataflow(builder);
+        using (var cts = new CancellationTokenSource())
+        {
+            // Act
+            await _sut.LoadDataflow(builder, cts.Token);
 
-        //Assert
-        builderSettingsAccessed.Should().BeTrue();
-        _libraryService.Received(1).CreateLibraryEntries(Arg.Any<IEnumerable<FunctionBlockDesign>>());
-        await _datastore.Received(1).Load(builder, _diagramService);
+            //Assert
+            builderSettingsAccessed.Should().BeTrue();
+            _libraryService.Received(1).CreateLibraryEntries(Arg.Any<IEnumerable<FunctionBlockDesign>>());
+            await _datastore.Received(1).Load(builder, _diagramService, cts.Token);
+        }
+    }
+
+    [Fact]
+    public async Task LoadDataflow_WithAlreadyCancelledToken_ThrowsCanceledOperationException()
+    {
+        // Arrange
+        SetUpBuilderWithRootContainer(out var builder, out var expectedRoot);
+        using (var cts = new CancellationTokenSource())
+        {
+            await cts.CancelAsync();
+
+            // Act
+            var act = () => _sut.LoadDataflow(builder, cts.Token);
+
+            // Assert
+            await act.Should().ThrowAsync<OperationCanceledException>();
+            await _datastore.Received(0).LoadContainer(expectedRoot, _diagramService, cts.Token, true);
+        }
+        builder.Dispose();
     }
 
     [Fact]

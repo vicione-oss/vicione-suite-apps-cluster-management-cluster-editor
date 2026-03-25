@@ -36,6 +36,10 @@ internal static class IJSRuntimeExtensions
         {
             // JSRuntime already disposed – ignore
         }
+        catch (TaskCanceledException)
+        {
+            // Task already canceled – ignore
+        }
 
         return height;
     }
