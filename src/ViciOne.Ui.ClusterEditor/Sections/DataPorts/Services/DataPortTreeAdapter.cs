@@ -182,7 +182,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
             Action = AddNewNodeAsync,
             Description = GetNodeActionAddDescription(dataPortNode),
             EnabledFunc = (_) => canHaveAdditionalChildren,
-            Icon = new TreeEditorActionButtonMonochromeIcon(MonochromeIconName.PlusSlim),
+            Icon = new TreeEditorMonochromeIcon(MonochromeIconName.PlusSlim, MonochromeIconSize.Small),
         });
 
         if (dataPortNode is DataPortChildNodeModel childNode && childNode.Properties.Count > 0)
@@ -192,7 +192,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
                 Action = EditNode,
                 Description = CompositeFormats.EditSomething(TechnicalTerms.Node),
                 EnabledFunc = (_) => !childNode.IsEditModeActive,
-                Icon = new TreeEditorActionButtonMonochromeIcon(MonochromeIconName.Edit),
+                Icon = new TreeEditorMonochromeIcon(MonochromeIconName.Edit, MonochromeIconSize.Small),
             });
         }
 
@@ -203,7 +203,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
                 Action = SortChildNodes,
                 Description = DataPortSection.NodeActionSortChildren,
                 EnabledFunc = (node) => dataPortNode.Children.Count > 1,
-                Icon = new TreeEditorActionButtonMonochromeIcon(MonochromeIconName.SortChildren),
+                Icon = new TreeEditorMonochromeIcon(MonochromeIconName.SortChildren, MonochromeIconSize.Small),
             });
         }
 
@@ -212,7 +212,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
             Action = DeleteDataPortTreeNode,
             Description = CompositeFormats.DeleteSomething(TechnicalTerms.Node),
             EnabledFunc = (_) => true,
-            Icon = new TreeEditorActionButtonMonochromeIcon(MonochromeIconName.Delete),
+            Icon = new TreeEditorMonochromeIcon(MonochromeIconName.Delete, MonochromeIconSize.Small),
         });
 
         return result;

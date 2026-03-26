@@ -8,7 +8,6 @@ using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Models;
-using ViciOne.Ui.ClusterEditor.Resources;
 using ViciOne.Ui.ClusterEditor.Sections.Localization;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Components;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Extensions;
@@ -229,7 +228,7 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
                     Action = AddTopologyNode,
                     Description = "Add child",
                     EnabledFunc = (_) => true,
-                    Icon = new TreeEditorActionButtonMonochromeIcon(MonochromeIconName.PlusSlim),
+                    Icon = new TreeEditorMonochromeIcon(MonochromeIconName.PlusSlim, MonochromeIconSize.Small),
                 };
             }
 
@@ -238,7 +237,7 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
                 Action = EditTopologyNode,
                 Description = "Edit",
                 EnabledFunc = (node) => !((TopologyTreeViewModel)node).IsEditModeActive,
-                Icon = new TreeEditorActionButtonMonochromeIcon(MonochromeIconName.Edit),
+                Icon = new TreeEditorMonochromeIcon(MonochromeIconName.Edit, MonochromeIconSize.Small),
             };
 
             yield return new NodeButton()
@@ -246,7 +245,7 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
                 Action = DeleteTopologyNode,
                 Description = "Delete",
                 EnabledFunc = (_) => true,
-                Icon = new TreeEditorActionButtonMonochromeIcon(MonochromeIconName.Delete),
+                Icon = new TreeEditorMonochromeIcon(MonochromeIconName.Delete, MonochromeIconSize.Small),
             };
         }
     }
@@ -270,12 +269,19 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
     public override IEnumerable<IIcon> GetIcons(ITreeNode node)
     {
         if (node is TopologyTreeViewModel { DataItem: var dataItem })
-        {
-            var icon = GetSvgIcon(dataItem);
-            if (!string.IsNullOrEmpty(icon))
-                yield return new SvgIcon(icon);
-        }
+            yield return new TreeEditorMonochromeIcon(GetMonochromeIconName(dataItem), MonochromeIconSize.SmallMedium);
     }
+
+    private static MonochromeIconName GetMonochromeIconName(object dataItem)
+        => dataItem switch
+        {
+            ClusterNodeGroup => MonochromeIconName.TopologyFolderNetworkLight,
+            ClusterNode => MonochromeIconName.ServerNetworkLight,
+            ClusterApplication => MonochromeIconName.TopologyApplicationLight,
+            EngineHost => MonochromeIconName.ServerLight,
+            Cluster.Model.Engine => MonochromeIconName.TopologyEngineLight,
+            _ => throw new InvalidOperationException($"Unknown topology data item type {dataItem.GetType()}"),
+        };
 
     public override ITreeNode? GetParent(ITreeNode node)
     {
@@ -287,16 +293,6 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
 
     public override IEnumerable<ITreeNode> GetRootNodes()
         => _clusterNodeGroups;
-
-    private static string GetSvgIcon(object dataItem) => dataItem switch
-    {
-        ClusterNodeGroup => SvgIcons.topology_section_folder_network,
-        ClusterNode => SvgIcons.topology_section_server_network,
-        ClusterApplication => SvgIcons.topology_section_application,
-        EngineHost => SvgIcons.topology_section_server,
-        Cluster.Model.Engine => SvgIcons.topology_section_engine,
-        _ => string.Empty
-    };
 
     private static Type? GetTemplateMapping(ITreeNode node, TemplateType templateType)
     {

@@ -14,13 +14,5 @@
     ::deep .tree-editor-container {
         @include sections.action-button-container-styles();
         @include sections.node-with-icon-styles();
-
-        .icon-container {
-            svg {
-                path {
-                    fill: revert-layer;
-                }
-            }
-        }
     }
 }
