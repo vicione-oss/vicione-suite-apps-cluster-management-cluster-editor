@@ -3,7 +3,7 @@
     <DotNetVersion>10.0.5</DotNetVersion>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <ViciOneClusterBuilderVersion>1.0.0</ViciOneClusterBuilderVersion>
-    <ViciOneUiMonochromeIconsVersion>4.5.0</ViciOneUiMonochromeIconsVersion>
+    <ViciOneUiMonochromeIconsVersion>4.6.0</ViciOneUiMonochromeIconsVersion>
   </PropertyGroup>
   <ItemGroup>
     <GlobalPackageReference Include="ViciOne.CodeAnalysis" Version="1.4.0" />

@@ -5,11 +5,9 @@ using ViciOne.Ui.TreeEditor.Builder.Interface.Icons;
 
 namespace ViciOne.Ui.ClusterEditor.Models;
 
-internal class TreeEditorActionButtonMonochromeIcon(MonochromeIconName monochromeIconName) : IIcon
+internal class TreeEditorMonochromeIcon(MonochromeIconName monochromeIconName, MonochromeIconSize iconSize) : IIcon
 {
-    private static readonly MonochromeIconSize s_iconSize = MonochromeIconSize.Small;
-
-    public IEnumerable<string> CssClasses => monochromeIconName.GetCssClasses(s_iconSize);
+    public IEnumerable<string> CssClasses => monochromeIconName.GetCssClasses(iconSize);
 
     public IDictionary<string, string> CssStyles => new Dictionary<string, string>();
 

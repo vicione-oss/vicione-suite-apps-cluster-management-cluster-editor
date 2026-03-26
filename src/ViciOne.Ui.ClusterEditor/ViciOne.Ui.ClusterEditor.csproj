@@ -10,8 +10,8 @@
     <SupportedPlatform Include="browser" />
   </ItemGroup>
 
-  <ItemGroup>    
-    <PackageReference Include="AspNetCore.SassCompiler" PrivateAssets="all" />    
+  <ItemGroup>
+    <PackageReference Include="AspNetCore.SassCompiler" PrivateAssets="all" />
     <PackageReference Include="Markdig" />
     <PackageReference Include="Microsoft.Extensions.Localization" />
     <PackageReference Include="StronglyTypedId" PrivateAssets="all" ExcludeAssets="runtime" />
@@ -390,6 +390,8 @@
       <MonochromeIcon Include="select-connectors-output" Size="16;24" />
       <MonochromeIcon Include="select-connectors-output-all" Size="16;24" />
       <MonochromeIcon Include="selected" Size="24" />
+      <MonochromeIcon Include="server-light" Size="24" />
+      <MonochromeIcon Include="server-network-light" Size="24" />
       <MonochromeIcon Include="several-to-back" Size="16;24" />
       <MonochromeIcon Include="several-to-front" Size="16;24" />
       <MonochromeIcon Include="sort-children" Size="16" />
@@ -398,6 +400,9 @@
       <MonochromeIcon Include="template-badge" Size="24" />
       <MonochromeIcon Include="template-management" Size="24" />
       <MonochromeIcon Include="test-tube-solid" Size="32" />
+      <MonochromeIcon Include="topology-application-light" Size="24" />
+      <MonochromeIcon Include="topology-engine-light" Size="24" />
+      <MonochromeIcon Include="topology-folder-network-light" Size="24" />
       <MonochromeIcon Include="zoom-100" Size="24" />
       <MonochromeIcon Include="zoom-to-fit" Size="24" />
     </ItemGroup>

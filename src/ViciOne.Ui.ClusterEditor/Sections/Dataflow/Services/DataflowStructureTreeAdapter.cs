@@ -109,7 +109,7 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
                     EnabledFunc = (e) =>
                         !((DataflowStructureTreeNode)e).Editing
                         && !((DataflowStructureTreeNode)e).Deleting,
-                    Icon = new TreeEditorActionButtonMonochromeIcon(MonochromeIconName.Edit),
+                    Icon = new TreeEditorMonochromeIcon(MonochromeIconName.Edit, MonochromeIconSize.Small),
                 },
                 new NodeButton()
                 {
@@ -119,7 +119,7 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
                         _datastore.ActiveDataflow != dataflowNode.Dataflow
                         && !((DataflowStructureTreeNode)e).Editing
                         && !((DataflowStructureTreeNode)e).Deleting,
-                    Icon = new TreeEditorActionButtonMonochromeIcon(MonochromeIconName.Delete),
+                    Icon = new TreeEditorMonochromeIcon(MonochromeIconName.Delete, MonochromeIconSize.Small),
                 },
             ];
         }

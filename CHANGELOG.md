@@ -34,7 +34,7 @@
 - `ViciOne.Cluster.Builder` package, updated to `1.0.0`
 - `ViciOne.Ui.Blazor.Components` package, updated to version `5.6.0`
 - `ViciOne.Ui.Localization` package, updated to version `3.1.0`
-- `ViciOne.Ui.MonochromeIcons` packages, updated to version `4.5.0`
+- `ViciOne.Ui.MonochromeIcons` packages, updated to version `4.6.0`
 - `ViciOne.Ui.TreeEditor` package, updated to version `2.0.0`
 - `xunit.runner.visualstudio` package, updated to version `3.1.5`
 - `xunit.v3` package, updated to version `3.2.2`
