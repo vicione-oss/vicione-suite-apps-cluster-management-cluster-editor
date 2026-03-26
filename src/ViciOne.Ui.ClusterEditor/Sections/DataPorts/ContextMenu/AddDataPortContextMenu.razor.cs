@@ -36,8 +36,10 @@ public sealed partial class AddDataPortContextMenu : SpecializedContextMenuBase<
         var ruleSet = RulesetProvider.GetRuleset(rulesetId);
         var icon = ruleSet.Root?.Icons.FirstOrDefault() ?? string.Empty;
 
-        icon = TreeBuilder.TreeBuilder.GetIconMarkupString(icon);
-        icon = icon?.Replace("viewBox=\"0 0 32 32\"", "viewBox=\"4 4 28 28\" width=\"16\" height=\"16\"",
+        icon = TreeBuilder.TreeBuilder.GetSvgIcon(icon, ruleSet) ?? TreeBuilder.TreeBuilder.GetSvgIcon("server", ruleSet);
+        icon = icon?.Replace("viewBox=\"0 0 32 32\"", "viewBox=\"2 2 28 28\" width=\"16\" height=\"16\"",
+            StringComparison.InvariantCulture);
+        icon = icon?.Replace("currentColor", DataPortColorConstants.ColorEditorFont,
             StringComparison.InvariantCulture);
 
         var iconBase64Encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(icon ?? string.Empty));

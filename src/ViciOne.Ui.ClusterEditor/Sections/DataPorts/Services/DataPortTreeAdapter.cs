@@ -265,12 +265,12 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
         if (node is not DataPortNodeModel dataPortNode)
             yield break;
 
-        if (dataPortNode is DataPortRootNodeModel)
+        if (dataPortNode is DataPortRootNodeModel rootNodeModel)
         {
             var iconName = string.IsNullOrEmpty(dataPortNode.Icon) ? dataPortNode.AvailableIcons.FirstOrDefault() : dataPortNode.Icon;
             if (!string.IsNullOrEmpty(iconName))
             {
-                var icon = _dataPortTreeIconProvider.GetIconMarkupString(iconName);
+                var icon = _dataPortTreeIconProvider.GetSvgIcon(rootNodeModel.Builder, iconName) ?? _dataPortTreeIconProvider.GetSvgIcon(rootNodeModel.Builder, "server");
                 if (!string.IsNullOrEmpty(icon))
                     yield return new SvgIcon(icon);
             }
@@ -288,7 +288,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
                         var iconName = nodeType.Icons.FirstOrDefault();
                         if (iconName is not null)
                         {
-                            var icon = _dataPortTreeIconProvider.GetIconMarkupString(iconName);
+                            var icon = _dataPortTreeIconProvider.GetSvgIcon(childNode.RootNode.Builder, iconName);
                             if (!string.IsNullOrEmpty(icon))
                                 yield return new SvgIcon(icon);
                         }
@@ -305,7 +305,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
 
                 default:
                     {
-                        var icon = _dataPortTreeIconProvider.GetIconMarkupString(childNode.Icon);
+                        var icon = _dataPortTreeIconProvider.GetSvgIcon(childNode.RootNode.Builder, childNode.Icon);
                         if (!string.IsNullOrEmpty(icon))
                             yield return new SvgIcon(icon);
                         break;

@@ -42,6 +42,6 @@ internal sealed class DataPortTreeIconProvider() : IDataPortTreeIconProvider
         return null;
     }
 
-    public string? GetIconMarkupString(string iconName)
-        => TreeBuilder.TreeBuilder.GetIconMarkupString(iconName);
+    public string? GetSvgIcon(TreeBuilder.TreeBuilder treeBuilder, string iconName)
+        => treeBuilder.GetSvgIcon(iconName);
 }
