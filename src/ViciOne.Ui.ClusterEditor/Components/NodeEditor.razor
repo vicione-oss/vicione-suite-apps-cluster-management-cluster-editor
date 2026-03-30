@@ -1,63 +1,59 @@
 ﻿@using ViciOne.Ui.ClusterEditor.Components.ConnectorDialogs
 @using ViciOne.Ui.ClusterEditor.Components.ContainerEditor
 @using ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor
-@using ViciOne.Ui.Shared.Dx.Components.Resizing
 @using ViciOne.Ui.Shared.Dx.Components.Scrolling
 
 <div class="node-editor-container">
-    <ResizeObserverContainer OnElementSizeChanged="ElementSizeChanged">
-        <CascadingValue IsFixed="true"
-                        Value="@_diagram">
+    <CascadingValue IsFixed="true"
+                    Value="@_diagram">
 
-            <div @onclick:stopPropagation
-                 @oncontextmenu="@ShowContextMenuAsync"
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
-                 @oncontextmenu:stopPropagation
-                 @onpointerdown="OnContainerPointerDown"
-                 @onpointerdown:stopPropagation
-                 @onpointerup:stopPropagation
-                 class="diagram-container"
-                 style="--node-alignment-border-visibility: @(_isNodeAlignmentBorderVisible ? "visible" : "hidden");">
+        <div @onclick:stopPropagation
+             @oncontextmenu="@ShowContextMenuAsync"
+             @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+             @oncontextmenu:stopPropagation
+             @onpointerdown="OnContainerPointerDown"
+             @onpointerdown:stopPropagation
+             @onpointerup:stopPropagation
+             class="diagram-container"
+             style="--node-alignment-border-visibility: @(_isNodeAlignmentBorderVisible ? "visible" : "hidden");">
 
-                <DiagramCanvas />
+            <DiagramCanvas />
 
-                <Grid Mode="@DiagramService.DiagramState.GridMode"
-                      Size="@DiagramSettings.DefaultGridSize"
-                      VisibleUntil="0.5" />
+            <Grid Mode="@DiagramService.DiagramState.GridMode"
+                  Size="@DiagramSettings.DefaultGridSize"
+                  VisibleUntil="0.5" />
 
-                <EdgeDraggingArea />
+            <EdgeDraggingArea />
 
-                <SelectBox Height="@(_draggingViewRectangle?.Height ?? 0)"
-                           IsVisible="@(_draggingViewRectangle is not null)"
-                           Left="@(_draggingViewRectangle?.Left ?? 0)"
-                           Top="@(_draggingViewRectangle?.Top ?? 0)"
-                           Width="@(_draggingViewRectangle?.Width ?? 0)" />
+            <SelectBox Height="@(_draggingViewRectangle?.Height ?? 0)"
+                       IsVisible="@(_draggingViewRectangle is not null)"
+                       Left="@(_draggingViewRectangle?.Left ?? 0)"
+                       Top="@(_draggingViewRectangle?.Top ?? 0)"
+                       Width="@(_draggingViewRectangle?.Width ?? 0)" />
 
-                <Minimap @ref="_refMinimap"
-                         WidthPercentage="0.20" />
+            <Minimap WidthPercentage="0.20" />
 
-                <LabelEditor @ref="_labelEditor" />
+            <LabelEditor @ref="_labelEditor" />
 
-                <ConnectorSelectionDialog />
-                <ContainerEditor />
-                <FbSettingsEditor />
-            </div>
+            <ConnectorSelectionDialog />
+            <ContainerEditor />
+            <FbSettingsEditor />
+        </div>
 
-            <div @ondragenter="OnContainerGhostDragEnterAsync"
-                 @ondragenter:stopPropagation
-                 @ondragleave="OnContainerGhostDragLeave"
-                 @ondragleave:stopPropagation
-                 @ondragover="OnContainerGhostDragOver"
-                 @ondragover:preventDefault
-                 @ondragover:stopPropagation
-                 @ondrop="OnContainerGhostDrop"
-                 @ondrop:stopPropagation
-                 class="drag-and-drop-ghost @(_libraryDragInProgress ? "visible" : string.Empty)"
-                 dropzone="true">
-            </div>
+        <div @ondragenter="OnContainerGhostDragEnterAsync"
+             @ondragenter:stopPropagation
+             @ondragleave="OnContainerGhostDragLeave"
+             @ondragleave:stopPropagation
+             @ondragover="OnContainerGhostDragOver"
+             @ondragover:preventDefault
+             @ondragover:stopPropagation
+             @ondrop="OnContainerGhostDrop"
+             @ondrop:stopPropagation
+             class="drag-and-drop-ghost @(_libraryDragInProgress ? "visible" : string.Empty)"
+             dropzone="true">
+        </div>
 
-            <DiagramScrollbarAdapter Orientation="@ScrollbarOrientation.Vertical" />
-            <DiagramScrollbarAdapter Orientation="@ScrollbarOrientation.Horizontal" />
-        </CascadingValue>
-    </ResizeObserverContainer>
+        <DiagramScrollbarAdapter Orientation="@ScrollbarOrientation.Vertical" />
+        <DiagramScrollbarAdapter Orientation="@ScrollbarOrientation.Horizontal" />
+    </CascadingValue>
 </div>

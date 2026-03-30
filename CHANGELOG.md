@@ -25,6 +25,7 @@
 - Fixed possible 'Create a new DataPort' bug after loading a cluster
 - Fixed context menu in `Settings Editor`
 - Fixed diagram node movement on `Egde Dragging Area`
+- Removed dependency to `ResizeObserverContainer`
 
 ### Updated external references
 
