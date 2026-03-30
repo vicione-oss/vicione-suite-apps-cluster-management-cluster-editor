@@ -1,10 +1,5 @@
 ﻿@use "./../Styles/colors";
 
-::deep {
-    --canvas-grid-size: 10px;
-    --node-border-width: 1px;
-}
-
 .diagram-container {
     display: grid;
     grid-column: 1;
@@ -67,15 +62,20 @@
     padding-right: 5px;
     padding-top: 0px;
 
-    ::deep .scrollbar-container {
-        &.horizontal {
-            grid-column: 1;
-            grid-row: 2;
-        }
+    ::deep {
+        --canvas-grid-size: 10px;
+        --node-border-width: 1px;
 
-        &.vertical {
-            grid-column: 2;
-            grid-row: 1;
+        .scrollbar-container {
+            &.horizontal {
+                grid-column: 1;
+                grid-row: 2;
+            }
+
+            &.vertical {
+                grid-column: 2;
+                grid-row: 1;
+            }
         }
     }
 }

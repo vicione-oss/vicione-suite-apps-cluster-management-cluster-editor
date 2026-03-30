@@ -54,7 +54,6 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
     private VOKeyboardBehavior? _keyboardBehavior;
     private LabelEditor? _labelEditor;
     private bool _libraryDragInProgress;
-    private Minimap? _refMinimap;
     private VOSelectionBehavior? _selectionBehavior;
     private VOPanBehavior? _vOPanBehavior;
     private VOZoomBehavior? _vOZoomBehavior;
@@ -218,15 +217,6 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         _vOPanBehavior?.Dispose();
         _vOZoomBehavior?.Dispose();
         _zoomToFitBehavior?.Dispose();
-
-        GC.SuppressFinalize(this);
-    }
-
-    private Task ElementSizeChanged(Shared.Dx.Components.Resizing.ResizeObserverContainerElementSizeChangedEventArgs args)
-    {
-        _refMinimap!.Refresh();
-        args.StopObservation = true;
-        return Task.CompletedTask;
     }
 
     private void InitializeDiagram()
