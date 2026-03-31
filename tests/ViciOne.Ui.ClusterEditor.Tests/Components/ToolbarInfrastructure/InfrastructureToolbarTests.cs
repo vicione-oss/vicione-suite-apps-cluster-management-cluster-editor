@@ -1,4 +1,5 @@
-﻿using ViciOne.Ui.Blazor.Components.ExpandableMenu.Extensions;
+﻿using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
+using ViciOne.Ui.Blazor.Components.ExpandableMenu.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarInfrastructure;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
@@ -15,6 +16,7 @@ public class InfrastructureToolbarTests
         ctx.SetupDevExpressBlazor();
         ctx.SetupTreeEditorJs();
         ctx.Services.AddExpandableMenu();
+        ctx.Services.AddDialog();
         ctx.SetupClusterEditorManagement();
         ctx.SetupDataflowStructureTreeAdapter();
         ctx.SetupStatisticService();

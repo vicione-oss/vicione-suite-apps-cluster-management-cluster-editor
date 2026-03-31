@@ -47,19 +47,12 @@
         </ToolbarGroup>
 
         <ToolbarGroup>
-            <ToolbarContent Enabled="@DiagramService.DiagramState.IsInitialized"
-                            OnClick="@(() => OnToggleFullscreenClickAsync())"
-                            Tooltip="@TechnicalTerms.Fullscreen">
-                @{ var adaptiveTextVisible = context.IsInMenu(); }
-                <div class="btn btn-toolbar @(DiagramService.DiagramState.IsInitialized ? string.Empty : "disabled") @(_isFullscreen ? "active" : string.Empty) @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
-                    @((MarkupString)SvgIcons.toolbar_main_fullscreen)
-                </div>
-
-                @if (adaptiveTextVisible)
-                {
-                    <span class="@(_isFullscreen ? "active" : string.Empty)">@TechnicalTerms.Fullscreen</span>
-                }
-            </ToolbarContent>
+            <ToolbarButton Active="@_isFullscreen"
+                           Enabled="@DiagramService.DiagramState.IsInitialized"
+                           IconName="@MonochromeIconName.FullSizeLight"
+                           OnClick="@OnToggleFullscreenClickAsync"
+                           Text="@TechnicalTerms.Fullscreen"
+                           TextVisibility="@TextVisibility.MenuOnly" />
         </ToolbarGroup>
 
         <ToolbarGroup>

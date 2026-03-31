@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor.Localization {
+namespace ViciOne.Ui.ClusterEditor.Components.ToolbarColumnChooserButton.Localization {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor.Localization {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class FbSettingsEditor {
+    internal class ToolbarColumnChooserButton {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal FbSettingsEditor() {
+        internal ToolbarColumnChooserButton() {
         }
         
         /// <summary>
@@ -39,8 +39,8 @@ namespace ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor.Localization {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor.Localization.FbSettingsEdito" +
-                            "r", typeof(FbSettingsEditor).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ViciOne.Ui.ClusterEditor.Components.ToolbarColumnChooserButton.Localization.Toolb" +
+                            "arColumnChooserButton", typeof(ToolbarColumnChooserButton).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -62,11 +62,11 @@ namespace ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Show Templates.
+        ///   Looks up a localized string similar to Column chooser.
         /// </summary>
-        internal static string ShowTemplatePlural {
+        internal static string Text {
             get {
-                return ResourceManager.GetString("ShowTemplatePlural", resourceCulture);
+                return ResourceManager.GetString("Text", resourceCulture);
             }
         }
     }

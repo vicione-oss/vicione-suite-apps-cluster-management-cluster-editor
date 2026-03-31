@@ -11,6 +11,7 @@ using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
 using ViciOne.TreeBuilder.NodeTypes;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
+using ViciOne.Ui.Blazor.Components.Dialog.Components;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
@@ -22,7 +23,6 @@ using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.MonochromeIcons.Core.Enums;
 using ViciOne.Ui.MonochromeIcons.Core.Extensions;
-using ViciOne.Ui.Shared.Dx.Components;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Enums;
 using ViciOne.Ui.TreeEditor.Builder.Interface.NodeIdentifier;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
@@ -34,7 +34,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
 {
     private IEnumerable<DataPortContextMenuItem> _addDataPortContextMenuItems = [];
     private Action _confirmDeleteDialogAction = () => { };
-    private DxDialog? _confirmDeleteDialogRef;
+    private Dialog? _confirmDeleteDialogRef;
     private DataPortEditTemplateContext? _editTemplateContext;
     private int _elementsAddedWhileFiltered;
     private bool _groupingButtonsEnabled;
@@ -238,7 +238,9 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         }
 
         _confirmDeleteDialogAction = action;
-        await InvokeAsync(_confirmDeleteDialogRef!.OpenAsync);
+
+        if (_confirmDeleteDialogRef is not null)
+            await _confirmDeleteDialogRef.ShowAsync();
     }
 
     private void OnExpandAllGroups()

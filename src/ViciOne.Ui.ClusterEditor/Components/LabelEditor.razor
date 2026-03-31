@@ -1,15 +1,14 @@
-﻿@using ViciOne.Ui.Shared.Dx.Components
+﻿@using ViciOne.Ui.Blazor.Components.Dialog.Components
 @using TechnicalTerms = ViciOne.Ui.Localization.Resources.TechnicalTerms
 @using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
 @using LocalCommonVocabulary = ViciOne.Ui.ClusterEditor.Localization.Resources.CommonVocabulary
 
-<DxDialog @ref="_refDialog"
-          CloseOnEscape="true"
-          CloseOnOutsideClick="false"
-          Header="@(TechnicalTerms.Label + " " + LocalCommonVocabulary.Editor)"
-          Height="@DialogSizes.LargeHeight"
-          PreventDefaultContextMenu="@ContextMenuSettings.UseCustomMenu"
-          Width="@DialogSizes.LargeWidth">
+@* CloseOnEscape="true" not supported yet, https://gitlab.com/vicione-oss/vicione/ui-libs/blazor-components/-/issues/141 *@
+<Dialog @ref="_refDialog"
+        HeaderText="@(TechnicalTerms.Label + " " + LocalCommonVocabulary.Editor)"
+        Height="@DialogSizes.LargeHeight"
+        PreventBrowserContextMenu="@ContextMenuSettings.UseCustomMenu"
+        Width="@DialogSizes.LargeWidth">
 
     <Body>
         <div class="label-editor-content-container"
@@ -20,10 +19,10 @@
     </Body>
 
     <Footer>
-        <DxDialogFooterButton OnClick=@OnDialogOk
-                              Text="@CommonVocabulary.Ok" />    
+        <DialogFooterButton OnClick=@OnDialogOk
+                            Text="@CommonVocabulary.Ok" />
         
-        <DxDialogFooterButton OnClick=@OnDialogCancel
-                              Text="@CommonVocabulary.Cancel" />
+        <DialogFooterButton OnClick=@OnDialogCancel
+                            Text="@CommonVocabulary.Cancel" />
     </Footer>
-</DxDialog>
+</Dialog>

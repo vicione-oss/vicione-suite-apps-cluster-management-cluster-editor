@@ -2,7 +2,9 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Extensions;
+using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
 using ViciOne.Ui.Blazor.Components.ExpandableMenu.Extensions;
+using ViciOne.Ui.Blazor.Components.Popup.Extensions;
 using ViciOne.Ui.Blazor.Components.SectionRail.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ContainerBreadcrumb.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor;
@@ -68,6 +70,9 @@ public static class IServiceCollectionExtensions
         services.AddScoped<TraceService>();
 
         services.AddScrolling();
+
+        services.AddPopup();
+        services.AddDialog();
 
         services.AddScoped<IContainerEditorRequest, ContainerEditorRequest>();
         services.AddScoped<IFbSettingsEditorRequest, FbSettingsEditorRequest>();

@@ -2,13 +2,13 @@
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Model;
+using ViciOne.Ui.Blazor.Components.Dialog.Components;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Models;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Services;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.MonochromeIcons.Core.Enums;
 using ViciOne.Ui.MonochromeIcons.Core.Extensions;
-using ViciOne.Ui.Shared.Dx.Components;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Dataflow.Components;
@@ -16,7 +16,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Dataflow.Components;
 public sealed partial class DataflowSection : ComponentBase, IDisposable
 {
     private readonly string _addIconCssClass = MonochromeIconName.PlusSlim.GetCssClasses(MonochromeIconSize.SmallMedium).ToSpaceSeparated();
-    private DxDialog? _confirmDeleteDialogRef;
+    private Dialog? _confirmDeleteDialogRef;
     private DataflowStructureTreeNode? _currentDeletingNode;
     private ITreeNode? _currentSelectedNode;
     private int _dataflowsAddedWhileFiltered;
@@ -101,7 +101,7 @@ public sealed partial class DataflowSection : ComponentBase, IDisposable
             _currentDeletingNode.Deleting = true;
             _treeBuilder.Notifications.NotifyNodeChanged(_currentDeletingNode);
 
-            await _confirmDeleteDialogRef!.OpenAsync();
+            await _confirmDeleteDialogRef!.ShowAsync();
         }
         else
         {

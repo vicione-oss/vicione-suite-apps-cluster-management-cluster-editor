@@ -18,7 +18,10 @@
     <PackageReference Include="ViciOne.Cluster.Builder" />
     <PackageReference Include="ViciOne.TreeBuilder" />
     <PackageReference Include="ViciOne.Ui.Blazor.Components" />
-    <PackageReference Include="ViciOne.Ui.Design" />
+    <PackageReference Include="ViciOne.Ui.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
     <PackageReference Include="ViciOne.Ui.Localization" />
     <PackageReference Include="ViciOne.Ui.MonochromeIcons.Assets">
       <!-- avoids include of CSS isolation bundle -->
@@ -84,6 +87,11 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>BlockComponent.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Components\ToolbarColumnChooserButton\Localization\ToolbarColumnChooserButton.Designer.cs">
+      <DependentUpon>ToolbarColumnChooserButton.resx</DependentUpon>
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Update="Helpers\Localization\TooltipData.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -213,6 +221,10 @@
     <EmbeddedResource Update="Components\DiagramComponents\Localization\BlockComponent.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>BlockComponent.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Components\ToolbarColumnChooserButton\Localization\ToolbarColumnChooserButton.resx">
+      <LastGenOutput>ToolbarColumnChooserButton.Designer.cs</LastGenOutput>
+      <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Helpers\Localization\TooltipData.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -358,6 +370,7 @@
       <MonochromeIcon Include="expander-light-top" Size="24" />
       <MonochromeIcon Include="export" Size="24" />
       <MonochromeIcon Include="filter-solid" Size="18" />
+      <MonochromeIcon Include="full-size-light" Size="24" />
       <MonochromeIcon Include="gear-solid" Size="16" />
       <MonochromeIcon Include="group-by-category" Size="24" />
       <MonochromeIcon Include="hamburger-menu" Size="24" />
@@ -416,7 +429,9 @@
   <Target Name="ConfigureDesignTargets" BeforeTargets="BeforeDesignTargets">
     <PropertyGroup>
       <ColorsScssOutputFolder>$(MSBuildProjectDirectory)/Styles/design/colors</ColorsScssOutputFolder>
+      <PopupScssOutputFolder>$(MSBuildProjectDirectory)/Styles/design/popup</PopupScssOutputFolder>
       <ScrollbarScssOutputFolder>$(MSBuildProjectDirectory)/Styles/design/scrollbar</ScrollbarScssOutputFolder>
+      <TypographyScssOutputFolder>$(MSBuildProjectDirectory)/Styles/design/typography</TypographyScssOutputFolder>
     </PropertyGroup>
   </Target>
 

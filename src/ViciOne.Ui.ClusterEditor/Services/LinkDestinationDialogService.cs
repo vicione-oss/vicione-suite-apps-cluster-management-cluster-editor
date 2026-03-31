@@ -15,7 +15,7 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
     public bool IsDeletionMode { get; set; }
     public ConnectorMarker? SourceConnectorMarker { get; private set; }
     public DataPortTreeNode? SourceDataPortTreeNode { get; private set; }
-    public bool Visible { get; set; }
+    public bool Visible { get; private set; }
 
     public event Action<Connector, ConnectorMarkerType>? ConnectorSelected;
     public event Action<DataPortTreeNode>? DataPortTreeNodeSelected;
@@ -115,7 +115,11 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
 
     public void SetVisibility(bool visible)
     {
-        Visible = visible;
-        VisibilityChanged?.Invoke();
+        if (visible != Visible)
+        {
+            Visible = visible;
+
+            VisibilityChanged?.Invoke();
+        }
     }
 }

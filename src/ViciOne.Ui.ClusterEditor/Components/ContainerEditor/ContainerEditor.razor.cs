@@ -11,6 +11,7 @@ using Microsoft.JSInterop;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
+using ViciOne.Ui.Blazor.Components.Dialog.Components;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.ClusterEditor.Behaviors;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Models;
@@ -21,7 +22,6 @@ using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
-using ViciOne.Ui.Shared.Dx.Components;
 using ViciOne.Ui.Shared.Dx.Components.Scrolling;
 using ViciOne.Ui.Shared.Dx.Services;
 
@@ -44,7 +44,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     private readonly List<ContainerEditorConnector> _outputConnectors = [];
     private bool _outputDownEnabled;
     private bool _outputUpEnabled;
-    private DxDialog? _refDialog;
+    private Dialog? _refDialog;
     private readonly Timer _refreshTimer = new()
     {
         AutoReset = false,
@@ -55,6 +55,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     private bool _removeOutputPlaceholderEnabled;
     private ScrollContainer? _scrollContainer;
     private CESelectionBehavior? _selectionBehavior;
+    private bool _visible;
     private bool _zoomActive;
     private bool _zoomEnabled;
     private VOZoomToFitBehavior? _zoomToFitBehavior;
@@ -600,7 +601,8 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
         _refreshTimer.Elapsed += OnRefreshTimerElapsedAsync;
 
-        await _refDialog!.OpenAsync();
+        if (_refDialog is not null)
+            await _refDialog.ShowAsync();
     }
 
     private void StartRefreshTimer()
@@ -677,5 +679,11 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
             ContainerEditorPropertyGridController.SetInstances(selection, new());
         else
             ContainerEditorPropertyGridController.SetInstances([], new());
+    }
+
+    private async Task VisibleChangedAsync()
+    {
+        if (_visible)
+            OnDialogShown();
     }
 }

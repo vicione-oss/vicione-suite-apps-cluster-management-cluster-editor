@@ -24,15 +24,6 @@
     }
 }
 
-.icon-badge::after {
-    content: counter(bn);
-    counter-reset: bn var(--badge-number);
-    font-size: 0.6rem;
-    left: -0.75rem;
-    position: relative;
-    top: 0.19rem;
-}
-
 .validation-message-container {
     color: colors.$editor-danger;
     font-size: 10px;

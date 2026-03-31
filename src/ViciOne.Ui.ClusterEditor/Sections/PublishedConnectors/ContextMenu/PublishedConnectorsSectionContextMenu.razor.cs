@@ -37,7 +37,7 @@ public sealed partial class PublishedConnectorsSectionContextMenu : SpecializedC
     private async void OnKeyDown(KeyboardEventArgs args)
     {
         if (args.Code == KeyboardCodes.Escape && ContextMenu is not null)
-            await ContextMenu.HideAsync();
+            await ContextMenu.CloseAsync();
     }
 
     private void RemovePublishedConnectorClick()

@@ -6,11 +6,6 @@
     text-align: center;
 }
 
-.confirm-node-delete-text {
-    margin: 15px 20px;
-    font-size: medium;
-}
-
 .content-container {
     ::deep .tree-editor-container {
         @include sections.action-button-container-styles();
