@@ -3,7 +3,7 @@
     <div @oncontextmenu:preventDefault
          @oncontextmenu:stopPropagation
          @onpointerdown:stopPropagation
-         @onpointerenter="OnContainerPointerEnter"
+         @onpointerenter="@OnContainerPointerEnter"
          class="minimap-container"
          style="--container-height: @Razor.GetCssPx(_containerSize.Height);
                 --container-width: @Razor.GetCssPx(_containerSize.Width);
@@ -45,12 +45,12 @@
             </div>
 
             <div @onclick:stopPropagation
-                 @onpointerdown="OnViewportGhostPointerDown"
+                 @onpointerdown="@OnViewportGhostPointerDown"
                  @onpointerdown:stopPropagation
-                 @onpointerleave="OnViewportGhostPointerUp"
+                 @onpointerleave="@OnViewportGhostPointerUp"
                  @onpointerleave:stopPropagation
-                 @onpointermove="OnViewportGhostPointerMove"
-                 @onpointerup="OnViewportGhostPointerUp"
+                 @onpointermove="@OnViewportGhostPointerMove"
+                 @onpointerup="@OnViewportGhostPointerUp"
                  class="viewport-ghost @(_movingViewport ? "expanded" : "")"
                  style="--viewport-pos-x: @Razor.GetCssPx(viewportOffsetX);
                         --viewport-pos-y: @Razor.GetCssPx(viewportOffsetY);

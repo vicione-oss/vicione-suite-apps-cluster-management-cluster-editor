@@ -30,7 +30,7 @@ using Link = ViciOne.Cluster.Model.Link;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
-[SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "TODO")]
+[SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "#1602")]
 internal sealed partial class Datastore : IDatastore, IAsyncDisposable
 {
     private IClusterBuilder? _builder;

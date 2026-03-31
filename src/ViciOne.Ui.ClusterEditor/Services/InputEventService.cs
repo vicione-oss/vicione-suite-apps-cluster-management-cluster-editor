@@ -19,12 +19,12 @@ public class InputEventService
     public void InvokeKeyDown(KeyboardEventArgs args)
         => KeyDown?.Invoke(args);
 
-    public void InvokePointerDown(MouseEventArgs args)
+    public void InvokePointerDown(PointerEventArgs args)
         => PointerDown?.Invoke(args);
 
-    public void InvokePointerMove(MouseEventArgs args)
+    public void InvokePointerMove(PointerEventArgs args)
         => PointerMove?.Invoke(args);
 
-    public void InvokePointerUp(MouseEventArgs args)
+    public void InvokePointerUp(PointerEventArgs args)
         => PointerUp?.Invoke(args);
 }

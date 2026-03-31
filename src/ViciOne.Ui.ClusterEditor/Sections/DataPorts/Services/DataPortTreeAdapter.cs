@@ -32,7 +32,7 @@ using TechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.Technical
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 
-[SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "TODO")]
+[SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "#1601")]
 internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
 {
     private const string DirectionPropertyName = "Direction";

@@ -320,14 +320,14 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         RefreshInternal();
     }
 
-    private void OnViewportGhostPointerDown(MouseEventArgs e)
+    private void OnViewportGhostPointerDown(PointerEventArgs e)
     {
         _movingViewport = true;
         _movingViewportLastPoint = new Point(e.ClientX, e.ClientY);
         RefreshInternal();
     }
 
-    private void OnViewportGhostPointerMove(MouseEventArgs e)
+    private void OnViewportGhostPointerMove(PointerEventArgs e)
     {
         if (!_movingViewport)
             return;

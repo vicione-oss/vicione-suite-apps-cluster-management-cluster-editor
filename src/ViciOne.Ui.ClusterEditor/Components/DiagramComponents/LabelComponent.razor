@@ -26,28 +26,28 @@
             <div class="label-resize-marker-bottom-left-bottom"></div>
             <div class="label-resize-marker-bottom-left-left"></div>
 
-            <div @onpointerdown="() => StartResizing(ResizingDirection.Top)"
+            <div @onpointerdown="@(() => StartResizing(ResizingDirection.Top))"
                  class="label-resizer-top" />
 
-            <div @onpointerdown="() => StartResizing(ResizingDirection.Top | ResizingDirection.Right)"
+            <div @onpointerdown="@(() => StartResizing(ResizingDirection.Top | ResizingDirection.Right))"
                  class="label-resizer-top-right" />
 
-            <div @onpointerdown="() => StartResizing(ResizingDirection.Right)"
+            <div @onpointerdown="@(() => StartResizing(ResizingDirection.Right))"
                  class="label-resizer-right" />
 
-            <div @onpointerdown="() => StartResizing(ResizingDirection.Bottom | ResizingDirection.Right)"
+            <div @onpointerdown="@(() => StartResizing(ResizingDirection.Bottom | ResizingDirection.Right))"
                  class="label-resizer-bottom-right" />
 
-            <div @onpointerdown="() => StartResizing(ResizingDirection.Bottom)"
+            <div @onpointerdown="@(() => StartResizing(ResizingDirection.Bottom))"
                  class="label-resizer-bottom" />
 
-            <div @onpointerdown="() => StartResizing(ResizingDirection.Bottom | ResizingDirection.Left)"
+            <div @onpointerdown="@(() => StartResizing(ResizingDirection.Bottom | ResizingDirection.Left))"
                  class="label-resizer-bottom-left" />
 
-            <div @onpointerdown="() => StartResizing(ResizingDirection.Left)"
+            <div @onpointerdown="@(() => StartResizing(ResizingDirection.Left))"
                  class="label-resizer-left" />
 
-            <div @onpointerdown="() => StartResizing(ResizingDirection.Top | ResizingDirection.Left)"
+            <div @onpointerdown="@(() => StartResizing(ResizingDirection.Top | ResizingDirection.Left))"
                  class="label-resizer-top-left" />
         }
     </div>

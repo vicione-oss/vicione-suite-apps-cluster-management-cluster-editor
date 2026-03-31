@@ -1,18 +1,18 @@
-﻿<div @onpointermove="@(EventHandlerProvider.AsNonRenderingEventHandler<MouseEventArgs>(OnContainerPointerMove))"
-     @onpointerup="@(EventHandlerProvider.AsNonRenderingEventHandler<MouseEventArgs>(OnContainerPointerUp))"
+﻿<div @onpointermove="@(EventHandlerProvider.AsNonRenderingEventHandler<PointerEventArgs>(OnContainerPointerMove))"
+     @onpointerup="@(EventHandlerProvider.AsNonRenderingEventHandler<PointerEventArgs>(OnContainerPointerUp))"
      class="edge-dragging-area-container">
 
     @if (_edgeDraggingAreaEnabled)
     {
         <div @onpointerenter="@(() => OnIndicatorAreaPointerEnter(Side.Left))"
-             @onpointerleave="@(() => OnIndicatorAreaPointerLeave())"
+             @onpointerleave="@OnIndicatorAreaPointerLeave"
              @onwheel="@(EventHandlerProvider.AsNonRenderingEventHandler<WheelEventArgs>(OnWheel))"
              class="indicator-area left">
 
             @if (_visibleTriggerSides.Contains(Side.Left))
             {
                 <div @onpointerenter="@(() => OnTriggerAreaPointerEnter(Side.Left))"
-                     @onpointerleave="@(() => OnTriggerAreaPointerLeave())"
+                     @onpointerleave="@OnTriggerAreaPointerLeave"
                      class="trigger-area">
 
                     <MonochromeIcon CssClass="adjust-icon"
@@ -23,14 +23,14 @@
         </div>
 
         <div @onpointerenter="@(() => OnIndicatorAreaPointerEnter(Side.UpperLeft))"
-             @onpointerleave="@(() => OnIndicatorAreaPointerLeave())"
+             @onpointerleave="@OnIndicatorAreaPointerLeave"
              @onwheel="@(EventHandlerProvider.AsNonRenderingEventHandler<WheelEventArgs>(OnWheel))"
              class="indicator-area upper-left">
 
             @if (_visibleTriggerSides.Contains(Side.UpperLeft))
             {
                 <div @onpointerenter="@(() => OnTriggerAreaPointerEnter(Side.UpperLeft))"
-                     @onpointerleave="@(() => OnTriggerAreaPointerLeave())"
+                     @onpointerleave="@OnTriggerAreaPointerLeave"
                      class="trigger-area">
 
                     <MonochromeIcon CssClass="adjust-icon"
@@ -41,14 +41,14 @@
         </div>
 
         <div @onpointerenter="@(() => OnIndicatorAreaPointerEnter(Side.Top))"
-             @onpointerleave="@(() => OnIndicatorAreaPointerLeave())"
+             @onpointerleave="@OnIndicatorAreaPointerLeave"
              @onwheel="@(EventHandlerProvider.AsNonRenderingEventHandler<WheelEventArgs>(OnWheel))"
              class="indicator-area top">
 
             @if (_visibleTriggerSides.Contains(Side.Top))
             {
                 <div @onpointerenter="@(() => OnTriggerAreaPointerEnter(Side.Top))"
-                     @onpointerleave="@(() => OnTriggerAreaPointerLeave())"
+                     @onpointerleave="@OnTriggerAreaPointerLeave"
                      class="trigger-area">
 
                     <MonochromeIcon CssClass="adjust-icon"
@@ -59,14 +59,14 @@
         </div>
 
         <div @onpointerenter="@(() => OnIndicatorAreaPointerEnter(Side.UpperRight))"
-             @onpointerleave="@(() => OnIndicatorAreaPointerLeave())"
+             @onpointerleave="@OnIndicatorAreaPointerLeave"
              @onwheel="@(EventHandlerProvider.AsNonRenderingEventHandler<WheelEventArgs>(OnWheel))"
              class="indicator-area upper-right">
 
             @if (_visibleTriggerSides.Contains(Side.UpperRight))
             {
                 <div @onpointerenter="@(() => OnTriggerAreaPointerEnter(Side.UpperRight))"
-                     @onpointerleave="@(() => OnTriggerAreaPointerLeave())"
+                     @onpointerleave="@OnTriggerAreaPointerLeave"
                      class="trigger-area">
 
                     <MonochromeIcon CssClass="adjust-icon"
@@ -77,14 +77,14 @@
         </div>
 
         <div @onpointerenter="@(() => OnIndicatorAreaPointerEnter(Side.Right))"
-             @onpointerleave="@(() => OnIndicatorAreaPointerLeave())"
+             @onpointerleave="@OnIndicatorAreaPointerLeave"
              @onwheel="@(EventHandlerProvider.AsNonRenderingEventHandler<WheelEventArgs>(OnWheel))"
              class="indicator-area right">
 
             @if (_visibleTriggerSides.Contains(Side.Right))
             {
                 <div @onpointerenter="@(() => OnTriggerAreaPointerEnter(Side.Right))"
-                     @onpointerleave="@(() => OnTriggerAreaPointerLeave())"
+                     @onpointerleave="@OnTriggerAreaPointerLeave"
                      class="trigger-area">
 
                     <MonochromeIcon CssClass="adjust-icon"
@@ -95,14 +95,14 @@
         </div>
 
         <div @onpointerenter="@(() => OnIndicatorAreaPointerEnter(Side.LowerRight))"
-             @onpointerleave="@(() => OnIndicatorAreaPointerLeave())"
+             @onpointerleave="@OnIndicatorAreaPointerLeave"
              @onwheel="@(EventHandlerProvider.AsNonRenderingEventHandler<WheelEventArgs>(OnWheel))"
              class="indicator-area lower-right">
 
             @if (_visibleTriggerSides.Contains(Side.LowerRight))
             {
                 <div @onpointerenter="@(() => OnTriggerAreaPointerEnter(Side.LowerRight))"
-                     @onpointerleave="@(() => OnTriggerAreaPointerLeave())"
+                     @onpointerleave="@OnTriggerAreaPointerLeave"
                      class="trigger-area">
 
                     <MonochromeIcon CssClass="adjust-icon"
@@ -113,14 +113,14 @@
         </div>
 
         <div @onpointerenter="@(() => OnIndicatorAreaPointerEnter(Side.Bottom))"
-             @onpointerleave="@(() => OnIndicatorAreaPointerLeave())"
+             @onpointerleave="@OnIndicatorAreaPointerLeave"
              @onwheel="@(EventHandlerProvider.AsNonRenderingEventHandler<WheelEventArgs>(OnWheel))"
              class="indicator-area bottom">
 
             @if (_visibleTriggerSides.Contains(Side.Bottom))
             {
                 <div @onpointerenter="@(() => OnTriggerAreaPointerEnter(Side.Bottom))"
-                     @onpointerleave="@(() => OnTriggerAreaPointerLeave())"
+                     @onpointerleave="@OnTriggerAreaPointerLeave"
                      class="trigger-area">
 
                     <MonochromeIcon CssClass="adjust-icon"
@@ -131,14 +131,14 @@
         </div>
 
         <div @onpointerenter="@(() => OnIndicatorAreaPointerEnter(Side.LowerLeft))"
-             @onpointerleave="@(() => OnIndicatorAreaPointerLeave())"
+             @onpointerleave="@OnIndicatorAreaPointerLeave"
              @onwheel="@(EventHandlerProvider.AsNonRenderingEventHandler<WheelEventArgs>(OnWheel))"
              class="indicator-area lower-left">
 
             @if (_visibleTriggerSides.Contains(Side.LowerLeft))
             {
                 <div @onpointerenter="@(() => OnTriggerAreaPointerEnter(Side.LowerLeft))"
-                     @onpointerleave="@(() => OnTriggerAreaPointerLeave())"
+                     @onpointerleave="@OnTriggerAreaPointerLeave"
                      class="trigger-area">
 
                     <MonochromeIcon CssClass="adjust-icon"
