@@ -10,9 +10,9 @@
         </div>
 
         <div class="node-text">
-            <div @onpointerleave="OnNodeTextPointerLeave"
+            <div @onpointerleave="@OnNodeTextPointerLeave"
                  @onpointerleave:preventDefault
-                 @onpointermove="OnNodeTextPointerMove"
+                 @onpointermove="@OnNodeTextPointerMove"
                  @onpointermove:stopPropagation>
 
                 @(Node.DisplayText)

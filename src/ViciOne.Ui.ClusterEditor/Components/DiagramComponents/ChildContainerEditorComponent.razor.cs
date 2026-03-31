@@ -22,13 +22,13 @@ public sealed partial class ChildContainerEditorComponent : ComponentBase
     private BlockNodeConnector GetOriginalConnectorDiagramModel(BlockNodeConnector nodeConnector)
         => Datastore.DataflowDiagramMapping.GetDiagramModel(((ContainerConnector)nodeConnector.Connector).Connector);
 
-    private void OnPortContainerPointerEnter(MouseEventArgs e, BlockNodeConnector connector)
+    private void OnPortContainerPointerEnter(PointerEventArgs e, BlockNodeConnector connector)
     {
         var originalConnector = GetOriginalConnectorDiagramModel(connector);
 
         TooltipService.StartTooltip(TooltipConnectorData.GetConnectorTooltipInfo(Datastore.Builder, e, originalConnector, BoundsService.GetDiagramBounds()));
     }
 
-    private void OnPortContainerPointerLeave(MouseEventArgs _)
+    private void OnPortContainerPointerLeave()
         => TooltipService.StopTooltip();
 }

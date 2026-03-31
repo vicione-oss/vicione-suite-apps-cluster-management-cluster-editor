@@ -29,7 +29,7 @@ using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components;
 
-[SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "TODO")]
+[SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "#1600")]
 public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
 {
     private IEnumerable<DataPortContextMenuItem> _addDataPortContextMenuItems = [];

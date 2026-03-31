@@ -26,7 +26,7 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Components.DiagramComponents;
 
-[SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "TODO")]
+[SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "#1599")]
 public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandleEvent
 {
     private Block _block = new();
@@ -83,10 +83,10 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         return !headerConnectorsHaveDraggingLinkType && !headerConnectorsSelected;
     }
 
-    private void OnBlockContainerPointerDown(MouseEventArgs _)
+    private void OnBlockContainerPointerDown()
         => TooltipService.StopTooltip();
 
-    private void OnBlockContainerPointerEnter(MouseEventArgs e)
+    private void OnBlockContainerPointerEnter(PointerEventArgs e)
     {
         if (DiagramService.DiagramState.SimplifiedView && !_isHovered)
         {
@@ -100,7 +100,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         }
     }
 
-    private void OnBlockContainerPointerLeave(MouseEventArgs _)
+    private void OnBlockContainerPointerLeave()
     {
         if (DiagramService.DiagramState.SimplifiedView && _isHovered)
         {
@@ -205,10 +205,10 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         }
     }
 
-    private void OnDataPortMarkerPointerEnter(MouseEventArgs e, BlockNodeConnector connector)
+    private void OnDataPortMarkerPointerEnter(PointerEventArgs e, BlockNodeConnector connector)
         => TooltipService.StartTooltip(TooltipDataPortData.GetDataPortMarkerTooltipInfo(Datastore, e, connector, BoundsService.GetDiagramBounds()));
 
-    private void OnDataPortMarkerPointerLeave(MouseEventArgs _)
+    private void OnDataPortMarkerPointerLeave()
         => TooltipService.StopTooltip();
 
     private async Task OnDoubleClickAsync(MouseEventArgs e)
@@ -245,7 +245,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         }
     }
 
-    private void OnEngineDisplayTextPointerEnter(MouseEventArgs e)
+    private void OnEngineDisplayTextPointerEnter(PointerEventArgs e)
     {
         var engines = _block.GetEngines(out var containsUnassignedBlocks).ToList();
         if (engines.Count == 0 && !containsUnassignedBlocks)
@@ -254,7 +254,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         TooltipService.StartTooltip(TooltipEngineData.GetEngineTooltipInfo(e, Node!, engines, containsUnassignedBlocks, BoundsService.GetDiagramBounds()));
     }
 
-    private void OnEngineDisplayTextPointerLeave(MouseEventArgs _)
+    private void OnEngineDisplayTextPointerLeave()
         => TooltipService.StopTooltip();
 
     protected override void OnInitialized()
@@ -355,23 +355,23 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         }
     }
 
-    private void OnParentContainerMarkerPointerEnter(MouseEventArgs e, BlockNodeConnector connector)
+    private void OnParentContainerMarkerPointerEnter(PointerEventArgs e, BlockNodeConnector connector)
         => TooltipService.StartTooltip(TooltipConnectorData.GetParentConnectorTooltipInfo(Datastore.Builder, e, connector, BoundsService.GetDiagramBounds()));
 
-    private void OnParentContainerMarkerPointerLeave(MouseEventArgs _)
+    private void OnParentContainerMarkerPointerLeave()
         => TooltipService.StopTooltip();
 
-    private void OnPortContainerPointerEnter(MouseEventArgs e, BlockNodeConnector connector)
+    private void OnPortContainerPointerEnter(PointerEventArgs e, BlockNodeConnector connector)
         => TooltipService.StartTooltip(TooltipConnectorData.GetConnectorTooltipInfo(Datastore.Builder, e, connector, BoundsService.GetDiagramBounds()));
 
-    private void OnPortContainerPointerLeave(MouseEventArgs _)
+    private void OnPortContainerPointerLeave()
     {
         DiagramService.SetDraggingLinkActive();
 
         TooltipService.StopTooltip();
     }
 
-    private void OnPublishMarkerPointerEnter(MouseEventArgs e, BlockNodeConnector connector)
+    private void OnPublishMarkerPointerEnter(PointerEventArgs e, BlockNodeConnector connector)
     {
         var count = connector.PublishedConnectorMarker.Links.Count;
         if (count == 0)
@@ -380,7 +380,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         TooltipService.StartTooltip(TooltipPublishMarkerData.GetPublishMarkerTooltipInfo(e, connector, BoundsService.GetDiagramBounds()));
     }
 
-    private void OnPublishMarkerPointerLeave(MouseEventArgs _, BlockNodeConnector connector)
+    private void OnPublishMarkerPointerLeave(BlockNodeConnector connector)
     {
         var count = connector.PublishedConnectorMarker.Links.Count;
         if (count == 0)
@@ -389,7 +389,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         TooltipService.StopTooltip();
     }
 
-    private void OnTitleDblClick(MouseEventArgs _)
+    private void OnTitleDblClick()
     {
         ToolbarService.RequestDataflowToolbarSection(DataflowToolbarSection.Properties);
         PropertyGridController.FocusProperty(nameof(INamedContainerChild.Name));

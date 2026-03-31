@@ -57,10 +57,10 @@ public sealed class DiagramEventService
     public void InvokeDraggingLinkChanged(IDatastore datastore, IConnector? connector)
         => DraggingLinkChanged?.Invoke(datastore, connector);
 
-    public void InvokeEdgeDraggingPointerMove(MouseEventArgs e)
+    public void InvokeEdgeDraggingPointerMove(PointerEventArgs e)
         => EdgeDraggingPointerMove?.Invoke(e);
 
-    public void InvokeEdgeDraggingPointerUp(MouseEventArgs e)
+    public void InvokeEdgeDraggingPointerUp(PointerEventArgs e)
         => EdgeDraggingPointerUp?.Invoke(e);
 
     public void InvokeEdgeDraggingWheel(WheelEventArgs e)

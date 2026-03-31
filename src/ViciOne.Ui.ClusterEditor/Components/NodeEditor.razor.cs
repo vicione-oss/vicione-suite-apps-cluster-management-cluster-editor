@@ -29,7 +29,7 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Components;
 
-[SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "TODO")]
+[SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "#1232")]
 public sealed partial class NodeEditor : ComponentBase, IDisposable
 {
     private const int LeftMouseButton = 1;
@@ -412,7 +412,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         }
     }
 
-    private void OnContainerPointerDown(MouseEventArgs e)
+    private void OnContainerPointerDown(PointerEventArgs e)
     {
         if (e.Button != 0)
             return;

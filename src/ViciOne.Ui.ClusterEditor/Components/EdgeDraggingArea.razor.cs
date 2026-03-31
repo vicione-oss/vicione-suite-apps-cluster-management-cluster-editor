@@ -19,7 +19,7 @@ public sealed partial class EdgeDraggingArea : ComponentBase, IDisposable
         Interval = 100,
     };
     private bool _edgeDraggingAreaEnabled;
-    private MouseEventArgs? _lastMouseMoveEventArgs;
+    private PointerEventArgs? _lastPointerMoveEventArgs;
     private Side? _pointerOverTriggerSide;
     private readonly List<Side> _visibleTriggerSides = [];
 
@@ -29,7 +29,7 @@ public sealed partial class EdgeDraggingArea : ComponentBase, IDisposable
 
     private void Cleanup()
     {
-        _lastMouseMoveEventArgs = null;
+        _lastPointerMoveEventArgs = null;
         _pointerOverTriggerSide = null;
         _visibleTriggerSides.Clear();
     }
@@ -44,13 +44,13 @@ public sealed partial class EdgeDraggingArea : ComponentBase, IDisposable
         GC.SuppressFinalize(this);
     }
 
-    private void OnContainerPointerMove(MouseEventArgs e)
+    private void OnContainerPointerMove(PointerEventArgs e)
     {
-        _lastMouseMoveEventArgs = e;
+        _lastPointerMoveEventArgs = e;
         DiagramEventService.InvokeEdgeDraggingPointerMove(e);
     }
 
-    private void OnContainerPointerUp(MouseEventArgs e)
+    private void OnContainerPointerUp(PointerEventArgs e)
     {
         _diagramPanTimer.Stop();
         Cleanup();
@@ -120,8 +120,8 @@ public sealed partial class EdgeDraggingArea : ComponentBase, IDisposable
                 else if (_pointerOverTriggerSide is Side.Right or Side.UpperRight or Side.LowerRight)
                     Diagram!.UpdatePan(-(PanValue * Diagram.Zoom), 0);
 
-                if (_lastMouseMoveEventArgs is not null)
-                    DiagramEventService.InvokeEdgeDraggingPointerMove(_lastMouseMoveEventArgs);
+                if (_lastPointerMoveEventArgs is not null)
+                    DiagramEventService.InvokeEdgeDraggingPointerMove(_lastPointerMoveEventArgs);
             })
         );
 
