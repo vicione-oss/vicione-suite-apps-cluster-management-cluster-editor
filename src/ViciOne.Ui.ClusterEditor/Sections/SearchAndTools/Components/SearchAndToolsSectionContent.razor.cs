@@ -60,7 +60,7 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
             case FilterSelectedToken:
                 FilterSelectedNodes();
                 break;
-            case "":
+            case "" or null:
                 break;
             default:
                 FilterNodesByText(_filterText);

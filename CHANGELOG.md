@@ -26,6 +26,7 @@
 - Fixed context menu in `Settings Editor`
 - Fixed diagram node movement on `Egde Dragging Area`
 - Removed dependency to `ResizeObserverContainer`
+- Fixed `Search & Tools` clear filter button
 
 ### Updated external references
 
