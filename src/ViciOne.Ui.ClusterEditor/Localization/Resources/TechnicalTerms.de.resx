@@ -213,16 +213,13 @@
   <data name="TemplatePlural" xml:space="preserve">
     <value>Vorlagen</value>
   </data>
-  <data name="BlockPlural" xml:space="preserve">
-    <value>Blöcke</value>
-  </data>
   <data name="Block" xml:space="preserve">
     <value>Block</value>
   </data>
+  <data name="BlockPlural" xml:space="preserve">
+    <value>Blöcke</value>
+  </data>
   <data name="IncludingSystemConnectors" xml:space="preserve">
     <value>inklusive Systemkonnektoren</value>
-  </data>
-  <data name="ColumnChooser" xml:space="preserve">
-    <value>Spaltenkonfigurator</value>
   </data>
 </root>

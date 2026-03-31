@@ -99,16 +99,5 @@ namespace ViciOne.Ui.ClusterEditor.Resources {
                 return ResourceManager.GetString("published-connectors-section_filter-outputs", resourceCulture);
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot;&gt;
-        ///                            &lt;path d=&quot;M10.615 20 12 21.385 7.154 26.23l2.077 2.077L3 29l.692-6.23 2.077 2.076L10.615 20Zm10.77 0 4.846 4.846 2.077-2.077L29 29l-6.23-.692 2.076-2.077L20 21.385 21.385 20ZM3 3l6.23.692L7.155 5.77 12 10.615 10.615 12 5.77 7.154 3.692 9.23 3 3Zm26 0-.692 6.23-2.077-2.076L21.385 12 20 10.615l4.846-4.846-2.077-2.077L29 3Z&quot; fill=&quot;#FFF&quot; fill-rule=&quot;evenodd&quot; /&gt;
-        ///                        &lt;/svg&gt;.
-        /// </summary>
-        internal static string toolbar_main_fullscreen {
-            get {
-                return ResourceManager.GetString("toolbar_main-fullscreen", resourceCulture);
-            }
-        }
     }
 }

@@ -1,96 +1,50 @@
-﻿@using ViciOne.Ui.Shared.Dx.Components
+﻿@using ViciOne.Ui.Blazor.Components.Dialog.Components
+@using ViciOne.Ui.Blazor.Components.SearchBox
+@using ViciOne.Ui.Blazor.Components.Toolbar.Components
+@using ViciOne.Ui.Blazor.Components.Toolbar.Enums
+@using ViciOne.Ui.ClusterEditor.Components.ToolbarColumnChooserButton
 @using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
 
-<DxDialog @ref="_refDialog"
-          CloseOnEscape="true"
-          CloseOnOutsideClick="false"
-          Closing="OnDialogClosing"
-          Header="@_heading"
-          Height="@DialogSizes.LargeHeight"
-          PreventDefaultContextMenu="@ContextMenuSettings.UseCustomMenu"
-          Showing="OnDialogShowing"
-          Shown="OnDialogShownAsync"
-          Width="@DialogSizes.LargeWidth">
+@* CloseOnEscape="true" not supported yet, https://gitlab.com/vicione-oss/vicione/ui-libs/blazor-components/-/issues/141 *@
+<Dialog @ref="_refDialog"
+        HeaderText="@_heading"
+        Height="@DialogSizes.LargeHeight"
+        PreventBrowserContextMenu="@ContextMenuSettings.UseCustomMenu"
+        OnClosing="OnDialogClosing"
+        OnShowing="OnDialogShowing"
+        Width="@DialogSizes.LargeWidth"
+        Visible="@DialogService.Visible"
+        VisibleChanged="VisibleChangedAsync">
 
-    <HeaderToolbarItems>
-        <DxToolbarItem Alignment="ToolbarItemAlignment.Right">
-            <Template Context="tplCtx">
-                <div class="search-container">
-                    <ViciOne.Ui.Blazor.Components.SearchBox.SearchBox @bind-Text="_searchText"
-                                                                      @bind-Text:event="TextChanging"
-                                                                      Placeholder="@CommonVocabulary.Search" />
-                </div>
-            </Template>
-        </DxToolbarItem>
+    <HeaderSlot>
+        <Toolbar>
+            <ToolbarGroup AlignRight="true">
+                <ToolbarContent>
+                    <div class="search-container">
+                        <SearchBox Placeholder="@CommonVocabulary.Search"
+                                   @bind-Text="_searchText"
+                                   @bind-Text:event="TextChanging" />
+                    </div>
+                </ToolbarContent>
+            </ToolbarGroup>
 
-        <DxToolbarItem AdaptiveText="@_expandAllGroupsText"
-                       Alignment="ToolbarItemAlignment.Right"
-                       BeginGroup="true"
-                       Tooltip="@_expandAllGroupsText">
+            <ToolbarGroup AlignRight="true">
+                <ToolbarButton Enabled="@_groupingButtonsEnabled"
+                               IconName="@MonochromeIconName.ExpandAll"
+                               OnClick="@OnExpandAllGroups"
+                               Text="@_expandAllGroupsText"
+                               TextVisibility="@TextVisibility.MenuOnly" />
 
-            <Template Context="tplCtx">
-                @{
-                    var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
-                }
-                <button @onclick="OnExpandAllGroups"
-                        class="btn btn-toolbar smaller-icon @(_groupingButtonsEnabled ? string.Empty : "disabled") @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
+                <ToolbarButton Enabled="@_groupingButtonsEnabled"
+                               IconName="@MonochromeIconName.CollapseAll"
+                               OnClick="@OnCollapseAllGroups"
+                               Text="@_collapseAllGroupsText"
+                               TextVisibility="@TextVisibility.MenuOnly" />
 
-                    <MonochromeIcon Name="MonochromeIconName.ExpandAll"
-                                    Size="MonochromeIconSize.SmallMedium" />
-
-                    @if (adaptiveTextVisible)
-                    {
-                        <span>@tplCtx.AdaptiveText</span>
-                    }
-                </button>
-            </Template>
-        </DxToolbarItem>
-
-        <DxToolbarItem AdaptiveText="@_collapseAllGroupsText"
-                       Alignment="ToolbarItemAlignment.Right"
-                       Tooltip="@_collapseAllGroupsText">
-
-            <Template Context="tplCtx">
-                @{
-                    var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
-                }
-                <button @onclick="OnCollapseAllGroups"
-                        class="btn btn-toolbar smaller-icon @(_groupingButtonsEnabled ? string.Empty : "disabled") @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
-
-                    <MonochromeIcon Name="MonochromeIconName.CollapseAll"
-                                    Size="MonochromeIconSize.SmallMedium" />
-
-                    @if (adaptiveTextVisible)
-                    {
-                        <span>@tplCtx.AdaptiveText</span>
-                    }
-                </button>
-            </Template>
-        </DxToolbarItem>
-
-        <DxToolbarItem AdaptiveText="@TechnicalTerms.ColumnChooser"
-                       Alignment="ToolbarItemAlignment.Right"
-                       Tooltip="@TechnicalTerms.ColumnChooser">
-
-            <Template Context="tplCtx">
-                @{
-                    var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu;
-                }
-                <button @onclick="OnShowColumnChooser"
-                        class="btn btn-toolbar smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)"
-                        id="@_columnChooserId">
-
-                    <MonochromeIcon Name="MonochromeIconName.ColumnChooserEditor"
-                                    Size="MonochromeIconSize.SmallMedium" />
-
-                    @if (adaptiveTextVisible)
-                    {
-                        <span>@tplCtx.AdaptiveText</span>
-                    }
-                </button>
-            </Template>
-        </DxToolbarItem>
-    </HeaderToolbarItems>
+                <ToolbarColumnChooserButton AssociatedGrid="@_refGrid" />
+            </ToolbarGroup>
+        </Toolbar>
+    </HeaderSlot>
 
     <Body>
         <div class="content-container">
@@ -130,8 +84,8 @@
                             <CellDisplayTemplate Context="cellContext">
                                 @{
                                     <div class="text-truncated" title="@cellContext.DisplayText">
-                                        <SearchHighlighter SearchText="@_searchText"
-                                                           Text="@cellContext.DisplayText.ToString()" />
+                                        <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
+                                                                                           Text="@cellContext.DisplayText.ToString()" />
                                     </div>
                                 }
                             </CellDisplayTemplate>
@@ -150,8 +104,8 @@
                             <CellDisplayTemplate Context="cellContext">
                                 @{
                                     <div class="text-truncated" title="@cellContext.DisplayText">
-                                        <SearchHighlighter SearchText="@_searchText"
-                                                           Text="@cellContext.DisplayText.ToString()" />
+                                        <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
+                                                                                           Text="@cellContext.DisplayText.ToString()" />
                                     </div>
                                 }
                             </CellDisplayTemplate>
@@ -178,8 +132,8 @@
                                 <CellDisplayTemplate Context="cellContext">
                                     @{
                                         <div class="text-truncated" title="@cellContext.DisplayText">
-                                            <SearchHighlighter SearchText="@_searchText"
-                                                               Text="@cellContext.DisplayText.ToString()" />
+                                            <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
+                                                                                               Text="@cellContext.DisplayText.ToString()" />
                                         </div>
                                     }
                                 </CellDisplayTemplate>
@@ -203,8 +157,8 @@
                                                 @GetIconMarkup(publishedConnector)
                                             </div>
                                             <div class="value">
-                                                <SearchHighlighter SearchText="@_searchText"
-                                                                   Text="@cellContext.Value.ToString()" />
+                                                <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
+                                                                                                   Text="@cellContext.Value.ToString()" />
                                             </div>
                                         </div>
                                     }
@@ -240,8 +194,8 @@
                                 <CellDisplayTemplate Context="cellContext">
                                     @{
                                         <div class="text-truncated" title="@cellContext.DisplayText">
-                                            <SearchHighlighter SearchText="@_searchText"
-                                                               Text="@cellContext.DisplayText.ToString()" />
+                                            <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
+                                                                                               Text="@cellContext.DisplayText.ToString()" />
                                         </div>
                                     }
                                 </CellDisplayTemplate>
@@ -260,8 +214,8 @@
                             <CellDisplayTemplate Context="cellContext">
                                 @{
                                     <div class="text-truncated" title="@cellContext.DisplayText">
-                                        <SearchHighlighter SearchText="@_searchText"
-                                                           Text="@cellContext.DisplayText.ToString()" />
+                                        <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
+                                                                                           Text="@cellContext.DisplayText.ToString()" />
                                     </div>
                                 }
                             </CellDisplayTemplate>
@@ -274,11 +228,11 @@
     </Body>
 
     <Footer>
-        <DxDialogFooterButton Enabled="@_okButtonEnabled"
-                              OnClick="@OnDialogOk"
-                              Text="@(DialogService.IsDeletionMode ? CommonVocabulary.Delete : CommonVocabulary.Ok)" />
+        <DialogFooterButton Enabled="@_okButtonEnabled"
+                            OnClick="@OnDialogOk"
+                            Text="@(DialogService.IsDeletionMode ? CommonVocabulary.Delete : CommonVocabulary.Ok)" />
 
-        <DxDialogFooterButton OnClick="@(() => DialogService.SetVisibility(false))"
-                              Text="@CommonVocabulary.Cancel" />
+        <DialogFooterButton OnClick="@(() => DialogService.SetVisibility(false))"
+                            Text="@CommonVocabulary.Cancel" />
     </Footer>
-</DxDialog>
+</Dialog>

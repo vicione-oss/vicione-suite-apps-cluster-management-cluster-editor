@@ -63,6 +63,12 @@ public sealed partial class BlockNodeConnectorContextMenu : SpecializedContextMe
     private void CancelConnectorPublicationClick()
         => SetPublishedForSelectedConnectors(false);
 
+    private async Task CloseContextMenuRequested()
+    {
+        if (ContextMenu is not null)
+            await ContextMenu.CloseAsync();
+    }
+
     public async ValueTask DisposeAsync()
     {
         if (_removeConnectorFromContainerCts is not null)
@@ -71,15 +77,7 @@ public sealed partial class BlockNodeConnectorContextMenu : SpecializedContextMe
             _removeConnectorFromContainerCts.Dispose();
         }
 
-        DiagramEventService.CloseContextMenuRequested -= HideContextMenu;
-    }
-
-    private Task HideContextMenu()
-    {
-        if (ContextMenu is not null)
-            return ContextMenu.HideAsync();
-
-        return Task.CompletedTask;
+        DiagramEventService.CloseContextMenuRequested -= CloseContextMenuRequested;
     }
 
     private void OnContextMenuVisibilityChanged(bool isVisible)
@@ -88,11 +86,11 @@ public sealed partial class BlockNodeConnectorContextMenu : SpecializedContextMe
 
         if (isVisible)
         {
-            DiagramEventService.CloseContextMenuRequested += HideContextMenu;
+            DiagramEventService.CloseContextMenuRequested += CloseContextMenuRequested;
         }
         else
         {
-            DiagramEventService.CloseContextMenuRequested -= HideContextMenu;
+            DiagramEventService.CloseContextMenuRequested -= CloseContextMenuRequested;
             DiagramEventService.RequestDiagramFocus();
         }
     }

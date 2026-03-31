@@ -3,13 +3,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
+using ViciOne.Ui.Blazor.Components.Dialog.Components;
 using ViciOne.Ui.ClusterEditor.Models.Contexts;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Models;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Services;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.MonochromeIcons.Core.Enums;
 using ViciOne.Ui.MonochromeIcons.Core.Extensions;
-using ViciOne.Ui.Shared.Dx.Components;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Enums;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
 
@@ -18,7 +18,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Topology.Components;
 public sealed partial class TopologySectionContent : IDisposable
 {
     private Action _confirmDeleteDialogAction = () => { };
-    private DxDialog? _confirmDeleteDialogRef;
+    private Dialog? _confirmDeleteDialogRef;
     private readonly TopologyEditTemplateContext _editTemplateContext = new();
     private int _elementsAddedWhileFiltered;
     private bool _groupingButtonsEnabled;
@@ -97,7 +97,9 @@ public sealed partial class TopologySectionContent : IDisposable
         }
 
         _confirmDeleteDialogAction = action;
-        await InvokeAsync(_confirmDeleteDialogRef!.OpenAsync);
+
+        if (_confirmDeleteDialogRef is not null)
+            await _confirmDeleteDialogRef.ShowAsync();
     }
 
     private void OnExpandAllGroups()

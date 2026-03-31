@@ -1,18 +1,53 @@
 ﻿@using ViciOne.Ui.Blazor.Components.CheckBox
-@using ViciOne.Ui.Shared.Dx.Components
+@using ViciOne.Ui.Blazor.Components.Dialog.Components
+@using ViciOne.Ui.Blazor.Components.Toolbar.Components
+@using ViciOne.Ui.Blazor.Components.Toolbar.Enums
+@using ViciOne.Ui.ClusterEditor.Components.ToolbarColumnChooserButton
 @using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
 @using LocalTechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
 @using TechnicalTerms = ViciOne.Ui.Localization.Resources.TechnicalTerms
 
-<DxDialog @ref="@_refDialog"
-          CloseOnEscape="@_closeOnEscape"
-          CloseOnOutsideClick="false"
-          Closing="@OnDialogClosingAsync"
-          Header="@($"{LocalTechnicalTerms.FunctionBlock} - {CommonVocabulary.SettingPlural}")"
-          Height="@(_isFullscreen ? DialogSizes.FullscreenHeight : DialogSizes.LargeHeight)"
-          PreventDefaultContextMenu="@ContextMenuSettings.UseCustomMenu"
-          Showing="@OnDialogShowingAsync"
-          Width="@(_isFullscreen ? DialogSizes.FullscreenWidth : DialogSizes.LargeWidth)">
+@* CloseOnEscape="true" not supported yet, https://gitlab.com/vicione-oss/vicione/ui-libs/blazor-components/-/issues/141 *@
+<Dialog @bind-Visible="_visible"
+        @ref="@_refDialog"
+        HeaderText="@($"{LocalTechnicalTerms.FunctionBlock} - {CommonVocabulary.SettingPlural}")"
+        Height="@(_isFullscreen ? DialogSizes.FullscreenHeight : DialogSizes.LargeHeight)"
+        PreventBrowserContextMenu="@ContextMenuSettings.UseCustomMenu"
+        OnClosing="@OnDialogClosingAsync"
+        OnShowing="@OnDialogShowingAsync"
+        Width="@(_isFullscreen ? DialogSizes.FullscreenWidth : DialogSizes.LargeWidth)">
+
+    <HeaderSlot>
+        <Toolbar>
+            <ToolbarGroup AlignRight="true">
+                <ToolbarContent>
+                    <div class="search-container">
+                        <ViciOne.Ui.Blazor.Components.SearchBox.SearchBox Placeholder="@CommonVocabulary.Search"
+                                                                          Text="@_searchText"
+                                                                          TextChanging="OnSearchTextChanging" />
+                    </div>
+                </ToolbarContent>
+
+                <ToolbarButton IconName="@MonochromeIconName.TemplateBadge"
+                               Text="@Localization.FbSettingsEditor.ShowTemplatePlural"
+                               TextVisibility="@TextVisibility.MenuOnly"
+                               Visible="false" />
+
+                <ToolbarButton IconName="@MonochromeIconName.TemplateManagement"
+                               Text="@_editTemplatesText"
+                               TextVisibility="@TextVisibility.MenuOnly"
+                               Visible="false" />
+
+                <ToolbarColumnChooserButton AssociatedGrid="@_refGrid" />
+
+                <ToolbarButton Active="@_isFullscreen"
+                               IconName="@MonochromeIconName.FullSizeLight"
+                               OnClick="@OnFullscreenButtonClickedAsync"
+                               Text="@TechnicalTerms.Fullscreen"
+                               TextVisibility="@TextVisibility.MenuOnly" />
+            </ToolbarGroup>
+        </Toolbar>
+    </HeaderSlot>
 
     <Body>
         <div class="content-container">
@@ -76,8 +111,8 @@
                                     else
                                     {
                                         <span class="@(isAnySettingModified ? "modified" : "regular")">
-                                            <SearchHighlighter SearchText="@_searchText"
-                                                               Text="@(GetCellValue(fbName, dataItem)?.ToString() ?? string.Empty)" />
+                                            <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
+                                                                                               Text="@(GetCellValue(fbName, dataItem)?.ToString() ?? string.Empty)" />
                                         </span>
                                     }
                                 }
@@ -104,9 +139,9 @@
                                             <div @onfocusin="(_) => SetInitialValues(dataItem)"
                                                  @onpointerdown:stopPropagation>
 
-                                                <UniversalInput @bind-Value:get="@GetCellValue(fbName, dataItem)"
-                                                                @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
-                                                                FallbackValueType="@setting.SettingType" />
+                                                <ViciOne.Ui.Shared.Dx.Components.UniversalInput @bind-Value:get="@GetCellValue(fbName, dataItem)"
+                                                                                                @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
+                                                                                                FallbackValueType="@setting.SettingType" />
                                             </div>
 
                                             <div class="validation-message-container">
@@ -146,8 +181,8 @@
                                         else
                                         {
                                             <span class="@(setting.IsModified ? "modified" : "regular")">
-                                                <SearchHighlighter SearchText="@_searchText"
-                                                                   Text="@(setting.Value?.ToString() ?? string.Empty)" />
+                                                <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
+                                                                                                   Text="@(setting.Value?.ToString() ?? string.Empty)" />
                                             </span>
                                         }
                                     }
@@ -174,9 +209,9 @@
                                                 <div @onfocusin="(_) => SetInitialValues(dataItem)"
                                                      @onpointerdown:stopPropagation>
 
-                                                    <UniversalInput @bind-Value:get="@setting.Value"
-                                                                    @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
-                                                                    FallbackValueType="@setting.SettingType" />
+                                                    <ViciOne.Ui.Shared.Dx.Components.UniversalInput @bind-Value:get="@setting.Value"
+                                                                                                    @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
+                                                                                                    FallbackValueType="@setting.SettingType" />
                                                 </div>
 
                                                 <div class="validation-message-container">
@@ -207,106 +242,11 @@
         </div>
     </Body>
 
-    <HeaderToolbarItems>
-        <DxToolbarItem Alignment="ToolbarItemAlignment.Right">
-            <Template Context="tplCtx">
-                <div class="search-container">
-                    <ViciOne.Ui.Blazor.Components.SearchBox.SearchBox Placeholder="@CommonVocabulary.Search"
-                                                                      Text="@_searchText"
-                                                                      TextChanging="OnSearchTextChanging" />
-                </div>
-            </Template>
-        </DxToolbarItem>
-
-        <DxToolbarItem AdaptiveText="@Localization.FbSettingsEditor.ShowTemplatePlural"
-                       Alignment="ToolbarItemAlignment.Right"
-                       Tooltip="@Localization.FbSettingsEditor.ShowTemplatePlural"
-                       Visible="false">
-
-            <Template Context="tplCtx">
-                @{ var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu; }
-                <button class="btn btn-toolbar disabled smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty) icon-badge"
-                        style="--badge-number: @_templateCount;">
-
-                    <MonochromeIcon Name="MonochromeIconName.TemplateBadge"
-                                    Size="MonochromeIconSize.SmallMedium" />
-
-                    @if (adaptiveTextVisible)
-                    {
-                        <span>@tplCtx.AdaptiveText</span>
-                    }
-                </button>
-            </Template>
-        </DxToolbarItem>
-
-        <DxToolbarItem AdaptiveText="@_editTemplatesText"
-                       Alignment="ToolbarItemAlignment.Right"
-                       Tooltip="@_editTemplatesText"
-                       Visible="false">
-
-            <Template Context="tplCtx">
-                @{ var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu; }
-                <button class="btn btn-toolbar disabled smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)">
-
-                    <MonochromeIcon Name="MonochromeIconName.TemplateManagement"
-                                    Size="MonochromeIconSize.SmallMedium" />
-
-                    @if (adaptiveTextVisible)
-                    {
-                        <span>@tplCtx.AdaptiveText</span>
-                    }
-                </button>
-            </Template>
-        </DxToolbarItem>
-
-        <DxToolbarItem AdaptiveText="@Localization.FbSettingsEditor.ColumnChooser"
-                       Alignment="ToolbarItemAlignment.Right"
-                       Tooltip="@Localization.FbSettingsEditor.ColumnChooser">
-
-            <Template Context="tplCtx">
-                @{ var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu; }
-                <button @onclick="OnShowColumnChooser"
-                        class="btn btn-toolbar smaller-icon @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)"
-                        id="@_columnChooserId">
-
-                    <MonochromeIcon Name="MonochromeIconName.ColumnChooserEditor"
-                                    Size="MonochromeIconSize.SmallMedium" />
-
-                    @if (adaptiveTextVisible)
-                    {
-                        <span>@tplCtx.AdaptiveText</span>
-                    }
-                </button>
-            </Template>
-        </DxToolbarItem>
-
-        <DxToolbarItem AdaptiveText="@TechnicalTerms.Fullscreen"
-                       Alignment="ToolbarItemAlignment.Right"
-                       Tooltip="@TechnicalTerms.Fullscreen">
-
-            <Template Context="tplCtx">
-                @{ var adaptiveTextVisible = tplCtx.HiddenToAdaptiveMenu; }
-                <button @onclick="async () => await OnFullscreenButtonClickedAsync()"
-                        class="btn btn-toolbar icon-padding
-                                               @(adaptiveTextVisible ? "adaptive-hidden" : string.Empty)
-                                               @(_isFullscreen ? "active" : string.Empty)">
-
-                    @((MarkupString)SvgIcons.toolbar_main_fullscreen)
-
-                    @if (adaptiveTextVisible)
-                    {
-                        <span>@tplCtx.AdaptiveText</span>
-                    }
-                </button>
-            </Template>
-        </DxToolbarItem>
-    </HeaderToolbarItems>
-
     <Footer>
-        <DxDialogFooterButton OnClick="@OnDialogOkAsync"
-                              Text="@CommonVocabulary.Ok" />
+        <DialogFooterButton OnClick="@OnDialogOkAsync"
+                            Text="@CommonVocabulary.Ok" />
 
-        <DxDialogFooterButton OnClick="@OnCloseAsync"
-                              Text="@CommonVocabulary.Cancel" />
+        <DialogFooterButton OnClick="@OnCloseAsync"
+                            Text="@CommonVocabulary.Cancel" />
     </Footer>
-</DxDialog>
+</Dialog>

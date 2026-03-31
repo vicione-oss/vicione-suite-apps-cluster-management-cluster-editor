@@ -6,25 +6,24 @@ using DevExpress.Blazor;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
+using ViciOne.Ui.Blazor.Components.Dialog.Components;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.Comparer;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ColorableIcons;
 using ViciOne.Ui.Localization.Resources;
-using ViciOne.Ui.Shared.Dx.Components;
 
 namespace ViciOne.Ui.ClusterEditor.Components;
 
 public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
 {
     private readonly string _collapseAllGroupsText = CompositeFormats.CollapseSomething($"{CommonVocabulary.All} {CommonVocabulary.GroupPlural}");
-    private readonly string _columnChooserId = "id" + Guid.NewGuid();
     private readonly string _expandAllGroupsText = CompositeFormats.ExpandSomething($"{CommonVocabulary.All} {CommonVocabulary.GroupPlural}");
     private bool _groupingButtonsEnabled;
     private string _heading = string.Empty;
     private bool _okButtonEnabled;
-    private DxDialog? _refDialog;
+    private Dialog? _refDialog;
     private IGrid? _refGrid;
     private string? _searchText;
     private IReadOnlyList<object>? _selectedDataItems;
@@ -114,7 +113,7 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
             return;
 
         if (DialogService.Visible)
-            await _refDialog.OpenAsync();
+            await _refDialog.ShowAsync();
         else
             await _refDialog.CloseAsync();
     }
@@ -127,7 +126,7 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
             _showDataPorts = true;
     }
 
-    private async void OnDialogShownAsync()
+    private async Task OnDialogShownAsync()
     {
         if (DialogService.IsDeletionMode)
             await _refGrid!.SelectAllAsync();
@@ -196,9 +195,6 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
         _selectedDataItems = dataItems;
     }
 
-    private void OnShowColumnChooser()
-        => _refGrid?.ShowColumnChooser(new DialogDisplayOptions("#" + _columnChooserId, HorizontalAlignment.Right, VerticalAlignment.Top));
-
     private void SetGroupingButtonsState()
         => _groupingButtonsEnabled = _refGrid?.GetGroupCount() > 0;
 
@@ -212,5 +208,13 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
             _heading = CompositeFormats.DeleteSomething(Ui.ClusterEditor.Localization.Resources.TechnicalTerms.LinkPlural) + " - " + sourcePart;
         else
             _heading = Localization.LinkDestinationDialog.SelectTarget + " - " + sourcePart;
+    }
+
+    private async Task VisibleChangedAsync(bool visible)
+    {
+        DialogService.SetVisibility(visible);
+
+        if (visible)
+            await OnDialogShownAsync();
     }
 }

@@ -1,9 +1,9 @@
 ﻿@using System.Globalization
+@using ViciOne.Ui.Blazor.Components.Dialog.Components
 @using ViciOne.Ui.Blazor.Components.SectionRail.Components
 @using ViciOne.Ui.Blazor.Components.SectionRail.Components.ActionButtons
 @using ViciOne.Ui.ClusterEditor.Sections.DataPorts.ContextMenu
 @using ViciOne.Ui.Localization.Resources
-@using ViciOne.Ui.Shared.Dx.Components
 @using TechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
 @using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
 
@@ -45,21 +45,23 @@
 
 <DataPortAddChildNodeContextMenu OnContextMenuItemClick="@(eventArgs => OnPossibleChildNodeClicked(eventArgs.ParentNode, eventArgs.PossibleChild))" />
 
-<DxDialog @ref="_confirmDeleteDialogRef"
-          CloseOnEscape="true"
-          CloseOnOutsideClick="false"
-          Header="@(string.Format(CultureInfo.CurrentCulture, UserActions.DeleteSomething, TechnicalTerms.Node))"
-          Height="@DialogSizes.SmallHeight"
-          Width="@DialogSizes.SmallWidth">
+@* CloseOnEscape="true" not supported yet, https://gitlab.com/vicione-oss/vicione/ui-libs/blazor-components/-/issues/141 *@
+<Dialog @ref="_confirmDeleteDialogRef"
+        HeaderText="@(string.Format(CultureInfo.CurrentCulture, UserActions.DeleteSomething, TechnicalTerms.Node))"
+        Height="@DialogSizes.SmallHeight"
+        Width="@DialogSizes.SmallWidth">
+
     <Body>
-        <div class="confirm-node-delete-text">@Localization.DataPortSection.ConfirmDeleteNode</div>
+        <DialogBodyTextLayout>
+            @Localization.DataPortSection.ConfirmDeleteNode
+        </DialogBodyTextLayout>
     </Body>
 
     <Footer>
-        <DxDialogFooterButton OnClick="@OnDeleteNodeConfirmAsync"
-                                Text="@CommonVocabulary.Yes" />
+        <DialogFooterButton OnClick="@OnDeleteNodeConfirmAsync"
+                            Text="@CommonVocabulary.Yes" />
 
-        <DxDialogFooterButton OnClick="@OnDeleteNodeCancelAsync"
-                                Text="@CommonVocabulary.No" />
+        <DialogFooterButton OnClick="@OnDeleteNodeCancelAsync"
+                            Text="@CommonVocabulary.No" />
     </Footer>
-</DxDialog>
+</Dialog>

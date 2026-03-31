@@ -58,10 +58,16 @@ public sealed partial class NodeEditorContextMenu : SpecializedContextMenuWithSt
     private void AlignmentButtonClicked(Alignment alignment)
         => alignment.ApplyToSelection(SelectionManager);
 
+    private async Task CloseContextMenuRequested()
+    {
+        if (ContextMenu is not null)
+            await ContextMenu.CloseAsync();
+    }
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        DiagramEventService.CloseContextMenuRequested -= HideContextMenu;
+        DiagramEventService.CloseContextMenuRequested -= CloseContextMenuRequested;
     }
 
     private async Task DissolveContainerClickAsync()
@@ -95,14 +101,6 @@ public sealed partial class NodeEditorContextMenu : SpecializedContextMenuWithSt
 
     private int GetNextLabelZIndex()
         => GetHighestZIndex() + 1;
-
-    private Task HideContextMenu()
-    {
-        if (ContextMenu is not null)
-            return ContextMenu.HideAsync();
-
-        return Task.CompletedTask;
-    }
 
     private void LabelBringToFrontClick()
         => LabelOrderService.BringToFront(SelectionManager.SelectedLabels);
@@ -160,11 +158,11 @@ public sealed partial class NodeEditorContextMenu : SpecializedContextMenuWithSt
 
         if (isVisible)
         {
-            DiagramEventService.CloseContextMenuRequested += HideContextMenu;
+            DiagramEventService.CloseContextMenuRequested += CloseContextMenuRequested;
         }
         else
         {
-            DiagramEventService.CloseContextMenuRequested -= HideContextMenu;
+            DiagramEventService.CloseContextMenuRequested -= CloseContextMenuRequested;
             DiagramEventService.RequestDiagramFocus();
         }
     }

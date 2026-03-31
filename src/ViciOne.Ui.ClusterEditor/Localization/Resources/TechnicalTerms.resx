@@ -222,7 +222,4 @@
   <data name="IncludingSystemConnectors" xml:space="preserve">
     <value>including system connectors</value>
   </data>
-  <data name="ColumnChooser" xml:space="preserve">
-    <value>Column chooser</value>
-  </data>
 </root>

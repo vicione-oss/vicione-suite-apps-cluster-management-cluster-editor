@@ -1,4 +1,5 @@
-﻿using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Components;
+﻿using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
+using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Components;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
 
@@ -16,6 +17,7 @@ public class DataflowSectionTests
         ctx.SetupDatastore();
         ctx.SetupDiagramService();
         ctx.SetupDataflowStructureTreeAdapter();
+        ctx.Services.AddDialog();
 
         ctx.CreateDiagramInstance();
 

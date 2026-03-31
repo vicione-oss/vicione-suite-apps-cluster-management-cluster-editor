@@ -6,7 +6,6 @@ using Server.Designs;
 using Shared.Designs;
 using Shared.Extensions;
 using Shared.Services;
-using ViciOne.Ui.Blazor.Components.Popup.Extensions;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Services;
 
@@ -42,7 +41,6 @@ builder.Services.AddLocalization();
 builder.Services.AddDevExpressBlazor();
 builder.WebHost.UseStaticWebAssets();
 
-builder.Services.AddPopup();
 builder.Services.AddClusterDependenciesSupport();
 builder.Services.AddClusterEditor(s => (IRulesetProvider)s.GetRequiredService<IPackagesStore>());
 builder.Services.AddCultureSupport();

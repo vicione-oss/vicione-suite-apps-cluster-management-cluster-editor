@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Components;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Services;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
@@ -17,6 +18,7 @@ public class TopologySectionContentTests
         ctx.SetupTreeEditorJs();
         ctx.SetupClusterEditorManagement();
         ctx.Services.TryAddScoped<TopologyTreeAdapter>();
+        ctx.Services.AddDialog();
 
         // Act
         var component = ctx.RenderComponent<TopologySectionContent>();

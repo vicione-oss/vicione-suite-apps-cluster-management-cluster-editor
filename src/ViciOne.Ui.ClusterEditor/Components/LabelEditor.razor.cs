@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
-using ViciOne.Ui.Shared.Dx.Components;
+using ViciOne.Ui.Blazor.Components.Dialog.Components;
 
 namespace ViciOne.Ui.ClusterEditor.Components;
 
@@ -11,7 +11,7 @@ public sealed partial class LabelEditor : ComponentBase, IAsyncDisposable
 {
     private string _editorVisibility = "visible";
     private IJSObjectReference? _jsModule;
-    private DxDialog? _refDialog;
+    private Dialog? _refDialog;
 
     [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
@@ -71,7 +71,7 @@ public sealed partial class LabelEditor : ComponentBase, IAsyncDisposable
         if (_refDialog is null)
             return;
 
-        await _refDialog.OpenAsync();
+        await _refDialog.ShowAsync();
 
         _editorVisibility = "visible";
         await InvokeAsync(StateHasChanged);

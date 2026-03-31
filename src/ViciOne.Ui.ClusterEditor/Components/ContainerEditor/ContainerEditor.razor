@@ -1,20 +1,20 @@
-﻿@using ViciOne.Ui.ClusterEditor.Sections.Property.Components
+﻿@using ViciOne.Ui.Blazor.Components.Dialog.Components
+@using ViciOne.Ui.ClusterEditor.Sections.Property.Components
 @using ViciOne.Ui.Localization.Resources
-@using ViciOne.Ui.Shared.Dx.Components
 @using ViciOne.Ui.Shared.Dx.Components.Scrolling
 @using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
 @using TechnicalTerms = ViciOne.Ui.Localization.Resources.TechnicalTerms
 @using LocalTechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
 
-<DxDialog @ref="@_refDialog"
-          CloseOnOutsideClick="false"
-          Closing="@OnDialogClosingAsync"
-          Header="@(string.Format(UserActions.EditSomething, LocalTechnicalTerms.Container))"
-          Height="@DialogSizes.LargeHeight"
-          PreventDefaultContextMenu="@ContextMenuSettings.UseCustomMenu"
-          Showing="@OnDialogShowing"
-          Shown="@OnDialogShown"
-          Width="@DialogSizes.ContainerEditorWidth">
+<Dialog @bind-Visible="_visible"
+        @bind-Visible:after="VisibleChangedAsync"
+        @ref="_refDialog"
+        HeaderText="@string.Format(UserActions.EditSomething, LocalTechnicalTerms.Container)"
+        Height="@DialogSizes.LargeHeight"
+        PreventBrowserContextMenu="@ContextMenuSettings.UseCustomMenu"
+        OnClosing="@OnDialogClosingAsync"
+        OnShowing="@OnDialogShowing"
+        Width="@DialogSizes.ContainerEditorWidth">
 
     <Body>
         <div class="content-container">
@@ -174,10 +174,10 @@
     </Body>
 
     <Footer>
-        <DxDialogFooterButton OnClick="@OnDialogOkAsync"
-                              Text="@CommonVocabulary.Ok" />
+        <DialogFooterButton OnClick="@OnDialogOkAsync"
+                            Text="@CommonVocabulary.Ok" />
 
-        <DxDialogFooterButton OnClick="@OnDialogCancelAsync"
-                              Text="@CommonVocabulary.Cancel" />
+        <DialogFooterButton OnClick="@OnDialogCancelAsync"
+                            Text="@CommonVocabulary.Cancel" />
     </Footer>
-</DxDialog>
+</Dialog>

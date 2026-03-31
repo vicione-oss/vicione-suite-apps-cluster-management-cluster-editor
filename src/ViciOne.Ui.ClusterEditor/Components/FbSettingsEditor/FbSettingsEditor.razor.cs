@@ -6,12 +6,12 @@ using DevExpress.Blazor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
+using ViciOne.Ui.Blazor.Components.Dialog.Components;
 using ViciOne.Ui.Blazor.Components.Extensions;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Services;
-using ViciOne.Ui.Shared.Dx.Components;
 using TechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms;
 
 namespace ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor;
@@ -22,24 +22,22 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
     private const string CommentColumnKey = "Comment";
     private const string NameColumnKey = "Key";
 
+#pragma warning disable IDE0052 // Remove unread private members
     private bool _closeOnEscape = true;
-    private readonly string _columnChooserId = "id" + Guid.NewGuid();
+#pragma warning restore IDE0052 // Remove unread private members
     private readonly string _editTemplatesText = CompositeFormats.EditSomething(TechnicalTerms.TemplatePlural);
     private readonly Dictionary<string, object?> _initialEditValues = [];
     private bool _isEditmodeActive;
     private bool _isFullscreen;
     private IJSObjectReference? _jsModule;
     private bool _keepInitialValues;
-    private DxDialog? _refDialog;
+    private Dialog? _refDialog;
     private IGrid? _refGrid;
     private DotNetObjectReference<FbSettingsEditor>? _refObject;
     private string? _searchText;
     private IEnumerable<IGrouping<string, FbSetting>> _settings = [];
-#pragma warning disable CS0649 // Field 'FbSettingsEditor._templateCount' is never assigned to, and will always have its default value 0
-    // ToDo: Warnung deaktiviert, da Templates für FbSettings noch nicht implementiert sind und daher der Count immer 0 sein soll
-    private readonly int _templateCount;
-#pragma warning restore CS0649 
     private string? _validationMessage;
+    private bool _visible;
 
     [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private IDatastore Datastore { get; set; } = default!;
@@ -178,7 +176,8 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
             Datastore.Builder.Editors.Setting.SetValue(setting.Setting, setting.Value);
         }
 
-        await _refDialog!.CloseAsync();
+        if (_refDialog is not null)
+            await _refDialog.CloseAsync();
     }
 
     private async void OnDialogShowingAsync()
@@ -253,9 +252,6 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
     private void OnSearchTextChanging(string searchText)
         => _searchText = searchText;
 
-    private void OnShowColumnChooser()
-        => _refGrid?.ShowColumnChooser(new DialogDisplayOptions("#" + _columnChooserId, HorizontalAlignment.Right, VerticalAlignment.Top));
-
     private void OnUnboundColumnData(GridUnboundColumnDataEventArgs e)
     {
         if (e.FieldName == AllColumnKey || _settings.Any(g => g.Any(s => s.FbName == e.FieldName)))
@@ -309,8 +305,8 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
             .GroupBy(s => s.Name)
             .Where(sg => sg.Count() == fbCount);
 
-        if (_settings.Any())
-            await _refDialog!.OpenAsync();
+        if (_settings.Any() && _refDialog is not null)
+            await _refDialog.ShowAsync();
     }
 
     private async Task ToggleFullscreenAsync()

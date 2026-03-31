@@ -1,5 +1,6 @@
 ﻿using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
+using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Services;
@@ -25,6 +26,7 @@ public class DataPortSectionContentTests
         ctx.Services.TryAddScoped(_ => Substitute.For<IRulesetProvider>());
         ctx.Services.TryAddScoped<ToolbarService>();
         ctx.SetupDataPortTreeAdapter();
+        ctx.Services.AddDialog();
 
         // Act
         var component = ctx.RenderComponent<DataPortSectionContent>();

@@ -11,7 +11,7 @@ namespace ViciOne.Ui.ClusterEditor.Services;
 public sealed class ConnectorSelectionDialogService(IDatastore datastore, SelectionManager selectionManager)
 {
     public IEnumerable<DataGridConnectorWrapper> Connectors { get; private set; } = [];
-    public bool Visible { get; set; }
+    public bool Visible { get; private set; }
 
     public event Action? VisibilityChanged;
 
@@ -30,7 +30,11 @@ public sealed class ConnectorSelectionDialogService(IDatastore datastore, Select
 
     public void SetVisibility(bool visible)
     {
-        Visible = visible;
-        VisibilityChanged?.Invoke();
+        if (visible != Visible)
+        {
+            Visible = visible;
+
+            VisibilityChanged?.Invoke();
+        }
     }
 }
