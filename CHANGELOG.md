@@ -27,6 +27,8 @@
 - Fixed diagram node movement on `Egde Dragging Area`
 - Removed dependency to `ResizeObserverContainer`
 - Fixed `Search & Tools` clear filter button
+- Fixed tooltips getting stuck
+- Improved node selection ordering method
 
 ### Updated external references
 

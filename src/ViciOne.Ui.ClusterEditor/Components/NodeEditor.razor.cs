@@ -33,7 +33,6 @@ namespace ViciOne.Ui.ClusterEditor.Components;
 public sealed partial class NodeEditor : ComponentBase, IDisposable
 {
     private const int LeftMouseButton = 1;
-    private const int OrderTopModifier = 100000000;
 
     private IPanBehavior? _activePanBehavior;
     private bool _contextMenuAllowed = true;
@@ -73,17 +72,6 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
     [Inject] private LinkDestinationDialogService LinkDestinationDialogService { get; set; } = default!;
     [Inject] private IPropertyGridController<DataflowToolbarPropertyGridContext> PropertyGridController { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
-
-    private static void CalculateSelectedModelOrder(SelectableModel model)
-    {
-        if (model is not ChildContainerNode and not FunctionBlockNode)
-            return;
-
-        if (model.Selected)
-            model.Order += OrderTopModifier;
-        else
-            model.Order %= OrderTopModifier;
-    }
 
     private async Task ContainerPointerUpAsync()
     {
@@ -598,8 +586,6 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
 
     private void OnDiagramSelectionChanged(SelectableModel model)
     {
-        CalculateSelectedModelOrder(model);
-
         if (DiagramService.DiagramState.SuppressEvents)
             return;
 
