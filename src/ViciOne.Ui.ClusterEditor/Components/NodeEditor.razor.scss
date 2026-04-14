@@ -12,8 +12,24 @@
         grid-column: 1;
         grid-row: 1;
 
-        .diagram-node.locked {
-            pointer-events: none;
+        .diagram-node {
+            &.locked {
+                pointer-events: none;
+            }
+
+            /*
+                We reverted back to using the z-index to show selected nodes on top
+                instead of using the .Order property of the Diagram library.
+                The .Order property is using DOM ordering (i.e. nodes on top are further
+                at the bottom in the generated HTML) which causes a rerendering of the
+                nodes. This results in unexpected event handling issues like not registering
+                'click' events on connectors if the node was selected before or triggering
+                additional 'pointerenter' events after selection without triggering the
+                associated 'pointerleave' events on the node.
+            */
+            &.selected {
+                z-index: 1000000;
+            }
         }
 
         .diagram-link {

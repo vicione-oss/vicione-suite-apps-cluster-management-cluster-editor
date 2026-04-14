@@ -128,8 +128,6 @@ public sealed partial class Minimap : ComponentBase, IDisposable
     private int GetZIndex(NodeModel nodeModel)
         => nodeModel.GetType().Name switch
         {
-            // TODO: Sobald BlockNodes einen Z-Index haben hier nachziehen.
-            //nameof(BlockNode) => ((BlockNode)nodeModel).ZIndex,
             nameof(LabelNode) => ((LabelNode)nodeModel).Order,
             _ => default,
         };
