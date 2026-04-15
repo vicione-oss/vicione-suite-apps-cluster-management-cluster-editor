@@ -29,6 +29,7 @@
 - Fixed `Search & Tools` clear filter button
 - Fixed tooltips getting stuck
 - Improved node selection ordering method
+- Improved node move handling when releasing the cursor outside of the `NodeEditor` area
 
 ### Updated external references
 

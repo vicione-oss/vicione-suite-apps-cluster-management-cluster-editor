@@ -8,23 +8,27 @@ public class InputEventService
 {
     public event Action<MouseEventArgs>? Clicked;
     public event Action<KeyboardEventArgs>? KeyDown;
-    public event Action<MouseEventArgs>? PointerDown;
-    public event Action<MouseEventArgs>? PointerMove;
-    public event Action<MouseEventArgs>? PointerUp;
+    public event Action<PointerEventArgs>? PointerDown;
+    public event Action<PointerEventArgs>? PointerLeave;
+    public event Action<PointerEventArgs>? PointerMove;
+    public event Action<PointerEventArgs>? PointerUp;
 
-    public void InvokeClicked(MouseEventArgs args)
-        => Clicked?.Invoke(args);
+    public void InvokeClicked(MouseEventArgs e)
+        => Clicked?.Invoke(e);
 
     [JSInvokable]
-    public void InvokeKeyDown(KeyboardEventArgs args)
-        => KeyDown?.Invoke(args);
+    public void InvokeKeyDown(KeyboardEventArgs e)
+        => KeyDown?.Invoke(e);
 
-    public void InvokePointerDown(PointerEventArgs args)
-        => PointerDown?.Invoke(args);
+    public void InvokePointerDown(PointerEventArgs e)
+        => PointerDown?.Invoke(e);
 
-    public void InvokePointerMove(PointerEventArgs args)
-        => PointerMove?.Invoke(args);
+    public void InvokePointerLeave(PointerEventArgs e)
+        => PointerLeave?.Invoke(e);
 
-    public void InvokePointerUp(PointerEventArgs args)
-        => PointerUp?.Invoke(args);
+    public void InvokePointerMove(PointerEventArgs e)
+        => PointerMove?.Invoke(e);
+
+    public void InvokePointerUp(PointerEventArgs e)
+        => PointerUp?.Invoke(e);
 }

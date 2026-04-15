@@ -19,8 +19,8 @@ public sealed class DiagramEventService
     public event Func<Task>? DiagramFocusRequested;
     public event Action? DiagramPointerLeave;
     public event Action<IDatastore, IConnector?>? DraggingLinkChanged;
-    public event Action<MouseEventArgs>? EdgeDraggingPointerMove;
-    public event Action<MouseEventArgs>? EdgeDraggingPointerUp;
+    public event Action<PointerEventArgs>? EdgeDraggingPointerMove;
+    public event Action<PointerEventArgs>? EdgeDraggingPointerUp;
     public event Action<bool>? EdgeDraggingVisibilityChangeRequested;
     public event Action<WheelEventArgs>? EdgeDraggingWheel;
     public event Action? FilterAttachedRequested;

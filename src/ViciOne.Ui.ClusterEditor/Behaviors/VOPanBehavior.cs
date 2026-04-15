@@ -60,10 +60,10 @@ internal sealed class VOPanBehavior : Behavior, IPanBehavior
         Diagram.UpdatePan(deltaX, deltaY);
     }
 
-    private void OnEdgeDraggingPointerMove(MouseEventArgs e)
+    private void OnEdgeDraggingPointerMove(PointerEventArgs e)
         => Move(e.ClientX, e.ClientY);
 
-    private void OnEdgeDraggingPointerUp(MouseEventArgs _)
+    private void OnEdgeDraggingPointerUp(PointerEventArgs _)
         => End();
 
     private void OnPointerDown(Model? _, DiagramEvents.PointerEventArgs e)
