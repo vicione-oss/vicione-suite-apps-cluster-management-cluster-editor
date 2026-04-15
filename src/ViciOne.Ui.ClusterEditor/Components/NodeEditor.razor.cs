@@ -256,7 +256,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         _diagram.UnregisterBehavior<SelectionBehavior>();
         _selectionBehavior = new(_diagram, SelectionManager);
         _diagram.RegisterBehavior(_selectionBehavior);
-        _dragMovablesBehavior = new(Datastore, _diagram, DiagramEventService, DiagramService, JSRuntime);
+        _dragMovablesBehavior = new(Datastore, _diagram, DiagramEventService, DiagramService, InputEventService, JSRuntime);
         _diagram.RegisterBehavior(_dragMovablesBehavior);
 
         _dragNewLinkBehavior = new(Datastore, _diagram, DiagramEventService, DiagramService, InputEventService);
@@ -417,7 +417,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         DiagramEventService.RequestEdgeDraggingVisibilityChange(true);
     }
 
-    private async void OnContainerPointerMoveAsync(MouseEventArgs e)
+    private async void OnContainerPointerMoveAsync(PointerEventArgs e)
     {
         if (_draggingStartPoint is null)
             return;
@@ -568,7 +568,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         }
     }
 
-    private async void OnDiagramPointerUpAsync(Model? _1, global::Blazor.Diagrams.Core.Events.PointerEventArgs args)
+    private async void OnDiagramPointerUpAsync(Model? _1, global::Blazor.Diagrams.Core.Events.PointerEventArgs _2)
     {
         _contextMenuAllowed = true;
         await ContainerPointerUpAsync();
@@ -647,13 +647,13 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
     private void OnDiagramZoomChanged()
         => DiagramService.SetZoom(_diagram!.Zoom);
 
-    private async void OnExternalPointerMoveAsync(MouseEventArgs e)
+    private async void OnExternalPointerMoveAsync(PointerEventArgs e)
     {
         OnContainerPointerMoveAsync(e);
         await InvokeAsync(StateHasChanged);
     }
 
-    private async void OnExternalPointerUpAsync(MouseEventArgs args)
+    private async void OnExternalPointerUpAsync(PointerEventArgs _)
     {
         _contextMenuAllowed = true;
         await ContainerPointerUpAsync();

@@ -160,10 +160,10 @@ internal class VODragNewLinkBehavior : Behavior
         _ongoingLink.Refresh();
     }
 
-    private void OnEdgeDraggingPointerMove(MouseEventArgs e)
+    private void OnEdgeDraggingPointerMove(PointerEventArgs e)
         => Move(e.ClientX, e.ClientY);
 
-    private void OnExternalPointerUp(MouseEventArgs _)
+    private void OnExternalPointerUp(PointerEventArgs _)
     {
         if (_currentModel is null)
             return;
@@ -195,7 +195,7 @@ internal class VODragNewLinkBehavior : Behavior
         Start(model, e.ClientX, e.ClientY);
     }
 
-    private void OnPointerMove(MouseEventArgs e)
+    private void OnPointerMove(PointerEventArgs e)
         => Move(e.ClientX, e.ClientY);
 
     private void OnPointerUp(Model? model, global::Blazor.Diagrams.Core.Events.PointerEventArgs e)

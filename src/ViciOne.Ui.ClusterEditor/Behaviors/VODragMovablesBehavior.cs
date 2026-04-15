@@ -21,6 +21,7 @@ internal sealed class VODragMovablesBehavior : Behavior
     private readonly DiagramService _diagramService;
     private Dictionary<MovableModel, Point> _initialModelPositions = [];
     private Point _initialPointerPosition = Point.Zero;
+    private readonly InputEventService _inputEventService;
     private readonly IJSRuntime _jSRuntime;
     private bool _modelWasMoved;
     private DotNetObjectReference<VODragMovablesBehavior>? _refObject;
@@ -32,11 +33,13 @@ internal sealed class VODragMovablesBehavior : Behavior
         Diagram diagram,
         DiagramEventService diagramEventService,
         DiagramService diagramService,
+        InputEventService inputEventService,
         IJSRuntime jSRuntime) : base(diagram)
     {
         _datastore = datastore;
         _diagramEventService = diagramEventService;
         _diagramService = diagramService;
+        _inputEventService = inputEventService;
         _jSRuntime = jSRuntime;
 
         Diagram.PanChanged += OnDiagramPanChanged;
@@ -46,6 +49,9 @@ internal sealed class VODragMovablesBehavior : Behavior
 
         _diagramEventService.ContainerLoaded += OnContainerLoaded;
         _diagramEventService.EdgeDraggingPointerUp += OnEdgeDraggingPointerUp;
+
+        _inputEventService.PointerLeave += OnInputEventServicePointerLeave;
+        _inputEventService.PointerUp += OnInputEventServicePointerUp;
     }
 
     public override void Dispose()
@@ -57,6 +63,9 @@ internal sealed class VODragMovablesBehavior : Behavior
 
         _diagramEventService.ContainerLoaded -= OnContainerLoaded;
         _diagramEventService.EdgeDraggingPointerUp -= OnEdgeDraggingPointerUp;
+
+        _inputEventService.PointerLeave -= OnInputEventServicePointerLeave;
+        _inputEventService.PointerUp -= OnInputEventServicePointerUp;
 
         _refObject?.Dispose();
     }
@@ -177,7 +186,13 @@ internal sealed class VODragMovablesBehavior : Behavior
         var _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.diagramZoomChanged", Diagram.Zoom);
     }
 
-    private void OnEdgeDraggingPointerUp(Microsoft.AspNetCore.Components.Web.MouseEventArgs e)
+    private void OnEdgeDraggingPointerUp(Microsoft.AspNetCore.Components.Web.PointerEventArgs e)
+        => EndMove(e.ClientX, e.ClientY);
+
+    private void OnInputEventServicePointerLeave(Microsoft.AspNetCore.Components.Web.PointerEventArgs e)
+        => EndMove(e.ClientX, e.ClientY);
+
+    private void OnInputEventServicePointerUp(Microsoft.AspNetCore.Components.Web.PointerEventArgs e)
         => EndMove(e.ClientX, e.ClientY);
 
     private void Reset()

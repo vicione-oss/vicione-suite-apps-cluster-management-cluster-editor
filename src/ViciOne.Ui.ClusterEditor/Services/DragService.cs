@@ -75,7 +75,7 @@ internal sealed class DragService(
         _lastPosition = current;
     }
 
-    private void OnPointerUp(MouseEventArgs args)
+    private void OnPointerUp(PointerEventArgs _)
         => EndDragging();
 
     internal void StartDragging(IEnumerable<IDragable> draggedItems, IEnumerable<IDragTarget>? dragTargets = null, bool useEvents = true)

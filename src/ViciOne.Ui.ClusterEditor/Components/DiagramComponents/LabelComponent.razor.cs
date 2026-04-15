@@ -84,16 +84,16 @@ public sealed partial class LabelComponent : ComponentBase
     private void OnDiagramPointerLeave()
         => StopResizing();
 
-    private void OnDiagramPointerMove(Model? _, global::Blazor.Diagrams.Core.Events.PointerEventArgs args)
-        => Resize(new(args.ClientX, args.ClientY), _currentResizingDirection);
+    private void OnDiagramPointerMove(Model? _, global::Blazor.Diagrams.Core.Events.PointerEventArgs e)
+        => Resize(new(e.ClientX, e.ClientY), _currentResizingDirection);
 
     private void OnDiagramPointerUp(Model? _, global::Blazor.Diagrams.Core.Events.PointerEventArgs _2)
         => StopResizing();
 
-    private void OnEdgeDraggingPointerMove(MouseEventArgs args)
-        => Resize(new(args.ClientX, args.ClientY), _currentResizingDirection);
+    private void OnEdgeDraggingPointerMove(PointerEventArgs e)
+        => Resize(new(e.ClientX, e.ClientY), _currentResizingDirection);
 
-    private void OnEdgeDraggingPointerUp(MouseEventArgs obj)
+    private void OnEdgeDraggingPointerUp(PointerEventArgs _)
         => StopResizing();
 
     protected override void OnInitialized()
