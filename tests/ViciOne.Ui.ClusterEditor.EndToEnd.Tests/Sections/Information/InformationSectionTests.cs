@@ -6,10 +6,8 @@ using static Microsoft.Playwright.Assertions;
 namespace ViciOne.Ui.ClusterEditor.EndToEnd.Tests.Sections.Information;
 
 [Collection(TestWebApplicationFactoryCollection.Name)]
-public class InformationSectionTests(TestWebApplicationFactory fixture) : IClassFixture<TestWebApplicationFactory>
+public class InformationSectionTests(TestWebApplicationFactory fixture)
 {
-    private readonly string _serverAddress = fixture.ServerAddress;
-
     [Fact]
     [Trait(Traits.Category, Traits.EndToEnd)]
     public async Task Section_should_render()
@@ -17,7 +15,7 @@ public class InformationSectionTests(TestWebApplicationFactory fixture) : IClass
         var browser = new BrowserFixture(new());
         await browser.WithPageAsync(async page =>
         {
-            await page.GotoAsync(_serverAddress);
+            await page.GotoAsync(fixture.ServerAddress);
 
             var locator = await page.ShowSectionAndGetLocator(SectionNames.Information);
             await Expect(locator).ToBeVisibleAsync();
