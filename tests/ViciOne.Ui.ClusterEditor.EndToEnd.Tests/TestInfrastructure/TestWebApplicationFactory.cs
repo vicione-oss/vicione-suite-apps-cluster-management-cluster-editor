@@ -13,14 +13,10 @@ public class TestWebApplicationFactory : WebApplicationFactory<Program>
     private bool _disposed;
     private IHost? _host;
 
-    public string ServerAddress
-    {
-        get
-        {
-            EnsureServer();
-            return ClientOptions.BaseAddress.ToString();
-        }
-    }
+    public string ServerAddress => ClientOptions.BaseAddress.ToString();
+
+    public TestWebApplicationFactory()
+        => EnsureServer();
 
     protected override IHost CreateHost(IHostBuilder builder)
     {

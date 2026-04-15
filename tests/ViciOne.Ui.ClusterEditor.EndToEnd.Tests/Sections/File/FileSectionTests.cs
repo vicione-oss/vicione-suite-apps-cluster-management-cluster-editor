@@ -8,10 +8,8 @@ using static Microsoft.Playwright.Assertions;
 namespace ViciOne.Ui.ClusterEditor.EndToEnd.Tests.Sections.File;
 
 [Collection(TestWebApplicationFactoryCollection.Name)]
-public class FileSectionTests(TestWebApplicationFactory fixture) : IClassFixture<TestWebApplicationFactory>
+public class FileSectionTests(TestWebApplicationFactory fixture)
 {
-    private readonly string _serverAddress = fixture.ServerAddress;
-
     [Fact]
     [Trait(Traits.Category, Traits.EndToEnd)]
     public async Task New_should_clear_diagram()
@@ -19,7 +17,7 @@ public class FileSectionTests(TestWebApplicationFactory fixture) : IClassFixture
         var browser = new BrowserFixture(new());
         await browser.WithPageAsync(async page =>
         {
-            await page.GotoAsync(_serverAddress);
+            await page.GotoAsync(fixture.ServerAddress);
 
             await DiagramHelper.AddFunctionBlockAsync(page, "DecimalToIntegral", 2);
             await DiagramHelper.AddContainerAsync(page, new() { X = 10, Y = 10 });
@@ -40,7 +38,7 @@ public class FileSectionTests(TestWebApplicationFactory fixture) : IClassFixture
         var browser = new BrowserFixture(new());
         await browser.WithPageAsync(async page =>
         {
-            await page.GotoAsync(_serverAddress);
+            await page.GotoAsync(fixture.ServerAddress);
 
             var locator = await page.ShowSectionAndGetLocator(SectionNames.File);
             await Expect(locator).ToBeVisibleAsync();
