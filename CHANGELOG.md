@@ -45,7 +45,7 @@
 - `xunit.runner.visualstudio` package, updated to version `3.1.5`
 - `xunit.v3` package, updated to version `3.2.2`
 - `Z.Blazor.Diagrams` package, updated to version `3.0.4`
-- `ViciOne.TreeBuilder` package, updated to version `1.1.0`
+- `ViciOne.TreeBuilder` package, updated to version `1.1.1`
 
 ## 0.17.0 - 2025-12-08
 
