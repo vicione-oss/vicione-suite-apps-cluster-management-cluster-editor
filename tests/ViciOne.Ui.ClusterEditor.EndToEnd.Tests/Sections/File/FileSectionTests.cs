@@ -7,11 +7,10 @@ using static Microsoft.Playwright.Assertions;
 
 namespace ViciOne.Ui.ClusterEditor.EndToEnd.Tests.Sections.File;
 
-[Collection(TestWebApplicationFactoryCollection.Name)]
-public class FileSectionTests(TestWebApplicationFactory fixture)
+[Collection<ServerTestCollection>]
+public class FileSectionTests(ServerTestCollectionFixture fixture)
 {
     [Fact]
-    [Trait(Traits.Category, Traits.EndToEnd)]
     public async Task New_should_clear_diagram()
     {
         var browser = new BrowserFixture(new());
@@ -32,7 +31,6 @@ public class FileSectionTests(TestWebApplicationFactory fixture)
     }
 
     [Fact]
-    [Trait(Traits.Category, Traits.EndToEnd)]
     public async Task Section_should_render()
     {
         var browser = new BrowserFixture(new());
