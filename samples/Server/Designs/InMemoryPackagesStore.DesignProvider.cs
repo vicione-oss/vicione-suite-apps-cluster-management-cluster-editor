@@ -21,9 +21,7 @@ internal sealed partial class InMemoryPackagesStore : IDesignProvider
 
     private ClusterDependencyPackage[] GetDependencyPackages()
     {
-#pragma warning disable IDE0028 // Simplify collection initialization - we can't use Preview features, check again after next language update
         Dictionary<ClusterDependency, ClusterDependencyPackage> packages = new(_packages.Count);
-#pragma warning restore IDE0028 // Simplify collection initialization
 
         foreach (var (dependency, storeItem) in _packages)
         {
