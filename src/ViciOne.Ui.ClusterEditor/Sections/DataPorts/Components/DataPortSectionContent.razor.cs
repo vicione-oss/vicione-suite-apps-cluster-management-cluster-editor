@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Geometry;
@@ -29,7 +28,6 @@ using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components;
 
-[SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "#1600")]
 public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
 {
     private IEnumerable<DataPortContextMenuItem> _addDataPortContextMenuItems = [];
