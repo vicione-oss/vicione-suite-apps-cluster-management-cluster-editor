@@ -5,11 +5,10 @@ using static Microsoft.Playwright.Assertions;
 
 namespace ViciOne.Ui.ClusterEditor.EndToEnd.Tests.Sections.Information;
 
-[Collection(TestWebApplicationFactoryCollection.Name)]
-public class InformationSectionTests(TestWebApplicationFactory fixture)
+[Collection<ServerTestCollection>]
+public class InformationSectionTests(ServerTestCollectionFixture fixture)
 {
     [Fact]
-    [Trait(Traits.Category, Traits.EndToEnd)]
     public async Task Section_should_render()
     {
         var browser = new BrowserFixture(new());
