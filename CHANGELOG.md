@@ -37,15 +37,18 @@
 - `Microsoft.Extensions.Diagnostics.Testing` package, updated to version `10.2.0`
 - `Microsoft.NET.Test.Sdk` package, updated to version `18.0.1`
 - `ViciOne.Cluster.Builder` package, updated to `1.0.0`
-- `ViciOne.Ui.Blazor.Components` package, updated to version `5.7.0`
+- `ViciOne.Ui.Shared.Dx` package, updated to `0.19.1`
+- `ViciOne.Ui.Blazor.Components` package, updated to version `5.8.0`
 - `ViciOne.Ui.Design` package, added in version `2.0.3`
-- `ViciOne.Ui.Localization` package, updated to version `3.1.0`
-- `ViciOne.Ui.MonochromeIcons` packages, updated to version `4.6.0`
+- `ViciOne.Ui.Localization` package, updated to version `3.3.0`
+- `ViciOne.Ui.MonochromeIcons` packages, updated to version `4.7.0`
 - `ViciOne.Ui.TreeEditor` package, updated to version `2.0.0`
 - `xunit.runner.visualstudio` package, updated to version `3.1.5`
 - `xunit.v3` package, updated to version `3.2.2`
 - `Z.Blazor.Diagrams` package, updated to version `3.0.4`
 - `ViciOne.TreeBuilder` package, updated to version `1.1.1`
+- `ViciOne.Core.Dataflow.DataModel.Generation` package, updated to version `1.0.0`
+- `ViciOne.Suite.System.DataPort` package, updated to version `1.0.0`
 
 ## 0.17.0 - 2025-12-08
 
@@ -67,7 +70,7 @@
 - Exchanged and removed all MDI icons with icons from `ViciOne.Ui.MonochromeIcons`
 - Fixed context menu entries for `Connectors` after jumping to the connector
 - Exchanged temp icon for minimap with correct icon from `ViciOne.Ui.MonochromeIcons`
-- Exchanged all PNG icons used in context menüs with icons from `ViciOne.Ui.MonochromeIcons`
+- Exchanged all PNG icons used in context menus with icons from `ViciOne.Ui.MonochromeIcons`
 - Rearranged filter buttons and added filter to select all input and output connectors without system connectors to `ConnectorsSelectionDialog`
 - Fixed selection synchronization bug in `ContainerEditor`
 - Fixed context menu is complete empty on block node marker right-click
