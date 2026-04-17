@@ -139,9 +139,15 @@
                                             <div @onfocusin="(_) => SetInitialValues(dataItem)"
                                                  @onpointerdown:stopPropagation>
 
+@{ // see #799
+#pragma warning disable CS0618
+}
                                                 <ViciOne.Ui.Shared.Dx.Components.UniversalInput @bind-Value:get="@GetCellValue(fbName, dataItem)"
                                                                                                 @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
                                                                                                 FallbackValueType="@setting.SettingType" />
+@{
+#pragma warning restore CS0618
+}
                                             </div>
 
                                             <div class="validation-message-container">
@@ -209,9 +215,15 @@
                                                 <div @onfocusin="(_) => SetInitialValues(dataItem)"
                                                      @onpointerdown:stopPropagation>
 
+@{ // see #799
+#pragma warning disable CS0618
+}
                                                     <ViciOne.Ui.Shared.Dx.Components.UniversalInput @bind-Value:get="@setting.Value"
                                                                                                     @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
                                                                                                     FallbackValueType="@setting.SettingType" />
+@{
+#pragma warning restore CS0618
+}
                                                 </div>
 
                                                 <div class="validation-message-container">

@@ -1,106 +1,70 @@
 ﻿[
     {
         "Name": "ViciOne.Analysis",
-        "Version": "0.34.0"
+        "Version": "1.0.0"
     },
     {
         "Name": "ViciOne.Constant",
-        "Version": "0.34.0"
+        "Version": "1.0.0"
     },
     {
         "Name": "ViciOne.Converter",
-        "Version": "0.34.0"
+        "Version": "1.0.0"
     },
     {
         "Name": "ViciOne.FlowControl",
-        "Version": "0.34.0"
+        "Version": "1.0.0"
     },
     {
         "Name": "ViciOne.Logic",
-        "Version": "0.34.0"
+        "Version": "1.0.0"
     },
     {
         "Name": "ViciOne.Math",
-        "Version": "0.34.0"
+        "Version": "1.0.0"
     },
     {
         "Name": "ViciOne.Time",
-        "Version": "0.34.0"
-    },
-    {
-        "Name": "ifm.Anna.FunctionBlocks",
-        "Version": "0.38.0"
-    },
-    {
-        "Name": "ViciOne.Suite.DataPort.Anna",
-        "Version": "0.38.0"
-    },
+        "Version": "1.0.0"
+    },    
     {
         "Name": "ViciOne.Driver.IoTCore",
-        "Version": "1.21.0"
-    },
-    {
-        "Name": "ifm.moneo.Counter.Pieces",
-        "Version": "0.34.0"
-    },
-    {
-        "Name": "ifm.moneo.Counter.Runtime",
-        "Version": "0.34.0"
-    },
-    {
-        "Name": "ifm.moneo.DataFormatter",
-        "Version": "0.34.0"
-    },
-    {
-        "Name": "ifm.moneo.Math.DecimalToIntegral",
-        "Version": "0.34.0"
-    },
-    {
-        "Name": "ifm.moneo.Publisher",
-        "Version": "0.34.0"
-    },
-    {
-        "Name": "ifm.moneo.Subscriber",
-        "Version": "0.34.0"
-    },
-    {
-        "Name": "ViciOne.Suite.System.DataPort",
-        "Version": "0.15.0"
-    },
+        "Version": "2.0.0"
+    },        
     {
         "Name": "ViciOne.Suite.DataPort.Http.Client",
-        "Version": "0.29.0"
+        "Version": "0.30.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.InfluxDb",
-        "Version": "0.29.0"
+        "Version": "0.30.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.MySql",
-        "Version": "0.29.0"
+        "Version": "0.30.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.Mqtt",
-        "Version": "0.29.0"
+        "Version": "0.30.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.OpcUa.Client",
-        "Version": "0.29.0"
+        "Version": "0.30.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.OpcUa.Server",
-        "Version": "0.29.0"
+        "Version": "0.30.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.PostgreSql",
-        "Version": "0.29.0"
+        "Version": "0.30.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.Sqlite",
-        "Version": "0.29.0"
+        "Version": "0.30.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.SqlServer",
-        "Version": "0.29.0"
+        "Version": "0.30.0"
     }
 ]
