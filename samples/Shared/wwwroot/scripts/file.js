@@ -38,7 +38,7 @@
             if (!localStorage[key])
                 result.push(-1);
             else
-                result.push(Math.round((key.length + localStorage[key].length) * 2 / 1024));
+                result.push(Math.round(new Blob([localStorage[key]]).size / 1024));
         }
         return result;
     };
@@ -56,7 +56,7 @@
      * @returns {string}
      */
     File.load = function(saveSlot) {
-        return localStorage.getItem(`dataflow${saveSlot}`);
+        return ViciOne.LZString.decompress(localStorage.getItem(`dataflow${saveSlot}`));
     };
 
     /**
@@ -66,7 +66,7 @@
      */
     File.save = function(saveSlot, dataflowJson) {
         try {
-            localStorage.setItem(`dataflow${saveSlot}`, dataflowJson);
+            localStorage.setItem(`dataflow${saveSlot}`, ViciOne.LZString.compress(dataflowJson));
         }
         catch {
             return false;
