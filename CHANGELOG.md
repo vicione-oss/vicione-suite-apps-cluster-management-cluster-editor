@@ -33,7 +33,7 @@
 
 ### Updated external references
 
-- `Microsoft` packages, update to version `10.0.5`
+- `Microsoft` packages, update to version `10.0.6`
 - `Microsoft.Extensions.Diagnostics.Testing` package, updated to version `10.2.0`
 - `Microsoft.NET.Test.Sdk` package, updated to version `18.0.1`
 - `ViciOne.Cluster.Builder` package, updated to `1.0.0`
@@ -42,6 +42,7 @@
 - `ViciOne.Ui.Design` package, added in version `2.0.3`
 - `ViciOne.Ui.Localization` package, updated to version `3.3.0`
 - `ViciOne.Ui.MonochromeIcons` packages, updated to version `4.7.0`
+- `ViciOne.Ui.Testing.Playwright` package, updated to version `1.0.0`
 - `ViciOne.Ui.TreeEditor` package, updated to version `2.0.0`
 - `xunit.runner.visualstudio` package, updated to version `3.1.5`
 - `xunit.v3` package, updated to version `3.2.2`

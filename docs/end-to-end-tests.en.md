@@ -16,6 +16,6 @@ To run these tests, a first time setup is necessary (see https://playwright.dev/
 
 ## Running the tests
 
-After the inital setup, the tests can be run as usual via the Test Explorer (group by Traits, then look for "Category \[EndToEnd\]").
+After the inital setup, the tests can be run as usual via the Test Explorer (group by Traits, then look for "Category \[Playwright\]").
 When the tests are run in `Debug` mode, the actions of the test should be visible (Headless = false, SlowMo = 1000), otherwise
 the tests will be run in headless mode.
