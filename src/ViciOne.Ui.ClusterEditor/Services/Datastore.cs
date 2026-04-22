@@ -82,7 +82,7 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         _clusterBuilderEventBuffer.LabelPropertiesChanged += OnLabelPropertiesChanged;
     }
 
-    public async Task<ChildContainerNode> AddContainerAsync(DiagramService diagramService, Point position, CancellationToken cancellationToken = default, params IContainerChild[] children)
+    public async Task<ChildContainerNode> AddChildContainer(DiagramService diagramService, Point position, CancellationToken cancellationToken = default, params IContainerChild[] children)
     {
         RemoveBuilderEvents();
 
@@ -95,19 +95,38 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         containerEditor.SetBackColor(container, BlockNodeColors.BackgroundDefault);
         containerEditor.SetForeColor(container, BlockNodeColors.ForegroundDefault);
 
-        var containerNode = await ChildContainerMapper.CreateNodeAsync(_comparerService, container, this, diagramService, _jsRuntime, cancellationToken);
-        DataflowDiagramMapping.Add(container, containerNode);
+        var containerNodes = await AddChildContainersToMapping([container], diagramService, cancellationToken);
 
         AddBuilderEvents();
         _diagramEventService.InvokeContainerAdded(container);
 
-        return containerNode;
+        return containerNodes.First();
+    }
+
+    private async Task<List<ChildContainerNode>> AddChildContainersToMapping(List<ChildContainer> childContainers, DiagramService diagramService, CancellationToken cancellationToken)
+    {
+        if (childContainers.Count == 0)
+            return [];
+
+        var childContainerNames = childContainers.Select(cc => cc.Name).ToList();
+        var measuredHeights = await _jsRuntime.MeasureNameFieldHeights(childContainerNames, cancellationToken);
+
+        var result = new List<ChildContainerNode>();
+        for (var i = 0; i < childContainers.Count; i++)
+        {
+            var node = ChildContainerMapper.CreateNode(_comparerService, this, diagramService, childContainers[i], measuredHeights[i]);
+            DataflowDiagramMapping.Add(childContainers[i], node);
+
+            result.Add(node);
+        }
+
+        return result;
     }
 
     public void AddDataflow()
         => Builder.Editors.Cluster.AddDataflow("Dataflow", Builder.Cluster.Version);
 
-    public async Task<FunctionBlockNode> AddFunctionBlockAsync(DiagramService diagramService, Guid designId, Point position, CancellationToken cancellationToken = default)
+    public async Task<FunctionBlockNode> AddFunctionBlock(DiagramService diagramService, Guid designId, Point position, CancellationToken cancellationToken = default)
     {
         RemoveBuilderEvents();
 
@@ -122,12 +141,32 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         if (ValidDataflowEngines.Any())
             functionBlockEditor.AssignEngine(ValidDataflowEngines.First(), functionBlock);
 
-        var functionBlockNode = await FunctionBlockMapper.CreateNodeAsync(_comparerService, this, diagramService, functionBlock, _jsRuntime, cancellationToken);
-        DataflowDiagramMapping.Add(functionBlock, functionBlockNode);
+        var functionBlockNodes = await AddFunctionBlocksToMapping([functionBlock], diagramService, cancellationToken);
 
         AddBuilderEvents();
 
-        return functionBlockNode;
+        return functionBlockNodes.First();
+    }
+
+    private async Task<List<FunctionBlockNode>> AddFunctionBlocksToMapping(List<FunctionBlock> functionBlocks, DiagramService diagramService, CancellationToken cancellationToken)
+    {
+        if (functionBlocks.Count == 0)
+            return [];
+
+        var functionBlockNames = functionBlocks.Select(fb => fb.Name).ToList();
+        var measuredHeights = await _jsRuntime.MeasureNameFieldHeights(functionBlockNames, cancellationToken);
+
+        var result = new List<FunctionBlockNode>();
+        for (var i = 0; i < functionBlockNames.Count; i++)
+        {
+            var node = FunctionBlockMapper.CreateNode(_comparerService, this, diagramService, functionBlocks[i], measuredHeights[i]);
+            node.HasPortsInitialized = true;
+            DataflowDiagramMapping.Add(functionBlocks[i], node);
+
+            result.Add(node);
+        }
+
+        return result;
     }
 
     public LabelNode AddLabel(Point position, int zIndex)
@@ -145,12 +184,29 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         labelEditor.SetBackColor(label, LabelColors.BackgroundDefault);
         labelEditor.SetBorderColor(label, LabelColors.BorderDefault);
 
-        var labelNode = LabelMapper.CreateNode(label);
-        DataflowDiagramMapping.Add(label, labelNode);
+        var labels = AddLabelsToMapping([label]);
 
         AddBuilderEvents();
 
-        return labelNode;
+        return labels.First();
+    }
+
+    private List<LabelNode> AddLabelsToMapping(List<Label> labels)
+    {
+        if (labels.Count == 0)
+            return [];
+
+        var result = new List<LabelNode>();
+
+        foreach (var label in labels)
+        {
+            var node = LabelMapper.CreateNode(label);
+            DataflowDiagramMapping.Add(label, node);
+
+            result.Add(node);
+        }
+
+        return result;
     }
 
     public bool AddLink(BlockNodeLink nodeLink)
@@ -165,7 +221,26 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
 
         var link = Builder.Editors.Connector.AddLink(sourceConnector, targetConnector);
         DataflowDiagramMapping.Add(link, nodeLink);
+
         return true;
+    }
+
+    private List<BlockNodeLink> AddLinksToMapping(List<Link> links)
+    {
+        if (links.Count == 0)
+            return [];
+
+        var result = new List<BlockNodeLink>();
+
+        foreach (var link in links)
+        {
+            var node = LinkMapper.CreateLink(this, link);
+            DataflowDiagramMapping.Add(link, node);
+
+            result.Add(node);
+        }
+
+        return result;
     }
 
     public async ValueTask DisposeAsync()
@@ -235,34 +310,16 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
                 );
                 var dissolvedChilds = Builder.Editors.Container.DissolveContainer(childContainer);
 
-                var resultNodes = new List<NodeModel>();
-                foreach (var child in dissolvedChilds)
-                {
-                    if (child is FunctionBlock functionBlock)
-                    {
-                        var node = await FunctionBlockMapper.CreateNodeAsync(_comparerService, this, diagramService, functionBlock, _jsRuntime, _dissolveContainerCts.Token);
-                        resultNodes.Add(node);
-                        DataflowDiagramMapping.Add(functionBlock, node);
-                    }
-                    else if (child is ChildContainer container)
-                    {
-                        var node = await ChildContainerMapper.CreateNodeAsync(_comparerService, container, this, diagramService, _jsRuntime, _dissolveContainerCts.Token);
-                        resultNodes.Add(node);
-                        DataflowDiagramMapping.Add(container, node);
-                    }
-                    else if (child is Label label)
-                    {
-                        var node = LabelMapper.CreateNode(label);
-                        resultNodes.Add(node);
-                        DataflowDiagramMapping.Add(label, node);
-                    }
-                }
+                var newNodes = new List<NodeModel>();
+                newNodes.AddRange(await AddFunctionBlocksToMapping([.. dissolvedChilds.OfType<FunctionBlock>()], diagramService, _dissolveContainerCts.Token));
+                newNodes.AddRange(await AddChildContainersToMapping([.. dissolvedChilds.OfType<ChildContainer>()], diagramService, _dissolveContainerCts.Token));
+                newNodes.AddRange(AddLabelsToMapping([.. dissolvedChilds.OfType<Label>()]));
 
-                var nodeCenter = resultNodes.GetBounds().Center;
+                var nodeCenter = newNodes.GetBounds().Center;
                 var deltaX = containerPoint.X - nodeCenter.X;
                 var deltaY = containerPoint.Y - nodeCenter.Y;
 
-                foreach (var node in resultNodes)
+                foreach (var node in newNodes)
                 {
                     node.SetPosition(node.Position.X + deltaX, node.Position.Y + deltaY);
 
@@ -284,8 +341,8 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
                     DataflowDiagramMapping.Add(link, node);
                 }
 
-                ModelDiagramMapper.AddToDiagram(diagramService.Diagram, resultNodes, newLinks);
-                selectionManager.Select(resultNodes.Cast<IDiagramModel>());
+                ModelDiagramMapper.AddToDiagram(diagramService.Diagram, newNodes, newLinks);
+                selectionManager.Select(newNodes.Cast<IDiagramModel>());
             }
             finally
             {
@@ -598,31 +655,12 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         DataflowDiagramMapping.Clear();
         SearchBlocksEventService.RequestResetFindResult();
 
-        foreach (var functionBlock in container.FunctionBlocks)
-        {
-            var node = await FunctionBlockMapper.CreateNodeAsync(_comparerService, this, diagramService, functionBlock, _jsRuntime, cancellationToken);
-            node.HasPortsInitialized = true;
-            DataflowDiagramMapping.Add(functionBlock, node);
-        }
+        await AddFunctionBlocksToMapping(container.FunctionBlocks, diagramService, cancellationToken);
+        await AddChildContainersToMapping(container.Containers, diagramService, cancellationToken);
+        AddLabelsToMapping(container.Labels);
 
-        foreach (var containerChild in container.Containers)
-        {
-            var node = await ChildContainerMapper.CreateNodeAsync(_comparerService, containerChild, this, diagramService, _jsRuntime, cancellationToken);
-            DataflowDiagramMapping.Add(containerChild, node);
-        }
-
-        foreach (var label in container.Labels)
-        {
-            var node = LabelMapper.CreateNode(label);
-            DataflowDiagramMapping.Add(label, node);
-        }
-
-        var links = GetActiveContainerFunctionBlockLinks().Concat(GetActiveContainerContainerLinks());
-        foreach (var link in links)
-        {
-            var node = LinkMapper.CreateLink(this, link);
-            DataflowDiagramMapping.Add(link, node);
-        }
+        var links = GetActiveContainerFunctionBlockLinks().Concat(GetActiveContainerContainerLinks()).ToList();
+        AddLinksToMapping(links);
 
         ModelDiagramMapper.AddToDiagram(diagramService.Diagram, DataflowDiagramMapping.GetNodes(), DataflowDiagramMapping.GetNodeLinks());
 
@@ -668,7 +706,7 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         foreach (var label in labelsArray)
             DataflowDiagramMapping.Remove(label);
 
-        var containerNode = await AddContainerAsync(
+        var containerNode = await AddChildContainer(
             diagramService,
             newContainerLocation,
             default,

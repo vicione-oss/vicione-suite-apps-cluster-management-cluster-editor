@@ -42,7 +42,8 @@ public sealed class ContainerBreadcrumbTests : IDisposable
         Ctx.SetupDatastore();
         Ctx.SetupDiagramService();
         Ctx.CreateDiagramInstance();
-        Ctx.JSInterop.Mode = JSRuntimeMode.Loose;
+        Ctx.JSInterop.Setup<int[]>("ViciOne.Diagram.BlockNode.measureNameFieldHeights", _ => true).SetResult([0]);
+
         var datastore = Ctx.Services.GetRequiredService<IDatastore>();
         var diagramService = Ctx.Services.GetRequiredService<DiagramService>();
 

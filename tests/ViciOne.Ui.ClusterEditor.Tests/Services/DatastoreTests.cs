@@ -37,7 +37,7 @@ public sealed class DatastoreTests : IAsyncDisposable
     public DatastoreTests()
     {
         _ctx = new TestContext();
-        _ctx.JSInterop.Mode = JSRuntimeMode.Loose;
+        _ctx.JSInterop.Setup<int[]>("ViciOne.Diagram.BlockNode.measureNameFieldHeights", _ => true).SetResult([.. Enumerable.Repeat(0, 10)]);
 
         // Setup services
         _ctx.Services.AddSingleton(new ComparerService([], Substitute.For<ILogger<ComparerService>>()));
@@ -100,9 +100,9 @@ public sealed class DatastoreTests : IAsyncDisposable
         await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
         // Add multiple children
-        var fbNode1 = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(10, 10), Xunit.TestContext.Current.CancellationToken);
-        var fbNode2 = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(20, 20), Xunit.TestContext.Current.CancellationToken);
-        var innerContainerNode = await _datastore.AddContainerAsync(_diagramService, new Point(30, 30), Xunit.TestContext.Current.CancellationToken);
+        var fbNode1 = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(10, 10), Xunit.TestContext.Current.CancellationToken);
+        var fbNode2 = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(20, 20), Xunit.TestContext.Current.CancellationToken);
+        var innerContainerNode = await _datastore.AddChildContainer(_diagramService, new Point(30, 30), Xunit.TestContext.Current.CancellationToken);
         var labelNode = _datastore.AddLabel(new Point(40, 40), 0);
 
         var fb1 = _datastore.DataflowDiagramMapping.GetModel(fbNode1);
@@ -111,7 +111,7 @@ public sealed class DatastoreTests : IAsyncDisposable
         var label = _datastore.DataflowDiagramMapping.GetModel(labelNode);
 
         // Move all to container
-        var containerNode = await _datastore.AddContainerAsync(_diagramService, new Point(100, 100), Xunit.TestContext.Current.CancellationToken, [fb1, fb2, innerContainer, label]);
+        var containerNode = await _datastore.AddChildContainer(_diagramService, new Point(100, 100), Xunit.TestContext.Current.CancellationToken, [fb1, fb2, innerContainer, label]);
         var childContainer = _datastore.DataflowDiagramMapping.GetModel(containerNode);
 
         _datastore.DataflowDiagramMapping.Remove(fb1);
@@ -144,9 +144,9 @@ public sealed class DatastoreTests : IAsyncDisposable
     {
         // Arrange
         await _datastore.Load(_builder, _diagramService, CancellationToken.None);
-        var outerFbNode = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(50, 50), Xunit.TestContext.Current.CancellationToken);
-        var innerFbNode = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(150, 50), Xunit.TestContext.Current.CancellationToken);
-        var nestedFbNode = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(250, 50), Xunit.TestContext.Current.CancellationToken);
+        var outerFbNode = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(50, 50), Xunit.TestContext.Current.CancellationToken);
+        var innerFbNode = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(150, 50), Xunit.TestContext.Current.CancellationToken);
+        var nestedFbNode = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(250, 50), Xunit.TestContext.Current.CancellationToken);
         var outerFb = _datastore.DataflowDiagramMapping.GetModel(outerFbNode);
         var innerFb = _datastore.DataflowDiagramMapping.GetModel(innerFbNode);
         var nestedFb = _datastore.DataflowDiagramMapping.GetModel(nestedFbNode);
@@ -162,10 +162,10 @@ public sealed class DatastoreTests : IAsyncDisposable
         var outerNestedLinkNode = LinkMapper.CreateLink(_datastore, outerNestedLink);
         _datastore.DataflowDiagramMapping.Add(outerNestedLink, outerNestedLinkNode);
 
-        var nestedContainerNode = await _datastore.AddContainerAsync(_diagramService, new Point(100, 100), Xunit.TestContext.Current.CancellationToken, [nestedFb]);
+        var nestedContainerNode = await _datastore.AddChildContainer(_diagramService, new Point(100, 100), Xunit.TestContext.Current.CancellationToken, [nestedFb]);
         var nestedContainer = _datastore.DataflowDiagramMapping.GetModel(nestedContainerNode);
 
-        var containerNode = await _datastore.AddContainerAsync(_diagramService, new Point(100, 100), Xunit.TestContext.Current.CancellationToken, [innerFb, nestedContainer]);
+        var containerNode = await _datastore.AddChildContainer(_diagramService, new Point(100, 100), Xunit.TestContext.Current.CancellationToken, [innerFb, nestedContainer]);
 
         var childContainer = _datastore.DataflowDiagramMapping.GetModel(containerNode);
         _datastore.DataflowDiagramMapping.Remove(innerFb);
@@ -202,17 +202,17 @@ public sealed class DatastoreTests : IAsyncDisposable
         // Arrange
         await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
-        var fbNode1 = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(0, 0), Xunit.TestContext.Current.CancellationToken);
-        var fbNode2 = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(180, 0), Xunit.TestContext.Current.CancellationToken);
-        var fbNode3 = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(0, 200), Xunit.TestContext.Current.CancellationToken);
-        var fbNode4 = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(180, 200), Xunit.TestContext.Current.CancellationToken);
+        var fbNode1 = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(0, 0), Xunit.TestContext.Current.CancellationToken);
+        var fbNode2 = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(180, 0), Xunit.TestContext.Current.CancellationToken);
+        var fbNode3 = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(0, 200), Xunit.TestContext.Current.CancellationToken);
+        var fbNode4 = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(180, 200), Xunit.TestContext.Current.CancellationToken);
         var functionBlock1 = _datastore.DataflowDiagramMapping.GetModel(fbNode1);
         var functionBlock2 = _datastore.DataflowDiagramMapping.GetModel(fbNode2);
         var functionBlock3 = _datastore.DataflowDiagramMapping.GetModel(fbNode3);
         var functionBlock4 = _datastore.DataflowDiagramMapping.GetModel(fbNode4);
 
         var containerPosition = new Point(200, 200);
-        var containerNode = await _datastore.AddContainerAsync(_diagramService, containerPosition, Xunit.TestContext.Current.CancellationToken, [functionBlock1, functionBlock2, functionBlock3, functionBlock4]);
+        var containerNode = await _datastore.AddChildContainer(_diagramService, containerPosition, Xunit.TestContext.Current.CancellationToken, [functionBlock1, functionBlock2, functionBlock3, functionBlock4]);
         var childContainer = _datastore.DataflowDiagramMapping.GetModel(containerNode);
 
         var containerPoint = new Point(
@@ -234,6 +234,8 @@ public sealed class DatastoreTests : IAsyncDisposable
         await _datastore.DissolveContainerAsync(childContainer, _diagramService, _selectionManager);
 
         // Assert
+
+        // Careful: These assertions only work when the (mocked) JavaScript call to 'measureNameFieldHeights' returns a 0
         var extractedFbNode1 = _datastore.DataflowDiagramMapping.GetDiagramModel(functionBlock1);
         Assert.NotNull(extractedFbNode1);
         Assert.Equal(fbNode1.Position.X + deltaX, extractedFbNode1.Position.X);
@@ -260,7 +262,7 @@ public sealed class DatastoreTests : IAsyncDisposable
     {
         // Arrange
         await _datastore.Load(_builder, _diagramService, CancellationToken.None);
-        var containerNode = await _datastore.AddContainerAsync(_diagramService, new Point(100, 100), Xunit.TestContext.Current.CancellationToken);
+        var containerNode = await _datastore.AddChildContainer(_diagramService, new Point(100, 100), Xunit.TestContext.Current.CancellationToken);
         var childContainer = _datastore.DataflowDiagramMapping.GetModel(containerNode);
 
         // Act
@@ -277,7 +279,7 @@ public sealed class DatastoreTests : IAsyncDisposable
         // Arrange
         await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
-        var containerNode = await _datastore.AddContainerAsync(_diagramService, new Point(200, 200), Xunit.TestContext.Current.CancellationToken, []);
+        var containerNode = await _datastore.AddChildContainer(_diagramService, new Point(200, 200), Xunit.TestContext.Current.CancellationToken, []);
         var childContainer = _datastore.DataflowDiagramMapping.GetModel(containerNode);
         _datastore.DataflowDiagramMapping.Remove(childContainer);
 
@@ -291,7 +293,7 @@ public sealed class DatastoreTests : IAsyncDisposable
         // Arrange
         await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
-        var containerNode = await _datastore.AddContainerAsync(_diagramService, new Point(200, 200), Xunit.TestContext.Current.CancellationToken, []);
+        var containerNode = await _datastore.AddChildContainer(_diagramService, new Point(200, 200), Xunit.TestContext.Current.CancellationToken, []);
         var childContainer = _datastore.DataflowDiagramMapping.GetModel(containerNode);
         _datastore.DataflowDiagramMapping.Remove(childContainer);
 
@@ -307,21 +309,21 @@ public sealed class DatastoreTests : IAsyncDisposable
         // Arrange
         await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
-        var fbNode1 = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(50, 50), Xunit.TestContext.Current.CancellationToken);
+        var fbNode1 = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(50, 50), Xunit.TestContext.Current.CancellationToken);
         var fb1 = _datastore.DataflowDiagramMapping.GetModel(fbNode1);
-        var containerNode1 = await _datastore.AddContainerAsync(_diagramService, new Point(100, 100), Xunit.TestContext.Current.CancellationToken, [fb1]);
+        var containerNode1 = await _datastore.AddChildContainer(_diagramService, new Point(100, 100), Xunit.TestContext.Current.CancellationToken, [fb1]);
         var childContainer1 = _datastore.DataflowDiagramMapping.GetModel(containerNode1);
         _datastore.DataflowDiagramMapping.Remove(fb1);
 
-        var fbNode2 = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(150, 150), Xunit.TestContext.Current.CancellationToken);
+        var fbNode2 = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(150, 150), Xunit.TestContext.Current.CancellationToken);
         var fb2 = _datastore.DataflowDiagramMapping.GetModel(fbNode2);
-        var containerNode2 = await _datastore.AddContainerAsync(_diagramService, new Point(200, 200), Xunit.TestContext.Current.CancellationToken, [fb2]);
+        var containerNode2 = await _datastore.AddChildContainer(_diagramService, new Point(200, 200), Xunit.TestContext.Current.CancellationToken, [fb2]);
         var childContainer2 = _datastore.DataflowDiagramMapping.GetModel(containerNode2);
         _datastore.DataflowDiagramMapping.Remove(fb2);
 
-        var fbNode3 = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(250, 250), Xunit.TestContext.Current.CancellationToken);
+        var fbNode3 = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(250, 250), Xunit.TestContext.Current.CancellationToken);
         var fb3 = _datastore.DataflowDiagramMapping.GetModel(fbNode3);
-        var containerNode3 = await _datastore.AddContainerAsync(_diagramService, new Point(300, 300), Xunit.TestContext.Current.CancellationToken, [fb3]);
+        var containerNode3 = await _datastore.AddChildContainer(_diagramService, new Point(300, 300), Xunit.TestContext.Current.CancellationToken, [fb3]);
         var childContainer3 = _datastore.DataflowDiagramMapping.GetModel(containerNode3);
         _datastore.DataflowDiagramMapping.Remove(fb3);
 
@@ -360,9 +362,9 @@ public sealed class DatastoreTests : IAsyncDisposable
 
         foreach (var i in Enumerable.Range(1, 1000))
         {
-            var fbNode = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(50, i), Xunit.TestContext.Current.CancellationToken);
+            var fbNode = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(50, i), Xunit.TestContext.Current.CancellationToken);
             var fb = _datastore.DataflowDiagramMapping.GetModel(fbNode);
-            var containerNode = await _datastore.AddContainerAsync(_diagramService, new Point(100, i + 100), Xunit.TestContext.Current.CancellationToken, [fb]);
+            var containerNode = await _datastore.AddChildContainer(_diagramService, new Point(100, i + 100), Xunit.TestContext.Current.CancellationToken, [fb]);
             var childContainer = _datastore.DataflowDiagramMapping.GetModel(containerNode);
             childContainers.Add(childContainer);
             _datastore.DataflowDiagramMapping.Remove(fb);
@@ -387,10 +389,10 @@ public sealed class DatastoreTests : IAsyncDisposable
         // Arrange
         await _datastore.Load(_builder, _diagramService, CancellationToken.None);
 
-        var fbNode = await _datastore.AddFunctionBlockAsync(_diagramService, _fbDesignId, new Point(50, 50), Xunit.TestContext.Current.CancellationToken);
+        var fbNode = await _datastore.AddFunctionBlock(_diagramService, _fbDesignId, new Point(50, 50), Xunit.TestContext.Current.CancellationToken);
         var functionBlock = _datastore.DataflowDiagramMapping.GetModel(fbNode);
 
-        var containerNode = await _datastore.AddContainerAsync(_diagramService, new Point(100, 100), Xunit.TestContext.Current.CancellationToken, [functionBlock]);
+        var containerNode = await _datastore.AddChildContainer(_diagramService, new Point(100, 100), Xunit.TestContext.Current.CancellationToken, [functionBlock]);
 
         var childContainer = _datastore.DataflowDiagramMapping.GetModel(containerNode);
         _datastore.DataflowDiagramMapping.Remove(functionBlock);

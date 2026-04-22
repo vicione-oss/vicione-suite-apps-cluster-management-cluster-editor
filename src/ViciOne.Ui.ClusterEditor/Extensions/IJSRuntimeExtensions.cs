@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
@@ -8,22 +9,17 @@ namespace ViciOne.Ui.ClusterEditor.Extensions;
 
 internal static class IJSRuntimeExtensions
 {
-    /// <summary>
-    ///     Invokes a JavaScript function to measure the height of a BlockNode name field.
-    /// </summary>
-    /// <param name="jsRuntime">The JavaScript runtime instance.</param>
-    /// <param name="name">The name to measure.</param>
-    /// <returns>The measured height as an integer.</returns>
-    internal static async Task<int> MeasureNameFieldHeightAsync(this IJSRuntime jsRuntime, string name, CancellationToken cancellationToken)
+    internal static async Task<int[]> MeasureNameFieldHeights(this IJSRuntime jsRuntime, List<string> names, CancellationToken cancellationToken)
     {
-        var height = 2 * DiagramSettings.DefaultGridSize; // Default height if measurement fails
+        if (names.Count == 0)
+            return [];
 
         try
         {
-            height = await jsRuntime.InvokeAsync<int>(
-                "ViciOne.Diagram.BlockNode.measureNameFieldHeight",
+            return await jsRuntime.InvokeAsync<int[]>(
+                "ViciOne.Diagram.BlockNode.measureNameFieldHeights",
                 cancellationToken,
-                name,
+                names,
                 BlockNodeLayout.Width,
                 DiagramSettings.DefaultGridSize
             );
@@ -41,6 +37,8 @@ internal static class IJSRuntimeExtensions
             // Task already canceled – ignore
         }
 
-        return height;
+        var fallback = new int[names.Count];
+        Array.Fill(fallback, 2 * DiagramSettings.DefaultGridSize);
+        return fallback;
     }
 }

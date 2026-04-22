@@ -54,7 +54,7 @@ public sealed partial class DebugSectionContent : ComponentBase
         {
             for (var i = 0; i < amount; i++)
             {
-                var blockNode = await Datastore.AddFunctionBlockAsync(
+                var blockNode = await Datastore.AddFunctionBlock(
                     DiagramService,
                     id,
                     new(

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,85 +16,85 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Extensions;
 public class IJSRuntimeExtensionsTests
 {
     [Fact]
-    public async Task MeasureNameFieldHeightAsync_ReturnsDefault_OnJsDisconnectedException()
+    public async Task MeasureNameFieldHeights_ReturnsDefault_OnJsDisconnectedException()
     {
         // Arrange
         var jsRuntime = Substitute.For<IJSRuntime>();
-        var name = "Any";
+        var names = new List<string>() { "Any" };
         var token = CancellationToken.None;
 
         jsRuntime
-            .InvokeAsync<int>(
-                "ViciOne.Diagram.BlockNode.measureNameFieldHeight",
+            .InvokeAsync<int[]>(
+                "ViciOne.Diagram.BlockNode.measureNameFieldHeights",
                 Arg.Any<CancellationToken>(),
                 Arg.Any<object?[]?>()
             )
-            .Returns(_ => new ValueTask<int>(Task.FromException<int>(new JSDisconnectedException("Simulated disconnect"))));
+            .Returns(_ => new ValueTask<int[]>(Task.FromException<int[]>(new JSDisconnectedException("Simulated disconnect"))));
 
         var expectedDefault = 2 * DiagramSettings.DefaultGridSize;
 
         // Act
-        var actual = await IJSRuntimeExtensions.MeasureNameFieldHeightAsync(jsRuntime, name, token);
+        var actual = (await IJSRuntimeExtensions.MeasureNameFieldHeights(jsRuntime, names, token))[0];
 
         // Assert
         Assert.Equal(expectedDefault, actual);
     }
 
     [Fact]
-    public async Task MeasureNameFieldHeightAsync_ReturnsDefault_OnObjectDisposedException()
+    public async Task MeasureNameFieldHeights_ReturnsDefault_OnObjectDisposedException()
     {
         // Arrange
         var jsRuntime = Substitute.For<IJSRuntime>();
-        var name = "Any";
+        var names = new List<string>() { "Any" };
         var token = CancellationToken.None;
 
         jsRuntime
-            .InvokeAsync<int>(
-                "ViciOne.Diagram.BlockNode.measureNameFieldHeight",
+            .InvokeAsync<int[]>(
+                "ViciOne.Diagram.BlockNode.measureNameFieldHeights",
                 Arg.Any<CancellationToken>(),
                 Arg.Any<object?[]?>()
             )
-            .Returns(_ => new ValueTask<int>(Task.FromException<int>(new ObjectDisposedException("Simulated disposed object"))));
+            .Returns(_ => new ValueTask<int[]>(Task.FromException<int[]>(new ObjectDisposedException("Simulated disposed object"))));
 
         var expectedDefault = 2 * DiagramSettings.DefaultGridSize;
 
         // Act
-        var actual = await IJSRuntimeExtensions.MeasureNameFieldHeightAsync(jsRuntime, name, token);
+        var actual = (await IJSRuntimeExtensions.MeasureNameFieldHeights(jsRuntime, names, token))[0];
 
         // Assert
         Assert.Equal(expectedDefault, actual);
     }
 
     [Fact]
-    public async Task MeasureNameFieldHeightAsync_ReturnsJsValue_WhenInvocationSucceeds()
+    public async Task MeasureNameFieldHeights_ReturnsJsValue_WhenInvocationSucceeds()
     {
         // Arrange
         var jsRuntime = Substitute.For<IJSRuntime>();
         using var cts = new CancellationTokenSource();
-        var name = "Example Node";
-        var expectedHeight = 123;
+        var names = new List<string>() { "Example Node" };
+        var expectedHeight = -1;
 
         jsRuntime
-            .InvokeAsync<int>(
-                "ViciOne.Diagram.BlockNode.measureNameFieldHeight",
+            .InvokeAsync<int[]>(
+                "ViciOne.Diagram.BlockNode.measureNameFieldHeights",
                 Arg.Any<CancellationToken>(),
                 Arg.Any<object?[]?>()
             )
-            .Returns(_ => ValueTask.FromResult(expectedHeight));
+            .Returns(ValueTask.FromResult<int[]>([expectedHeight]));
 
         // Act
-        var actual = await IJSRuntimeExtensions.MeasureNameFieldHeightAsync(jsRuntime, name, cts.Token);
+        var actual = (await IJSRuntimeExtensions.MeasureNameFieldHeights(jsRuntime, names, cts.Token))[0];
 
         // Assert
         Assert.Equal(expectedHeight, actual);
 
-        await jsRuntime.Received(1).InvokeAsync<int>(
-            "ViciOne.Diagram.BlockNode.measureNameFieldHeight",
+        await jsRuntime.Received(1).InvokeAsync<int[]>(
+            "ViciOne.Diagram.BlockNode.measureNameFieldHeights",
             cts.Token,
             Arg.Is<object?[]?>(args =>
                 args != null &&
                 args.Length == 3 &&
-                Equals(args[0], name) &&
+                Equals(args[0], names) &&
                 Equals(args[1], BlockNodeLayout.Width) &&
                 Equals(args[2], DiagramSettings.DefaultGridSize)
             )

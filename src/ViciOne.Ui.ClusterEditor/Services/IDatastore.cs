@@ -32,9 +32,9 @@ public interface IDatastore : IAsyncDisposable
     event Action? NodesChanged;
     event Action<string>? PropertyChanged;
 
-    Task<ChildContainerNode> AddContainerAsync(DiagramService diagramService, Point position, CancellationToken cancellationToken = default, params IContainerChild[] children);
+    Task<ChildContainerNode> AddChildContainer(DiagramService diagramService, Point position, CancellationToken cancellationToken = default, params IContainerChild[] children);
     void AddDataflow();
-    Task<FunctionBlockNode> AddFunctionBlockAsync(DiagramService diagramService, Guid designId, Point position, CancellationToken cancellationToken = default);
+    Task<FunctionBlockNode> AddFunctionBlock(DiagramService diagramService, Guid designId, Point position, CancellationToken cancellationToken = default);
     LabelNode AddLabel(Point position, int zIndex);
     bool AddLink(BlockNodeLink nodeLink);
     Task DissolveContainerAsync(ChildContainer childContainer, DiagramService diagramService, SelectionManager selectionManager);

@@ -38,7 +38,7 @@ public sealed partial class NodeEditorContextMenu : SpecializedContextMenuWithSt
     private async Task AddContainerClickAsync()
     {
         var position = DiagramService.Diagram.GetRelativeGridPoint(new Point(State.ContextMenuPositionX, State.ContextMenuPositionY), Datastore);
-        var containerNode = await Datastore.AddContainerAsync(DiagramService, position);
+        var containerNode = await Datastore.AddChildContainer(DiagramService, position);
 
         DiagramService.Diagram.Nodes.Add(containerNode);
         SelectionManager.SetSelection(containerNode);

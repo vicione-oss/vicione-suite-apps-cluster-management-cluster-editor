@@ -315,7 +315,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
 
         foreach (var libraryEntry in validDraggingEntries)
         {
-            var draggingNode = await Datastore.AddFunctionBlockAsync(DiagramService, libraryEntry.UniqueId, new(nextXPos, nextYPos));
+            var draggingNode = await Datastore.AddFunctionBlock(DiagramService, libraryEntry.UniqueId, new(nextXPos, nextYPos));
             _diagram!.Nodes.Add(draggingNode);
             _draggingNodes.Add(draggingNode);
 
@@ -668,7 +668,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         var fbPosition = new Point(
             center.X - (BlockNodeLayout.Width / 2),
             center.Y - (BlockNodeLayout.DefaultNameHeight + BlockNodeLayout.SettingsRowHeight + (BlockNodeLayout.SystemConnectorRows * BlockNodeLayout.RowHeight)));
-        var newNode = await Datastore.AddFunctionBlockAsync(DiagramService, designId, fbPosition);
+        var newNode = await Datastore.AddFunctionBlock(DiagramService, designId, fbPosition);
         newNode.HasPortsInitialized = true;
 
         _diagram!.Nodes.Add(newNode);

@@ -2,14 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Threading;
-using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Geometry;
-using Microsoft.JSInterop;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Constants;
-using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services;
@@ -20,20 +16,17 @@ namespace ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
 
 internal static partial class FunctionBlockMapper
 {
-    internal static async Task<FunctionBlockNode> CreateNodeAsync(
+    internal static FunctionBlockNode CreateNode(
         ComparerService comparerService,
         IDatastore datastore,
         DiagramService diagramService,
         FunctionBlock functionBlock,
-        IJSRuntime jsRuntime,
-        CancellationToken cancellationToken)
+        int nameFieldHeight)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var position = new Point(functionBlock.X ?? 0, functionBlock.Y ?? 0);
         var node = new FunctionBlockNode(position)
         {
-            ImageSrc = null, // TODO: functionBlock hat im Moment noch keine Image Eigenschaften
+            ImageSrc = null,
             ImageText = GetNodeImageText(datastore.Builder.ResolveFunctionBlockDesign(functionBlock.DesignId).Name),
             Name = functionBlock.Name,
             NameBackgroundColor = functionBlock.BackColor ?? BlockNodeColors.BackgroundDefault,
@@ -46,9 +39,8 @@ internal static partial class FunctionBlockMapper
 
         node.Connectors.AddRange(GenerateConnectors(comparerService, datastore, diagramService, functionBlock, node));
         node.CalculateDisplayAllConnectors();
-        cancellationToken.ThrowIfCancellationRequested();
 
-        node.NameFieldHeight = await jsRuntime.MeasureNameFieldHeightAsync(node.Name, cancellationToken);
+        node.NameFieldHeight = nameFieldHeight;
         node.UpdateSize();
         node.PrecomputePortsInformation();
 
@@ -66,20 +58,19 @@ internal static partial class FunctionBlockMapper
         var rowCount = 0;
         var currentConnectorCount = 0;
 
-        // TODO: Connector.Index Eigenschaft nutzen wenn diese gefüllt ist
         var count = 0;
         var inputConnectors = functionBlock.SystemInputs.ToDictionary(c => count++);
 
-        var inputIdx = 0;
+        var index = 0;
         foreach (var dataInput in functionBlock.ProcessDataInputs)
-            inputConnectors.Add(inputIdx++ + BlockNodeLayout.SystemConnectorRows, dataInput);
+            inputConnectors.Add(index++ + BlockNodeLayout.SystemConnectorRows, dataInput);
 
         count = 0;
         var outputConnectors = functionBlock.SystemOutputs.ToDictionary(c => count++);
 
-        var outputIdx = 0;
+        index = 0;
         foreach (var dataOutput in functionBlock.ProcessDataOutputs)
-            outputConnectors.Add(outputIdx++ + BlockNodeLayout.SystemConnectorRows, dataOutput);
+            outputConnectors.Add(index++ + BlockNodeLayout.SystemConnectorRows, dataOutput);
 
         var maxConnectorCount = inputConnectors.Count + outputConnectors.Count;
 
