@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Geometry;
-using Microsoft.JSInterop;
 using ViciOne.Ui.ClusterEditor.Constants;
-using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Services;
 
 namespace ViciOne.Ui.ClusterEditor.Models.DiagramModels;
@@ -17,10 +13,8 @@ public sealed class ChildContainerNode : BlockNode
 
     internal ChildContainerNode(Point? point = null) : base(point) { }
 
-    internal async Task RemoveConnectorsAsync(IEnumerable<BlockNodeConnector> connectors, IDatastore datastore, IJSRuntime jsRuntime, CancellationToken cancellationToken)
+    internal void RemoveConnectors(IEnumerable<BlockNodeConnector> connectors, IDatastore datastore)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         var blockNodeConnectors = connectors.ToArray();
         for (var i = 0; i < Connectors.Count; i++)
         {
@@ -37,9 +31,6 @@ public sealed class ChildContainerNode : BlockNode
         while (Connectors.Count > BlockNodeLayout.MinimumConnectorRows && Connectors.Last().All(c => c is null))
             Connectors.RemoveAt(Connectors.Count - 1);
 
-        cancellationToken.ThrowIfCancellationRequested();
-
-        NameFieldHeight = await jsRuntime.MeasureNameFieldHeightAsync(Name, cancellationToken);
         UpdateSize();
 
         foreach (var con in blockNodeConnectors)

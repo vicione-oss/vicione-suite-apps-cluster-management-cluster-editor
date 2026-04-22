@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
-using Microsoft.JSInterop;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Components;
@@ -18,12 +16,9 @@ namespace ViciOne.Ui.ClusterEditor.Components.ContextMenu.Specialized;
 
 public sealed partial class BlockNodeConnectorContextMenu : SpecializedContextMenuWithStateBase<BlockNodeConnectorContextMenuContext, BlockNodeConnectorContextMenuState>, IAsyncDisposable
 {
-    private CancellationTokenSource? _removeConnectorFromContainerCts;
-
     [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramEventService DiagramEventService { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
-    [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
 
     private void AddConnectorToParentContainerClick()
@@ -70,15 +65,7 @@ public sealed partial class BlockNodeConnectorContextMenu : SpecializedContextMe
     }
 
     public async ValueTask DisposeAsync()
-    {
-        if (_removeConnectorFromContainerCts is not null)
-        {
-            await _removeConnectorFromContainerCts.CancelAsync();
-            _removeConnectorFromContainerCts.Dispose();
-        }
-
-        DiagramEventService.CloseContextMenuRequested -= CloseContextMenuRequested;
-    }
+        => DiagramEventService.CloseContextMenuRequested -= CloseContextMenuRequested;
 
     private void OnContextMenuVisibilityChanged(bool isVisible)
     {
@@ -100,14 +87,6 @@ public sealed partial class BlockNodeConnectorContextMenu : SpecializedContextMe
 
     private async Task RemoveConnectorFromContainerClickAsync()
     {
-        if (_removeConnectorFromContainerCts is not null)
-        {
-            await _removeConnectorFromContainerCts.CancelAsync();
-            _removeConnectorFromContainerCts.Dispose();
-        }
-
-        _removeConnectorFromContainerCts = new CancellationTokenSource();
-
         var connectorEditor = Datastore.Builder.Editors.Connector;
         var selectedChildContainerConnectors = SelectionManager.SelectedConnectors.Where(c => c.Node is ChildContainerNode).ToArray();
 
@@ -130,14 +109,7 @@ public sealed partial class BlockNodeConnectorContextMenu : SpecializedContextMe
         var nodes = selectedChildContainerConnectors.GroupBy(c => (ChildContainerNode)c.Node);
         foreach (var grp in nodes)
         {
-            try
-            {
-                await grp.Key.RemoveConnectorsAsync(grp, Datastore, JsRuntime, _removeConnectorFromContainerCts.Token);
-            }
-            catch (OperationCanceledException)
-            {
-                // Ignore
-            }
+            grp.Key.RemoveConnectors(grp, Datastore);
         }
     }
 

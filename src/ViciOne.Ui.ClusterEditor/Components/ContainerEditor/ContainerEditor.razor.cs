@@ -17,6 +17,7 @@ using ViciOne.Ui.ClusterEditor.Behaviors;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Models;
 using ViciOne.Ui.ClusterEditor.Components.DiagramComponents;
 using ViciOne.Ui.ClusterEditor.Constants;
+using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
@@ -363,13 +364,12 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     {
         ClusterBuilderEventBuffer.ConnectorPropertiesChanged -= OnPropertyChanged;
 
-        await ChildContainerMapper.ReloadConnectorsAsync(
+        ChildContainerMapper.ReloadConnectorsAsync(
             ComparerService,
             Datastore.DataflowDiagramMapping.GetModel(_originalContainerNode!),
             _originalContainerNode!,
             Datastore,
-            DiagramService,
-            JsRuntime
+            DiagramService
         );
 
         // Refresh container node in diagram to refresh port relations from changed connectors
@@ -588,7 +588,9 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
         var containerModel = Datastore.DataflowDiagramMapping.GetModel(_originalContainerNode);
         using var cts = new System.Threading.CancellationTokenSource();
-        _currentContainerNode = await ChildContainerMapper.CreateNodeAsync(ComparerService, containerModel, Datastore, _diagramService!, JsRuntime, cts.Token);
+
+        var nameFieldHeight = (await JsRuntime.MeasureNameFieldHeights([containerModel.Name], cts.Token)).First();
+        _currentContainerNode = ChildContainerMapper.CreateNode(ComparerService, Datastore, _diagramService!, containerModel, nameFieldHeight);
 
         _currentContainerNode.Position = new(0, 0);
 

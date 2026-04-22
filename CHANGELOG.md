@@ -30,6 +30,7 @@
 - Fixed tooltips getting stuck
 - Improved node selection ordering method
 - Improved node move handling when releasing the cursor outside of the `NodeEditor` area
+- Optimized code for name field height measurement of nodes
 
 ### Updated external references
 

@@ -1,14 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Geometry;
-using Microsoft.JSInterop;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
 using ViciOne.Ui.ClusterEditor.Constants;
-using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services;
@@ -19,35 +15,31 @@ namespace ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
 
 internal static class ChildContainerMapper
 {
-    internal static async Task<ChildContainerNode> CreateNodeAsync(
+    internal static ChildContainerNode CreateNode(
         ComparerService comparerService,
-        ChildContainer container,
         IDatastore datastore,
         DiagramService diagramService,
-        IJSRuntime jsRuntime,
-        CancellationToken cancellationToken)
+        ChildContainer childContainer,
+        int nameFieldHeight)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
-        var position = new Point(container.X ?? 0, container.Y ?? 0);
+        var position = new Point(childContainer.X ?? 0, childContainer.Y ?? 0);
         var node = new ChildContainerNode(position)
         {
-            Name = container.Name,
-            NameBackgroundColor = container.BackColor ?? BlockNodeColors.BackgroundDefault,
-            NameForeColor = container.ForeColor ?? BlockNodeColors.ForegroundDefault
+            Name = childContainer.Name,
+            NameBackgroundColor = childContainer.BackColor ?? BlockNodeColors.BackgroundDefault,
+            NameForeColor = childContainer.ForeColor ?? BlockNodeColors.ForegroundDefault
         };
 
-        node.SetEngineDisplayText(EngineDisplayText.Get(datastore.Builder, container));
+        node.SetEngineDisplayText(EngineDisplayText.Get(datastore.Builder, childContainer));
 
-        var nextLevelElements = GetContainerElementCount(container, true);
-        var allElements = GetContainerElementCount(container, false);
+        var nextLevelElements = GetContainerElementCount(childContainer, true);
+        var allElements = GetContainerElementCount(childContainer, false);
         node.SetChildrenInformation(nextLevelElements, allElements);
 
-        node.Connectors.AddRange(GenerateConnectors(node, container, comparerService, datastore, diagramService));
+        node.Connectors.AddRange(GenerateConnectors(node, childContainer, comparerService, datastore, diagramService));
         node.CalculateDisplayAllConnectors();
-        cancellationToken.ThrowIfCancellationRequested();
 
-        node.NameFieldHeight = await jsRuntime.MeasureNameFieldHeightAsync(node.Name, cancellationToken);
+        node.NameFieldHeight = nameFieldHeight;
         node.UpdateSize();
         node.PrecomputePortsInformation();
 
@@ -129,26 +121,20 @@ internal static class ChildContainerMapper
         containerNode.RefreshAll();
     }
 
-    internal static async Task ReloadConnectorsAsync(
+    internal static void ReloadConnectorsAsync(
         ComparerService comparerService,
         ChildContainer container,
         ChildContainerNode containerNode,
         IDatastore datastore,
-        DiagramService diagramService,
-        IJSRuntime jsRuntime,
-        CancellationToken cancellationToken = default)
+        DiagramService diagramService)
     {
-        cancellationToken.ThrowIfCancellationRequested();
-
         containerNode.Connectors.Clear();
         foreach (var port in containerNode.Ports.ToArray())
             containerNode.RemovePort(port);
 
         containerNode.Connectors.AddRange(GenerateConnectors(containerNode, container, comparerService, datastore, diagramService));
         containerNode.CalculateDisplayAllConnectors();
-        cancellationToken.ThrowIfCancellationRequested();
 
-        containerNode.NameFieldHeight = await jsRuntime.MeasureNameFieldHeightAsync(containerNode.Name, cancellationToken);
         containerNode.UpdateSize();
         containerNode.PrecomputePortsInformation();
 
