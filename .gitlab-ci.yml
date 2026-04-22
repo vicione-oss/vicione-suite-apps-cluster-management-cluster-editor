@@ -118,7 +118,7 @@ include:
     inputs:
       coverage: true
       image: ${IMAGE_NAME}
-      filter: '/[(Category!=Manual)&(Category!=EndToEnd)]'
+      filter: '/[(Category!=Manual)&(Category!=Playwright)]'
       rules: *rules
       before_script:
         - *activate_mise

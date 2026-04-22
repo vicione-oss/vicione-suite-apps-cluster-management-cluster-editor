@@ -1,4 +1,5 @@
-﻿using Xunit;
+﻿using ViciOne.Ui.Testing.Playwright.Attributes;
+using Xunit;
 
 namespace ViciOne.Ui.ClusterEditor.EndToEnd.Tests.Infrastructure;
 
@@ -10,7 +11,7 @@ namespace ViciOne.Ui.ClusterEditor.EndToEnd.Tests.Infrastructure;
 /// <see href="https://xunit.net/docs/shared-context#collection-fixture"/>
 /// </remarks>
 [CollectionDefinition("Server web application test collection")]
-[Trait("Category", "EndToEnd")]
+[PlaywrightTest]
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Naming", "CA1711:Identifiers should not have incorrect suffix", Justification = "Collection is a xunit term here")]
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "xUnit1027: Collection definition classes must be public. Add or change the visibility modifier of the collection definition class to public.")]
-public class ServerTestCollection : ICollectionFixture<ServerTestCollectionFixture>;
+public class ServerTestCollection : ICollectionFixture<ServerFixture>;
