@@ -30,7 +30,7 @@ else
     builder.Services
         .AddRazorComponents()
         .AddInteractiveServerComponents()
-        .AddHubOptions(configure => configure.MaximumReceiveMessageSize = 5 * 1024 * 1024);
+        .AddHubOptions(configure => configure.MaximumReceiveMessageSize = 50 * 1024 * 1024);
 
     builder.Services.AddHostedService<DesignLoader>();
 }
