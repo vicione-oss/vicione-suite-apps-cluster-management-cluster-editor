@@ -35,7 +35,6 @@ else
     builder.Services.AddHostedService<DesignLoader>();
 }
 
-builder.Services.AddHttpClient();
 builder.Services.AddLocalization();
 
 builder.Services.AddDevExpressBlazor();

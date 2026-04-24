@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.Reflection;
-using Microsoft.Extensions.Options;
 using Sdk.Backend.Modules;
 using Semver;
 using Shared.ClusterSerialization;
@@ -16,15 +15,15 @@ internal sealed partial class DesignLoader(
     IClusterDependencyStore clusterDependencyStore,
     IFileSystem fileSystem,
     ILogger<DesignLoader> logger,
-    IOptions<ClusterDependencyHttpOptions> options,
     IPackagesStore packagesStore,
-    IWorkspaceProvider<FakeBackendModule> workspaceProvider) : BackgroundService, IDownloader
+    IWorkspaceProvider<FakeBackendModule> workspaceProvider,
+    PackageArtifactRepository packageDownloader) : BackgroundService, IDownloader
 {
     private readonly IClusterDependencyStore _clusterDependencyStore = clusterDependencyStore;
     private readonly TaskCompletionSource _downloadProcess = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly IFileSystem _fileSystem = fileSystem;
     private readonly ILogger<DesignLoader> _logger = logger;
-    private readonly IOptions<ClusterDependencyHttpOptions> _options = options;
+    private readonly PackageArtifactRepository _packageDownloader = packageDownloader;
     private readonly IWorkspaceProvider<FakeBackendModule> _workspaceProvider = workspaceProvider;
 
     internal int LoadedDataPortDesigns { get; private set; }
@@ -56,9 +55,7 @@ internal sealed partial class DesignLoader(
         var packagesPath = _fileSystem.GetDependenciesPath(_workspaceProvider);
         _fileSystem.Directory.CreateDirectory(packagesPath);
 
-        using var functionBlockLoader = new ClusterDependencyHttpLoader(_options, packagesPath);
-
-        var results = await Task.WhenAll(dependencies.Select(fb => functionBlockLoader.DownloadAndExtractAsync(fb.Name, fb.Version, stoppingToken)));
+        var results = await Task.WhenAll(dependencies.Select(fb => _packageDownloader.DownloadAndExtractAsync(packagesPath, fb.Name, fb.Version, stoppingToken)));
 
         watch.Stop();
 
