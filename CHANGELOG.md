@@ -31,6 +31,8 @@
 - Improved node selection ordering method
 - Improved node move handling when releasing the cursor outside of the `NodeEditor` area
 - Optimized code for name field height measurement of nodes
+- Fixed potential wrong node size in diagram area or minimap after loading a cluster
+- Optimized setting zoom/pan after cluster load 
 
 ### Updated external references
 
