@@ -1,6 +1,6 @@
 ﻿namespace Shared.Designs;
 
-public record ClusterDependencyHttpLoaderResult(string SourcePath, string TargetPath)
+internal sealed record PackageArtifactLoadResult(string SourcePath, string TargetPath)
 {
     public Exception? Error { get; set; }
     public bool Skipped { get; set; }

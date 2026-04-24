@@ -1,5 +1,9 @@
 ﻿[
     {
+        "Name": "ViciOne.Engine.DefaultPoolings",
+        "Version": "1.0.0"
+    },
+    {
         "Name": "ViciOne.Analysis",
         "Version": "1.0.0"
     },
@@ -30,7 +34,39 @@
     {
         "Name": "ViciOne.Driver.IoTCore",
         "Version": "2.0.0"
-    },        
+    },            
+    {
+        "Name": "ifm.Anna.FunctionBlocks",
+        "Version": "1.0.0"
+    },
+    {
+        "Name": "ViciOne.Suite.DataPort.Anna",
+        "Version": "1.0.0"
+    },
+    {
+        "Name": "ViciOne.Driver.IoTCore",
+        "Version": "2.0.0"
+    },
+    {
+        "Name": "ifm.moneo.Counter.Pieces",
+        "Version": "1.0.0"
+    },
+    {
+        "Name": "ifm.moneo.Counter.Runtime",
+        "Version": "1.0.0"
+    },
+    {
+        "Name": "ifm.moneo.DataFormatter",
+        "Version": "1.0.0"
+    },
+    {
+        "Name": "ifm.moneo.Math.DecimalToIntegral",
+        "Version": "1.0.0"
+    },
+    {
+        "Name": "ViciOne.Suite.System.DataPort",
+        "Version": "1.0.0"
+    },
     {
         "Name": "ViciOne.Suite.DataPort.Http.Client",
         "Version": "0.30.0"
