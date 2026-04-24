@@ -364,12 +364,13 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
 
     private void OnContainerLoaded(Container container)
     {
-        if (container.ViewportX.HasValue && container.ViewportY.HasValue && container.Zoom.HasValue)
-        {
-            _diagram!.SetPan(container.ViewportX.Value, container.ViewportY.Value);
-            _diagram.SetZoom(container.Zoom.Value);
-        }
-        else
+        // If the container had saved values for all of ViewportX & ViewportY & Zoom
+        // then we set these values in Datastore.LoadContainerSafely after clearing the Diagram
+        // and before we add any new nodes to the Diagram.
+        // This optimizes the loading procedure as the Diagram doesn't has to calculate the size of the
+        // nodes again and render them twice (possibly leading to bugs because the size calculation is async).
+        // The code below is the fallback when any of these values are missing.
+        if (!(container.ViewportX.HasValue && container.ViewportY.HasValue && container.Zoom.HasValue))
         {
             if (_diagram!.Nodes.Any())
             {

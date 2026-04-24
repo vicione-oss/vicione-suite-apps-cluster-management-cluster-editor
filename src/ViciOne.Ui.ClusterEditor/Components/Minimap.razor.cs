@@ -10,6 +10,7 @@ using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.Models.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Constants;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
@@ -148,6 +149,9 @@ public sealed partial class Minimap : ComponentBase, IDisposable
 
     private void InitializeRenderTimer()
         => _renderTimer = new(TimeSpan.FromMilliseconds(40));
+
+    private void OnContainerLoaded(Container container)
+        => RecalculateNodeBounds();
 
     private void OnContainerPointerEnter()
         => DiagramEventService.InvokeDiagramPointerLeave();
@@ -408,13 +412,6 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         _referenceScale = _referenceRect.Width / _containerSize.Width;
     }
 
-    internal void Refresh()
-    {
-        _fullRefreshNeeded = true;
-        _refreshCounter = 0;
-        _refreshNeeded = true;
-    }
-
     private void RefreshInternal()
     {
         _refreshCounter++;
@@ -560,6 +557,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         Diagram!.Nodes.Added += OnNodeAdded;
         Diagram!.Nodes.Removed += OnNodeRemoved;
 
+        DiagramEventService.ContainerLoaded += OnContainerLoaded;
         DiagramEventService.EdgeDraggingVisibilityChangeRequested += OnEdgeDraggingVisibilityChangeRequested;
         DiagramEventService.MinimapColoringChanged += OnMinimapColoringChanged;
     }
@@ -579,6 +577,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         Diagram!.Nodes.Added -= OnNodeAdded;
         Diagram!.Nodes.Removed -= OnNodeRemoved;
 
+        DiagramEventService.ContainerLoaded -= OnContainerLoaded;
         DiagramEventService.EdgeDraggingVisibilityChangeRequested -= OnEdgeDraggingVisibilityChangeRequested;
         DiagramEventService.MinimapColoringChanged -= OnMinimapColoringChanged;
     }

@@ -57,7 +57,6 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
     public event Action<BlockNodeLink>? ConnectorLinkRemoved;
     public event Action<ChildContainer, string>? ContainerPropertyChanged;
     public event Action? ForcedRefreshRequested;
-    public event Action? NodesChanged;
     public event Action<string>? PropertyChanged;
 
     public Datastore(ClusterBuilderEventBuffer clusterBuilderEventBuffer, ComparerService comparerService, DiagramEventService diagramEventService, IJSRuntime jsRuntime, ILogger<Datastore> logger)
@@ -625,9 +624,6 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         if (ActiveContainer == container && !force)
             return;
 
-        diagramService.Diagram.UnselectAll();
-
-        diagramService.DiagramState.SuppressEvents = true;
         SaveViewport(ActiveContainer, diagramService.Diagram);
 
         ActiveContainer = container;
@@ -649,11 +645,20 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
 
         ValidDataflowEngines = Builder.Cache.GetUsedEngines(ActiveDataflow).Concat(Builder.Cache.GetUnusedEngines());
 
+        SearchBlocksEventService.RequestResetFindResult();
+
         RemoveBuilderEvents();
-        NodesChanged?.Invoke();
+        diagramService.DiagramState.SuppressEvents = true;
+
+        diagramService.Diagram.UnselectAll();
         diagramService.Diagram.Nodes.Clear();
         DataflowDiagramMapping.Clear();
-        SearchBlocksEventService.RequestResetFindResult();
+
+        if (container.ViewportX.HasValue && container.ViewportY.HasValue && container.Zoom.HasValue)
+        {
+            diagramService.Diagram.SetPan(container.ViewportX.Value, container.ViewportY.Value);
+            diagramService.Diagram.SetZoom(container.Zoom.Value);
+        }
 
         await AddFunctionBlocksToMapping(container.FunctionBlocks, diagramService, cancellationToken);
         await AddChildContainersToMapping(container.Containers, diagramService, cancellationToken);
@@ -665,8 +670,8 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         ModelDiagramMapper.AddToDiagram(diagramService.Diagram, DataflowDiagramMapping.GetNodes(), DataflowDiagramMapping.GetNodeLinks());
 
         AddBuilderEvents();
-
         diagramService.DiagramState.SuppressEvents = false;
+
         _diagramEventService.InvokeContainerLoaded(ActiveContainer);
 
         if (force)

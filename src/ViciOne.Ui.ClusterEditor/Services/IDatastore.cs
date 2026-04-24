@@ -29,7 +29,6 @@ public interface IDatastore : IAsyncDisposable
     event Action<BlockNodeLink>? ConnectorLinkRemoved;
     event Action<ChildContainer, string>? ContainerPropertyChanged;
     event Action? ForcedRefreshRequested;
-    event Action? NodesChanged;
     event Action<string>? PropertyChanged;
 
     Task<ChildContainerNode> AddChildContainer(DiagramService diagramService, Point position, CancellationToken cancellationToken = default, params IContainerChild[] children);
