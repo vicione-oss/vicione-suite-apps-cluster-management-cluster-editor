@@ -1,4 +1,4 @@
-﻿# ViciOne Cluster Editor
+# ViciOne Cluster Editor
 
 ## Checkout and Development
 
@@ -30,8 +30,13 @@ Once you received the password, you can continue to add the credentials by e.g. 
 1. Open a powershell and move into the `<<Local Repo Path>>/samples/Server` directory
 2. Execute the following commands<br>
 ```ps
-dotnet user-secrets set "ClusterDependencyHttp:User" "<user>"
-dotnet user-secrets set "ClusterDependencyHttp:Password" "<password>"
+dotnet user-secrets set "ArtifactRepository:Sources:0:UserName" "<user>"
+dotnet user-secrets set "ArtifactRepository:Sources:1:UserName" "<user>"
+dotnet user-secrets set "ArtifactRepository:Sources:2:UserName" "<user>"
+
+dotnet user-secrets set "ArtifactRepository:Sources:0:Password" "<password>"
+dotnet user-secrets set "ArtifactRepository:Sources:1:Password" "<password>"
+dotnet user-secrets set "ArtifactRepository:Sources:2:Password" "<password>"
 ```
 
 ## Guidelines
