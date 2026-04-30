@@ -1,0 +1,31 @@
+﻿@{
+    var cssClasses = new List<string> { "scroll-container" };
+
+    if (!string.IsNullOrWhiteSpace(CssClass))
+        cssClasses.AddRange(CssClass.Split(" "));
+}
+
+<div @onpointerenter="OnContainerPointerEnter"
+     @onpointerleave="OnContainerPointerLeave"
+     @onwheel="@(async (e) => await OnWheelScrollAsync(e))"
+     class="@string.Join(" ", cssClasses)">
+
+    <div @ref="@_refAllocationContainer"
+         class="allocation-container">
+
+        <div @ref="@_refContentContainer"
+             class="content-container"
+             style="--scrolled-pixels: @Razor.GetCssPx(-_scrolledPixels);">
+
+            @ChildContent
+        </div>
+    </div>
+
+    <Scrollbar @ref="@_refOneWayScrollbar"
+               IsVisible="@_isScrollbarVisible"
+               MaxScrollablePixels="@((int)_contentContainerSize.Height)"
+               MaxVisiblePixels="@((int)_allocationContainerSize.Height)"
+               Orientation="@(ScrollbarOrientation.Vertical)"
+               ScrolledPixels="@_scrolledPixels"
+               ScrolledPixelsChanged="@(async (e) => await OnScrolledPixelsChangedAsync(e))" />
+</div>

@@ -2,9 +2,10 @@
 using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Geometry;
 using Microsoft.AspNetCore.Components;
+using ViciOne.Ui.Blazor.Components.Resizing.Models;
+using ViciOne.Ui.Blazor.Components.Resizing.Services;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
-using ViciOne.Ui.Shared.Dx.Components.Resizing;
 
 namespace ViciOne.Ui.ClusterEditor.Components;
 
@@ -14,7 +15,6 @@ public sealed partial class Tooltip : ComponentBase, IDisposable
 
     private TooltipInfo? _info;
     private bool _isVisible;
-    private readonly Guid _observerId = Guid.NewGuid();
     private int _positionLeft = -1;
     private int _positionTop = -1;
     private ElementReference _refTooltipContainer;
@@ -63,11 +63,11 @@ public sealed partial class Tooltip : ComponentBase, IDisposable
         TooltipService.ShowTooltip += OnTooltipServiceShowTooltip;
     }
 
-    private void OnResizeObserverChanged(Guid observedId, Shared.Dx.Components.Resizing.Rectangle newRect)
+    private void OnResizeObserverChanged(ElementSizeChangedEventArgs args)
     {
-        if (_observerId == observedId)
+        if (args.ElementReference.Id == _refTooltipContainer.Id)
         {
-            _tooltipContainerSize = new(newRect.Width, newRect.Height);
+            _tooltipContainerSize = new(args.DomRect.Width, args.DomRect.Height);
             CalculateTooltipPosition();
             _isVisible = true;
             InvokeAsync(StateHasChanged);

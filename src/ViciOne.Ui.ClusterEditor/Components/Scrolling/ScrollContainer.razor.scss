@@ -1,0 +1,45 @@
+﻿@property --scroll-container-offset-x {
+    syntax: "<length>";
+    initial-value: 5px;
+    inherits: true;
+}
+
+@property --scroll-container-offset-y {
+    syntax: "<length>";
+    initial-value: 5px;
+    inherits: true;
+}
+
+@property --scroll-container-width {
+    syntax: "<length>";
+    initial-value: 10px;
+    inherits: true;
+}
+
+.scroll-container {
+    position: relative;
+
+    > .allocation-container {
+        bottom: 0;
+        left: 0;
+        overflow: hidden;
+        position: absolute;
+        right: 0;
+        top: 0;
+
+        > .content-container {
+            position: absolute;
+            top: var(--scrolled-pixels);
+            left: 0;
+            right: 0;
+        }
+    }
+
+    ::deep > .scrollbar-container {
+        bottom: var(--scroll-container-offset-y);
+        position: absolute;
+        right: var(--scroll-container-offset-x);
+        top: var(--scroll-container-offset-y);
+        width: var(--scroll-container-width);
+    }
+}

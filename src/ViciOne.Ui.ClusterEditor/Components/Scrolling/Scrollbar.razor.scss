@@ -1,0 +1,98 @@
+﻿@property --scrollbar-container-bg {
+    syntax: "<color>";
+    initial-value: rgba(52, 52, 52, 0);
+    inherits: true;
+}
+
+@property --scrollbar-container-bg-hover {
+    syntax: "<color>";
+    initial-value: rgba(72, 72, 72, 0.15);
+    inherits: true;
+}
+
+@property --scrollbar-container-slider-bg {
+    syntax: "<color>";
+    initial-value: rgb(68, 68, 68, 1);
+    inherits: true;
+}
+
+@property --scrollbar-container-border-width {
+    syntax: "<length-percentage>";
+    initial-value: 1px;
+    inherits: true;
+}
+
+.scrollbar-container {
+    background-color: var(--scrollbar-container-bg);
+    border: var(--scrollbar-container-border-width) solid transparent;
+    opacity: 0;
+    position: relative;
+    transition: opacity 0.25s ease, background-color 0.25s ease;
+    user-select: none;
+
+    &.disabled {
+        border-color: transparent;
+        opacity: 0 !important;
+    }
+
+    &:not(.disabled):hover {
+        opacity: 1;
+        background-color: var(--scrollbar-container-bg-hover);
+    }
+
+    &.horizontal {
+        > .slider {
+            background-color: var(--scrollbar-container-slider-bg);
+            bottom: 0px;
+            left: var(--scrolled-width);
+            position: absolute;
+            top: 0px;
+            width: var(--thumb-width);
+
+            > .slider-ghost {
+                bottom: 0;
+                left: 0;
+                position: absolute;
+                right: 0;
+                top: 0;
+
+                &.expanded {
+                    position: fixed;
+                    z-index: 1000;
+                }
+            }
+        }
+    }
+
+    &.vertical {
+        > .slider {
+            background-color: var(--scrollbar-container-slider-bg);
+            height: var(--thumb-width);
+            left: 0px;
+            position: absolute;
+            right: 0px;
+            top: var(--scrolled-width);
+
+            > .slider-ghost {
+                bottom: 0;
+                left: 0;
+                position: absolute;
+                right: 0;
+                top: 0;
+
+                &.expanded {
+                    position: fixed;
+                    z-index: 1000;
+                }
+            }
+        }
+    }
+
+    &.is-visible {
+        opacity: 1;
+    }
+
+    &:not(.is-visible).disabled {
+        opacity: 0;
+    }
+}

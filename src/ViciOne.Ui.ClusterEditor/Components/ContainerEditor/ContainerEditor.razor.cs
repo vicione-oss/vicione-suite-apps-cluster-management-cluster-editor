@@ -16,6 +16,7 @@ using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.ClusterEditor.Behaviors;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Models;
 using ViciOne.Ui.ClusterEditor.Components.DiagramComponents;
+using ViciOne.Ui.ClusterEditor.Components.Scrolling;
 using ViciOne.Ui.ClusterEditor.Constants;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
@@ -23,7 +24,6 @@ using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
-using ViciOne.Ui.Shared.Dx.Components.Scrolling;
 using ViciOne.Ui.Shared.Dx.Services;
 
 namespace ViciOne.Ui.ClusterEditor.Components.ContainerEditor;
