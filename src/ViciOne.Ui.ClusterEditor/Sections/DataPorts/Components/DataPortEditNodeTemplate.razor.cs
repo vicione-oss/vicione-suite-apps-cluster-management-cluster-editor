@@ -2,6 +2,7 @@
 using System.Linq;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Ui.Blazor.Components.Models;
+using ViciOne.Ui.Blazor.Components.PropertyGrid.Comparers;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Messages;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
@@ -22,6 +23,8 @@ public sealed partial class DataPortEditNodeTemplate : NodeTemplateBase, IDispos
     private DataPortEditTemplateContext EditTemplateContext { get; set; } = default!;
 
     [Inject] private IDatastore Datastore { get; set; } = default!;
+    [Inject] private IInsertionOrderCategoryComparer InsertionOrderCategoryComparer { get; set; } = default!;
+    [Inject] private IInsertionOrderPropertyComparer InsertionOrderPropertyComparer { get; set; } = default!;
     [Inject] private IPropertyGridController<DataPortChildNodeEditContext> PropertyGridController { get; set; } = default!;
     [Inject] private IPropertyGridEvents<DataPortChildNodeEditContext> PropertyGridEvents { get; set; } = default!;
     [Inject] private IPropertyGridMessageStore<DataPortChildNodeEditContext> PropertyGridMessageStore { get; set; } = default!;
@@ -55,6 +58,9 @@ public sealed partial class DataPortEditNodeTemplate : NodeTemplateBase, IDispos
         PropertyGridMessageStore.Changed += OnPropertyGridMessageStoreChangedAsync;
         PropertyGridEvents.PropertyChanged += OnPropertyGridPropertyChanged;
         PropertyGridState.PropertiesChanged += OnPropertyGridStatePropertiesChanged;
+
+        PropertyGridState.CategoryComparer = InsertionOrderCategoryComparer;
+        PropertyGridState.PropertyComparer = InsertionOrderPropertyComparer;
     }
 
     protected override void OnParametersSet()
