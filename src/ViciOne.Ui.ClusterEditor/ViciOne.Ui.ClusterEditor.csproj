@@ -349,7 +349,6 @@
       <MonochromeIcon Include="clear" Size="24" />
       <MonochromeIcon Include="cluster-2" Size="32" />
       <MonochromeIcon Include="collapse-all" Size="24" />
-      <MonochromeIcon Include="column-chooser-editor" Size="24" />
       <MonochromeIcon Include="column-chooser-menu" Size="24" />
       <MonochromeIcon Include="connector-add-to-container" Size="16" />
       <MonochromeIcon Include="connector-cancel-publication" Size="16" />
