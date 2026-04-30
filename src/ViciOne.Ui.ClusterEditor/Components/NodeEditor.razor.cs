@@ -268,11 +268,18 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         _keyboardBehavior = new(Datastore, ClusterBuilderEventBuffer, _diagram, DiagramEventService, DiagramService);
         _diagram.RegisterBehavior(_keyboardBehavior);
 
+        if (DiagramService.DiagramState.UsesGimpPanBehavior is null)
+        {
 #if DEBUG
-        DiagramService.RequestPanBehaviorChange(true);
+            DiagramService.RequestPanBehaviorChange(true);
 #else
-        DiagramService.RequestPanBehaviorChange(false);
+            DiagramService.RequestPanBehaviorChange(false);
 #endif
+        }
+        else
+        {
+            DiagramService.RequestPanBehaviorChange(DiagramService.DiagramState.UsesGimpPanBehavior.GetValueOrDefault());
+        }
 
         _diagram.Links.Added += OnDiagramLinksAdded;
         _diagram.Links.Removed += OnDiagramLinksRemoved;

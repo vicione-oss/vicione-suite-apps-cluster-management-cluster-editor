@@ -16,6 +16,6 @@ public sealed class DiagramState
     public bool SimplifiedView { get; set; }
     public bool SuppressEvents { get; set; }
     public bool UseNodeColoringOnMinimap { get; set; }
-    public bool UsesGimpPanBehavior { get; set; }
+    public bool? UsesGimpPanBehavior { get; set; }
     public double Zoom { get; set; } = DiagramSettings.DefaultZoom;
 }

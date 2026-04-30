@@ -35,7 +35,7 @@
                     <div class="label">
                         @Localization.DebugSection.UseGimpPanBehavior
                     </div>
-                    <Switch Value="@DiagramService.DiagramState.UsesGimpPanBehavior"
+                    <Switch Value="@DiagramService.DiagramState.UsesGimpPanBehavior.GetValueOrDefault()"
                             ValueChanged="@OnUseGimpPanBehaviorChanged" />
 
                     <div class="label">
