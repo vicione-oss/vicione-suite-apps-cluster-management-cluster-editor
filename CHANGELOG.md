@@ -34,6 +34,7 @@
 - Fixed potential wrong node size in diagram area or minimap after loading a cluster
 - Optimized setting zoom/pan after cluster load
 - Removed editor version from `InfomationSection`
+- Unified the column chooser icon
 
 ### Updated external references
 
