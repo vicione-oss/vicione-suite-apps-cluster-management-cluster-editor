@@ -54,6 +54,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     };
     private bool _removeInputPlaceholderEnabled;
     private bool _removeOutputPlaceholderEnabled;
+    private bool _resetConnectors = true;
     private ScrollContainer? _scrollContainer;
     private CESelectionBehavior? _selectionBehavior;
     private bool _visible;
@@ -128,6 +129,8 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
                 _diagram.SetZoom(1.0);
             });
         }
+
+        _resetConnectors = true;
     }
 
     private static void ClearSelectedConnectors(List<ContainerEditorConnector> connectors)
@@ -356,12 +359,15 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         if (_refDialog is null)
             return;
 
-        ResetConnectors();
+        _resetConnectors = true;
         await _refDialog.CloseAsync();
     }
 
     private async Task OnDialogClosingAsync()
     {
+        if (_resetConnectors)
+            ResetConnectors();
+
         ClusterBuilderEventBuffer.ConnectorPropertiesChanged -= OnPropertyChanged;
 
         ChildContainerMapper.ReloadConnectorsAsync(
@@ -397,6 +403,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         if (_refDialog is null)
             return;
 
+        _resetConnectors = false;
         await _refDialog.CloseAsync();
     }
 
