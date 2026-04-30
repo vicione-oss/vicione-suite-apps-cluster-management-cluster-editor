@@ -35,6 +35,7 @@
 - Optimized setting zoom/pan after cluster load
 - Removed editor version from `InfomationSection`
 - Unified the column chooser icon
+- Fixed sorting of dataflows after rename
 
 ### Updated external references
 

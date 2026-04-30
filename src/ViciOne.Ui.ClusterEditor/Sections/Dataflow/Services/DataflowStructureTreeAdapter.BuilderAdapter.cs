@@ -186,6 +186,9 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
 
             Builder.Notifications.NotifyNodeChanged(dataflowNode);
         }
+
+        Builder.Notifications.NotifyRootNodesChanged();
+        Builder.Filter.Apply();
     }
 
     private void OnDataflowsAdded(IEnumerable<(Cluster.Model.Cluster Parent, Cluster.Model.Dataflow Dataflow)> addedDataflows)
