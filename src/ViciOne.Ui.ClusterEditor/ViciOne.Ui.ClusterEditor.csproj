@@ -325,12 +325,6 @@
     <Folder Include="wwwroot\icons\" />
   </ItemGroup>
 
-  <Target Name="ConfigureDxLib" BeforeTargets="BeforeDxLibTargets">
-    <PropertyGroup>
-      <DxLibScrollingScssOutputFolder>$(MSBuildProjectDirectory)/Styles/scrolling</DxLibScrollingScssOutputFolder>
-    </PropertyGroup>
-  </Target>
-
   <Target Name="ConfigureMonochromeIcons" BeforeTargets="BeforeMonochromeIconTargets">
     <ItemGroup>
       <MonochromeIcon Include="add-text-labels-solid" Size="16" />

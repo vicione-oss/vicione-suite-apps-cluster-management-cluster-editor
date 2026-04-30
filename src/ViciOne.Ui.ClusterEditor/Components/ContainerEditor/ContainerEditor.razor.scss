@@ -1,5 +1,4 @@
 ﻿@use "./../../Styles/colors";
-@use "./../../Styles/mixins";
 
 ::deep {
     --canvas-grid-size: 12px;
@@ -13,7 +12,14 @@
 
     &.content {
         ::deep > .scroll-container {
-            @include mixins.adjust-scrolling();
+            --scroll-container-width: 10px;
+            --scroll-container-offset-x: 5px;
+            --scroll-container-offset-y: 5px;
+
+            --scrollbar-container-bg: #{rgba(colors.$editor-background, 0)};
+            --scrollbar-container-bg-hover: #{rgba(colors.$editor-background-hover, 0.15)};
+            --scrollbar-container-slider-bg: #{colors.$editor-background-light};
+            --scrollbar-container-border-width: 1px;
 
             bottom: 0;
             left: 0;

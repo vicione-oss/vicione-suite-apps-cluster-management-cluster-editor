@@ -4,8 +4,8 @@ using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.Models.Base;
 using Microsoft.AspNetCore.Components;
+using ViciOne.Ui.ClusterEditor.Components.Scrolling;
 using ViciOne.Ui.ClusterEditor.Extensions;
-using ViciOne.Ui.Shared.Dx.Components.Scrolling;
 
 namespace ViciOne.Ui.ClusterEditor.Components;
 

@@ -1,16 +1,4 @@
 ﻿@use "./colors";
-@use "./scrolling/scrollbar";
-@use "./scrolling/scroll-container";
-
-@mixin adjust-scrolling() {
-    @include scroll-container.adjust-styles($width: 10px, $offset-x: 5px, $offset-y: 5px);
-
-    @include scrollbar.adjust-styles(
-        $bg: rgba(colors.$editor-background, 0),
-        $bg-hover: rgba(colors.$editor-background-hover, 0.15),
-        $slider-bg: colors.$editor-background-light,
-        $border-width: 1px);
-}
 
 @mixin button-text-span-disabled() {
     > span {

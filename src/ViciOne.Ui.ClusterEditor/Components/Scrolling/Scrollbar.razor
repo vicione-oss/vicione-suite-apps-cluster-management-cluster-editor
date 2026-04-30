@@ -1,0 +1,24 @@
+﻿<div @onclick="@(async (e) => await OnContainerClickAsync(e))"
+     @onwheel="@(async (e) => await OnWheelScrollAsync(e))"
+     @onwheel:stopPropagation
+     @ref="_refScrollbarContainer"
+     class="scrollbar-container @(GetStateCssClasses())"
+     style="--scrolled-width: @Razor.GetCssPx(_scrolledPixels);
+            --thumb-width: @Razor.GetCssPx(_thumbLength);">
+
+    @if (!_isDisabled)
+    {
+        <div class="slider">
+            <div @onclick:stopPropagation
+                 @onpointerdown="@OnThumbPointerDown"
+                 @onpointerdown:stopPropagation
+                 @onpointerleave="@OnThumbPointerLeave"
+                 @onpointerleave:stopPropagation
+                 @onpointermove="@(async (e) => await OnThumbPointerMoveAsync(e))"
+                 @onpointerup="@OnThumbPointerUp"
+                 @onpointerup:stopPropagation
+                 class="slider-ghost @(_lastClientPointerPos != null ? "expanded" : "")">
+            </div>
+        </div>
+    }
+</div>

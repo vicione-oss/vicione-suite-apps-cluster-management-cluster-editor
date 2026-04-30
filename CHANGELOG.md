@@ -38,6 +38,7 @@
 - Fixed sorting of dataflows after rename
 - Fixed cancellation of chnges on `X` button of `ContainerEditor` dialog
 - Fixed pan behavior initialization in suite context
+- Moved `ViciOne.Ui.Shared.Dx.Components.Scrolling` to `ViciOne.Ui.ClusterEditor.Components.Scrolling`
 
 ### Updated external references
 
