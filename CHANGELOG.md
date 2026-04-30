@@ -1,7 +1,7 @@
 # Changelog
 
 ## 1.0.0 - unreleased
-
+    
 ### Added
 
 - Added license
@@ -39,6 +39,7 @@
 - Fixed cancellation of chnges on `X` button of `ContainerEditor` dialog
 - Fixed pan behavior initialization in suite context
 - Moved `ViciOne.Ui.Shared.Dx.Components.Scrolling` to `ViciOne.Ui.ClusterEditor.Components.Scrolling`
+- Changed sort order in `DataPort` edit mode `PropertyGrid`
 
 ### Updated external references
 
@@ -47,7 +48,7 @@
 - `Microsoft.NET.Test.Sdk` package, updated to version `18.0.1`
 - `ViciOne.Cluster.Builder` package, updated to `1.0.0`
 - `ViciOne.Ui.Shared.Dx` package, updated to `0.19.1`
-- `ViciOne.Ui.Blazor.Components` package, updated to version `5.8.0`
+- `ViciOne.Ui.Blazor.Components` package, updated to version `5.9.0`
 - `ViciOne.Ui.Design` package, added in version `2.0.3`
 - `ViciOne.Ui.Localization` package, updated to version `3.3.0`
 - `ViciOne.Ui.MonochromeIcons` packages, updated to version `4.7.0`
