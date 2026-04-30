@@ -37,6 +37,7 @@
 - Unified the column chooser icon
 - Fixed sorting of dataflows after rename
 - Fixed cancellation of chnges on `X` button of `ContainerEditor` dialog
+- Fixed pan behavior initialization in suite context
 
 ### Updated external references
 
