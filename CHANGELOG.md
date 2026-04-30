@@ -32,7 +32,8 @@
 - Improved node move handling when releasing the cursor outside of the `NodeEditor` area
 - Optimized code for name field height measurement of nodes
 - Fixed potential wrong node size in diagram area or minimap after loading a cluster
-- Optimized setting zoom/pan after cluster load 
+- Optimized setting zoom/pan after cluster load
+- Removed editor version from `InfomationSection`
 
 ### Updated external references
 
