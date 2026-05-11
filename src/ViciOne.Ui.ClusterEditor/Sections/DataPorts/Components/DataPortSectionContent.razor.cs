@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
-using ViciOne.TreeBuilder.NodeTypes;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.Blazor.Components.Dialog.Components;
 using ViciOne.Ui.ClusterEditor.Extensions;
@@ -98,7 +97,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         {
             var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeIds[childNode.Id.Value];
 
-            if (TransferDirectionIsPossible(connector, childNode) &&
+            if (childNode.TransferDirectionIsPossible(connector) &&
                 Datastore.Builder.Editors.DataPortTreeNode.CanAssignConnector(dataPortTreeNode, connector) &&
                 !childNode.IsEditModeActive)
             {
@@ -339,17 +338,6 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
             .OrderBy(i => i.DisplayText);
 
         await InvokeAsync(StateHasChanged);
-    }
-
-    private static bool TransferDirectionIsPossible(Connector connector, DataPortChildNodeModel node)
-    {
-        var isInput = connector is ConnectorInput;
-
-        if (isInput && node.TransferDirections.Contains(DataPortTransferDirection.Inbound))
-            return true;
-        if (!isInput && node.TransferDirections.Contains(DataPortTransferDirection.Outbound))
-            return true;
-        return false;
     }
 
     private void TryInitDataPortTree()

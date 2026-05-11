@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using ViciOne.Cluster.Model;
+using ViciOne.TreeBuilder.NodeTypes;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 
@@ -87,5 +88,16 @@ internal static class DataPortChildNodeModelExtensions
     {
         var property = childNode.GetSystemProperty<TData>(propertyName) ?? throw new InvalidOperationException($"System property {propertyName ?? typeof(TData).Name} not found.");
         property.Value = typeof(TData).Name.Equals(nameof(String), StringComparison.OrdinalIgnoreCase) && property.AvailableValues.Count == 1 ? property.AvailableValues[0] : data;
+    }
+
+    public static bool TransferDirectionIsPossible(this DataPortChildNodeModel node, Connector connector)
+    {
+        var isInput = connector is ConnectorInput;
+
+        if (isInput && node.TransferDirections.Contains(DataPortTransferDirection.Inbound))
+            return true;
+        if (!isInput && node.TransferDirections.Contains(DataPortTransferDirection.Outbound))
+            return true;
+        return false;
     }
 }
