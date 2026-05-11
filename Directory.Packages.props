@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <DotNetVersion>10.0.6</DotNetVersion>
+    <DotNetVersion>10.0.7</DotNetVersion>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <ViciOneClusterBuilderVersion>1.0.0</ViciOneClusterBuilderVersion>
     <ViciOneUiMonochromeIconsVersion>4.7.0</ViciOneUiMonochromeIconsVersion>
@@ -37,7 +37,7 @@
     <PackageVersion Include="ViciOne.Ui.MonochromeIcons.Components" Version="$(ViciOneUiMonochromeIconsVersion)" />
     <PackageVersion Include="ViciOne.Ui.Shared.Dx" Version="0.19.1" />
     <PackageVersion Include="ViciOne.Ui.Testing.Playwright" Version="1.0.0" />
-    <PackageVersion Include="ViciOne.Ui.TreeEditor" Version="2.0.0" />
+    <PackageVersion Include="ViciOne.Ui.TreeEditor" Version="2.0.1" />
     <PackageVersion Include="ViciOne.TreeBuilder" Version="1.1.1" />
     <PackageVersion Include="xunit.v3.mtp-v2" Version="3.2.2" />
     <PackageVersion Include="Z.Blazor.Diagrams" Version="3.0.4" />
