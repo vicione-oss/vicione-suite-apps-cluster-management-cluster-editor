@@ -76,10 +76,11 @@ internal static class DataPortTreeNodeExtensions
             };
     }
 
-    public static IEnumerable<BlockNodeConnector> GetValidTargetConnectors(this DataPortTreeNode dataPortTreeNode, IDatastore datastore)
+    public static IEnumerable<BlockNodeConnector> GetValidTargetConnectors(this DataPortTreeNode dataPortTreeNode, IDatastore datastore, DataPortChildNodeModel dataPortChildNode)
     {
         var targetConnectors = datastore.DataflowDiagramMapping.GetConnectors()
-            .Where(c => datastore.Builder.Editors.DataPortTreeNode.CanAssignConnector(dataPortTreeNode, c is ContainerConnector ? c.GetUnderlyingConnector() : (Connector)c));
+            .Select(c => c is ContainerConnector ? c.GetUnderlyingConnector() : (Connector)c)
+            .Where(c => datastore.Builder.Editors.DataPortTreeNode.CanAssignConnector(dataPortTreeNode, c) && dataPortChildNode.TransferDirectionIsPossible(c));
 
         return [.. targetConnectors.Select(datastore.DataflowDiagramMapping.GetDiagramModel)];
     }

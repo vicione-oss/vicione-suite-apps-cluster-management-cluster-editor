@@ -524,14 +524,14 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
 
         foreach (var treeNode in treeNodes)
         {
-            if (treeNode is not DataPortNodeModel dataPortNode)
+            if (treeNode is not DataPortChildNodeModel dataPortChildNode)
                 continue;
 
-            var dataPortTreeNode = _datastore.Builder.Cache.DataPortTreeNodeIds.GetValueOrDefault(dataPortNode.Id.Value);
+            var dataPortTreeNode = _datastore.Builder.Cache.DataPortTreeNodeIds.GetValueOrDefault(dataPortChildNode.Id.Value);
             if (dataPortTreeNode is null)
                 continue;
 
-            possibleTargetConnectors.AddRange(dataPortTreeNode.GetValidTargetConnectors(_datastore));
+            possibleTargetConnectors.AddRange(dataPortTreeNode.GetValidTargetConnectors(_datastore, dataPortChildNode));
         }
 
         _dragService.StartDragging(treeNodes.OfType<IDragable>(), possibleTargetConnectors, false);
