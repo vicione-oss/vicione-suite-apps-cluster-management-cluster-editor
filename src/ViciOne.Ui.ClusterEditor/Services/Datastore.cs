@@ -67,6 +67,11 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         _jsRuntime = jsRuntime;
         _logger = logger;
         JsonSerialization.Default.Settings.Formatting = Formatting.None;
+
+        // This line adds the IAggregatingPooling to the cache of Shared.Dx.Services.ComparerService
+        // which prevents a noticable delay when the user drags the first FunctionBlock from the Library
+        // to the diagram
+        var _ = _comparerService.GetComparer(typeof(Core.Contracts.DataModel.IAggregatingPooling));
     }
 
     private void AddBuilderEvents()
