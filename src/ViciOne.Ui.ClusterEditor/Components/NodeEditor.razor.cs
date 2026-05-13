@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Anchors;
@@ -46,6 +47,8 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
     private VODragMovablesBehavior? _dragMovablesBehavior;
     private VODragNewLinkBehavior? _dragNewLinkBehavior;
     private Label? _editingLabel;
+    private CancellationTokenSource? _ghostDragCts;
+    private Task? _ghostDragEnterTask;
     private GimpPanBehavior? _gimpPanBehavior;
     private GimpZoomBehavior? _gimpZoomBehavior;
     private bool _hasPointerDownShiftKey;
@@ -205,6 +208,9 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         _vOPanBehavior?.Dispose();
         _vOZoomBehavior?.Dispose();
         _zoomToFitBehavior?.Dispose();
+
+        _ghostDragCts?.Cancel();
+        _ghostDragCts?.Dispose();
     }
 
     private void InitializeDiagram()
@@ -301,7 +307,25 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
             _labelEditor?.LabelEditorClosed += OnLabelEditorClosed;
     }
 
-    private async Task OnContainerGhostDragEnterAsync(MouseEventArgs e)
+    private async Task OnContainerGhostDragEnter(MouseEventArgs e)
+    {
+        if (_ghostDragCts is not null)
+        {
+            await _ghostDragCts.CancelAsync();
+            _ghostDragCts.Dispose();
+        }
+
+        if (_ghostDragEnterTask is not null)
+        {
+            try { await _ghostDragEnterTask; }
+            catch (OperationCanceledException) { }
+        }
+
+        _ghostDragCts = new();
+        _ghostDragEnterTask = OnContainerGhostDragEnterCore(e, _ghostDragCts.Token);
+    }
+
+    private async Task OnContainerGhostDragEnterCore(MouseEventArgs e, CancellationToken ct)
     {
         if (LibraryService.DraggingEntries is null)
             return;
@@ -322,9 +346,12 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
 
         foreach (var libraryEntry in validDraggingEntries)
         {
-            var draggingNode = await Datastore.AddFunctionBlock(DiagramService, libraryEntry.UniqueId, new(nextXPos, nextYPos));
+            var draggingNode = await Datastore.AddFunctionBlock(DiagramService, libraryEntry.UniqueId, new(nextXPos, nextYPos), ct);
             _diagram!.Nodes.Add(draggingNode);
             _draggingNodes.Add(draggingNode);
+
+            if (ct.IsCancellationRequested)
+                return;
 
             var nodeExtendedSize = draggingNode.GetAlignmentRect();
             if (index % colCount == 0)
@@ -341,13 +368,26 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
             index++;
         }
 
-        SelectionManager.SetSelection(_draggingNodes);
+        if (ct.IsCancellationRequested)
+            return;
 
+        SelectionManager.SetSelection(_draggingNodes);
         _dragMovablesBehavior!.StartNoJs(e.ClientX, e.ClientY);
     }
 
-    private void OnContainerGhostDragLeave()
+    private async Task OnContainerGhostDragLeave()
     {
+        if (_ghostDragCts is not null)
+            await _ghostDragCts.CancelAsync();
+
+        if (_ghostDragEnterTask is not null)
+        {
+            try { await _ghostDragEnterTask; }
+            catch (OperationCanceledException) { }
+
+            _ghostDragEnterTask = null;
+        }
+
         DiagramEventService.InvokeDiagramPointerLeave();
 
         if (_draggingNodes.Count != 0)

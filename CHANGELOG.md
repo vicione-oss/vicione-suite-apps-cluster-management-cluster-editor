@@ -41,6 +41,7 @@
 - Moved `ViciOne.Ui.Shared.Dx.Components.Scrolling` to `ViciOne.Ui.ClusterEditor.Components.Scrolling`
 - Changed sort order in `DataPort` edit mode `PropertyGrid`
 - Respect `TransferDirection` restrictions of `DataPortChildNodes` during drag & drop
+- Improved `Library` drag async handling
 
 ### Updated external references
 
