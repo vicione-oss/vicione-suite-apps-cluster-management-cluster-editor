@@ -307,7 +307,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
             _labelEditor?.LabelEditorClosed += OnLabelEditorClosed;
     }
 
-    private async Task OnContainerGhostDragEnter(MouseEventArgs e)
+    private async Task OnContainerGhostDragEnter(DragEventArgs e)
     {
         if (_ghostDragCts is not null)
         {
@@ -325,7 +325,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         _ghostDragEnterTask = OnContainerGhostDragEnterCore(e, _ghostDragCts.Token);
     }
 
-    private async Task OnContainerGhostDragEnterCore(MouseEventArgs e, CancellationToken ct)
+    private async Task OnContainerGhostDragEnterCore(DragEventArgs e, CancellationToken ct)
     {
         if (LibraryService.DraggingEntries is null)
             return;
@@ -347,6 +347,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         foreach (var libraryEntry in validDraggingEntries)
         {
             var draggingNode = await Datastore.AddFunctionBlock(DiagramService, libraryEntry.UniqueId, new(nextXPos, nextYPos), ct);
+
             _diagram!.Nodes.Add(draggingNode);
             _draggingNodes.Add(draggingNode);
 
@@ -398,15 +399,21 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         }
     }
 
-    private void OnContainerGhostDragOver(MouseEventArgs e)
+    private void OnContainerGhostDragOver(DragEventArgs e)
         => _dragMovablesBehavior!.Move(e.ClientX, e.ClientY);
 
-    private void OnContainerGhostDrop(MouseEventArgs _)
+    private async Task OnContainerGhostDrop(DragEventArgs e)
     {
-        _dragMovablesBehavior?.End();
+        if (_ghostDragEnterTask is not null)
+        {
+            try { await _ghostDragEnterTask; }
+            catch (OperationCanceledException) { }
+        }
 
-        if (_draggingNodes.Count != 0)
-            _draggingNodes.Clear();
+        _dragMovablesBehavior!.Move(e.ClientX, e.ClientY);
+        _dragMovablesBehavior.End();
+
+        _draggingNodes.Clear();
     }
 
     private void OnContainerLoaded(Container container)
@@ -621,8 +628,6 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         _contextMenuAllowed = true;
         await ContainerPointerUpAsync();
 
-        RemoveDraggingNodes();
-
         // Dies hier ist notwendig, da es keine Möglichkeit gibt herauszufinden, ob ein aktuell gezogener
         // Link entgültig an einen Konnektor angeknüpft oder ob er nur temporär durch Snapping an
         // einen Konnektor angefügt wurde. D.h. wir wissen nicht, wann jemand "fertig" ist mit Link ziehen.
@@ -705,7 +710,6 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
     {
         _contextMenuAllowed = true;
         await ContainerPointerUpAsync();
-        RemoveDraggingNodes();
         _diagram!.Refresh();
         await InvokeAsync(StateHasChanged);
     }
@@ -717,7 +721,6 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
             center.X - (BlockNodeLayout.Width / 2),
             center.Y - (BlockNodeLayout.DefaultNameHeight + BlockNodeLayout.SettingsRowHeight + (BlockNodeLayout.SystemConnectorRows * BlockNodeLayout.RowHeight)));
         var newNode = await Datastore.AddFunctionBlock(DiagramService, designId, fbPosition);
-        newNode.HasPortsInitialized = true;
 
         _diagram!.Nodes.Add(newNode);
         SelectionManager.SetSelection(newNode);
@@ -883,24 +886,6 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
 
     private void OnZoomToFitRequested()
         => _zoomToFitBehavior!.ZoomToFit();
-
-    private void RemoveDraggingNodes()
-    {
-        if (_draggingNodes.Count == 0)
-            return;
-
-        foreach (var node in _draggingNodes)
-        {
-            node.ReinitializePorts();
-            node.HasPortsInitialized = true;
-        }
-
-        _draggingNodes.Clear();
-        DiagramEventService.RequestDiagramFocus();
-
-        LibraryService.DraggingEntries = null;
-        _dragMovablesBehavior!.End();
-    }
 
     private void SetDiagramViewport(Rectangle rect)
         => _diagram!.Batch(() =>

@@ -42,7 +42,6 @@ internal static partial class FunctionBlockMapper
 
         node.NameFieldHeight = nameFieldHeight;
         node.UpdateSize();
-        node.PrecomputePortsInformation();
 
         return node;
     }

@@ -42,6 +42,7 @@
 - Changed sort order in `DataPort` edit mode `PropertyGrid`
 - Respect `TransferDirection` restrictions of `DataPortChildNodes` during drag & drop
 - Improved `Library` drag async handling
+- Fixed wrong `Connector` positions after library drag
 
 ### Updated external references
 

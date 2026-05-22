@@ -83,16 +83,6 @@ internal sealed class VODragMovablesBehavior : Behavior
                         break;
                     case FunctionBlockNode fbNode:
                         FunctionBlockMapper.UpdatePosition(_datastore, fbNode);
-
-                        // Wird benötigt, da beim Ziehen von FBs aus der FB-Lib das Diagramm einen Resize-Observer startet
-                        // und dieser irgendwann das Observe-Callback ruft, was zu falschen Portpositionen während des Ziehens
-                        // führt. Hier ist nun die Endposition bekannt und die Portpositionen können genau bestimmt werden.
-                        // ! Diese Operation führt zu einem JS Call für jeden Port, dies kann sehr schnell zeitaufwendig werden.
-                        if (!fbNode.HasPortsInitialized)
-                        {
-                            fbNode.ReinitializePorts();
-                            fbNode.HasPortsInitialized = true;
-                        }
                         break;
                     case LabelNode labelNode:
                         LabelMapper.UpdatePosition(_datastore, labelNode);

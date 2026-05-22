@@ -31,12 +31,10 @@ public sealed class ChildContainerNode : BlockNode
         while (Connectors.Count > BlockNodeLayout.MinimumConnectorRows && Connectors.Last().All(c => c is null))
             Connectors.RemoveAt(Connectors.Count - 1);
 
-        UpdateSize();
-
         foreach (var con in blockNodeConnectors)
             RemovePort(con);
 
-        ReinitializePorts();
+        UpdateSize();
     }
 
     internal void SetChildrenInformation(int nextLevelElements, int allChildrenElements)
