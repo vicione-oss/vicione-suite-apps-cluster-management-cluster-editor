@@ -12,7 +12,6 @@ public abstract class BlockNode : NodeModel, IDiagramModel
     internal bool DisplayAllConnectors { get; private set; } = true;
     internal string EngineBackgroundColor { get; set; } = BlockNodeColors.EngineBackgroundEmpty;
     internal string EngineDisplayText { get; set; } = Helpers.EngineDisplayText.EngineTextNone;
-    internal bool HasPortsInitialized { get; set; }
     internal string? ImageSrc { get; init; }
     internal string ImageText { get; init; } = string.Empty;
     internal string Name { get; set; } = string.Empty;
@@ -21,10 +20,36 @@ public abstract class BlockNode : NodeModel, IDiagramModel
     internal string NameForeColor { get; set; } = string.Empty;
     public new bool Visible { get; set; } = true;
 
-    internal BlockNode(Point? point = null) : base(point) { }
+    internal BlockNode(Point? point = null) : base(point)
+        => ControlledSize = true;
 
     internal void CalculateDisplayAllConnectors()
         => DisplayAllConnectors = ConnectorsToList().All(c => c.HasDefaultConfiguration && !c.HasLink());
+
+    private void CalculatePortsPosition()
+    {
+        for (var i = 0; i < Connectors.Count; i++)
+        {
+            var input = Connectors[i][0];
+            var output = Connectors[i][1];
+
+            if (input is not null)
+            {
+                input.Size = new Size(DiagramSettings.PortWidth, DiagramSettings.PortHeight);
+                input.Position = new Point(Position.X,
+                    Position.Y + NameFieldHeight + BlockNodeLayout.SettingsRowHeight + (i * BlockNodeLayout.RowHeight));
+                input.Initialized = true;
+            }
+
+            if (output is not null)
+            {
+                output.Size = new Size(DiagramSettings.PortWidth, DiagramSettings.PortHeight);
+                output.Position = new Point(Position.X + BlockNodeLayout.Width - DiagramSettings.PortWidth,
+                    Position.Y + NameFieldHeight + BlockNodeLayout.SettingsRowHeight + (i * BlockNodeLayout.RowHeight));
+                output.Initialized = true;
+            }
+        }
+    }
 
     internal IEnumerable<BlockNodeConnector> ConnectorsToList()
         => Connectors.Aggregate(new List<BlockNodeConnector>(), (result, current) =>
@@ -62,30 +87,6 @@ public abstract class BlockNode : NodeModel, IDiagramModel
         return Connectors[rowIndex][colIndex];
     }
 
-    internal void PrecomputePortsInformation()
-    {
-        for (var i = 0; i < Connectors.Count; i++)
-        {
-            var input = Connectors[i][0];
-            var output = Connectors[i][1];
-
-            if (input is not null)
-            {
-                input.Size = new Size(DiagramSettings.PortWidth, DiagramSettings.PortHeight);
-                input.Position = new Point(Position.X, Position.Y + NameFieldHeight + BlockNodeLayout.SettingsRowHeight + (i * BlockNodeLayout.RowHeight));
-                input.Initialized = true;
-            }
-
-            if (output is not null)
-            {
-                output.Size = new Size(DiagramSettings.PortWidth, DiagramSettings.PortHeight);
-                output.Position = new Point(Position.X + BlockNodeLayout.Width - DiagramSettings.PortWidth,
-                    Position.Y + NameFieldHeight + BlockNodeLayout.SettingsRowHeight + (i * BlockNodeLayout.RowHeight));
-                output.Initialized = true;
-            }
-        }
-    }
-
     internal void SetEngineDisplayText(string displayText)
     {
         if (displayText == EngineDisplayText)
@@ -101,6 +102,9 @@ public abstract class BlockNode : NodeModel, IDiagramModel
     }
 
     internal void UpdateSize()
-        => Size = new(BlockNodeLayout.Width,
+    {
+        Size = new(BlockNodeLayout.Width,
             NameFieldHeight + BlockNodeLayout.SettingsRowHeight + (Connectors.Count * BlockNodeLayout.RowHeight));
+        CalculatePortsPosition();
+    }
 }

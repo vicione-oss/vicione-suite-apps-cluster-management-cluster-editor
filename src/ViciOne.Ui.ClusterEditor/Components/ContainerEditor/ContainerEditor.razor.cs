@@ -370,7 +370,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
         ClusterBuilderEventBuffer.ConnectorPropertiesChanged -= OnPropertyChanged;
 
-        ChildContainerMapper.ReloadConnectorsAsync(
+        ChildContainerMapper.ReloadConnectors(
             ComparerService,
             Datastore.DataflowDiagramMapping.GetModel(_originalContainerNode!),
             _originalContainerNode!,

@@ -41,7 +41,6 @@ internal static class ChildContainerMapper
 
         node.NameFieldHeight = nameFieldHeight;
         node.UpdateSize();
-        node.PrecomputePortsInformation();
 
         return node;
     }
@@ -121,7 +120,7 @@ internal static class ChildContainerMapper
         containerNode.RefreshAll();
     }
 
-    internal static void ReloadConnectorsAsync(
+    internal static void ReloadConnectors(
         ComparerService comparerService,
         ChildContainer container,
         ChildContainerNode containerNode,
@@ -136,7 +135,6 @@ internal static class ChildContainerMapper
         containerNode.CalculateDisplayAllConnectors();
 
         containerNode.UpdateSize();
-        containerNode.PrecomputePortsInformation();
 
         datastore.DataflowDiagramMapping.Remove(container);
         datastore.DataflowDiagramMapping.Add(container, containerNode);

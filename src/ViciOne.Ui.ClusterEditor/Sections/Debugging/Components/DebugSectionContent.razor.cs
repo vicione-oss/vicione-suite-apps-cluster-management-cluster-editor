@@ -61,7 +61,6 @@ public sealed partial class DebugSectionContent : ComponentBase
                         ((idx * amount) + i) % 5 * 320,
                         ((idx * amount) + i) / 5 * 280));
 
-                blockNode.HasPortsInitialized = true;
                 blockNodes.Add(blockNode);
             }
         }
