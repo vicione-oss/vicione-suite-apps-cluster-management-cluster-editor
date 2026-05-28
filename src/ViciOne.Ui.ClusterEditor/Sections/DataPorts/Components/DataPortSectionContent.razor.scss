@@ -7,6 +7,8 @@
 }
 
 .content-container {
+    overflow-x: hidden;
+
     ::deep .tree-editor-container {
         @include sections.action-button-container-styles();
         @include sections.node-with-icon-styles();
@@ -14,7 +16,11 @@
         --vo-ui-tree-editor-color-drop-area-valid: transparent;
         --vo-ui-tree-editor-color-drop-area-invalid: transparent;
 
+        overflow-x: hidden;
+
         .tree-node {
+            position: inherit;
+
             &.highlighted {
                 border: 1px solid colors.$editor-accent;
                 margin: -1px;
@@ -23,6 +29,13 @@
                     border-color: colors.$editor-font;
                 }
             }
+        }
+
+        .action-button-container {
+            margin-right: 6px;
+            position: absolute;
+            right: 0;
+            z-index: 20;
         }
     }
 }
