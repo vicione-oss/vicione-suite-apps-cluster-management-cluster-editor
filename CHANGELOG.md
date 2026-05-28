@@ -44,6 +44,8 @@
 - Improved `Library` drag async handling
 - Fixed wrong `Connector` positions after library drag
 - Reworked library drag to use JavaScript based movement
+- Prevent horizontal scrollbar in `DataPortSection` 
+- Implemented right-aligned sticky action buttons for `DataPortTreeNodes`
 
 ### Updated external references
 
