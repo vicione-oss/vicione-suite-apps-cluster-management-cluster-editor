@@ -68,9 +68,10 @@ internal sealed class VODragMovablesBehavior : Behavior
         _inputEventService.PointerUp -= OnInputEventServicePointerUp;
 
         _refObject?.Dispose();
+        _refObject = null;
     }
 
-    public void End()
+    private void End()
     {
         if (_modelWasMoved)
         {
@@ -96,16 +97,24 @@ internal sealed class VODragMovablesBehavior : Behavior
         Reset();
     }
 
-    private void EndMove(double clientX, double clientY)
+    public void EndMove(double clientX, double clientY)
     {
         if (!IsMoving)
             return;
 
         Move(clientX, clientY);
 
-        var _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove._end", clientX, clientY);
+        _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.end").AsTask();
 
         End();
+    }
+
+    public void ExternalMove(double clientX, double clientY)
+    {
+        if (!IsMoving)
+            return;
+
+        _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.externalMove", clientX, clientY).AsTask();
     }
 
     [JSInvokable]
@@ -154,7 +163,7 @@ internal sealed class VODragMovablesBehavior : Behavior
         if (!IsMoving)
             return;
 
-        var _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.diagramPanChanged", Diagram.Pan.X, Diagram.Pan.Y);
+        _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.diagramPanChanged", Diagram.Pan.X, Diagram.Pan.Y).AsTask();
     }
 
     private void OnDiagramPointerDown(Model? model, global::Blazor.Diagrams.Core.Events.PointerEventArgs e)
@@ -173,7 +182,7 @@ internal sealed class VODragMovablesBehavior : Behavior
         if (!IsMoving)
             return;
 
-        var _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.diagramZoomChanged", Diagram.Zoom);
+        _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.diagramZoomChanged", Diagram.Zoom).AsTask();
     }
 
     private void OnEdgeDraggingPointerUp(Microsoft.AspNetCore.Components.Web.PointerEventArgs e)
@@ -195,7 +204,7 @@ internal sealed class VODragMovablesBehavior : Behavior
         _diagramEventService.RequestEdgeDraggingVisibilityChange(false);
     }
 
-    private void Start(double clientX, double clientY)
+    public void Start(double clientX, double clientY, bool useJsDomEvents = true)
     {
         if (IsMoving)
             return;
@@ -230,7 +239,7 @@ internal sealed class VODragMovablesBehavior : Behavior
 
         _refObject ??= DotNetObjectReference.Create(this);
 
-        var _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.start",
+        _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.start",
             linkIds,
             linkSourceIds,
             linkSourcePosXs,
@@ -244,19 +253,7 @@ internal sealed class VODragMovablesBehavior : Behavior
             Diagram.Zoom,
             containerPos,
             pan,
-            initPos);
-    }
-
-    public void StartNoJs(double clientX, double clientY)
-    {
-        _initialModelPositions = Diagram.GetSelectedModels().OfType<MovableModel>().Where(m => !m.Locked).ToDictionary(m => m, m => m.Position);
-        if (_initialModelPositions.Count == 0)
-            return;
-
-        _initialPointerPosition = Diagram.GetRelativeGridPoint(new(clientX, clientY), _datastore);
-        _modelWasMoved = false;
-
-        _diagramService.SetNodeAlignmentBorderVisibility(true);
-        _diagramEventService.RequestEdgeDraggingVisibilityChange(true);
+            initPos,
+            useJsDomEvents).AsTask();
     }
 }
