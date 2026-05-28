@@ -43,6 +43,7 @@
 - Respect `TransferDirection` restrictions of `DataPortChildNodes` during drag & drop
 - Improved `Library` drag async handling
 - Fixed wrong `Connector` positions after library drag
+- Reworked library drag to use JavaScript based movement
 
 ### Updated external references
 

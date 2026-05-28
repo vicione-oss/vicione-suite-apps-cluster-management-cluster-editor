@@ -37,9 +37,14 @@
     NodeMove._gridSize = 10;
 
     /**
-     * @@type {PointerEvent}
+     * @type {[number, number]}
      */
-    NodeMove._lastMoveEvent = null;
+    NodeMove._initialCursorPos = [-1, -1];
+
+    /**
+     * @type {[number, number]}
+     */
+    NodeMove._lastMovePos = [-1, -1];
 
     /**
      * @type {Array.<{id: string, sourceId: string, sourcePos: [number, number], targetId: string, targetPos: [number, number]}>}
@@ -77,12 +82,11 @@
     NodeMove._svgElements = [];
 
 
-    NodeMove._end = function () {
-        cancelAnimationFrame(NodeMove._moveFrameId);
-        NodeMove._moveFrameId = null;
-
-        document.removeEventListener('pointermove', NodeMove._move);
-        document.removeEventListener('pointerup', NodeMove._up);
+    /**
+     * @param {PointerEvent} e
+     */
+    NodeMove._eventMove = function (e) {
+        NodeMove._move(e.clientX, e.clientY);
     };
 
     /**
@@ -140,10 +144,11 @@
      * @param {[number, number]} containerPos
      * @param {[number, number]} pan
      * @param {[number, number]} cursorPos
+     * @param {boolean} useJsDomEvents
      */
-    NodeMove._init = function (netObjRef, gridSize, dataIds, diagramZoom, containerPos, pan, cursorPos) {
+    NodeMove._init = function (netObjRef, gridSize, dataIds, diagramZoom, containerPos, pan, cursorPos, useJsDomEvents) {
         if (NodeMove._moveFrameId) {
-            NodeMove._end();
+            NodeMove.end();
         }
 
         NodeMove._netObjRef = netObjRef;
@@ -162,22 +167,26 @@
         NodeMove._containerPos = containerPos;
         NodeMove._currentPan = pan;
         NodeMove._initialCursorPos = cursorPos;
+        NodeMove._lastMovePos = cursorPos;
 
         NodeMove._firstMove = true;
 
-        document.addEventListener('pointermove', NodeMove._move);
-        document.addEventListener('pointerup', NodeMove._up);
+        if (useJsDomEvents) {
+            document.addEventListener('pointermove', NodeMove._eventMove);
+            document.addEventListener('pointerup', NodeMove._up);
+        }
     };
 
     /**
-     * @param {PointerEvent} e
+     * @param {number} clientX
+     * @param {number} clientY
      */
-    NodeMove._move = function (e) {
-        NodeMove._lastMoveEvent = e;
+    NodeMove._move = function (clientX, clientY) {
+        NodeMove._lastMovePos = [clientX, clientY];
 
         if (!NodeMove._moveFrameId) {
             NodeMove._moveFrameId = requestAnimationFrame(() => {
-                NodeMove._handleMove(NodeMove._lastMoveEvent.clientX, NodeMove._lastMoveEvent.clientY);
+                NodeMove._handleMove(NodeMove._lastMovePos[0], NodeMove._lastMovePos[1]);
                 NodeMove._moveFrameId = null;
             });
         }
@@ -223,7 +232,7 @@
     };
 
     NodeMove._up = function () {
-        NodeMove._end();
+        NodeMove.end();
     };
 
     NodeMove._updateLinks = function () {
@@ -266,7 +275,7 @@
      */
     NodeMove.diagramPanChanged = function (panX, panY) {
         NodeMove._currentPan = [panX, panY];
-        NodeMove._move(NodeMove._lastMoveEvent);
+        NodeMove._move(NodeMove._lastMovePos[0], NodeMove._lastMovePos[1]);
     };
 
     /**
@@ -276,14 +285,33 @@
         NodeMove._diagramZoom = zoomValue;
     };
 
+    NodeMove.end = function () {
+        cancelAnimationFrame(NodeMove._moveFrameId);
+        NodeMove._moveFrameId = null;
+
+        document.removeEventListener('pointermove', NodeMove._eventMove);
+        document.removeEventListener('pointerup', NodeMove._up);
+    };
+
+    /**
+     * Allows for externally driven movement, e.g. to forward drag event coordinates.
+     * This method should be used after a NodeMove.start initialization with the flag
+     * useJsDomEvents = false.
+     * @param {number} clientX
+     * @param {number} clientY
+     */
+    NodeMove.externalMove = function (clientX, clientY) {
+        NodeMove._move(clientX, clientY);
+    };
+
     /**
      * @param {string[]} linkIds
      * @param {string[]} linkSourceIds
-     * @param {double[]} linkSourcePosXs
-     * @param {double[]} linkSourcePosYs
+     * @param {number[]} linkSourcePosXs
+     * @param {number[]} linkSourcePosYs
      * @param {string[]} linkTargetIds
-     * @param {double[]} linkTargetPosXs
-     * @param {double[]} linkTargetPosYs
+     * @param {number[]} linkTargetPosXs
+     * @param {number[]} linkTargetPosYs
      * @param {object} netObjRef - DotNetObjectReference
      * @param {number} gridSize
      * @param {string[]} dataIds
@@ -291,9 +319,10 @@
      * @param {[number, number]} containerPos
      * @param {[number, number]} pan
      * @param {[number, number]} cursorPos
+     * @param {boolean} useJsDomEvents
      */
     NodeMove.start = function (linkIds, linkSourceIds, linkSourcePosXs, linkSourcePosYs, linkTargetIds, linkTargetPosXs, linkTargetPosYs,
-        netObjRef, gridSize, dataIds, diagramZoom, containerPos, pan, cursorPos) {
+        netObjRef, gridSize, dataIds, diagramZoom, containerPos, pan, cursorPos, useJsDomEvents) {
 
         NodeMove._setLinkData(linkIds,
             linkSourceIds,
@@ -303,7 +332,67 @@
             linkTargetPosXs,
             linkTargetPosYs);
 
-        NodeMove._init(netObjRef, gridSize, dataIds, diagramZoom, containerPos, pan, cursorPos);
+        NodeMove._init(netObjRef, gridSize, dataIds, diagramZoom, containerPos, pan, cursorPos, useJsDomEvents);
+    };
+
+    /**
+     * Waits until every id in `dataIds` has a corresponding element in either
+     * `.diagram-html-layer .diagram-node` or `.diagram-svg-layer .diagram-node`.
+     * Resolves true when all are present, false on timeout.
+     * @param {string[]} dataIds
+     * @param {number} [timeoutMs=5000]
+     * @returns {Promise<boolean>}
+     */
+    NodeMove.waitForNodes = function (dataIds, timeoutMs = 5000) {
+        if (!dataIds || dataIds.length == 0)
+            return Promise.resolve(true);
+
+        const idSet = new Set(dataIds);
+
+        const isReady = () => {
+            const hits = new Set();
+            document.querySelectorAll('.diagram-html-layer .diagram-node, .diagram-svg-layer .diagram-node').forEach(e => {
+                const id = e.dataset.nodeId;
+                if (idSet.has(id))
+                    hits.add(id);
+            });
+            return hits.size == idSet.size;
+        };
+
+        if (isReady())
+            return Promise.resolve(true);
+
+        return new Promise(resolve => {
+            let done = false;
+            const finish = (result) => {
+                if (done)
+                    return;
+
+                done = true;
+                observer.disconnect();
+                clearTimeout(timer);
+                resolve(result);
+            };
+
+            const observer = new MutationObserver(() => {
+                if (isReady())
+                    finish(true);
+            });
+
+            const diagramContainerEle = document.querySelector('.diagram-container');
+            if (!diagramContainerEle) {
+                finish(false);
+            } else {
+                observer.observe(diagramContainerEle, {
+                    childList: true,
+                    subtree: true,
+                    attributes: true,
+                    attributeFilter: ['data-node-id']
+                });
+            }
+
+            const timer = setTimeout(() => finish(false), timeoutMs);
+        });
     };
 
     ViciOne.NodeMove = NodeMove;

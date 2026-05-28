@@ -373,10 +373,17 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
             return;
 
         SelectionManager.SetSelection(_draggingNodes);
-        _dragMovablesBehavior!.StartNoJs(e.ClientX, e.ClientY);
+
+        // Make sure the created nodes are fully rendered to the diagram and have the 'data-node-id' populated
+        var ids = _draggingNodes.Select(n => n.Id);
+        var ready = await JSRuntime.InvokeAsync<bool>("ViciOne.NodeMove.waitForNodes", ct, ids);
+        if (!ready)
+            return;
+
+        _dragMovablesBehavior!.Start(e.ClientX, e.ClientY, useJsDomEvents: false);
     }
 
-    private async Task OnContainerGhostDragLeave()
+    private async Task OnContainerGhostDragLeave(DragEventArgs e)
     {
         if (_ghostDragCts is not null)
             await _ghostDragCts.CancelAsync();
@@ -393,14 +400,14 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
 
         if (_draggingNodes.Count != 0)
         {
-            _dragMovablesBehavior!.End();
+            _dragMovablesBehavior!.EndMove(e.ClientX, e.ClientY);
             _diagram!.Nodes.Remove(_draggingNodes);
             _draggingNodes.Clear();
         }
     }
 
     private void OnContainerGhostDragOver(DragEventArgs e)
-        => _dragMovablesBehavior!.Move(e.ClientX, e.ClientY);
+        => _dragMovablesBehavior!.ExternalMove(e.ClientX, e.ClientY);
 
     private async Task OnContainerGhostDrop(DragEventArgs e)
     {
@@ -408,12 +415,28 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         {
             try { await _ghostDragEnterTask; }
             catch (OperationCanceledException) { }
+
+            _ghostDragEnterTask = null;
         }
 
-        _dragMovablesBehavior!.Move(e.ClientX, e.ClientY);
-        _dragMovablesBehavior.End();
-
+        _dragMovablesBehavior!.EndMove(e.ClientX, e.ClientY);
         _draggingNodes.Clear();
+
+        // In theory this shouldn't be necessary and is only for safety as the DraggingEntries
+        // get populated in LibrarySectionContent.OnTreeDragStarted(). So every new drag should set
+        // the correct entries.
+        // However, there is a bug somewhere. When an active drag is ended by a drop while
+        // OnContainerGhostDragEnterCore is still running (can happen when a large amount of blocks
+        // is already on the diagram and the user drags all ~65 blocks at once, so that the FB creation
+        // takes a long time), and the user tries to start a new drag immediately with the already selected
+        // library blocks, then DraggingEntries stays 'null' and the drag fails. Somehow OnTreeDragStarted()
+        // is not executed correctly.
+        // Removing this line allows for the instant 're-drag' as we would just use the previous entries,
+        // however in the current state of the program this can cause a _deadlock_ between two or more threads,
+        // involving the DataflowStructureTreeAdapter.
+        // Since this interaction is so niche that most likely nobody will ever do that, we play it safe for
+        // now and effectively disable the instant 're-drag'.
+        LibraryService.DraggingEntries = null;
     }
 
     private void OnContainerLoaded(Container container)
