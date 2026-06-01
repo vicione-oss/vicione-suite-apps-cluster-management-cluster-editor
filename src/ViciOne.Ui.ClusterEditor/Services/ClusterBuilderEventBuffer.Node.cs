@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ViciOne.Cluster.Model;
@@ -66,7 +66,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _applicationAddedBuffer.Add(new((ClusterNode)sender, application));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnApplicationRemoved(object? sender, ClusterApplication application)
@@ -75,7 +75,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _applicationRemovedBuffer.Add(new((ClusterNode)sender, application));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnNodeAdded(object? sender, ClusterNode node)
@@ -84,7 +84,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _nodeAddedBuffer.Add(new((ClusterNodeGroup)sender, node));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnNodeRemoved(object? sender, ClusterNode node)
@@ -93,6 +93,6 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _nodeRemovedBuffer.Add(new((ClusterNodeGroup)sender, node));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 }

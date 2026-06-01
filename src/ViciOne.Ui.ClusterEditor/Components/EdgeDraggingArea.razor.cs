@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Timers;
+using System.Threading;
+using System.Threading.Tasks;
 using Blazor.Diagrams.Core;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
@@ -12,14 +13,9 @@ public sealed partial class EdgeDraggingArea : ComponentBase, IDisposable
 {
     private const int PanValue = 100;
 
-    private readonly Timer _diagramPanTimer = new()
-    {
-        AutoReset = true,
-        Enabled = false,
-        Interval = 100,
-    };
     private bool _edgeDraggingAreaEnabled;
     private PointerEventArgs? _lastPointerMoveEventArgs;
+    private CancellationTokenSource? _panCts;
     private Side? _pointerOverTriggerSide;
     private readonly List<Side> _visibleTriggerSides = [];
 
@@ -36,12 +32,10 @@ public sealed partial class EdgeDraggingArea : ComponentBase, IDisposable
 
     public void Dispose()
     {
-        _diagramPanTimer.Elapsed -= OnPanTimerElapsed;
-        _diagramPanTimer.Dispose();
-
-        DiagramEventService.EdgeDraggingVisibilityChangeRequested -= OnEdgeDraggingVisibilityChangeRequestedAsync;
-
-        GC.SuppressFinalize(this);
+        var oldCts = Interlocked.Exchange(ref _panCts, null);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
+        DiagramEventService.EdgeDraggingVisibilityChangeRequested -= OnEdgeDraggingVisibilityChangeRequested;
     }
 
     private void OnContainerPointerMove(PointerEventArgs e)
@@ -52,12 +46,12 @@ public sealed partial class EdgeDraggingArea : ComponentBase, IDisposable
 
     private void OnContainerPointerUp(PointerEventArgs e)
     {
-        _diagramPanTimer.Stop();
+        StopPanning();
         Cleanup();
         DiagramEventService.InvokeEdgeDraggingPointerUp(e);
     }
 
-    private async void OnEdgeDraggingVisibilityChangeRequestedAsync(bool enabled)
+    private async void OnEdgeDraggingVisibilityChangeRequested(bool enabled)
     {
         if (enabled == _edgeDraggingAreaEnabled)
             return;
@@ -99,13 +93,38 @@ public sealed partial class EdgeDraggingArea : ComponentBase, IDisposable
     protected override void OnInitialized()
     {
         ArgumentNullException.ThrowIfNull(Diagram, nameof(Diagram));
-
-        _diagramPanTimer.Elapsed += OnPanTimerElapsed;
-        DiagramEventService.EdgeDraggingVisibilityChangeRequested += OnEdgeDraggingVisibilityChangeRequestedAsync;
+        DiagramEventService.EdgeDraggingVisibilityChangeRequested += OnEdgeDraggingVisibilityChangeRequested;
     }
 
-    private void OnPanTimerElapsed(object? _1, ElapsedEventArgs _2)
-        => InvokeAsync(() => Diagram!.Batch(() =>
+    private void OnTriggerAreaPointerEnter(Side side)
+    {
+        _pointerOverTriggerSide = side;
+        var newCts = new CancellationTokenSource();
+        var oldCts = Interlocked.Exchange(ref _panCts, newCts);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
+        _ = PanRepeatedly(newCts.Token);
+    }
+
+    private void OnTriggerAreaPointerLeave()
+    {
+        StopPanning();
+        _pointerOverTriggerSide = null;
+    }
+
+    private void OnWheel(WheelEventArgs e)
+        => DiagramEventService.InvokeEdgeDraggingWheel(e);
+
+    private async Task PanRepeatedly(CancellationToken cancellationToken)
+    {
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            await Task.Delay(100, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+
+            if (cancellationToken.IsCancellationRequested)
+                return;
+
+            await InvokeAsync(() => Diagram!.Batch(() =>
             {
                 if (!_pointerOverTriggerSide.HasValue)
                     return;
@@ -122,23 +141,16 @@ public sealed partial class EdgeDraggingArea : ComponentBase, IDisposable
 
                 if (_lastPointerMoveEventArgs is not null)
                     DiagramEventService.InvokeEdgeDraggingPointerMove(_lastPointerMoveEventArgs);
-            })
-        );
-
-    private void OnTriggerAreaPointerEnter(Side side)
-    {
-        _pointerOverTriggerSide = side;
-        _diagramPanTimer.Start();
+            }));
+        }
     }
 
-    private void OnTriggerAreaPointerLeave()
+    private void StopPanning()
     {
-        _diagramPanTimer.Stop();
-        _pointerOverTriggerSide = null;
+        var oldCts = Interlocked.Exchange(ref _panCts, null);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
     }
-
-    private void OnWheel(WheelEventArgs e)
-        => DiagramEventService.InvokeEdgeDraggingWheel(e);
 
     private enum Side
     {

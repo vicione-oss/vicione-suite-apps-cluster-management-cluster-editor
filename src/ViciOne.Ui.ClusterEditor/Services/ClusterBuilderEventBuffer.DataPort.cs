@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ViciOne.Cluster.Model;
@@ -96,13 +96,13 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _dataPortAddedBuffer.Add(new((Dataflow)sender, dataPort));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnDataPortPropertyChanged(object? s, System.ComponentModel.PropertyChangedEventArgs e)
     {
         _dataPortPropertyChangedBuffer.Add((s, e));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnDataPortRemoved(object? sender, DataPort dataPort)
@@ -111,7 +111,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _dataPortRemovedBuffer.Add(new((Dataflow)sender, dataPort));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnDataPortTreeNodeLinkAdded(Link link)
@@ -120,7 +120,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _dataPortTreeNodeLinkAddedBuffer.Add(link);
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnDataPortTreeNodeLinkRemoved(Link link)
@@ -129,7 +129,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _dataPortTreeNodeLinkRemovedBuffer.Add(link);
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnTreeNodeAdded(object? sender, DataPortTreeNode dataPortTreeNode)
@@ -138,7 +138,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _treeNodeAddedBuffer.Add(new((IHasDataPortTreeNodes)sender, dataPortTreeNode));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnTreeNodeRemoved(object? sender, DataPortTreeNode dataPortTreeNode)
@@ -147,6 +147,6 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _treeNodeRemovedBuffer.Add(new((IHasDataPortTreeNodes)sender, dataPortTreeNode));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 }

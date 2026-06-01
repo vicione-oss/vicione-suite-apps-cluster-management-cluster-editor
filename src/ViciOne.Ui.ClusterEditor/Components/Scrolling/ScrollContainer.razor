@@ -7,7 +7,7 @@
 
 <div @onpointerenter="OnContainerPointerEnter"
      @onpointerleave="OnContainerPointerLeave"
-     @onwheel="@(async (e) => await OnWheelScrollAsync(e))"
+     @onwheel="@(async (e) => await OnWheelScroll(e))"
      class="@string.Join(" ", cssClasses)">
 
     <div @ref="@_refAllocationContainer"
@@ -27,5 +27,5 @@
                MaxVisiblePixels="@((int)_allocationContainerSize.Height)"
                Orientation="@(ScrollbarOrientation.Vertical)"
                ScrolledPixels="@_scrolledPixels"
-               ScrolledPixelsChanged="@(async (e) => await OnScrolledPixelsChangedAsync(e))" />
+               ScrolledPixelsChanged="@(async (e) => await OnScrolledPixelsChanged(e))" />
 </div>

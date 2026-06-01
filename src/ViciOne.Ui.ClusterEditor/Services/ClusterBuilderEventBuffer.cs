@@ -1,23 +1,18 @@
 ﻿using System;
-using System.Timers;
+using System.Threading;
+using System.Threading.Tasks;
 using ViciOne.Cluster.Builder.Abstractions;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
 public sealed partial class ClusterBuilderEventBuffer : IDisposable
 {
-    private readonly Timer _bufferTimer = new()
-    {
-        AutoReset = false,
-        Enabled = false,
-        Interval = 300,
-    };
+    private CancellationTokenSource? _bufferCts;
+    private bool _debounceRunning;
+    private bool _disposed;
     private bool _manualBatchInProgress;
 
     private IClusterBuilder Builder { get; set; } = default!;
-
-    public ClusterBuilderEventBuffer()
-        => _bufferTimer.Elapsed += OnBufferTimerElapsed;
 
     private void AttachBuilderEvents()
     {
@@ -30,6 +25,13 @@ public sealed partial class ClusterBuilderEventBuffer : IDisposable
         AttachLabelEvents();
         AttachNodeEvents();
         AttachNodeGroupEvents();
+    }
+
+    private void CancelBufferFlush()
+    {
+        var oldCts = Interlocked.Exchange(ref _bufferCts, null);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
     }
 
     private void DetachBuilderEvents()
@@ -50,10 +52,12 @@ public sealed partial class ClusterBuilderEventBuffer : IDisposable
 
     public void Dispose()
     {
-        DetachBuilderEvents();
+        if (_disposed)
+            return;
 
-        _bufferTimer.Elapsed -= OnBufferTimerElapsed;
-        _bufferTimer.Dispose();
+        _disposed = true;
+        DetachBuilderEvents();
+        CancelBufferFlush();
     }
 
     public void EndBatchOperation()
@@ -62,7 +66,7 @@ public sealed partial class ClusterBuilderEventBuffer : IDisposable
             return;
 
         _manualBatchInProgress = false;
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void FireEvents()
@@ -78,18 +82,47 @@ public sealed partial class ClusterBuilderEventBuffer : IDisposable
         FireNodeGroupEvents();
     }
 
-    private void OnBufferTimerElapsed(object? s, ElapsedEventArgs e)
+    private async Task FireEventsDebounced()
     {
+        _debounceRunning = true;
         try
         {
-            _bufferTimer.Stop();
-        }
-        catch (ObjectDisposedException)
-        {
-            // Timer was already disposed, ignore
-        }
+            while (true)
+            {
+                var cts = Volatile.Read(ref _bufferCts);
+                if (cts is null)
+                    return;
 
-        FireEvents();
+                await Task.Delay(300, cts.Token).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+
+                if (_disposed)
+                    return;
+
+                if (cts == Volatile.Read(ref _bufferCts))
+                {
+                    FireEvents();
+                    return;
+                }
+            }
+        }
+        finally
+        {
+            _debounceRunning = false;
+        }
+    }
+
+    public void ScheduleBufferFlush()
+    {
+        if (_manualBatchInProgress || _disposed)
+            return;
+
+        var newCts = new CancellationTokenSource();
+        var oldCts = Interlocked.Exchange(ref _bufferCts, newCts);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
+
+        if (!_debounceRunning)
+            _ = FireEventsDebounced();
     }
 
     public void SetBuilder(IClusterBuilder builder)
@@ -105,30 +138,6 @@ public sealed partial class ClusterBuilderEventBuffer : IDisposable
             return;
 
         _manualBatchInProgress = true;
-
-        try
-        {
-            _bufferTimer.Stop();
-        }
-        catch (ObjectDisposedException)
-        {
-            // Timer was already disposed, ignore
-        }
-    }
-
-    public void StartBufferTimer()
-    {
-        if (_manualBatchInProgress)
-            return;
-
-        try
-        {
-            _bufferTimer.Stop();
-            _bufferTimer.Start();
-        }
-        catch (ObjectDisposedException)
-        {
-            // Timer was already disposed, ignore
-        }
+        CancelBufferFlush();
     }
 }

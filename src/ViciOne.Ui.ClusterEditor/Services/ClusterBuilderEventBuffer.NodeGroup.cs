@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ViciOne.Cluster.Model;
@@ -46,7 +46,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _nodeGroupAddedBuffer.Add(new(sender is null ? null : (IHasClusterNodeGroups)sender, nodeGroup));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnNodeGroupRemoved(object? sender, ClusterNodeGroup nodeGroup)
@@ -55,6 +55,6 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _nodeGroupRemovedBuffer.Add(new(sender is null ? null : (IHasClusterNodeGroups)sender, nodeGroup));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 }

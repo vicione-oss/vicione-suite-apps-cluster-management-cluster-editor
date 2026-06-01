@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using ViciOne.Cluster.Model;
 
@@ -55,7 +55,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _connectorLinkAddedBuffer.Add(link);
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnConnectorLinkRemoved(Link link)
@@ -64,12 +64,12 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _connectorLinkRemovedBuffer.Add(link);
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnConnectorPropertyChanged(object? s, System.ComponentModel.PropertyChangedEventArgs e)
     {
         _connectorPropertyChangedBuffer.Add((s, e));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 }

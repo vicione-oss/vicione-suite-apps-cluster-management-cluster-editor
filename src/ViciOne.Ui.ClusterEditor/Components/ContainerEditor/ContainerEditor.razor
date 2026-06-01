@@ -7,12 +7,12 @@
 @using LocalTechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
 
 <Dialog @bind-Visible="_visible"
-        @bind-Visible:after="VisibleChangedAsync"
+        @bind-Visible:after="OnVisibleChanged"
         @ref="_refDialog"
         HeaderText="@string.Format(UserActions.EditSomething, LocalTechnicalTerms.Container)"
         Height="@DialogSizes.LargeHeight"
         PreventBrowserContextMenu="@ContextMenuSettings.UseCustomMenu"
-        OnClosing="@OnDialogClosingAsync"
+        OnClosing="@OnDialogClosing"
         OnShowing="@OnDialogShowing"
         Width="@DialogSizes.ContainerEditorWidth">
 
@@ -174,10 +174,10 @@
     </Body>
 
     <Footer>
-        <DialogFooterButton OnClick="@OnDialogOkAsync"
+        <DialogFooterButton OnClick="@OnDialogOk"
                             Text="@CommonVocabulary.Ok" />
 
-        <DialogFooterButton OnClick="@OnDialogCancelAsync"
+        <DialogFooterButton OnClick="@OnDialogCancel"
                             Text="@CommonVocabulary.Cancel" />
     </Footer>
 </Dialog>
