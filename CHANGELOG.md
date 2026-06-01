@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.0.1 - unreleased
+
+### Changed
+
+- Fixed Collection modified exception from `DiagramScrollbarAdapter`
+
 ## 1.0.0 - 2026-05-28
 
 ### Added

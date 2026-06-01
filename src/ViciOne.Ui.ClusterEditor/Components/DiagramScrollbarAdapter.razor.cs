@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Blazor.Diagrams.Core;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
@@ -24,8 +25,8 @@ public sealed partial class DiagramScrollbarAdapter : ComponentBase, IDisposable
 
     public void Dispose()
     {
-        Diagram!.Changed -= OnDiagramChangedAsync;
-        Diagram.ContainerChanged -= OnDiagramChangedAsync;
+        Diagram!.Changed -= OnDiagramChanged;
+        Diagram.ContainerChanged -= OnDiagramChanged;
         Diagram.Nodes.Added -= OnDiagramNodeAdded;
         Diagram.Nodes.Removed -= OnDiagramNodeRemoved;
 
@@ -49,7 +50,10 @@ public sealed partial class DiagramScrollbarAdapter : ComponentBase, IDisposable
             _ => throw new ArgumentException($"Unknown value of {nameof(ScrollbarOrientation)}."),
         };
 
-    private async void OnDiagramChangedAsync()
+    private void OnDiagramChanged()
+        => _ = InvokeAsync(OnDiagramChangedCore);
+
+    private async Task OnDiagramChangedCore()
     {
         _diagramNodeBounds = Diagram!.GetNodeBounds();
         _diagramViewport = Diagram!.GetViewport();
@@ -121,13 +125,14 @@ public sealed partial class DiagramScrollbarAdapter : ComponentBase, IDisposable
         }
 
         _shouldRender = true;
-        await InvokeAsync(StateHasChanged);
+        StateHasChanged();
     }
 
     private void OnDiagramNodeAdded(NodeModel node)
         => node.Changed += OnDiagramNodeChanged;
 
-    private void OnDiagramNodeChanged(Model _) => OnDiagramChangedAsync();
+    private void OnDiagramNodeChanged(Model _)
+        => OnDiagramChanged();
 
     private void OnDiagramNodeRemoved(NodeModel node)
         => node.Changed -= OnDiagramNodeChanged;
@@ -136,8 +141,8 @@ public sealed partial class DiagramScrollbarAdapter : ComponentBase, IDisposable
     {
         ArgumentNullException.ThrowIfNull(Diagram, nameof(Diagram));
 
-        Diagram.Changed += OnDiagramChangedAsync;
-        Diagram.ContainerChanged += OnDiagramChangedAsync;
+        Diagram.Changed += OnDiagramChanged;
+        Diagram.ContainerChanged += OnDiagramChanged;
         Diagram.Nodes.Added += OnDiagramNodeAdded;
         Diagram.Nodes.Removed += OnDiagramNodeRemoved;
     }
