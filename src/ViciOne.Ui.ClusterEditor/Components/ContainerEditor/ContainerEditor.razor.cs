@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Behaviors;
 using DevExpress.XtraRichEdit.Layout.Engine;
@@ -46,12 +46,8 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     private bool _outputDownEnabled;
     private bool _outputUpEnabled;
     private Dialog? _refDialog;
-    private readonly Timer _refreshTimer = new()
-    {
-        AutoReset = false,
-        Enabled = false,
-        Interval = 25,
-    };
+    private CancellationTokenSource? _refreshCts;
+    private bool _refreshDebounceRunning;
     private bool _removeInputPlaceholderEnabled;
     private bool _removeOutputPlaceholderEnabled;
     private bool _resetConnectors = true;
@@ -103,11 +99,15 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         sourceSelection.Clear();
         sourceSelection.Add(placeholder);
 
-        StartRefreshTimer();
+        StartRefreshDebounce();
     }
 
     private void Cleanup()
     {
+        var oldCts = Interlocked.Exchange(ref _refreshCts, null);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
+
         if (_currentContainerNode is not null)
         {
             _currentContainerNode.SizeChanged -= OnCurrentContainerNodeSizeChanged;
@@ -177,13 +177,13 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     public void Dispose()
     {
         ClusterBuilderEventBuffer.ConnectorPropertiesChanged -= OnPropertyChanged;
-        ContainerEditorRequest.ContainerEditorRequestedAsync -= OnContainerEditorRequestedAsync;
+        ContainerEditorRequest.ContainerEditorRequestedAsync -= OnContainerEditorRequested;
 
         _currentContainerNode?.SizeChanged -= OnCurrentContainerNodeSizeChanged;
 
         if (_scrollContainer is not null)
         {
-            _scrollContainer.AllocationContainerSizeChanged -= OnAllocationContainerSizeChangedAsync;
+            _scrollContainer.AllocationContainerSizeChanged -= OnAllocationContainerSizeChanged;
             _scrollContainer.ScrolledPixelsChanged -= OnScrolledPixelsChanged;
             _scrollContainer.Dispose();
         }
@@ -196,8 +196,9 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         _selectionBehavior?.Dispose();
         _zoomToFitBehavior?.Dispose();
 
-        _refreshTimer.Elapsed -= OnRefreshTimerElapsedAsync;
-        _refreshTimer.Dispose();
+        var oldCts = Interlocked.Exchange(ref _refreshCts, null);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
     }
 
     private int GetHighestConnectorIndex()
@@ -315,10 +316,10 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         sourceCollection.RemoveAt(oldListIndex);
         sourceCollection.Insert(newListIndex, item);
 
-        StartRefreshTimer();
+        StartRefreshDebounce();
     }
 
-    private async void OnAllocationContainerSizeChangedAsync(Size size)
+    private async void OnAllocationContainerSizeChanged(Size size)
     {
         _allocationContainerHeight = size.Height;
 
@@ -345,25 +346,29 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         }
 
         ClearSelectedConnectors(isInput ? _outputConnectors : _inputConnectors);
-        StartRefreshTimer();
+        StartRefreshDebounce();
     }
 
-    private async Task OnContainerEditorRequestedAsync()
-        => await ShowAsync();
+    private async Task OnContainerEditorRequested()
+        => await Show();
 
     private void OnCurrentContainerNodeSizeChanged(global::Blazor.Diagrams.Core.Models.NodeModel node)
         => _zoomEnabled = _allocationContainerHeight > 0 && node.Size?.Height > _allocationContainerHeight;
 
-    private async Task OnDialogCancelAsync()
+    private async Task OnDialogCancel()
     {
         if (_refDialog is null)
             return;
+
+        var oldCts = Interlocked.Exchange(ref _refreshCts, null);
+        oldCts?.CancelAsync();
+        oldCts?.Dispose();
 
         _resetConnectors = true;
         await _refDialog.CloseAsync();
     }
 
-    private async Task OnDialogClosingAsync()
+    private async Task OnDialogClosing()
     {
         if (_resetConnectors)
             ResetConnectors();
@@ -398,10 +403,14 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         Cleanup();
     }
 
-    private async Task OnDialogOkAsync()
+    private async Task OnDialogOk()
     {
         if (_refDialog is null)
             return;
+
+        var oldCts = Interlocked.Exchange(ref _refreshCts, null);
+        oldCts?.CancelAsync();
+        oldCts?.Dispose();
 
         _resetConnectors = false;
         await _refDialog.CloseAsync();
@@ -418,14 +427,14 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     {
         if (_scrollContainer is not null)
         {
-            _scrollContainer.AllocationContainerSizeChanged += OnAllocationContainerSizeChangedAsync;
+            _scrollContainer.AllocationContainerSizeChanged += OnAllocationContainerSizeChanged;
             _scrollContainer.ScrolledPixelsChanged += OnScrolledPixelsChanged;
         }
     }
 
     protected override void OnInitialized()
     {
-        ContainerEditorRequest.ContainerEditorRequestedAsync += OnContainerEditorRequestedAsync;
+        ContainerEditorRequest.ContainerEditorRequestedAsync += OnContainerEditorRequested;
 
         InitializeDiagramService();
         InitializeDiagram();
@@ -448,13 +457,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     }
 
     private void OnPropertyChanged(IEnumerable<(object? sender, System.ComponentModel.PropertyChangedEventArgs e)> _)
-        => StartRefreshTimer();
-
-    private async void OnRefreshTimerElapsedAsync(object? sender, ElapsedEventArgs e)
-    {
-        _refreshTimer.Stop();
-        await RefreshAsync();
-    }
+        => StartRefreshDebounce();
 
     private void OnRemovePlaceholderClicked(bool isInput)
     {
@@ -484,7 +487,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
                 sourceSelection.Add(connector);
         }
 
-        StartRefreshTimer();
+        StartRefreshDebounce();
     }
 
     private void OnScrolledPixelsChanged(int scrolledPixels)
@@ -507,7 +510,13 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
         ClearSelectedConnectors(isInput ? _outputConnectors : _inputConnectors);
 
-        StartRefreshTimer();
+        StartRefreshDebounce();
+    }
+
+    private async Task OnVisibleChanged()
+    {
+        if (_visible)
+            OnDialogShown();
     }
 
     private void OnZoomClicked()
@@ -532,13 +541,39 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         });
     }
 
-    private async Task RefreshAsync()
+    private void Refresh()
     {
         SyncConnectorLists();
         SetButtonStates();
         UpdatePreviewContainer();
         UpdatePropertyGrid();
-        await InvokeAsync(StateHasChanged);
+        StateHasChanged();
+    }
+
+    private async Task RefreshAfterDelay()
+    {
+        _refreshDebounceRunning = true;
+        try
+        {
+            while (true)
+            {
+                var cts = Volatile.Read(ref _refreshCts);
+                if (cts is null)
+                    return;
+
+                await Task.Delay(25, cts.Token).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+
+                if (cts == Volatile.Read(ref _refreshCts))
+                {
+                    await InvokeAsync(Refresh);
+                    return;
+                }
+            }
+        }
+        finally
+        {
+            _refreshDebounceRunning = false;
+        }
     }
 
     private void RemovePlaceholder(ContainerEditorConnector placeholder, bool isInput)
@@ -554,7 +589,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
         sourceCollection.Remove(placeholder);
 
-        StartRefreshTimer();
+        StartRefreshDebounce();
     }
 
     private void ResetConnectors()
@@ -586,7 +621,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         _outputUpEnabled = GetMoveUpButtonEnabled(selectedOutputConnectors);
     }
 
-    internal async Task ShowAsync()
+    internal async Task Show()
     {
         _originalContainerNode = SelectionManager.SelectedContainers.FirstOrDefault();
 
@@ -594,7 +629,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
             return;
 
         var containerModel = Datastore.DataflowDiagramMapping.GetModel(_originalContainerNode);
-        using var cts = new System.Threading.CancellationTokenSource();
+        using var cts = new CancellationTokenSource();
 
         var nameFieldHeight = (await JsRuntime.MeasureNameFieldHeights([containerModel.Name], cts.Token)).First();
         _currentContainerNode = ChildContainerMapper.CreateNode(ComparerService, Datastore, _diagramService!, containerModel, nameFieldHeight);
@@ -608,16 +643,19 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         _diagram?.Nodes.Add(_currentContainerNode);
         _currentContainerNode.SizeChanged += OnCurrentContainerNodeSizeChanged;
 
-        _refreshTimer.Elapsed += OnRefreshTimerElapsedAsync;
-
         if (_refDialog is not null)
             await _refDialog.ShowAsync();
     }
 
-    private void StartRefreshTimer()
+    private void StartRefreshDebounce()
     {
-        _refreshTimer.Stop();
-        _refreshTimer.Start();
+        var newCts = new CancellationTokenSource();
+        var oldCts = Interlocked.Exchange(ref _refreshCts, newCts);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
+
+        if (!_refreshDebounceRunning)
+            _ = RefreshAfterDelay();
     }
 
     private void SyncConnectorLists()
@@ -664,6 +702,9 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         UpdatePreviewContainerConnectors(_currentContainerNode, ConnectorSide.Input, _inputConnectors);
         UpdatePreviewContainerConnectors(_currentContainerNode, ConnectorSide.Output, _outputConnectors);
 
+        UpdatePreviewContainerConnectorSelection(_inputConnectors);
+        UpdatePreviewContainerConnectorSelection(_outputConnectors);
+
         _currentContainerNode.Refresh();
     }
 
@@ -674,11 +715,15 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
         foreach (var connector in connectors)
         {
-            connector.BlockNodeConnector?.SetSelection(connector.Selected);
-
             if (containerNodeConnectorIndex < containerNode.Connectors.Count)
                 containerNode.Connectors[containerNodeConnectorIndex++][blockNodeConnectorArrayIndex] = connector.BlockNodeConnector;
         }
+    }
+
+    private static void UpdatePreviewContainerConnectorSelection(IEnumerable<ContainerEditorConnector> connectors)
+    {
+        foreach (var connector in connectors)
+            connector.BlockNodeConnector?.SetSelection(connector.Selected);
     }
 
     private void UpdatePropertyGrid()
@@ -688,11 +733,5 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
             ContainerEditorPropertyGridController.SetInstances(selection, new());
         else
             ContainerEditorPropertyGridController.SetInstances([], new());
-    }
-
-    private async Task VisibleChangedAsync()
-    {
-        if (_visible)
-            OnDialogShown();
     }
 }

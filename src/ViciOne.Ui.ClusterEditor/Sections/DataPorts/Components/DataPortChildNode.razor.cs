@@ -1,5 +1,6 @@
 ﻿using System;
-using System.Timers;
+using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using ViciOne.Ui.ClusterEditor.Helpers;
@@ -17,7 +18,8 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
     private ActionButtonParameters? _actionButtonContainerParameters;
     private DropAreaParameters? _dropAreaParameters;
     private PointerEventArgs? _lastPointerMoveEvents;
-    private readonly Timer _mouseMoveTimer = new();
+    private CancellationTokenSource? _mouseMoveCts;
+    private bool _mouseMoveDebounceRunning;
     private bool _tooltipVisible;
 
     [Inject] private BoundsService BoundsService { get; set; } = default!;
@@ -33,6 +35,13 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
         _actionButtonContainerParameters?.CalculateCss();
     }
 
+    private void CancelMouseMoveDebounce()
+    {
+        var oldCts = Interlocked.Exchange(ref _mouseMoveCts, null);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
+    }
+
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
@@ -45,8 +54,9 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
 
         Node.DragAndDropStateChanged -= OnDragAndDropStateChangedAsync;
 
-        _mouseMoveTimer.Elapsed -= OnMouseMoveTimerElapsedAsync;
-        _mouseMoveTimer.Dispose();
+        var oldCts = Interlocked.Exchange(ref _mouseMoveCts, null);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
     }
 
     private async void OnDragAndDropStateChangedAsync()
@@ -70,36 +80,36 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
         _dropAreaParameters.RefreshRequested += Refresh;
 
         Node.DragAndDropStateChanged += OnDragAndDropStateChangedAsync;
-
-        _mouseMoveTimer.AutoReset = false;
-        _mouseMoveTimer.Interval = 200;
-        _mouseMoveTimer.Elapsed += OnMouseMoveTimerElapsedAsync;
-    }
-
-    private async void OnMouseMoveTimerElapsedAsync(object? _, ElapsedEventArgs _1)
-    {
-        if (_lastPointerMoveEvents is not null)
-        {
-            _tooltipVisible = true;
-            TooltipService.StartTooltip(TooltipDataPortData.GetDataPortTooltipInfo(Datastore, _lastPointerMoveEvents, (DataPortNodeModel)Node.TreeNode, await BoundsService.GetWindowBoundsAsync()));
-        }
     }
 
     private void OnNodeTextPointerLeave()
     {
         _lastPointerMoveEvents = null;
         _tooltipVisible = false;
-        _mouseMoveTimer.Stop();
+        CancelMouseMoveDebounce();
         TooltipService.StopTooltip();
     }
 
     private void OnNodeTextPointerMove(PointerEventArgs e)
     {
         _lastPointerMoveEvents = e;
-        _mouseMoveTimer.Stop();
 
-        if (!_tooltipVisible)
-            _mouseMoveTimer.Start();
+        if (_tooltipVisible)
+        {
+            CancelMouseMoveDebounce();
+            return;
+        }
+
+        var newCts = new CancellationTokenSource();
+        var oldCts = Interlocked.Exchange(ref _mouseMoveCts, newCts);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
+
+        if (_mouseMoveDebounceRunning)
+            return;
+
+        _mouseMoveDebounceRunning = true;
+        _ = ShowTooltipAfterDelay();
     }
 
     protected override void OnPointerEnter(PointerEventArgs e)
@@ -122,5 +132,45 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
 
         CalculateAll();
         Refresh();
+    }
+
+    private async Task ShowTooltipAfterDelay()
+    {
+        try
+        {
+            while (true)
+            {
+                var cts = _mouseMoveCts;
+                if (cts is null)
+                    return;
+
+                try
+                {
+                    await Task.Delay(200, cts.Token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    if (_mouseMoveCts is null)
+                        return;
+                    continue;
+                }
+
+                if (Interlocked.CompareExchange(ref _mouseMoveCts, null, cts) != cts)
+                    continue;
+
+                cts.Dispose();
+
+                if (_lastPointerMoveEvents is not null)
+                {
+                    _tooltipVisible = true;
+                    TooltipService.StartTooltip(TooltipDataPortData.GetDataPortTooltipInfo(Datastore, _lastPointerMoveEvents, (DataPortNodeModel)Node.TreeNode, await BoundsService.GetWindowBoundsAsync().ConfigureAwait(false)));
+                }
+                return;
+            }
+        }
+        finally
+        {
+            _mouseMoveDebounceRunning = false;
+        }
     }
 }

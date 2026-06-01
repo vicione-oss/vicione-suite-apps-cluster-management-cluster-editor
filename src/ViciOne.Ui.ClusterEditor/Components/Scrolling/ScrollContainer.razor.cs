@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
-using System.Timers;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using ViciOne.Ui.Blazor.Components.Resizing.Models;
@@ -16,12 +16,8 @@ public sealed partial class ScrollContainer : ComponentBase, IDisposable
     private ElementReference _refAllocationContainer;
     private ElementReference _refContentContainer;
     private Scrollbar? _refOneWayScrollbar;
-    private readonly Timer _scrollbarVisibilityTimer = new()
-    {
-        AutoReset = false,
-        Enabled = false,
-        Interval = 2000,
-    };
+    private bool _scrollbarHideDebounceRunning;
+    private CancellationTokenSource? _scrollbarVisibilityCts;
     private int _scrolledPixels;
     private bool _scrollToEnd;
 
@@ -37,12 +33,49 @@ public sealed partial class ScrollContainer : ComponentBase, IDisposable
 
     public void Dispose()
     {
-        _scrollbarVisibilityTimer.Elapsed -= OnScrollbarVisibilityTimerElapsedAsync;
-        _scrollbarVisibilityTimer.Dispose();
+        var oldCts = Interlocked.Exchange(ref _scrollbarVisibilityCts, null);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
 
-        ResizeObserver.ElementSizeChanged -= OnElementSizeChangedAsync;
+        ResizeObserver.ElementSizeChanged -= OnElementSizeChanged;
         _ = ResizeObserver.UnobserveAsync(_refAllocationContainer);
         _ = ResizeObserver.UnobserveAsync(_refContentContainer);
+    }
+
+    private async Task HideScrollbarAfterDelay()
+    {
+        try
+        {
+            while (true)
+            {
+                var cts = _scrollbarVisibilityCts;
+                if (cts is null)
+                    return;
+
+                try
+                {
+                    await Task.Delay(2000, cts.Token).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    if (_scrollbarVisibilityCts is null)
+                        return;
+                    continue;
+                }
+
+                if (Interlocked.CompareExchange(ref _scrollbarVisibilityCts, null, cts) == cts)
+                {
+                    cts.Dispose();
+                    _isScrollbarVisible = false;
+                    await InvokeAsync(StateHasChanged).ConfigureAwait(false);
+                    return;
+                }
+            }
+        }
+        finally
+        {
+            _scrollbarHideDebounceRunning = false;
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -56,17 +89,18 @@ public sealed partial class ScrollContainer : ComponentBase, IDisposable
 
     private void OnContainerPointerEnter()
     {
-        _scrollbarVisibilityTimer.Stop();
+        var oldCts = Interlocked.Exchange(ref _scrollbarVisibilityCts, null);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
         _isScrollbarVisible = true;
     }
 
     private void OnContainerPointerLeave()
-        => _scrollbarVisibilityTimer.Start();
+        => StartScrollbarHideDebounce();
 
-    private async void OnElementSizeChangedAsync(ElementSizeChangedEventArgs args)
+    private async void OnElementSizeChanged(ElementSizeChangedEventArgs args)
     {
         var update = false;
-
         var newSize = args.DomRect;
 
         if (args.ElementReference.Id == _refAllocationContainer.Id)
@@ -97,25 +131,15 @@ public sealed partial class ScrollContainer : ComponentBase, IDisposable
     }
 
     protected override void OnInitialized()
-    {
-        _scrollbarVisibilityTimer.Elapsed += OnScrollbarVisibilityTimerElapsedAsync;
-        ResizeObserver.ElementSizeChanged += OnElementSizeChangedAsync;
-    }
+        => ResizeObserver.ElementSizeChanged += OnElementSizeChanged;
 
-    private async void OnScrollbarVisibilityTimerElapsedAsync(object? _1, ElapsedEventArgs _2)
-    {
-        _isScrollbarVisible = false;
-        _scrollbarVisibilityTimer.Stop();
-        await InvokeAsync(StateHasChanged);
-    }
-
-    private async Task OnScrolledPixelsChangedAsync(int newScrolledPixels)
+    private async Task OnScrolledPixelsChanged(int newScrolledPixels)
     {
         SetScrolledPixels(newScrolledPixels);
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task OnWheelScrollAsync(WheelEventArgs e)
+    private async Task OnWheelScroll(WheelEventArgs e)
         => await _refOneWayScrollbar!.OnWheelScrollAsync(e);
 
     private void ScrollToEnd()
@@ -133,5 +157,19 @@ public sealed partial class ScrollContainer : ComponentBase, IDisposable
     {
         _scrolledPixels = scrolledPixels;
         ScrolledPixelsChanged?.Invoke(scrolledPixels);
+    }
+
+    private void StartScrollbarHideDebounce()
+    {
+        var newCts = new CancellationTokenSource();
+        var oldCts = Interlocked.Exchange(ref _scrollbarVisibilityCts, newCts);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
+
+        if (_scrollbarHideDebounceRunning)
+            return;
+
+        _scrollbarHideDebounceRunning = true;
+        _ = HideScrollbarAfterDelay();
     }
 }

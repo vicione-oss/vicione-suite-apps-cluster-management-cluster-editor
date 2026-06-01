@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
@@ -27,6 +27,6 @@ public sealed partial class ClusterBuilderEventBuffer
     private void OnLabelPropertyChanged(object? s, System.ComponentModel.PropertyChangedEventArgs e)
     {
         _labelPropertyChangedBuffer.Add((s, e));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 }

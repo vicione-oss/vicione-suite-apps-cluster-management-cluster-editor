@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ViciOne.Cluster.Model;
@@ -56,13 +56,13 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _dataflowAddedBuffer.Add(new((Cluster.Model.Cluster)sender, dataflow));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     public void OnDataflowPropertyChanged(object? s, System.ComponentModel.PropertyChangedEventArgs e)
     {
         _dataflowPropertyChangedBuffer.Add((s, e));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnDataflowRemoved(object? sender, Dataflow dataflow)
@@ -71,6 +71,6 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _dataflowRemovedBuffer.Add(new((Cluster.Model.Cluster)sender, dataflow));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 }

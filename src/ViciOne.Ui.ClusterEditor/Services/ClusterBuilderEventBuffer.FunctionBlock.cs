@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ViciOne.Cluster.Model;
@@ -98,7 +98,7 @@ public sealed partial class ClusterBuilderEventBuffer
                 continue;
 
             _engineAssignedBuffer.Add(fb);
-            StartBufferTimer();
+            ScheduleBufferFlush();
         }
     }
 
@@ -110,7 +110,7 @@ public sealed partial class ClusterBuilderEventBuffer
                 continue;
 
             _engineUnassignedBuffer.Add(fb);
-            StartBufferTimer();
+            ScheduleBufferFlush();
         }
     }
 
@@ -120,7 +120,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _functionBlockAddedBuffer.Add(new((Container)sender, functionBlock));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnFunctionBlockDesignAdded(object? sender, Guid designId)
@@ -129,7 +129,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _functionBlockDesignAddedBuffer.Add(new((Cluster.Model.Cluster)sender, designId));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnFunctionBlockDesignRemoved(object? sender, Guid designId)
@@ -138,13 +138,13 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _functionBlockDesignRemovedBuffer.Add(new((Cluster.Model.Cluster)sender, designId));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     public void OnFunctionBlockPropertyChanged(object? s, System.ComponentModel.PropertyChangedEventArgs e)
     {
         _functionBlockPropertyChangedBuffer.Add((s, e));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnFunctionBlockRemoved(object? sender, FunctionBlock functionBlock)
@@ -153,6 +153,6 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _functionBlockRemovedBuffer.Add(new((Container)sender, functionBlock));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 }

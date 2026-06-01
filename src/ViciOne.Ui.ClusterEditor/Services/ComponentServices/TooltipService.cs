@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Timers;
+using System.Threading;
+using System.Threading.Tasks;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Models;
 
@@ -9,13 +10,9 @@ namespace ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 public sealed class TooltipService : IDisposable
 {
     private readonly DiagramEventService _diagramEventService;
+    private bool _disposed;
     private bool _hasActiveTooltip;
-    private readonly Timer _renderDelayTimer = new()
-    {
-        AutoReset = false,
-        Enabled = false,
-        Interval = 1150,
-    };
+    private CancellationTokenSource? _renderDelayCts;
     private readonly Stack<TooltipInfo> _tooltipInfos = [];
 
     public event Action? HideTooltip;
@@ -27,20 +24,27 @@ public sealed class TooltipService : IDisposable
         _diagramEventService.ContainerLoaded += OnDiagramContainerLoaded;
         _diagramEventService.ContainerRemoved += OnDiagramContainerRemoved;
         _diagramEventService.FunctionBlockRemoved += Reset;
+    }
 
-        _renderDelayTimer.Elapsed += OnRenderDelayTimerElapsed;
+    private void CancelRenderDelay()
+    {
+        var oldCts = Interlocked.Exchange(ref _renderDelayCts, null);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
     }
 
     public void Dispose()
     {
+        if (_disposed)
+            return;
+
+        _disposed = true;
+
         _diagramEventService.ContainerLoaded -= OnDiagramContainerLoaded;
         _diagramEventService.ContainerRemoved -= OnDiagramContainerRemoved;
         _diagramEventService.FunctionBlockRemoved -= Reset;
 
-        _renderDelayTimer.Elapsed -= OnRenderDelayTimerElapsed;
-        _renderDelayTimer.Dispose();
-
-        GC.SuppressFinalize(this);
+        CancelRenderDelay();
     }
 
     private void EmitShowTooltip()
@@ -60,21 +64,34 @@ public sealed class TooltipService : IDisposable
     private void OnDiagramContainerRemoved(Container _)
         => Reset();
 
-    private void OnRenderDelayTimerElapsed(object? sender, ElapsedEventArgs e)
-        => EmitShowTooltip();
-
     private void Reset()
     {
         HideTooltip?.Invoke();
         _hasActiveTooltip = false;
         _tooltipInfos.Clear();
-        _renderDelayTimer.Stop();
+        CancelRenderDelay();
     }
 
-    private void RestartRenderDelayTimer()
+    private async Task ShowTooltipDebounced(CancellationToken cancellationToken)
     {
-        _renderDelayTimer.Stop();
-        _renderDelayTimer.Start();
+        await Task.Delay(1150, cancellationToken).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+
+        if (cancellationToken.IsCancellationRequested || _disposed)
+            return;
+
+        EmitShowTooltip();
+    }
+
+    private void StartRenderDelay()
+    {
+        if (_disposed)
+            return;
+
+        var newCts = new CancellationTokenSource();
+        var oldCts = Interlocked.Exchange(ref _renderDelayCts, newCts);
+        oldCts?.Cancel();
+        oldCts?.Dispose();
+        _ = ShowTooltipDebounced(newCts.Token);
     }
 
     public void StartTooltip(TooltipInfo tooltipInfo)
@@ -84,12 +101,12 @@ public sealed class TooltipService : IDisposable
         if (_hasActiveTooltip)
             EmitShowTooltip();
         else
-            RestartRenderDelayTimer();
+            StartRenderDelay();
     }
 
     public void StopTooltip()
     {
-        _renderDelayTimer.Stop();
+        CancelRenderDelay();
 
         _tooltipInfos.TryPop(out var _);
 
@@ -98,7 +115,7 @@ public sealed class TooltipService : IDisposable
             if (_hasActiveTooltip)
                 EmitShowTooltip();
             else
-                _renderDelayTimer.Start();
+                StartRenderDelay();
         }
         else
         {

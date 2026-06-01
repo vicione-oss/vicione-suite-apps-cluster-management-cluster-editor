@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using ViciOne.Cluster.Model;
@@ -86,7 +86,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _containerAddedBuffer.Add(new((Container)sender, container));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnContainerChanged(Container container)
@@ -95,13 +95,13 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _containerChangedBuffer.Add(container);
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnContainerPropertyChanged(object? s, System.ComponentModel.PropertyChangedEventArgs e)
     {
         _containerPropertyChangedBuffer.Add((s, e));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnContainerRemoved(object? sender, Container container)
@@ -110,7 +110,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _containerRemovedBuffer.Add(new((Container)sender, container));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnLabelAdded(object? sender, Label label)
@@ -119,7 +119,7 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _labelAddedBuffer.Add(new((Container)sender, label));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 
     private void OnLabelRemoved(object? sender, Label label)
@@ -128,6 +128,6 @@ public sealed partial class ClusterBuilderEventBuffer
             return;
 
         _labelRemovedBuffer.Add(new((Container)sender, label));
-        StartBufferTimer();
+        ScheduleBufferFlush();
     }
 }
