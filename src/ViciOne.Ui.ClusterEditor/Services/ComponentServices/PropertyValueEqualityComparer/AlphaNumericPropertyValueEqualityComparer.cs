@@ -15,9 +15,9 @@ internal sealed class AlphaNumericPropertyValueEqualityComparer : IPropertyValue
         if (x is null || y is null)
             return false;
 
-        return AlphaNumericComparer<string>.Default.Compare(x, y) == 0;
+        return AlphaNumericCaseSensitiveComparer<string>.Default.Compare(x, y) == 0;
     }
 
     public int GetHashCode([DisallowNull] string obj)
-        => obj.GetHashCode(StringComparison.OrdinalIgnoreCase);
+        => obj.GetHashCode(StringComparison.Ordinal);
 }
