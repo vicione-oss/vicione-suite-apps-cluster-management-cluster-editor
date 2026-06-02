@@ -5,6 +5,7 @@
 ### Changed
 
 - Fixed Collection modified exception from `DiagramScrollbarAdapter`
+- Fixed capitalization changes in text properties were not recognized
 
 ## 1.0.0 - 2026-05-28
 

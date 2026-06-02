@@ -5,23 +5,21 @@ using System.Collections.Generic;
 namespace ViciOne.Ui.ClusterEditor.Models.Comparer;
 
 /// <summary>
-/// Stellt einen alphanumerischen Zeichenfolgenvergleichsvorgang dar.
+/// Represents an alphanumeric string comparison operation.
 /// </summary>
-public sealed class AlphaNumericComparer : IComparer
+public sealed class AlphaNumericComparer(StringComparison stringComparison) : IComparer
 {
     /// <summary>
-    /// Gibt die Instanz des <see cref="AlphaNumericComparer"/>s zurück.
+    /// Returns the instance of the <see cref="AlphaNumericComparer"/>.
     /// </summary>
-    public static AlphaNumericComparer Default { get; } = new AlphaNumericComparer();
-
-    private AlphaNumericComparer() { }
+    public static AlphaNumericComparer Default { get; } = new AlphaNumericComparer(StringComparison.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Vergleicht zwei Objekte oder Zeichenfolgen und gibt eine Angabe der relativen Sortierreihenfolge zurück anhand eines alphanumerischen Vergleichs.
+    /// Compares two objects or strings and returns an indication of their relative sort order based on an alphanumeric comparison.
     /// </summary>
-    /// <param name="x">Ein mit <paramref name="y"/> zu vergleichendes Objekt.</param>
-    /// <param name="y">Ein mit <paramref name="x"/> zu vergleichendes Objekt.</param>
-    /// <returns>Eine ganze Zahl mit Vorzeichen, die die relativen Werte von <paramref name="x"/> und <paramref name="y"/> angibt.</returns>
+    /// <param name="x">An object to compare with <paramref name="y"/>.</param>
+    /// <param name="y">An object to compare with <paramref name="x"/>.</param>
+    /// <returns>A signed integer that indicates the relative values of <paramref name="x"/> and <paramref name="y"/>.</returns>
     public int Compare(object? x, object? y)
     {
         if (x is null)
@@ -74,20 +72,20 @@ public sealed class AlphaNumericComparer : IComparer
         char[] space1;
         char[] space2;
 
-        // Durchlaufen der Zeichenketten mit 2 Markern
+        // Traverse the strings with 2 markers
         while (marker1 < length1 && marker2 < length2)
         {
             char1 = s1[marker1];
             char2 = s2[marker2];
 
-            // Puffer und Variablen anlegen
+            // Initialize buffers and variables
             index1 = 0;
             index2 = 0;
 
             space1 = new char[length1];
             space2 = new char[length2];
 
-            // Durchlaufen der Zeichenketten und heraussuchen aller Zahlen
+            // Traverse the strings and extract all numeric segments
             do
             {
                 space1[index1++] = char1;
@@ -110,8 +108,8 @@ public sealed class AlphaNumericComparer : IComparer
                     break;
             } while (char.IsDigit(char2) == char.IsDigit(space2[0]));
 
-            // Erzeugen der Strings, wenn diese mit Zahlen beginnen, dann numerisch vergleichen,
-            // ansonsten alphanumerisch
+            // Build the strings; if they start with digits, compare numerically,
+            // otherwise compare alphanumerically
             int result;
             if (char.IsDigit(space1[0]) && char.IsDigit(space2[0]))
             {
@@ -122,7 +120,7 @@ public sealed class AlphaNumericComparer : IComparer
             }
             else
             {
-                result = string.Compare(new string(space1), new string(space2), StringComparison.OrdinalIgnoreCase);
+                result = string.Compare(new string(space1), new string(space2), stringComparison);
             }
 
             if (result != 0)
@@ -134,24 +132,47 @@ public sealed class AlphaNumericComparer : IComparer
 }
 
 /// <summary>
-/// Stellt einen alphanumerischen Zeichenfolgenvergleichsvorgang dar.
+/// Represents an alphanumeric string comparison operation.
 /// </summary>
 public sealed class AlphaNumericComparer<T> : IComparer<T>
 {
     private static readonly AlphaNumericComparer s_comparer = AlphaNumericComparer.Default;
 
     /// <summary>
-    /// Gibt für den vom generischen Argument angegebenen Typ einen alphanumerischen Standardvergleich für die Sortierreihenfolgen zurück.
+    /// Returns a default alphanumeric comparer for the type specified by the generic argument.
     /// </summary>
-    public static AlphaNumericComparer<T> Default { get; } = new AlphaNumericComparer<T>();
+    public static AlphaNumericComparer<T> Default { get; } = new();
 
     private AlphaNumericComparer() { }
 
     /// <summary>
-    /// Vergleicht zwei Objekte oder Zeichenfolgen und gibt eine Angabe der relativen Sortierreihenfolge zurück anhand eines alphanumerischen Vergleichs.
+    /// Compares two objects or strings and returns an indication of their relative sort order based on an alphanumeric comparison.
     /// </summary>
-    /// <param name="x">Ein mit <paramref name="y"/> zu vergleichendes Objekt.</param>
-    /// <param name="y">Ein mit <paramref name="x"/> zu vergleichendes Objekt.</param>
-    /// <returns>Eine ganze Zahl mit Vorzeichen, die die relativen Werte von <paramref name="x"/> und <paramref name="y"/> angibt.</returns>
+    /// <param name="x">An object to compare with <paramref name="y"/>.</param>
+    /// <param name="y">An object to compare with <paramref name="x"/>.</param>
+    /// <returns>A signed integer that indicates the relative values of <paramref name="x"/> and <paramref name="y"/>.</returns>
+    public int Compare(T? x, T? y) => s_comparer.Compare(x, y);
+}
+
+/// <summary>
+/// Represents an alphanumeric string comparison operation that is case-sensitive.
+/// </summary>
+public sealed class AlphaNumericCaseSensitiveComparer<T> : IComparer<T>
+{
+    private static readonly AlphaNumericComparer s_comparer = new(StringComparison.Ordinal);
+
+    /// <summary>
+    /// Returns a default alphanumeric comparer for the type specified by the generic argument.
+    /// </summary>
+    public static AlphaNumericCaseSensitiveComparer<T> Default { get; } = new();
+
+    private AlphaNumericCaseSensitiveComparer() { }
+
+    /// <summary>
+    /// Compares two objects or strings and returns an indication of their relative sort order based on an alphanumeric comparison.
+    /// </summary>
+    /// <param name="x">An object to compare with <paramref name="y"/>.</param>
+    /// <param name="y">An object to compare with <paramref name="x"/>.</param>
+    /// <returns>A signed integer that indicates the relative values of <paramref name="x"/> and <paramref name="y"/>.</returns>
     public int Compare(T? x, T? y) => s_comparer.Compare(x, y);
 }
