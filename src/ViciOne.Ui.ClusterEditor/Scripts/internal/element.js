@@ -41,24 +41,6 @@
     }
 
     /**
-     * Selektiert den Inhalt eines Input-Elements
-     * @param {string} elementId - Id des Input-Elements
-     */
-    Element.selectInputContent = function(elementId) {
-        const inputElement = document.getElementById(elementId);
-        inputElement.select();
-    };
-
-    /**
-     * Setzt den Wert eines Input-Elements
-     * @param {string} elementId - Id des Input-Elements
-     */
-    Element.setInputContent = function(elementId, value) {
-        const inputElement = document.getElementById(elementId);
-        inputElement.value = value;
-    };
-
-    /**
      * Versetzt die Webseite in den Fullscreen Modus
      * @param {boolean} fullscreen
      * @param {object} dotNetRef - DotNetObjectReference<>

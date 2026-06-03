@@ -24,6 +24,11 @@
     }
 }
 
+.input-container {
+    display: flex;
+    flex-direction: column;
+}
+
 .validation-message-container {
     color: colors.$editor-danger;
     font-size: 10px;

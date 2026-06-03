@@ -1,8 +1,10 @@
 ﻿@using ViciOne.Ui.Blazor.Components.CheckBox
 @using ViciOne.Ui.Blazor.Components.Dialog.Components
+@using ViciOne.Ui.Blazor.Components.SearchBox
 @using ViciOne.Ui.Blazor.Components.Toolbar.Components
 @using ViciOne.Ui.Blazor.Components.Toolbar.Enums
 @using ViciOne.Ui.ClusterEditor.Components.ToolbarColumnChooserButton
+@using ViciOne.Ui.ClusterEditor.Components.UniversalInput
 @using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
 @using LocalTechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
 @using TechnicalTerms = ViciOne.Ui.Localization.Resources.TechnicalTerms
@@ -22,9 +24,9 @@
             <ToolbarGroup AlignRight="true">
                 <ToolbarContent>
                     <div class="search-container">
-                        <ViciOne.Ui.Blazor.Components.SearchBox.SearchBox Placeholder="@CommonVocabulary.Search"
-                                                                          Text="@_searchText"
-                                                                          TextChanging="OnSearchTextChanging" />
+                        <SearchBox Placeholder="@CommonVocabulary.Search"
+                                   Text="@_searchText"
+                                   TextChanging="OnSearchTextChanging" />
                     </div>
                 </ToolbarContent>
 
@@ -127,38 +129,30 @@
                                     if (IsBooleanDataItem(dataItem, out var isNullableBoolean))
                                     {
                                         var boolValue = (bool?)GetCellValue(fbName, dataItem);
+
                                         <CheckBox Value="@boolValue"
                                                   ValueChanged="@(async (bool? value) => OnCheckedChanged(dataItem, value, fbName))"
                                                   AllowIndeterminateState="@isNullableBoolean" />
                                     }
                                     else
                                     {
-                                        <CascadingValue Name="FocusOnEditStart"
-                                                        Value="true">
+                                        <div class="input-container"
+                                             @onfocusin="(_) => SetInitialValues(dataItem)"
+                                             @onpointerdown:stopPropagation>
 
-                                            <div @onfocusin="(_) => SetInitialValues(dataItem)"
-                                                 @onpointerdown:stopPropagation>
+                                            <UniversalInput @bind-Value:get="@GetCellValue(fbName, dataItem)"
+                                                            @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
+                                                            ValueType="@setting.SettingType" />
+                                        </div>
 
-@{ // see #799
-#pragma warning disable CS0618
-}
-                                                <ViciOne.Ui.Shared.Dx.Components.UniversalInput @bind-Value:get="@GetCellValue(fbName, dataItem)"
-                                                                                                @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
-                                                                                                FallbackValueType="@setting.SettingType" />
-@{
-#pragma warning restore CS0618
-}
-                                            </div>
-
-                                            <div class="validation-message-container">
-                                                @if (!string.IsNullOrEmpty(_validationMessage))
-                                                {
-                                                    <span title="@_validationMessage">
-                                                        @_validationMessage
-                                                    </span>
-                                                }
-                                            </div>
-                                        </CascadingValue>
+                                        <div class="validation-message-container">
+                                            @if (!string.IsNullOrEmpty(_validationMessage))
+                                            {
+                                                <span title="@_validationMessage">
+                                                    @_validationMessage
+                                                </span>
+                                            }
+                                        </div>
                                     }
                                 }
                             </CellEditTemplate>
@@ -180,6 +174,7 @@
                                         if (IsBooleanDataItem(dataItem, out var isNullableBoolean))
                                         {
                                             var boolValue = (bool?)setting.Value;
+
                                             <CheckBox Value="@boolValue"
                                                       ValueChanged="@(async (bool? value) => OnCheckedChanged(dataItem, value, fbName))"
                                                       AllowIndeterminateState="@isNullableBoolean" />
@@ -203,38 +198,30 @@
                                         if (IsBooleanDataItem(dataItem, out var isNullableBoolean))
                                         {
                                             var boolValue = (bool?)GetCellValue(fbName, dataItem);
+
                                             <CheckBox Value="@boolValue"
                                                       ValueChanged="@(async (bool? value) => OnCheckedChanged(dataItem, value, fbName))"
                                                       AllowIndeterminateState="@isNullableBoolean" />
                                         }
                                         else
                                         {
-                                            <CascadingValue Name="FocusOnEditStart"
-                                                            Value="true">
+                                            <div class="input-container"
+                                                 @onfocusin="(_) => SetInitialValues(dataItem)"
+                                                 @onpointerdown:stopPropagation>
 
-                                                <div @onfocusin="(_) => SetInitialValues(dataItem)"
-                                                     @onpointerdown:stopPropagation>
+                                                <UniversalInput @bind-Value:get="@setting.Value"
+                                                                @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
+                                                                ValueType="@setting.SettingType" />
+                                            </div>
 
-@{ // see #799
-#pragma warning disable CS0618
-}
-                                                    <ViciOne.Ui.Shared.Dx.Components.UniversalInput @bind-Value:get="@setting.Value"
-                                                                                                    @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
-                                                                                                    FallbackValueType="@setting.SettingType" />
-@{
-#pragma warning restore CS0618
-}
-                                                </div>
-
-                                                <div class="validation-message-container">
-                                                    @if (!string.IsNullOrEmpty(_validationMessage))
-                                                    {
-                                                        <span title="@_validationMessage">
-                                                            @_validationMessage
-                                                        </span>
-                                                    }
-                                                </div>
-                                            </CascadingValue>
+                                            <div class="validation-message-container">
+                                                @if (!string.IsNullOrEmpty(_validationMessage))
+                                                {
+                                                    <span title="@_validationMessage">
+                                                        @_validationMessage
+                                                    </span>
+                                                }
+                                            </div>
                                         }
                                     }
                                 </CellEditTemplate>

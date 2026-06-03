@@ -29,14 +29,13 @@ public sealed partial class DebugSectionContent : ComponentBase
     private string _generateBlocksName = "TwoWaySelector";
     private int _generateLinksAmount = 1;
     private readonly List<ComboBoxItem<GridMode, string>> _gridModeComboBoxItems = [..
-        EnumWrapper<GridMode>
-        .FromEnum()
-        .Select(gridMode
-            => new ComboBoxItem<GridMode, string>
-            {
-                Text = gridMode.DisplayText,
-                Value = gridMode.Value,
-            })
+        Enum.GetValues<GridMode>()
+            .Select(gridMode
+                => new ComboBoxItem<GridMode, string>
+                {
+                    Text = gridMode.ToString(),
+                    Value = gridMode,
+                })
     ];
     private readonly Random _rnd = new();
 

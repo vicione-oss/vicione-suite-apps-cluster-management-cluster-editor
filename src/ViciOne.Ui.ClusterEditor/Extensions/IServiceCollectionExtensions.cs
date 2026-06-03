@@ -9,7 +9,7 @@ using ViciOne.Ui.Blazor.Components.SectionRail.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ContainerBreadcrumb.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Extensions;
-using ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor;
+using ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.Scrolling.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarDataflow.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarMain.Extensions;
@@ -28,7 +28,6 @@ using ViciOne.Ui.ClusterEditor.Sections.Topology.Extensions;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices.ContainerEditor;
-using ViciOne.Ui.ClusterEditor.Services.ComponentServices.FbSettingsEditor;
 using ViciOne.Ui.Shared.Dx.Services;
 
 namespace ViciOne.Ui.ClusterEditor.Extensions;
@@ -75,7 +74,8 @@ public static class IServiceCollectionExtensions
         services.AddDialog();
 
         services.AddScoped<IContainerEditorRequest, ContainerEditorRequest>();
-        services.AddScoped<IFbSettingsEditorRequest, FbSettingsEditorRequest>();
+
+        services.AddFbSettingsEditor();
 
         services.AddBlockNodeConnectorContextMenu();
         services.AddNodeEditorContextMenu();
