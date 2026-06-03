@@ -263,12 +263,10 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
         IGrouping<string, FbSetting> settingGroup,
         object? value)
     {
-        if (_refGrid is null || !_refGrid.IsEditing())
-            return;
-
         try
         {
             var setting = GetSetting(fbName, settingGroup);
+
             Datastore.Builder.Editors.Setting.ValidateValue(setting.Setting, value);
             _validationMessage = null;
             if (fbName.Equals(AllColumnKey, StringComparison.Ordinal))

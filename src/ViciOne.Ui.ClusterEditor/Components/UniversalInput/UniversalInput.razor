@@ -1,0 +1,138 @@
+﻿@using ViciOne.Ui.Blazor.Components.CheckBox
+@using ViciOne.Ui.Blazor.Components.ComboBox
+@using ViciOne.Ui.Blazor.Components.SpinEdit
+@using ViciOne.Ui.Blazor.Components.TextBox
+@using ViciOne.Ui.ClusterEditor.Components.UniversalInput.Extensions
+@using ViciOne.Ui.ClusterEditor.Components.UniversalInput.Models
+
+@switch (_editorType)
+{
+    case EditorType.Boolean:
+        {
+            var controlType = typeof(CheckBox<>).MakeGenericType(ValueType);
+
+            var valueChangedCallback = CreateAssignmentCallback(ValueType);
+            var valueExpression = GetValueExpression(Value, ValueType);
+
+            __builder.OpenComponent(0, controlType);
+            __builder.AddAttribute(1, nameof(CheckBox<>.Value), Value);
+            __builder.AddAttribute(2, nameof(CheckBox<>.ValueChanged), valueChangedCallback);
+            __builder.AddAttribute(3, nameof(CheckBox<>.ValueExpression), valueExpression);
+            __builder.SetAdditionalProperties(4, _propertyBag, controlType);
+            __builder.CloseComponent();
+        }
+        break;
+
+    case EditorType.Enum:
+        {
+            var comboBoxItemType = typeof(ComboBoxItem<,>).MakeGenericType(ValueType, typeof(string));
+            var comboBoxValueType = ValueType;
+
+            var controlType = typeof(ComboBox<,>).MakeGenericType(comboBoxItemType, comboBoxValueType);
+
+            var valueChangedCallback = CreateAssignmentCallback(comboBoxValueType);
+            var valueExpression = GetValueExpression(Value, comboBoxValueType);
+
+            __builder.OpenComponent(0, controlType);
+            __builder.AddAttribute(1, nameof(ComboBox<,>.Value), Value);
+            __builder.AddAttribute(2, nameof(ComboBox<,>.ValueChanged), valueChangedCallback);
+
+            var items = GetComboBoxItems(ValueType);
+            var textSelector = GetComboBoxItemTextSelector(ValueType);
+            var valueSelector = GetComboBoxItemValueSelector(ValueType);
+
+            __builder.AddAttribute(3, nameof(ComboBox<,>.Items), items);
+            __builder.AddAttribute(4, nameof(ComboBox<,>.TextSelector), textSelector);
+            __builder.AddAttribute(5, nameof(ComboBox<,>.ValueSelector), valueSelector);
+            __builder.AddAttribute(6, nameof(ComboBox<,>.ValueExpression), valueExpression);
+
+            var noOptionSelected = Value is null && !ValueType.IsNullable();
+            __builder.AddAttribute(7, nameof(ComboBox<,>.NoOptionSelected), noOptionSelected);
+
+            __builder.SetAdditionalProperties(8, _propertyBag, controlType);
+            __builder.CloseComponent();
+        }
+        break;
+
+    case EditorType.Numeric:
+        {
+            var boxedNumericValueDescriptorBuilder = BoxedNumericValueDescriptorBuilderProvider.GetBuilder(ValueType);
+
+            if (_propertyBag is not null)
+            {
+                var propertyBag = _propertyBag.ToDictionary();
+
+                if (propertyBag.TryGetValue("Interval", out var interval))
+                {
+                    boxedNumericValueDescriptorBuilder.WithInterval(interval);
+
+                    propertyBag.Remove("Interval");
+                }
+
+                if (propertyBag.TryGetValue("Minimum", out var minimum))
+                {
+                    boxedNumericValueDescriptorBuilder.WithMinimum(minimum);
+
+                    propertyBag.Remove("Minimum");
+                }
+
+                if (propertyBag.TryGetValue("Maximum", out var maximum))
+                {
+                    boxedNumericValueDescriptorBuilder.WithMaximum(maximum);
+
+                    propertyBag.Remove("Maximum");
+                }
+            }
+
+            var boxedNumericValueDescriptor = boxedNumericValueDescriptorBuilder.Build();
+            if (boxedNumericValueDescriptor is not null)
+            {
+                var controlType = typeof(SpinEdit<,,>).MakeGenericType(
+                    boxedNumericValueDescriptor.ValueType,
+                    boxedNumericValueDescriptor.IntervalType,
+                    boxedNumericValueDescriptor.LimitType);
+
+                var valueChangedCallback = CreateAssignmentCallback(boxedNumericValueDescriptor.ValueType);
+                var valueExpression = GetValueExpression(Value, boxedNumericValueDescriptor.ValueType);
+
+                __builder.OpenComponent(0, controlType);
+                __builder.AddAttribute(1, nameof(SpinEdit<,,>.CssClass), CssClass);
+                __builder.AddAttribute(2, nameof(SpinEdit<,,>.Value), Value);
+                __builder.AddAttribute(3, nameof(SpinEdit<,,>.ValueChanged), valueChangedCallback);
+                __builder.AddAttribute(4, nameof(SpinEdit<,,>.ValueExpression), valueExpression);
+                __builder.AddAttribute(5, nameof(SpinEdit<,,>.Interval), boxedNumericValueDescriptor.Interval);
+                __builder.AddAttribute(6, nameof(SpinEdit<,,>.Minimum), boxedNumericValueDescriptor.Minimum);
+                __builder.AddAttribute(7, nameof(SpinEdit<,,>.Maximum), boxedNumericValueDescriptor.Maximum);
+                __builder.SetAdditionalProperties(8, _propertyBag, controlType);
+                __builder.CloseComponent();
+            }
+        }
+        break;
+
+    case EditorType.Char:
+    case EditorType.DateTime:
+    case EditorType.Text:
+    case EditorType.TimeSpan:
+    case EditorType.Uri:
+        {
+            var controlType = typeof(TextBox);
+            int? maximumLength = _editorType == EditorType.Char ? 1 : null;
+
+            __builder.OpenComponent(0, controlType);
+            __builder.AddAttribute(1, nameof(TextBox.CssClass), CssClass);
+            __builder.AddAttribute(2, nameof(TextBox.MaximumLength), maximumLength);
+            __builder.AddAttribute(3, nameof(TextBox.Value), _textBoxValue);
+            __builder.AddAttribute(4, nameof(TextBox.ValueChanged), TextBoxValueChangedCallback);
+            __builder.AddAttribute(5, nameof(TextBox.ValueExpression), TextBoxValueExpression);
+            __builder.AddAttribute(6, nameof(TextBox.Placeholder), _textBoxPlaceholder);
+            __builder.AddAttribute(7, nameof(TextBox.SpellCheck), false);
+            __builder.SetAdditionalProperties(8, PropertyBag, controlType);
+            __builder.CloseComponent();
+        }
+        break;
+
+    default:
+        <div>No editor implemented for @_editorType.</div>
+
+        break;
+}
