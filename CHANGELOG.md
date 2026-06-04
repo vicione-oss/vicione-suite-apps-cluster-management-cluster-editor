@@ -1,13 +1,15 @@
 # Changelog
 
-## 1.1.0 - Unreleased
+## 1.1.0 - 2026-06-04
 
 ### Changed
 
-- Fixed Collection modified exception from `DiagramScrollbarAdapter`
+- Fixed collection modified exception from `DiagramScrollbarAdapter`
 - Fixed capitalization changes in text properties were not recognized
 - Moved `ViciOne.Ui.Shared.Dx.Components.UniversalInput` to `ViciOne.Ui.ClusterEditor.Components.UniversalInput`
 - Fixed `ContainerBreadcrumb` padding and margin
+- Fixed possible application crash when trying to modify values in `FbSettingsEditor`
+- Replaced `System.Timers.Timer` with `CancellationTokenSource` based approch
 
 ## 1.0.0 - 2026-05-28
 
