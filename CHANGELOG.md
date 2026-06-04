@@ -7,6 +7,7 @@
 - Fixed Collection modified exception from `DiagramScrollbarAdapter`
 - Fixed capitalization changes in text properties were not recognized
 - Moved `ViciOne.Ui.Shared.Dx.Components.UniversalInput` to `ViciOne.Ui.ClusterEditor.Components.UniversalInput`
+- Fixed `ContainerBreadcrumb` padding and margin
 
 ## 1.0.0 - 2026-05-28
 
