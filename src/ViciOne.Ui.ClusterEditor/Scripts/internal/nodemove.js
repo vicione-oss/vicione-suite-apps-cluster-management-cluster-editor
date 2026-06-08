@@ -108,10 +108,8 @@
                 Math.floor(newPos[0] / NodeMove._gridSize) * NodeMove._gridSize,
                 Math.floor(newPos[1] / NodeMove._gridSize) * NodeMove._gridSize];
 
-            if (gridPos[0] != pos[0] || gridPos[1] != pos[1]) {
-                node.style.left = `${gridPos[0]}px`;
-                node.style.top = `${gridPos[1]}px`;
-            }
+            node.style.left = `${gridPos[0]}px`;
+            node.style.top = `${gridPos[1]}px`;
         }
 
         for (let i = 0; i < NodeMove._svgElements.length; i++) {
@@ -123,9 +121,7 @@
                 Math.floor(newPos[0] / NodeMove._gridSize) * NodeMove._gridSize,
                 Math.floor(newPos[1] / NodeMove._gridSize) * NodeMove._gridSize];
 
-            if (gridPos[0] != pos[0] || gridPos[1] != pos[1]) {
-                node.setAttribute('transform', `translate(${gridPos[0]} ${gridPos[1]})`);
-            }
+            node.setAttribute('transform', `translate(${gridPos[0]} ${gridPos[1]})`);
         }
 
         if (NodeMove._firstMove) {

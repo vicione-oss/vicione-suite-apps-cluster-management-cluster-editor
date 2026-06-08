@@ -6,6 +6,10 @@
 
 - Restructured CHANGELOG, moved fixes to their own section
 
+### Fixed
+
+- Fixed moving nodes could not return to their start positions
+
 ## 1.1.0 - 2026-06-04
 
 ### Changed
