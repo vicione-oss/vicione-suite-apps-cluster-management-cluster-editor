@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Blazor.Diagrams.Core.Models;
@@ -13,58 +12,128 @@ public sealed class DataflowDiagramMapping
 {
     private readonly Dictionary<IConnector, BlockNodeConnector> _blockNodeConnectorMap = [];
     private readonly Dictionary<ChildContainer, ChildContainerNode> _childContainerNodeMap = [];
+    private readonly Dictionary<IConnector, ChildContainer> _connectorContainerMap = [];
+    private readonly Dictionary<ChildContainer, List<IConnector>> _containerConnectorsMap = [];
     private readonly Dictionary<Link, BlockNodeLink> _functionBlockNodeLinkMap = [];
     private readonly Dictionary<FunctionBlock, FunctionBlockNode> _functionBlockNodeMap = [];
+    private readonly HashSet<BlockNodeConnector> _inputConnectors = [];
     private readonly Dictionary<Label, LabelNode> _labelNodeMap = [];
+    private readonly HashSet<BlockNodeConnector> _outputConnectors = [];
+    private readonly Dictionary<ChildContainerNode, ChildContainer> _reverseChildContainerMap = [];
+    private readonly Dictionary<BlockNodeConnector, IConnector> _reverseConnectorMap = [];
+    private readonly Dictionary<FunctionBlockNode, FunctionBlock> _reverseFunctionBlockMap = [];
+    private readonly Dictionary<LabelNode, Label> _reverseLabelMap = [];
+    private readonly Dictionary<BlockNodeLink, Link> _reverseLinkMap = [];
+    private readonly Dictionary<IConnector, BlockNodeConnector> _underlyingConnectorMap = [];
 
     public void Add(ChildContainer childContainer, ChildContainerNode node)
     {
         _childContainerNodeMap.Add(childContainer, node);
+        _reverseChildContainerMap.Add(node, childContainer);
+
+        var connectorList = new List<IConnector>(childContainer.ProcessDataInputs.Count + childContainer.ProcessDataOutputs.Count);
 
         foreach (var inputConnector in childContainer.ProcessDataInputs)
-            Add(inputConnector, node.GetDataConnector(inputConnector.Index, true)!);
+        {
+            var blockNodeConnector = node.GetDataConnector(inputConnector.Index, true)!;
+            Add(inputConnector, blockNodeConnector, isInput: true);
+            connectorList.Add(inputConnector);
+            _connectorContainerMap.Add(inputConnector, childContainer);
+        }
 
         foreach (var outputConnector in childContainer.ProcessDataOutputs)
-            Add(outputConnector, node.GetDataConnector(outputConnector.Index, false)!);
+        {
+            var blockNodeConnector = node.GetDataConnector(outputConnector.Index, false)!;
+            Add(outputConnector, blockNodeConnector, isInput: false);
+            connectorList.Add(outputConnector);
+            _connectorContainerMap.Add(outputConnector, childContainer);
+        }
+
+        _containerConnectorsMap.Add(childContainer, connectorList);
     }
 
-    private void Add(IConnector connector, BlockNodeConnector node)
-        => _blockNodeConnectorMap.Add(connector, node);
+    private void Add(IConnector connector, BlockNodeConnector node, bool isInput)
+    {
+        _blockNodeConnectorMap.Add(connector, node);
+        _reverseConnectorMap.Add(node, connector);
+
+        if (isInput)
+            _inputConnectors.Add(node);
+        else
+            _outputConnectors.Add(node);
+
+        var underlying = connector.GetUnderlyingConnector();
+        if (!ReferenceEquals(underlying, connector))
+            _underlyingConnectorMap.TryAdd(underlying, node);
+    }
 
     public void Add(FunctionBlock functionBlock, FunctionBlockNode node)
     {
         _functionBlockNodeMap.Add(functionBlock, node);
+        _reverseFunctionBlockMap.Add(node, functionBlock);
 
         uint idx = 0;
         foreach (var systemInput in functionBlock.SystemInputs)
-            Add(systemInput, node.GetSystemConnector(idx++, true)!);
+            Add(systemInput, node.GetSystemConnector(idx++, true)!, isInput: true);
 
         idx = 0;
         foreach (var systemOutput in functionBlock.SystemOutputs)
-            Add(systemOutput, node.GetSystemConnector(idx++, false)!);
+            Add(systemOutput, node.GetSystemConnector(idx++, false)!, isInput: false);
 
         idx = 0;
         foreach (var dataInput in functionBlock.ProcessDataInputs)
-            Add(dataInput, node.GetDataConnector(idx++, true)!);
+            Add(dataInput, node.GetDataConnector(idx++, true)!, isInput: true);
 
         idx = 0;
         foreach (var dataOutput in functionBlock.ProcessDataOutputs)
-            Add(dataOutput, node.GetDataConnector(idx++, false)!);
+            Add(dataOutput, node.GetDataConnector(idx++, false)!, isInput: false);
     }
 
     public void Add(Label label, LabelNode node)
-        => _labelNodeMap.Add(label, node);
+    {
+        _labelNodeMap.Add(label, node);
+        _reverseLabelMap.Add(node, label);
+    }
 
     public void Add(Link link, BlockNodeLink node)
-        => _functionBlockNodeLinkMap.Add(link, node);
+    {
+        _functionBlockNodeLinkMap.Add(link, node);
+        _reverseLinkMap.Add(node, link);
+    }
 
     public void Clear()
     {
         _blockNodeConnectorMap.Clear();
         _childContainerNodeMap.Clear();
+        _connectorContainerMap.Clear();
+        _containerConnectorsMap.Clear();
         _functionBlockNodeLinkMap.Clear();
         _functionBlockNodeMap.Clear();
+        _inputConnectors.Clear();
         _labelNodeMap.Clear();
+        _outputConnectors.Clear();
+        _reverseChildContainerMap.Clear();
+        _reverseConnectorMap.Clear();
+        _reverseFunctionBlockMap.Clear();
+        _reverseLabelMap.Clear();
+        _reverseLinkMap.Clear();
+        _underlyingConnectorMap.Clear();
+
+        _blockNodeConnectorMap.TrimExcess();
+        _childContainerNodeMap.TrimExcess();
+        _connectorContainerMap.TrimExcess();
+        _containerConnectorsMap.TrimExcess();
+        _functionBlockNodeLinkMap.TrimExcess();
+        _functionBlockNodeMap.TrimExcess();
+        _inputConnectors.TrimExcess();
+        _labelNodeMap.TrimExcess();
+        _outputConnectors.TrimExcess();
+        _reverseChildContainerMap.TrimExcess();
+        _reverseConnectorMap.TrimExcess();
+        _reverseFunctionBlockMap.TrimExcess();
+        _reverseLabelMap.TrimExcess();
+        _reverseLinkMap.TrimExcess();
+        _underlyingConnectorMap.TrimExcess();
     }
 
     public bool ContainsMapping(Link link)
@@ -81,39 +150,56 @@ public sealed class DataflowDiagramMapping
         if (_blockNodeConnectorMap.TryGetValue(connector, out var value))
             return value;
 
-        return _blockNodeConnectorMap.First(kvp => kvp.Key.GetUnderlyingConnector() == connector).Value;
+        if (_underlyingConnectorMap.TryGetValue(connector, out value))
+            return value;
+
+        throw new KeyNotFoundException($"No mapping found for connector of type {connector.GetType().Name}.");
     }
 
     public FunctionBlockNode GetDiagramModel(FunctionBlock functionBlock)
         => _functionBlockNodeMap[functionBlock];
 
     public IEnumerable<ChildContainerNode> GetDiagramModels(IEnumerable<ChildContainer> childContainers)
-        => _childContainerNodeMap
-            .Where(kvp => childContainers.Contains(kvp.Key))
-            .Select(kvp => kvp.Value);
+    {
+        foreach (var cc in childContainers)
+        {
+            if (_childContainerNodeMap.TryGetValue(cc, out var node))
+                yield return node;
+        }
+    }
 
     public IEnumerable<BlockNodeConnector> GetDiagramModels(IEnumerable<IConnector> connectors)
         => connectors.Select(GetDiagramModel);
 
     public IEnumerable<FunctionBlockNode> GetDiagramModels(IEnumerable<FunctionBlock> functionBlocks)
-        => _functionBlockNodeMap
-            .Where(kvp => functionBlocks.Contains(kvp.Key))
-            .Select(kvp => kvp.Value);
+    {
+        foreach (var fb in functionBlocks)
+        {
+            if (_functionBlockNodeMap.TryGetValue(fb, out var node))
+                yield return node;
+        }
+    }
 
     public IEnumerable<BlockNodeLink> GetDiagramModels(IEnumerable<Link> links)
-        => _functionBlockNodeLinkMap
-            .Where(kvp => links.Contains(kvp.Key))
-            .Select(kvp => kvp.Value);
+    {
+        foreach (var link in links)
+        {
+            if (_functionBlockNodeLinkMap.TryGetValue(link, out var node))
+                yield return node;
+        }
+    }
 
     public IEnumerable<LabelNode> GetDiagramModels(IEnumerable<Label> labels)
-        => _labelNodeMap
-            .Where(kvp => labels.Contains(kvp.Key))
-            .Select(kvp => kvp.Value);
+    {
+        foreach (var label in labels)
+        {
+            if (_labelNodeMap.TryGetValue(label, out var node))
+                yield return node;
+        }
+    }
 
-    public IEnumerable<BlockNodeConnector> GetInputNodeConnectors()
-        => _blockNodeConnectorMap
-            .Where(kvp => kvp.Key is IConnectorInput)
-            .Select(kvp => kvp.Value);
+    public IReadOnlyCollection<BlockNodeConnector> GetInputNodeConnectors()
+        => _inputConnectors;
 
     public IEnumerable<LabelNode> GetLabelDiagramModels()
         => _labelNodeMap.Values;
@@ -122,53 +208,75 @@ public sealed class DataflowDiagramMapping
         => _labelNodeMap.Keys;
 
     public IConnector GetModel(BlockNodeConnector connector)
-        => _blockNodeConnectorMap.First(kvp => kvp.Value == connector).Key;
+        => _reverseConnectorMap[connector];
 
     public INamedContainerChild GetModel(BlockNode node)
     {
-        var childContainer = _childContainerNodeMap.FirstOrDefault(kvp => kvp.Value == node);
-        if (childContainer.Key is not null)
-            return childContainer.Key;
+        if (node is ChildContainerNode ccNode && _reverseChildContainerMap.TryGetValue(ccNode, out var cc))
+            return cc;
 
-        return _functionBlockNodeMap.First(kvp => kvp.Value == node).Key;
+        if (node is FunctionBlockNode fbNode && _reverseFunctionBlockMap.TryGetValue(fbNode, out var fb))
+            return fb;
+
+        throw new KeyNotFoundException($"No mapping found for node of type {node.GetType().Name}.");
     }
 
     public ChildContainer GetModel(ChildContainerNode node)
-        => _childContainerNodeMap.First(kvp => kvp.Value == node).Key;
+        => _reverseChildContainerMap[node];
 
     public FunctionBlock GetModel(FunctionBlockNode node)
-        => _functionBlockNodeMap.First(kvp => kvp.Value == node).Key;
+        => _reverseFunctionBlockMap[node];
 
     public Link GetModel(BlockNodeLink link)
-        => _functionBlockNodeLinkMap.First(kvp => kvp.Value == link).Key;
+        => _reverseLinkMap[link];
 
     public Label GetModel(LabelNode node)
-        => _labelNodeMap.First(kvp => kvp.Value == node).Key;
+        => _reverseLabelMap[node];
 
     public IEnumerable<IConnector> GetModels(IEnumerable<BlockNodeConnector> connectors)
-        => _blockNodeConnectorMap
-            .Where(kvp => connectors.Contains(kvp.Value))
-            .Select(kvp => kvp.Key);
+    {
+        foreach (var c in connectors)
+        {
+            if (_reverseConnectorMap.TryGetValue(c, out var model))
+                yield return model;
+        }
+    }
 
     public IEnumerable<ChildContainer> GetModels(IEnumerable<ChildContainerNode> nodes)
-        => _childContainerNodeMap
-            .Where(kvp => nodes.Contains(kvp.Value))
-            .Select(kvp => kvp.Key);
+    {
+        foreach (var n in nodes)
+        {
+            if (_reverseChildContainerMap.TryGetValue(n, out var model))
+                yield return model;
+        }
+    }
 
     public IEnumerable<FunctionBlock> GetModels(IEnumerable<FunctionBlockNode> nodes)
-        => _functionBlockNodeMap
-            .Where(kvp => nodes.Contains(kvp.Value))
-            .Select(kvp => kvp.Key);
+    {
+        foreach (var n in nodes)
+        {
+            if (_reverseFunctionBlockMap.TryGetValue(n, out var model))
+                yield return model;
+        }
+    }
 
     public IEnumerable<Link> GetModels(IEnumerable<BlockNodeLink> links)
-        => _functionBlockNodeLinkMap
-            .Where(kvp => links.Contains(kvp.Value))
-            .Select(kvp => kvp.Key);
+    {
+        foreach (var l in links)
+        {
+            if (_reverseLinkMap.TryGetValue(l, out var model))
+                yield return model;
+        }
+    }
 
     public IEnumerable<Label> GetModels(IEnumerable<LabelNode> nodes)
-        => _labelNodeMap
-            .Where(kvp => nodes.Contains(kvp.Value))
-            .Select(kvp => kvp.Key);
+    {
+        foreach (var n in nodes)
+        {
+            if (_reverseLabelMap.TryGetValue(n, out var model))
+                yield return model;
+        }
+    }
 
     public IEnumerable<BlockNodeConnector> GetNodeConnectors()
         => _blockNodeConnectorMap.Values;
@@ -177,45 +285,90 @@ public sealed class DataflowDiagramMapping
         => _functionBlockNodeLinkMap.Values;
 
     public IEnumerable<NodeModel> GetNodes()
-        => _functionBlockNodeMap
-            .Select(kvp => kvp.Value as NodeModel)
-            .Concat(_labelNodeMap.Values)
-            .Concat(_childContainerNodeMap.Values);
+    {
+        foreach (var kvp in _functionBlockNodeMap)
+            yield return kvp.Value;
+        foreach (var node in _labelNodeMap.Values)
+            yield return node;
+        foreach (var node in _childContainerNodeMap.Values)
+            yield return node;
+    }
 
-    public IEnumerable<BlockNodeConnector> GetOutputNodeConnectors()
-        => _blockNodeConnectorMap
-            .Where(kvp => kvp.Key is IConnectorOutput)
-            .Select(kvp => kvp.Value);
+    public IReadOnlyCollection<BlockNodeConnector> GetOutputNodeConnectors()
+        => _outputConnectors;
 
     public void Remove(ChildContainer container)
     {
-        var connectors = _blockNodeConnectorMap.Keys
-            .OfType<ContainerConnector>()
-            .Where(c => c.Container == container)
-            .ToList();
+        if (_containerConnectorsMap.TryGetValue(container, out var connectors))
+        {
+            foreach (var connector in connectors)
+            {
+                _connectorContainerMap.Remove(connector);
+                Remove(connector);
+            }
 
-        foreach (var connector in connectors)
-            Remove(connector);
+            _containerConnectorsMap.Remove(container);
+        }
+
+        if (_childContainerNodeMap.TryGetValue(container, out var node))
+            _reverseChildContainerMap.Remove(node);
 
         _childContainerNodeMap.Remove(container);
     }
 
     public void Remove(IConnector connector)
-        => _blockNodeConnectorMap.Remove(connector);
+    {
+        if (_connectorContainerMap.TryGetValue(connector, out var ownerContainer))
+        {
+            _connectorContainerMap.Remove(connector);
+            if (_containerConnectorsMap.TryGetValue(ownerContainer, out var list))
+            {
+                list.Remove(connector);
+                if (list.Count == 0)
+                    _containerConnectorsMap.Remove(ownerContainer);
+            }
+        }
+
+        if (_blockNodeConnectorMap.TryGetValue(connector, out var node))
+        {
+            _reverseConnectorMap.Remove(node);
+            _inputConnectors.Remove(node);
+            _outputConnectors.Remove(node);
+        }
+
+        var underlying = connector.GetUnderlyingConnector();
+        if (!ReferenceEquals(underlying, connector))
+            _underlyingConnectorMap.Remove(underlying);
+
+        _blockNodeConnectorMap.Remove(connector);
+    }
 
     public void Remove(FunctionBlock functionBlock)
     {
         foreach (var connector in functionBlock.GetConnectors())
             Remove(connector);
 
+        if (_functionBlockNodeMap.TryGetValue(functionBlock, out var node))
+            _reverseFunctionBlockMap.Remove(node);
+
         _functionBlockNodeMap.Remove(functionBlock);
     }
 
     public void Remove(Label label)
-        => _labelNodeMap.Remove(label);
+    {
+        if (_labelNodeMap.TryGetValue(label, out var node))
+            _reverseLabelMap.Remove(node);
+
+        _labelNodeMap.Remove(label);
+    }
 
     public void Remove(Link link)
-        => _functionBlockNodeLinkMap.Remove(link);
+    {
+        if (_functionBlockNodeLinkMap.TryGetValue(link, out var node))
+            _reverseLinkMap.Remove(node);
+
+        _functionBlockNodeLinkMap.Remove(link);
+    }
 
     public bool TryGetDiagramModel(ChildContainer childContainer, [MaybeNullWhen(false)] out ChildContainerNode childContainerNode)
         => _childContainerNodeMap.TryGetValue(childContainer, out childContainerNode);
@@ -225,8 +378,7 @@ public sealed class DataflowDiagramMapping
         if (_blockNodeConnectorMap.TryGetValue(connector, out nodeConnector))
             return true;
 
-        nodeConnector = _blockNodeConnectorMap.FirstOrDefault(kvp => kvp.Key.GetUnderlyingConnector() == connector).Value;
-        return nodeConnector is not null;
+        return _underlyingConnectorMap.TryGetValue(connector, out nodeConnector);
     }
 
     public bool TryGetDiagramModel(FunctionBlock functionBlock, [MaybeNullWhen(false)] out FunctionBlockNode functionBlockNode)
