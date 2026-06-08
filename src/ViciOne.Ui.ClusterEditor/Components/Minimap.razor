@@ -17,7 +17,7 @@
             <div class="minimap-layer"
                  style="z-index:1;">
 
-                @foreach (var node in _nodes.Where(n => n.Type == MinimapNodeType.Label).ToArray())
+                @foreach (var node in _nodesById.Values.Where(n => n.Type == MinimapNodeType.Label).ToArray())
                 {
                     <div class="minimap-node"
                          style="@node.CssStyles">
@@ -28,7 +28,7 @@
             <div class="minimap-layer"
                  style="z-index:2;">
 
-                @foreach (var node in _nodes.Where(n => n.Type == MinimapNodeType.Block).ToArray())
+                @foreach (var node in _nodesById.Values.Where(n => n.Type == MinimapNodeType.Block).ToArray())
                 {
                     <div class="minimap-node"
                          style="@node.CssStyles">
