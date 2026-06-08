@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using System.Threading;
 using Blazor.Diagrams.Core;
@@ -24,11 +23,12 @@ public sealed partial class Minimap : ComponentBase, IDisposable
     private const string BorderStyleTransparent = "dashed";
 
     private Size _containerSize = Size.Zero;
+    private readonly StringBuilder _cssStylesBuilder = new();
     private bool _fullRefreshNeeded;
     private bool _isVisible;
     private bool _movingViewport;
     private Point _movingViewportLastPoint = Point.Zero;
-    private readonly List<MinimapNode> _nodes = [];
+    private readonly Dictionary<string, MinimapNode> _nodesById = [];
     private Rectangle _referenceRect = Rectangle.Zero;
     private double _referenceScale = 0.8;
     private int _refreshCounter;
@@ -50,7 +50,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
 
     private MinimapNode CreateMinimapNode(NodeModel node)
     {
-        var minimapNode = new MinimapNode(node.Id)
+        var minimapNode = new MinimapNode(node)
         {
             Type = GetMinimapNodeType(node),
             ZIndex = GetZIndex(node),
@@ -111,20 +111,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         );
 
     private (double OffsetX, double OffsetY) GetViewportOffset()
-    {
-        double horizontalPercentage = 0;
-        if (_referenceRect.Width != 0)
-            horizontalPercentage = Math.Abs(_viewportRect.Left - _referenceRect.Left) / _referenceRect.Width;
-
-        double verticalPercentage = 0;
-        if (_referenceRect.Height != 0)
-            verticalPercentage = Math.Abs(_viewportRect.Top - _referenceRect.Top) / _referenceRect.Height;
-
-        return new(
-            _containerSize.Width * horizontalPercentage,
-            _containerSize.Height * verticalPercentage
-        );
-    }
+        => GetRectangleOffset(_viewportRect);
 
     private int GetZIndex(NodeModel nodeModel)
         => nodeModel.GetType().Name switch
@@ -141,7 +128,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
                 continue;
 
             var newNode = CreateMinimapNode(node);
-            _nodes.Add(newNode);
+            _nodesById[newNode.Id] = newNode;
             node.Changed += OnNodeChanged;
             node.Moving += OnNodeMoving;
         }
@@ -182,13 +169,9 @@ public sealed partial class Minimap : ComponentBase, IDisposable
 
     private void OnMinimapColoringChanged()
     {
-        foreach (var minimapNode in _nodes)
+        foreach (var minimapNode in _nodesById.Values)
         {
-            var nodeModel = Diagram?.Nodes.FirstOrDefault(nm => nm.Id == minimapNode.Id);
-            if (nodeModel is null)
-                return;
-
-            SetColors(nodeModel, minimapNode);
+            SetColors(minimapNode.NodeModel, minimapNode);
             SetCssStyles(minimapNode);
         }
 
@@ -239,13 +222,9 @@ public sealed partial class Minimap : ComponentBase, IDisposable
 
         RecalculateReferences();
 
-        foreach (var minimapNode in _nodes)
+        foreach (var minimapNode in _nodesById.Values)
         {
-            var nodeModel = Diagram?.Nodes.FirstOrDefault(nm => nm.Id == minimapNode.Id);
-            if (nodeModel is null)
-                return;
-
-            SetBounds(nodeModel, minimapNode);
+            SetBounds(minimapNode.NodeModel, minimapNode);
             SetCssStyles(minimapNode);
         }
 
@@ -255,7 +234,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
     private void OnNodeAdded(NodeModel node)
     {
         var minimapNode = CreateMinimapNode(node);
-        _nodes.Add(minimapNode);
+        _nodesById[minimapNode.Id] = minimapNode;
         node.Changed += OnNodeChanged;
         node.Moving += OnNodeMoving;
     }
@@ -265,7 +244,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         if (model is not NodeModel nodeModel)
             return;
 
-        var minimapNode = _nodes.Find(n => n.Id == model.Id);
+        _nodesById.TryGetValue(model.Id, out var minimapNode);
 
         // Die Sichtbarkeit prüfen, da diese sich geändert haben kann z.B. beim Filtern
         if (model is IDiagramModel diagramModel)
@@ -275,14 +254,14 @@ public sealed partial class Minimap : ComponentBase, IDisposable
                 if (minimapNode is null)
                 {
                     minimapNode = CreateMinimapNode(nodeModel);
-                    _nodes.Add(minimapNode);
+                    _nodesById[minimapNode.Id] = minimapNode;
                 }
             }
             else
             {
                 if (minimapNode is not null)
                 {
-                    _nodes.Remove(minimapNode);
+                    _nodesById.Remove(minimapNode.Id);
                     minimapNode = null;
                     RefreshInternal();
                 }
@@ -299,12 +278,9 @@ public sealed partial class Minimap : ComponentBase, IDisposable
 
     private void OnNodeMoving(MovableModel model)
     {
-        var minimapNode = _nodes.Find(n => n.Id == model.Id);
-
-        if (model is not NodeModel nodeModel || minimapNode is null)
+        if (model is not NodeModel nodeModel || !_nodesById.TryGetValue(model.Id, out var minimapNode))
             return;
 
-        RecalculateReferences();
         SetBounds(nodeModel, minimapNode);
         SetCssStyles(minimapNode);
         RefreshInternal();
@@ -315,9 +291,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         node.Changed -= OnNodeChanged;
         node.Moving -= OnNodeMoving;
 
-        var minimapNode = _nodes.Find(n => n.Id == node.Id);
-        if (minimapNode is not null)
-            _nodes.Remove(minimapNode);
+        _nodesById.Remove(node.Id);
 
         RefreshInternal();
     }
@@ -363,13 +337,9 @@ public sealed partial class Minimap : ComponentBase, IDisposable
     private void RecalculateNodeBounds()
     {
         RecalculateReferences();
-        foreach (var minimapNode in _nodes)
+        foreach (var minimapNode in _nodesById.Values)
         {
-            var nodeModel = Diagram?.Nodes.FirstOrDefault(nm => nm.Id == minimapNode.Id);
-            if (nodeModel is null)
-                return;
-
-            SetBounds(nodeModel, minimapNode);
+            SetBounds(minimapNode.NodeModel, minimapNode);
             SetCssStyles(minimapNode);
         }
         RefreshInternal();
@@ -449,7 +419,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         if (Diagram!.Container is null)
             return value * Diagram.Zoom;
 
-        return value * Diagram.Zoom * (Diagram.Container.Width * WidthPercentage / Diagram.Container.Width);
+        return value * Diagram.Zoom * WidthPercentage;
     }
 
     private void SetBounds(NodeModel nodeModel, MinimapNode minimapNode)
@@ -495,20 +465,27 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         }
     }
 
-    private static void SetCssStyles(MinimapNode node)
+    private void SetCssStyles(MinimapNode node)
     {
-        var stringBuilder = new StringBuilder();
-        stringBuilder
-            .Append(CultureInfo.InvariantCulture, $"--node-background-color: {node.BackgroundColor};")
-            .Append(CultureInfo.InvariantCulture, $"--node-border-color: {node.BorderColor};")
-            .Append(CultureInfo.InvariantCulture, $"--node-border-style: {node.BorderStyle};")
+        _cssStylesBuilder.Clear();
+        _cssStylesBuilder
+            .Append("--node-background-color: ").Append(node.BackgroundColor).Append(';')
+            .Append("--node-border-color: ").Append(node.BorderColor).Append(';')
+            .Append("--node-border-style: ").Append(node.BorderStyle).Append(';')
             .Append(CultureInfo.InvariantCulture, $"--node-height: {node.Bounds.Height}px;")
             .Append(CultureInfo.InvariantCulture, $"--node-pos-x: {node.Bounds.Left}px;")
             .Append(CultureInfo.InvariantCulture, $"--node-pos-y: {node.Bounds.Top}px;")
             .Append(CultureInfo.InvariantCulture, $"--node-width: {node.Bounds.Width}px;")
-            .Append(CultureInfo.InvariantCulture, $"--node-z-index: {(node.ZIndex == 0 ? "auto" : node.ZIndex)};");
+            .Append("--node-z-index: ");
 
-        node.CssStyles = stringBuilder.ToString();
+        if (node.ZIndex == 0)
+            _cssStylesBuilder.Append("auto");
+        else
+            _cssStylesBuilder.Append(node.ZIndex);
+
+        _cssStylesBuilder.Append(';');
+
+        node.CssStyles = _cssStylesBuilder.ToString();
     }
 
     private async void SetVisibility(bool isVisible)
@@ -529,7 +506,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         else
         {
             UnsubscribeEvents();
-            _nodes.Clear();
+            _nodesById.Clear();
             _renderTimer?.Dispose();
             _renderTimer = null;
             _shouldRender = true;
@@ -582,13 +559,14 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         DiagramEventService.MinimapColoringChanged -= OnMinimapColoringChanged;
     }
 
-    private record MinimapNode(string Id)
+    private record MinimapNode(NodeModel NodeModel)
     {
         public string BackgroundColor { get; set; } = MinimapColors.LabelBackgroundDefault;
         public string BorderColor { get; set; } = MinimapColors.BorderDefault;
         public string BorderStyle { get; set; } = BorderStyleDefault;
         public Rectangle Bounds { get; set; } = Rectangle.Zero;
         public string CssStyles { get; set; } = string.Empty;
+        public string Id => NodeModel.Id;
         public MinimapNodeType Type { get; set; }
         public int ZIndex { get; set; }
     }
