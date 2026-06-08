@@ -104,7 +104,7 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         AddBuilderEvents();
         _diagramEventService.InvokeContainerAdded(container);
 
-        return containerNodes.First();
+        return containerNodes[0];
     }
 
     private async Task<List<ChildContainerNode>> AddChildContainersToMapping(List<ChildContainer> childContainers, DiagramService diagramService, CancellationToken cancellationToken)
@@ -112,10 +112,13 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         if (childContainers.Count == 0)
             return [];
 
-        var childContainerNames = childContainers.Select(cc => cc.Name).ToList();
+        var childContainerNames = new List<string>(childContainers.Count);
+        foreach (var cc in childContainers)
+            childContainerNames.Add(cc.Name);
+
         var measuredHeights = await _jsRuntime.MeasureNameFieldHeights(childContainerNames, cancellationToken);
 
-        var result = new List<ChildContainerNode>();
+        var result = new List<ChildContainerNode>(childContainers.Count);
         for (var i = 0; i < childContainers.Count; i++)
         {
             var node = ChildContainerMapper.CreateNode(_comparerService, this, diagramService, childContainers[i], measuredHeights[i]);
@@ -142,14 +145,16 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         var functionBlockEditor = Builder.Editors.FunctionBlock;
         functionBlockEditor.SetForeColor(functionBlock, BlockNodeColors.ForegroundDefault);
         functionBlockEditor.SetBackColor(functionBlock, BlockNodeColors.BackgroundDefault);
-        if (ValidDataflowEngines.Any())
-            functionBlockEditor.AssignEngine(ValidDataflowEngines.First(), functionBlock);
+
+        var engine = ValidDataflowEngines.FirstOrDefault();
+        if (engine is not null)
+            functionBlockEditor.AssignEngine(engine, functionBlock);
 
         var functionBlockNodes = await AddFunctionBlocksToMapping([functionBlock], diagramService, cancellationToken);
 
         AddBuilderEvents();
 
-        return functionBlockNodes.First();
+        return functionBlockNodes[0];
     }
 
     private async Task<List<FunctionBlockNode>> AddFunctionBlocksToMapping(List<FunctionBlock> functionBlocks, DiagramService diagramService, CancellationToken cancellationToken)
@@ -157,10 +162,13 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         if (functionBlocks.Count == 0)
             return [];
 
-        var functionBlockNames = functionBlocks.Select(fb => fb.Name).ToList();
+        var functionBlockNames = new List<string>(functionBlocks.Count);
+        foreach (var fb in functionBlocks)
+            functionBlockNames.Add(fb.Name);
+
         var measuredHeights = await _jsRuntime.MeasureNameFieldHeights(functionBlockNames, cancellationToken);
 
-        var result = new List<FunctionBlockNode>();
+        var result = new List<FunctionBlockNode>(functionBlockNames.Count);
         for (var i = 0; i < functionBlockNames.Count; i++)
         {
             var node = FunctionBlockMapper.CreateNode(_comparerService, this, diagramService, functionBlocks[i], measuredHeights[i]);
@@ -191,7 +199,7 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
 
         AddBuilderEvents();
 
-        return labels.First();
+        return labels[0];
     }
 
     private List<LabelNode> AddLabelsToMapping(List<Label> labels)
@@ -199,7 +207,7 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         if (labels.Count == 0)
             return [];
 
-        var result = new List<LabelNode>();
+        var result = new List<LabelNode>(labels.Count);
 
         foreach (var label in labels)
         {
@@ -233,7 +241,7 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         if (links.Count == 0)
             return [];
 
-        var result = new List<BlockNodeLink>();
+        var result = new List<BlockNodeLink>(links.Count);
 
         foreach (var link in links)
         {
@@ -244,6 +252,30 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         }
 
         return result;
+    }
+
+    private Dictionary<FunctionBlock, List<Link>> BuildLinksByFbIndex(ConnectionDirection direction)
+    {
+        var linksByFb = new Dictionary<FunctionBlock, List<Link>>();
+        foreach (var link in Builder.Cache.Links)
+        {
+            var fb = direction == ConnectionDirection.Predecessor
+                ? link.DestinationConnector?.FunctionBlock
+                : link.SourceConnector?.FunctionBlock;
+
+            if (fb is null)
+                continue;
+
+            if (!linksByFb.TryGetValue(fb, out var list))
+            {
+                list = [];
+                linksByFb[fb] = list;
+            }
+
+            list.Add(link);
+        }
+
+        return linksByFb;
     }
 
     public async ValueTask DisposeAsync()
@@ -304,19 +336,35 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
                     [childContainerNode,]);
                 DataflowDiagramMapping.Remove(childContainer);
 
-                foreach (var affectedLink in childContainer.GetConnectors().SelectMany(c => c.Links))
-                    DataflowDiagramMapping.Remove(affectedLink);
+                foreach (var connector in childContainer.GetConnectors())
+                {
+                    foreach (var affectedLink in connector.Links)
+                        DataflowDiagramMapping.Remove(affectedLink);
+                }
 
                 var containerPoint = new Point(
                     (childContainer.X ?? 0) + (BlockNodeLayout.Width / 2.0),
                     (childContainer.Y ?? 0) + (BlockNodeLayout.RowHeight * (BlockNodeLayout.SystemConnectorRows + BlockNodeLayout.MinimumConnectorRows) / 2)
                 );
                 var dissolvedChilds = Builder.Editors.Container.DissolveContainer(childContainer);
+                var dissolvedFbs = new List<FunctionBlock>();
+                var dissolvedContainers = new List<ChildContainer>();
+                var dissolvedLabels = new List<Label>();
 
-                var newNodes = new List<NodeModel>();
-                newNodes.AddRange(await AddFunctionBlocksToMapping([.. dissolvedChilds.OfType<FunctionBlock>()], diagramService, _dissolveContainerCts.Token));
-                newNodes.AddRange(await AddChildContainersToMapping([.. dissolvedChilds.OfType<ChildContainer>()], diagramService, _dissolveContainerCts.Token));
-                newNodes.AddRange(AddLabelsToMapping([.. dissolvedChilds.OfType<Label>()]));
+                foreach (var child in dissolvedChilds)
+                {
+                    if (child is FunctionBlock fb)
+                        dissolvedFbs.Add(fb);
+                    else if (child is ChildContainer cc)
+                        dissolvedContainers.Add(cc);
+                    else if (child is Label label)
+                        dissolvedLabels.Add(label);
+                }
+
+                var newNodes = new List<NodeModel>(dissolvedFbs.Count + dissolvedContainers.Count + dissolvedLabels.Count);
+                newNodes.AddRange(await AddFunctionBlocksToMapping(dissolvedFbs, diagramService, _dissolveContainerCts.Token));
+                newNodes.AddRange(await AddChildContainersToMapping(dissolvedContainers, diagramService, _dissolveContainerCts.Token));
+                newNodes.AddRange(AddLabelsToMapping(dissolvedLabels));
 
                 var nodeCenter = newNodes.GetBounds().Center;
                 var deltaX = containerPoint.X - nodeCenter.X;
@@ -334,11 +382,12 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
                         LabelMapper.UpdatePosition(this, labelNode);
                 }
 
-                var links = GetActiveContainerFunctionBlockLinks()
-                    .Concat(GetActiveContainerContainerLinks()).Where(l => !DataflowDiagramMapping.ContainsMapping(l));
                 var newLinks = new List<BlockNodeLink>();
-                foreach (var link in links)
+                foreach (var link in GetActiveContainerFunctionBlockLinks().Concat(GetActiveContainerContainerLinks()))
                 {
+                    if (DataflowDiagramMapping.ContainsMapping(link))
+                        continue;
+
                     var node = LinkMapper.CreateLink(this, link);
                     newLinks.Add(node);
                     DataflowDiagramMapping.Add(link, node);
@@ -366,64 +415,84 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
     }
 
     private IEnumerable<Link> GetActiveContainerContainerLinks()
-        => ActiveContainer.Containers
-            .SelectMany(c => c.GetConnectors().OfType<ContainerConnectorOutput>())
-            .SelectMany(con => con.GetVisibleLinksConnectedToThis());
+    {
+        foreach (var container in ActiveContainer.Containers)
+        {
+            foreach (var connector in container.GetConnectors())
+            {
+                if (connector is not ContainerConnectorOutput output)
+                    continue;
+
+                foreach (var link in output.GetVisibleLinksConnectedToThis())
+                    yield return link;
+            }
+        }
+    }
 
     private IEnumerable<Link> GetActiveContainerFunctionBlockLinks()
-        => ActiveContainer.FunctionBlocks
-            .SelectMany(fb => fb.GetAllOutputs())
-            .SelectMany(con => con.GetVisibleLinksConnectedToThis());
+    {
+        foreach (var fb in ActiveContainer.FunctionBlocks)
+        {
+            foreach (var output in fb.GetAllOutputs())
+            {
+                foreach (var link in output.GetVisibleLinksConnectedToThis())
+                    yield return link;
+            }
+        }
+    }
 
     private HashSet<Link> GetConnectedLinks(FunctionBlock functionBlock, ConnectionDirection direction, int? depth)
+        => GetConnectedLinks(functionBlock, direction, depth, BuildLinksByFbIndex(direction));
+
+    private HashSet<Link> GetConnectedLinks(FunctionBlock functionBlock, ConnectionDirection direction, int? depth, Dictionary<FunctionBlock, List<Link>> linksByFb)
     {
         var result = new HashSet<Link>();
         var maxDepth = depth ?? int.MaxValue;
         var queue = new Queue<(int, FunctionBlock)>();
-        var alreadyDoneFbs = new HashSet<FunctionBlock>();
+        var visited = new HashSet<FunctionBlock>();
         queue.Enqueue((1, functionBlock));
 
         while (queue.Count > 0)
         {
             var (currentDepth, fb) = queue.Dequeue();
-            if (currentDepth > maxDepth || alreadyDoneFbs.Contains(fb))
+            if (currentDepth > maxDepth)
                 continue;
 
-            var connectedLinks = Builder.Cache.Links
-                .Where(l => (direction == ConnectionDirection.Predecessor ? l.DestinationConnector?.FunctionBlock : l.SourceConnector?.FunctionBlock) == fb);
+            if (!linksByFb.TryGetValue(fb, out var connectedLinks))
+                continue;
 
             foreach (var link in connectedLinks)
             {
                 result.Add(link);
                 var nextFb = direction == ConnectionDirection.Predecessor ? link.SourceConnector?.FunctionBlock : link.DestinationConnector?.FunctionBlock;
-                if (nextFb is not null && nextFb.Container == ActiveContainer && !queue.Contains((currentDepth + 1, nextFb)))
+                if (nextFb is not null && nextFb.Container == ActiveContainer && visited.Add(nextFb))
                     queue.Enqueue((currentDepth + 1, nextFb));
             }
-
-            alreadyDoneFbs.Add(fb);
         }
 
         return result;
     }
 
     private IEnumerable<Link> GetConnectedLinks(ChildContainer childContainer, ConnectionDirection direction, int? depth)
-        => childContainer.GetConnectors()
-            .Select(c => c.FunctionBlock)
-            .SelectMany(fb => GetConnectedLinks(fb, direction, depth));
+    {
+        var linksByFb = BuildLinksByFbIndex(direction);
+        var result = new HashSet<Link>();
+
+        foreach (var connector in childContainer.GetConnectors())
+            result.UnionWith(GetConnectedLinks(connector.FunctionBlock, direction, depth, linksByFb));
+
+        return result;
+    }
 
     public IEnumerable<Link> GetConnectedLinks(BlockNode blockNode, ConnectionDirection direction, int? depth)
     {
-        var links = new HashSet<Link>();
         if (blockNode is FunctionBlockNode fbNode)
-        {
-            links.UnionWith(GetConnectedLinks(DataflowDiagramMapping.GetModel(fbNode), direction, depth));
-        }
-        else if (blockNode is ChildContainerNode contNode)
-        {
-            links.UnionWith(GetConnectedLinks(DataflowDiagramMapping.GetModel(contNode), direction, depth));
-        }
+            return GetConnectedLinks(DataflowDiagramMapping.GetModel(fbNode), direction, depth);
 
-        return links;
+        if (blockNode is ChildContainerNode contNode)
+            return GetConnectedLinks(DataflowDiagramMapping.GetModel(contNode), direction, depth);
+
+        return [];
     }
 
     public IEnumerable<BlockNodeLink> GetConnectedNodeLinks(BlockNode blockNode, ConnectionDirection direction, int? depth)
@@ -432,13 +501,16 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
     public IEnumerable<BlockNodeLink> GetConnectedNodeLinks(IEnumerable<BlockNode> blockNodes)
     {
         var links = new HashSet<BlockNodeLink>();
-        var connectedLinksPre = blockNodes
-            .SelectMany(n => GetConnectedNodeLinks(n, ConnectionDirection.Predecessor, 1));
-        var connectedLinksSucc = blockNodes
-            .SelectMany(n => GetConnectedNodeLinks(n, ConnectionDirection.Successor, 1));
 
-        links.UnionWith(connectedLinksPre);
-        links.UnionWith(connectedLinksSucc);
+        foreach (var node in blockNodes)
+        {
+            foreach (var link in GetConnectedNodeLinks(node, ConnectionDirection.Predecessor, 1))
+                links.Add(link);
+
+            foreach (var link in GetConnectedNodeLinks(node, ConnectionDirection.Successor, 1))
+                links.Add(link);
+        }
+
         return links;
     }
 
@@ -448,72 +520,104 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         var inputLinks = new HashSet<Link>();
         var outputLinks = new HashSet<Link>();
 
-        foreach (var fbNode in nodes.OfType<FunctionBlockNode>())
+        foreach (var node in nodes)
         {
-            var functionBlock = DataflowDiagramMapping.GetModel(fbNode);
-            inputLinks.UnionWith(functionBlock.GetAllInputs().SelectMany(c => c.Links));
-            outputLinks.UnionWith(functionBlock.GetAllOutputs().SelectMany(c => c.Links));
-        }
+            if (node is FunctionBlockNode fbNode)
+            {
+                var functionBlock = DataflowDiagramMapping.GetModel(fbNode);
+                foreach (var input in functionBlock.GetAllInputs())
+                {
+                    foreach (var link in input.Links)
+                        inputLinks.Add(link);
+                }
 
-        foreach (var contNode in nodes.OfType<ChildContainerNode>())
-        {
-            var container = DataflowDiagramMapping.GetModel(contNode);
-            inputLinks.UnionWith(container.GetConnectors().OfType<ContainerConnectorInput>().SelectMany(c => c.Links));
-            outputLinks.UnionWith(container.GetConnectors().OfType<ContainerConnectorOutput>().SelectMany(c => c.Links));
+                foreach (var output in functionBlock.GetAllOutputs())
+                {
+                    foreach (var link in output.Links)
+                        outputLinks.Add(link);
+                }
+            }
+            else if (node is ChildContainerNode contNode)
+            {
+                var container = DataflowDiagramMapping.GetModel(contNode);
+                foreach (var connector in container.GetConnectors())
+                {
+                    if (connector is ContainerConnectorInput input)
+                    {
+                        foreach (var link in input.Links)
+                            inputLinks.Add(link);
+                    }
+                    else if (connector is ContainerConnectorOutput output)
+                    {
+                        foreach (var link in output.Links)
+                            outputLinks.Add(link);
+                    }
+                }
+            }
         }
 
         return GetConnectedNodes(inputLinks, outputLinks);
     }
 
-    private IEnumerable<BlockNode> GetConnectedNodes(HashSet<Link> inputLinks, HashSet<Link> outputLinks)
+    private List<BlockNode> GetConnectedNodes(HashSet<Link> inputLinks, HashSet<Link> outputLinks)
     {
         var connectedFbs = new HashSet<FunctionBlock>();
         var connectedContainers = new HashSet<ChildContainer>();
 
-        var inputConnectedContainers = inputLinks
-            .Where(l => l.SourceConnector is not null)
-            .Where(l => l.SourceConnector!.FunctionBlock.Container != ActiveContainer)
-            .Where(l => l.SourceConnector!.GetAllUpstreamContainerConnectors().Any(cc => cc.Container.Parent == ActiveContainer))
-            .Select(l => l.SourceConnector!.GetAllUpstreamContainerConnectors().First(cc => cc.Container.Parent == ActiveContainer).Container);
-        var inputConnectedFbs = inputLinks
-            .Where(l => l.SourceConnector is not null)
-            .Where(l => l.SourceConnector!.FunctionBlock.Container == ActiveContainer)
-            .Select(l => l.SourceConnector!.FunctionBlock);
+        foreach (var link in inputLinks)
+        {
+            if (link.SourceConnector is null)
+                continue;
 
-        var outputConnectedContainers = outputLinks
-            .Where(l => l.DestinationConnector is not null)
-            .Where(l => l.DestinationConnector!.FunctionBlock.Container != ActiveContainer)
-            .Where(l => l.DestinationConnector!.GetAllUpstreamContainerConnectors().Any(cc => cc.Container.Parent == ActiveContainer))
-            .Select(l => l.DestinationConnector!.GetAllUpstreamContainerConnectors().First(cc => cc.Container.Parent == ActiveContainer).Container);
-        var outputConnectedFbs = outputLinks
-            .Where(l => l.DestinationConnector is not null)
-            .Where(l => l.DestinationConnector!.FunctionBlock.Container == ActiveContainer)
-            .Select(l => l.DestinationConnector!.FunctionBlock);
+            if (link.SourceConnector.FunctionBlock.Container == ActiveContainer)
+            {
+                connectedFbs.Add(link.SourceConnector.FunctionBlock);
+            }
+            else
+            {
+                var upstreamContainer = link.SourceConnector.GetAllUpstreamContainerConnectors()
+                    .FirstOrDefault(cc => cc.Container.Parent == ActiveContainer)?.Container;
+                if (upstreamContainer is not null)
+                    connectedContainers.Add(upstreamContainer);
+            }
+        }
 
-        connectedContainers.UnionWith(inputConnectedContainers);
-        connectedFbs.UnionWith(inputConnectedFbs);
-        connectedContainers.UnionWith(outputConnectedContainers);
-        connectedFbs.UnionWith(outputConnectedFbs);
+        foreach (var link in outputLinks)
+        {
+            if (link.DestinationConnector is null)
+                continue;
 
-        return Enumerable.Empty<BlockNode>()
-            .Concat(DataflowDiagramMapping.GetDiagramModels(connectedFbs))
-            .Concat(DataflowDiagramMapping.GetDiagramModels(connectedContainers));
+            if (link.DestinationConnector.FunctionBlock.Container == ActiveContainer)
+            {
+                connectedFbs.Add(link.DestinationConnector.FunctionBlock);
+            }
+            else
+            {
+                var upstreamContainer = link.DestinationConnector.GetAllUpstreamContainerConnectors()
+                    .FirstOrDefault(cc => cc.Container.Parent == ActiveContainer)?.Container;
+                if (upstreamContainer is not null)
+                    connectedContainers.Add(upstreamContainer);
+            }
+        }
+
+        var result = new List<BlockNode>(connectedFbs.Count + connectedContainers.Count);
+        result.AddRange(DataflowDiagramMapping.GetDiagramModels(connectedFbs));
+        result.AddRange(DataflowDiagramMapping.GetDiagramModels(connectedContainers));
+        return result;
     }
 
     public IEnumerable<BlockNodeConnector> GetValidTargetConnectors(IEnumerable<Connector> connectors, bool visibleLink)
     {
-        var connector = connectors.First();
+        var connectorArray = connectors as Connector[] ?? [.. connectors];
+        var isInputConnector = connectorArray[0] is IConnectorInput;
 
-        var connectorType = Builder.DetermineValueType(connector);
-
-        var isInputConnector = connector is IConnectorInput;
         var targetConnectors = isInputConnector
                 ? DataflowDiagramMapping.GetOutputNodeConnectors().Select(DataflowDiagramMapping.GetModel)
                 : DataflowDiagramMapping.GetInputNodeConnectors().Select(DataflowDiagramMapping.GetModel);
 
         targetConnectors = isInputConnector
-            ? targetConnectors.Where(c => connectors.Any(sc => Builder.Editors.Connector.CanCreateLink((IConnectorOutput)c, (IConnectorInput)sc, visibleLink)))
-            : targetConnectors.Where(c => connectors.Any(sc => Builder.Editors.Connector.CanCreateLink((IConnectorOutput)sc, (IConnectorInput)c, visibleLink)));
+            ? targetConnectors.Where(c => connectorArray.Any(sc => Builder.Editors.Connector.CanCreateLink((IConnectorOutput)c, (IConnectorInput)sc, visibleLink)))
+            : targetConnectors.Where(c => connectorArray.Any(sc => Builder.Editors.Connector.CanCreateLink((IConnectorOutput)sc, (IConnectorInput)c, visibleLink)));
 
         return [.. targetConnectors.Select(DataflowDiagramMapping.GetDiagramModel)];
     }
@@ -545,7 +649,7 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
 
         BuilderChanged?.Invoke();
 
-        var currentDataflow = Builder.Cluster.Dataflows.First();
+        var currentDataflow = Builder.Cluster.Dataflows[0];
 
         await LoadContainer(currentDataflow.Root, diagramService, cancellationToken);
     }
@@ -668,7 +772,11 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         await AddChildContainersToMapping(container.Containers, diagramService, cancellationToken);
         AddLabelsToMapping(container.Labels);
 
-        var links = GetActiveContainerFunctionBlockLinks().Concat(GetActiveContainerContainerLinks()).ToList();
+        var links = new List<Link>();
+        foreach (var link in GetActiveContainerFunctionBlockLinks())
+            links.Add(link);
+        foreach (var link in GetActiveContainerContainerLinks())
+            links.Add(link);
         AddLinksToMapping(links);
 
         ModelDiagramMapper.AddToDiagram(diagramService.Diagram, DataflowDiagramMapping.GetNodes(), DataflowDiagramMapping.GetNodeLinks());
@@ -694,9 +802,24 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         var containerArray = containers.ToArray();
         var labelsArray = labels.ToArray();
 
-        var affectedLinks = fbArray.SelectMany(fb => fb.GetConnectors().SelectMany(c => c.GetVisibleLinksConnectedToThis()))
-            .Concat(containerArray.SelectMany(c => c.GetConnectors().SelectMany(c => c.GetVisibleLinksConnectedToThis())))
-            .ToArray();
+        var affectedLinks = new List<Link>();
+        foreach (var fb in fbArray)
+        {
+            foreach (var connector in fb.GetConnectors())
+            {
+                foreach (var link in connector.GetVisibleLinksConnectedToThis())
+                    affectedLinks.Add(link);
+            }
+        }
+
+        foreach (var container in containerArray)
+        {
+            foreach (var connector in container.GetConnectors())
+            {
+                foreach (var link in connector.GetVisibleLinksConnectedToThis())
+                    affectedLinks.Add(link);
+            }
+        }
 
         ModelDiagramMapper.RemoveNodesFromDiagram(
             diagramService,
@@ -722,11 +845,12 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
             [.. fbArray.Cast<IContainerChild>(), .. containerArray, .. labelsArray]
         );
 
-        var links = GetActiveContainerFunctionBlockLinks()
-            .Concat(GetActiveContainerContainerLinks()).Where(l => !DataflowDiagramMapping.ContainsMapping(l));
         var newLinks = new List<BlockNodeLink>();
-        foreach (var link in links)
+        foreach (var link in GetActiveContainerFunctionBlockLinks().Concat(GetActiveContainerContainerLinks()))
         {
+            if (DataflowDiagramMapping.ContainsMapping(link))
+                continue;
+
             var node = LinkMapper.CreateLink(this, link);
             DataflowDiagramMapping.Add(link, node);
             newLinks.Add(node);
@@ -832,7 +956,7 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         if (downstreamFbs.Count != 0)
         {
             // This can fail if we assign an engine to an FB because it's maybe not part of the ActiveContainer already
-            var container = downstreamFbs.First().GetAllUpstreamContainers().FirstOrDefault(c => ActiveContainer.Containers.Contains(c));
+            var container = downstreamFbs[0].GetAllUpstreamContainers().FirstOrDefault(c => ActiveContainer.Containers.Contains(c));
             if (container is not null)
                 OnContainerPropertiesChanged([(container, new(nameof(FunctionBlock.Engine)))]);
         }
