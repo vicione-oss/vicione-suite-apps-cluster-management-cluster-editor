@@ -13,6 +13,7 @@ public class FunctionBlockLinkComponentTests
         using var ctx = new Bunit.TestContext();
         ctx.SetupDatastore();
         ctx.SetupDiagramService();
+        ctx.SetupSelectionManager();
 
         using var blockNodeLink = ctx.CreateBlockNodeLink();
 
