@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Linq;
 using Blazor.Diagrams.Core.Geometry;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
@@ -52,23 +51,42 @@ internal sealed class PublishedConnectorsService : IDisposable
 
     private void AddLink(BlockNodeConnector? secondBlockNodeConnector)
     {
-        if (!_dragService.DraggedItems.Any(d => d is DataGridConnectorWrapper) || secondBlockNodeConnector is null)
+        if (secondBlockNodeConnector is null)
             return;
-
-        var draggedPublishedConnectorWrappers = _dragService.DraggedItems
-            .OfType<DataGridConnectorWrapper>()
-            .ToArray();
 
         var secondConnector = _datastore.DataflowDiagramMapping.GetModel(secondBlockNodeConnector);
 
-        foreach (var publishedConnector in draggedPublishedConnectorWrappers)
+        foreach (var item in _dragService.DraggedItems)
         {
+            if (item is not DataGridConnectorWrapper publishedConnector)
+                continue;
+
             var sourceConnector = (IConnectorOutput)(publishedConnector.IsInput ? secondConnector : publishedConnector.Connector);
             var targetConnector = (IConnectorInput)(publishedConnector.IsInput ? publishedConnector.Connector : secondConnector);
 
             if (_datastore.Builder.Editors.Connector.CanCreateLink(sourceConnector, targetConnector, false))
                 _datastore.Builder.Editors.Connector.AddLink(sourceConnector, targetConnector, false);
         }
+    }
+
+    private static int CompareConnectorWrappers(DataGridConnectorWrapper? x, DataGridConnectorWrapper? y)
+    {
+        if (x is null || y is null)
+            return 0;
+
+        var pathCompare = string.Compare(x.Path, y.Path, StringComparison.Ordinal);
+        if (pathCompare != 0)
+            return pathCompare;
+
+        var fbCompare = string.Compare(x.FunctionBlockName, y.FunctionBlockName, StringComparison.Ordinal);
+        if (fbCompare != 0)
+            return fbCompare;
+
+        var inputCompare = x.IsInput.CompareTo(y.IsInput);
+        if (inputCompare != 0)
+            return inputCompare;
+
+        return string.Compare(x.ConnectorName, y.ConnectorName, StringComparison.Ordinal);
     }
 
     public void Dispose()
@@ -85,7 +103,18 @@ internal sealed class PublishedConnectorsService : IDisposable
     }
 
     private BlockNodeConnector? GetTargetBlockNodeConnector(Point position)
-        => _dragService.DragTargets?.OfType<BlockNodeConnector>().FirstOrDefault(p => p.GetBounds().ContainsPoint(position));
+    {
+        if (_dragService.DragTargets is null)
+            return null;
+
+        foreach (var target in _dragService.DragTargets)
+        {
+            if (target is BlockNodeConnector connector && connector.GetBounds().ContainsPoint(position))
+                return connector;
+        }
+
+        return null;
+    }
 
     private void MoveDraggingPublishedConnector(Point position)
     {
@@ -113,6 +142,7 @@ internal sealed class PublishedConnectorsService : IDisposable
                 continue;
 
             updateNeeded = true;
+            break;
         }
 
         if (updateNeeded)
@@ -135,6 +165,9 @@ internal sealed class PublishedConnectorsService : IDisposable
                     updateNeeded = true;
                     break;
             }
+
+            if (updateNeeded)
+                break;
         }
 
         if (updateNeeded)
@@ -164,10 +197,19 @@ internal sealed class PublishedConnectorsService : IDisposable
             if (sender is not FunctionBlock functionBlock)
                 continue;
 
-            if (e.PropertyName == nameof(FunctionBlock.Name) &&
-                _datastore.Builder.Cache.PublishedConnectors.Any(c => c.FunctionBlock == functionBlock))
+            if (e.PropertyName == nameof(FunctionBlock.Name))
             {
-                updateNeeded = true;
+                foreach (var c in _datastore.Builder.Cache.PublishedConnectors)
+                {
+                    if (c.FunctionBlock == functionBlock)
+                    {
+                        updateNeeded = true;
+                        break;
+                    }
+                }
+
+                if (updateNeeded)
+                    break;
             }
         }
 
@@ -186,10 +228,14 @@ internal sealed class PublishedConnectorsService : IDisposable
 
     public void StartPublishedConnectorDragging(IEnumerable<DataGridConnectorWrapper> connectorWrappersToDrag)
     {
-        if (!connectorWrappersToDrag.Any())
+        var connectors = new List<Connector>();
+        foreach (var wrapper in connectorWrappersToDrag)
+            connectors.Add((Connector)wrapper.Connector);
+
+        if (connectors.Count == 0)
             return;
 
-        var validTargetConnectors = _datastore.GetValidTargetConnectors(connectorWrappersToDrag.Select(pc => (Connector)pc.Connector), false);
+        var validTargetConnectors = _datastore.GetValidTargetConnectors(connectors, false);
         _dragService.StartDragging(connectorWrappersToDrag, validTargetConnectors);
         _dragService.DraggingEnded += OnDraggingEnded;
         _dragService.DraggingPositionChanged += MoveDraggingPublishedConnector;
@@ -211,38 +257,31 @@ internal sealed class PublishedConnectorsService : IDisposable
 
     private void UpdatePublishedConnectorEntries()
     {
-        var currentlyPublished = _datastore.Builder.Cache.PublishedConnectors.ToArray();
-        var removed = _publishedConnectorWrappers
-            .Where(pc => !currentlyPublished.Any(cp => cp.Id == pc.Connector.Id))
-            .Select(pc => pc.Connector.Id)
-            .ToArray();
-        var added = currentlyPublished
-            .Where(cp => !_publishedConnectorWrappers.Any(pc => pc.Connector.Id == cp.Id))
-            .ToArray();
+        var publishedConnectors = _datastore.Builder.Cache.PublishedConnectors;
 
-        _publishedConnectorWrappers.RemoveAll(pc => removed.Contains(pc.Connector.Id));
-        _publishedConnectorWrappers.AddRange(
-            added.Select(c => new DataGridConnectorWrapper(
-                c,
-                _datastore.Builder.ResolveConnectorDesign(c),
-                _datastore.Builder.ResolveFunctionBlockDesign(c.FunctionBlock.DesignId)
-        )));
+        var currentlyPublishedIds = new HashSet<Guid>(publishedConnectors.Count);
+        foreach (var pc in publishedConnectors)
+            currentlyPublishedIds.Add(pc.Id);
 
-        _publishedConnectorWrappers.Sort((x, y) =>
+        var existingIds = new HashSet<Guid>(_publishedConnectorWrappers.Count);
+        foreach (var pc in _publishedConnectorWrappers)
+            existingIds.Add(pc.Connector.Id);
+
+        _publishedConnectorWrappers.RemoveAll(pc => !currentlyPublishedIds.Contains(pc.Connector.Id));
+
+        foreach (var pc in publishedConnectors)
         {
-            if (x is null || y is null)
-                return 0;
+            if (!existingIds.Contains(pc.Id))
+            {
+                _publishedConnectorWrappers.Add(new DataGridConnectorWrapper(
+                    pc,
+                    _datastore.Builder.ResolveConnectorDesign(pc),
+                    _datastore.Builder.ResolveFunctionBlockDesign(pc.FunctionBlock.DesignId)
+                ));
+            }
+        }
 
-            var pathCompare = string.Compare($"{x.Path}_{x.FunctionBlockName}", $"{y.Path}_{y.FunctionBlockName}", StringComparison.Ordinal);
-            if (pathCompare != 0)
-                return pathCompare;
-
-            var inputCompare = x.IsInput.CompareTo(y.IsInput);
-            if (inputCompare != 0)
-                return inputCompare;
-
-            return string.Compare(x.ConnectorName, y.ConnectorName, StringComparison.Ordinal);
-        });
+        _publishedConnectorWrappers.Sort(CompareConnectorWrappers);
 
         PublishedConnectorsChanged?.Invoke();
     }
