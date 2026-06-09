@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using Blazor.Diagrams.Core.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.JSInterop;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Constants;
+using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
@@ -21,6 +23,7 @@ public sealed partial class BlockLinkComponent : ComponentBase
     [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+    [Inject] private SelectionManager SelectionManager { get; set; } = default!;
 
     [Parameter] public BlockNodeLink? Link { get; set; }
 
@@ -61,7 +64,24 @@ public sealed partial class BlockLinkComponent : ComponentBase
             e.OffsetX,
             e.OffsetY);
 
-        Link!.FocusAttachedNode(t);
+        BlockNodeConnector? connector;
+        NodeModel node;
+        if (t < 0.5)
+        {
+            connector = (BlockNodeConnector?)Link!.TargetPort;
+            node = Link.TargetNode;
+        }
+        else
+        {
+            connector = (BlockNodeConnector?)Link!.SourcePort;
+            node = Link.SourceNode;
+        }
+
+        if (connector is not null)
+            SelectionManager.SetSelection(connector);
+
+        if (!DiagramService.Diagram.IsNodeInViewport(node))
+            DiagramService.Diagram.PanToNode(node);
     }
 
     protected override void OnParametersSet()

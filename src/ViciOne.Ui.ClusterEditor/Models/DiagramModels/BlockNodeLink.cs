@@ -27,8 +27,6 @@ public sealed class BlockNodeLink : LinkModel, IDiagramModel, IDisposable
     internal bool Traced { get; private set; }
     public new bool Visible { get; set; } = true;
 
-    internal event Action<LinkModel, NodeModel>? NodeFocusInvoked;
-
     internal BlockNodeLink(PortModel sourcePort, PortModel targetPort) : this(new SinglePortAnchor(sourcePort), new SinglePortAnchor(targetPort)) { }
 
     internal BlockNodeLink(Anchor sourceAnchor, Anchor targetAnchor) : base(sourceAnchor, targetAnchor)
@@ -46,12 +44,6 @@ public sealed class BlockNodeLink : LinkModel, IDiagramModel, IDisposable
 
     public void Dispose()
         => Changed -= OnLinkChanged;
-
-    internal void FocusAttachedNode(double t)
-    {
-        var node = t < 0.5 ? TargetNode : SourceNode;
-        NodeFocusInvoked?.Invoke(this, node!);
-    }
 
     private void OnLinkChanged(Model link)
     {

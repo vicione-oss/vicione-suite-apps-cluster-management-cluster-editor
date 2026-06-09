@@ -548,7 +548,6 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         if (link is not BlockNodeLink fbNodeLink)
             return;
 
-        fbNodeLink.NodeFocusInvoked += OnLinkNodeFocusInvoked;
         fbNodeLink.TargetAttached += OnLinkTargetAttached;
 
         // Wenn ein Link nicht "attached" ist bedeutet das, dass dieser vom Diagramm
@@ -567,7 +566,6 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         if (link is not BlockNodeLink fbNodeLink)
             return;
 
-        fbNodeLink.NodeFocusInvoked -= OnLinkNodeFocusInvoked;
         fbNodeLink.TargetAttached -= OnLinkTargetAttached;
 
         // Links, die nicht "attached" sind, wurden nie dem Datastore hinzugefügt. Höchstwahrscheinlich
@@ -823,16 +821,6 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
     {
         _libraryDragInProgress = true;
         InvokeAsync(StateHasChanged);
-    }
-
-    private void OnLinkNodeFocusInvoked(LinkModel link, NodeModel node)
-    {
-        SelectionManager.DeselectAll();
-        _diagram!.SelectModel(link, false);
-        _diagram.SelectModel(node, false);
-
-        if (!_diagram.IsNodeInViewport(node))
-            _diagram.PanToNode(node);
     }
 
     private void OnLinkTargetAttached(BaseLinkModel link)
