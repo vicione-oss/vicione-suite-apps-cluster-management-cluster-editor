@@ -30,11 +30,12 @@ namespace ViciOne.Ui.ClusterEditor.Components.DiagramComponents;
 public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandleEvent
 {
     private Block _block = new();
+    private bool? _hasDropTargets;
+    private bool _isDirty = true;
     private bool _isHovered;
     private BlockNode? _node;
 
     [CascadingParameter] internal Diagram? Diagram { get; set; }
-
     [Inject] private IContextMenuRequest<BlockNodeConnectorContextMenuContext> BlockNodeConnectorContextMenuRequest { get; set; } = default!;
     [Inject] private BoundsService BoundsService { get; set; } = default!;
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
@@ -51,7 +52,6 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
     [Inject] private ToolbarService ToolbarService { get; set; } = default!;
     [Inject] private TooltipService TooltipService { get; set; } = default!;
-
     [Parameter] public BlockNode? Node { get; set; }
 
     public void Dispose()
@@ -91,6 +91,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         if (DiagramService.DiagramState.SimplifiedView && !_isHovered)
         {
             _isHovered = true;
+            _isDirty = true;
             InvokeAsync(StateHasChanged);
         }
 
@@ -105,6 +106,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         if (DiagramService.DiagramState.SimplifiedView && _isHovered)
         {
             _isHovered = false;
+            _isDirty = true;
             InvokeAsync(StateHasChanged);
         }
 
@@ -115,7 +117,15 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     }
 
     private async void OnBlockNodesUpdateRequestedAsync()
-        => await InvokeAsync(StateHasChanged);
+    {
+        var hasDropTargets = Node!.ConnectorsToList().Exists(c => c.IsValidDropTarget);
+        if (hasDropTargets == _hasDropTargets)
+            return;
+
+        _hasDropTargets = hasDropTargets;
+        _isDirty = true;
+        await InvokeAsync(StateHasChanged);
+    }
 
     private async Task OnConnectorContextMenuRequestedAsync(MouseEventArgs e, BlockNodeConnector connector)
     {
@@ -340,7 +350,10 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     }
 
     private void OnNodeChanged(Model _)
-        => InvokeAsync(StateHasChanged);
+    {
+        _isDirty = true;
+        InvokeAsync(StateHasChanged);
+    }
 
     protected override void OnParametersSet()
     {
@@ -350,6 +363,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         {
             _node = Node;
             _block = new(Datastore, _node);
+            _isDirty = true;
         }
     }
 
@@ -398,6 +412,15 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
            Node!.DisplayAllConnectors ||
            Node.Selected ||
            _isHovered;
+
+    protected override bool ShouldRender()
+    {
+        if (!_isDirty)
+            return false;
+
+        _isDirty = false;
+        return true;
+    }
 
     private void ShowAndSelectDataPort(DataPortTreeNode dataPortTreeNode)
     {

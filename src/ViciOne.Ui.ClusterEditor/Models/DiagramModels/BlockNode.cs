@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using ViciOne.Ui.ClusterEditor.Constants;
@@ -8,6 +7,8 @@ namespace ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 
 public abstract class BlockNode : NodeModel, IDiagramModel
 {
+    private List<BlockNodeConnector>? _connectorsListCache;
+
     internal List<BlockNodeConnector?[]> Connectors { get; } = [];
     internal bool DisplayAllConnectors { get; private set; } = true;
     internal string EngineBackgroundColor { get; set; } = BlockNodeColors.EngineBackgroundEmpty;
@@ -24,7 +25,18 @@ public abstract class BlockNode : NodeModel, IDiagramModel
         => ControlledSize = true;
 
     internal void CalculateDisplayAllConnectors()
-        => DisplayAllConnectors = ConnectorsToList().All(c => c.HasDefaultConfiguration && !c.HasLink());
+    {
+        var connectors = ConnectorsToList();
+        foreach (var entry in connectors)
+        {
+            if (!entry.HasDefaultConfiguration || entry.HasLink())
+            {
+                DisplayAllConnectors = false;
+                return;
+            }
+        }
+        DisplayAllConnectors = true;
+    }
 
     private void CalculatePortsPosition()
     {
@@ -51,17 +63,23 @@ public abstract class BlockNode : NodeModel, IDiagramModel
         }
     }
 
-    internal IEnumerable<BlockNodeConnector> ConnectorsToList()
-        => Connectors.Aggregate(new List<BlockNodeConnector>(), (result, current) =>
+    internal List<BlockNodeConnector> ConnectorsToList()
+    {
+        if (_connectorsListCache is null)
         {
-            foreach (var conn in current)
+            _connectorsListCache = new List<BlockNodeConnector>(Connectors.Count * 2);
+            foreach (var row in Connectors)
             {
-                if (conn is not null)
-                    result.Add(conn);
+                foreach (var conn in row)
+                {
+                    if (conn is not null)
+                        _connectorsListCache.Add(conn);
+                }
             }
+        }
 
-            return result;
-        });
+        return _connectorsListCache;
+    }
 
     internal Rectangle GetAlignmentRect()
     {
@@ -86,6 +104,9 @@ public abstract class BlockNode : NodeModel, IDiagramModel
         var rowIndex = (int)index;
         return Connectors[rowIndex][colIndex];
     }
+
+    internal void InvalidateConnectorsCache()
+        => _connectorsListCache = null;
 
     internal void SetEngineDisplayText(string displayText)
     {

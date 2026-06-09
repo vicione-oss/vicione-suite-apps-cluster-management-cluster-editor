@@ -691,11 +691,15 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
             var addCount = requiredConnectorRowCount - _currentContainerNode.Connectors.Count;
             for (var i = 0; i < addCount; i++)
                 _currentContainerNode.Connectors.Add(new BlockNodeConnector[2]);
+
+            _currentContainerNode.InvalidateConnectorsCache();
         }
         else if (requiredConnectorRowCount < _currentContainerNode.Connectors.Count)
         {
             for (var i = _currentContainerNode.Connectors.Count - 1; i > requiredConnectorRowCount - 1; i--)
                 _currentContainerNode.Connectors.Remove(_currentContainerNode.Connectors[i]);
+
+            _currentContainerNode.InvalidateConnectorsCache();
         }
 
         UpdatePreviewContainerConnectors(_currentContainerNode, ConnectorSide.Input, _inputConnectors);

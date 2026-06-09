@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Blazor.Diagrams.Core.Geometry;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
+using ViciOne.Cluster.Model.Extensions;
 using ViciOne.Ui.ClusterEditor.Constants;
 using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
@@ -38,6 +39,7 @@ internal static partial class FunctionBlockMapper
         node.SetRunMode(functionBlock.RunMode);
 
         node.Connectors.AddRange(GenerateConnectors(comparerService, datastore, diagramService, functionBlock, node));
+        node.InvalidateConnectorsCache();
         node.CalculateDisplayAllConnectors();
 
         node.NameFieldHeight = nameFieldHeight;
@@ -56,6 +58,7 @@ internal static partial class FunctionBlockMapper
         var result = new List<BlockNodeConnector?[]>();
         var rowCount = 0;
         var currentConnectorCount = 0;
+        var systemConnectors = new HashSet<IConnector>(functionBlock.GetSystemConnectors());
 
         var count = 0;
         var inputConnectors = functionBlock.SystemInputs.ToDictionary(c => count++);
@@ -81,12 +84,12 @@ internal static partial class FunctionBlockMapper
 
             if (inputConnector is not null)
             {
-                row[0] = ConnectorMapper.CreateNodeConnector(comparerService, datastore, diagramService, functionBlockNode, inputConnector);
+                row[0] = ConnectorMapper.CreateNodeConnector(comparerService, datastore, diagramService, functionBlockNode, inputConnector, systemConnectors.Contains(inputConnector));
                 currentConnectorCount++;
             }
             if (outputConnector is not null)
             {
-                row[1] = ConnectorMapper.CreateNodeConnector(comparerService, datastore, diagramService, functionBlockNode, outputConnector);
+                row[1] = ConnectorMapper.CreateNodeConnector(comparerService, datastore, diagramService, functionBlockNode, outputConnector, systemConnectors.Contains(outputConnector));
                 currentConnectorCount++;
             }
             result.Add(row);
