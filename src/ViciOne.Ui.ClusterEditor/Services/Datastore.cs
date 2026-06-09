@@ -941,25 +941,20 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
     private void OnFunctionBlockEnginesChanged(IEnumerable<FunctionBlock> functionBlocks)
     {
         var fbs = functionBlocks.ToArray();
-        List<FunctionBlock> downstreamFbs = [];
+        HashSet<(ChildContainer, ChildContainerNode)> containersToRefresh = [];
 
         foreach (var fb in fbs)
         {
             if (DataflowDiagramMapping.TryGetDiagramModel(fb, out var functionBlockNode))
                 FunctionBlockMapper.PropertyChanged(this, fb, functionBlockNode, nameof(FunctionBlock.Engine));
-            else
-                downstreamFbs.Add(fb);
+            else if (fb.Container is ChildContainer childContainer && DataflowDiagramMapping.TryGetDiagramModel(childContainer, out var childContainerNode))
+                containersToRefresh.Add((childContainer, childContainerNode));
         }
+
+        foreach (var (childContainer, childContainerNode) in containersToRefresh)
+            ChildContainerMapper.PropertyChanged(childContainer, childContainerNode, this, nameof(FunctionBlock.Engine));
 
         PropertyChanged?.Invoke(nameof(FunctionBlock.Engine));
-
-        if (downstreamFbs.Count != 0)
-        {
-            // This can fail if we assign an engine to an FB because it's maybe not part of the ActiveContainer already
-            var container = downstreamFbs[0].GetAllUpstreamContainers().FirstOrDefault(c => ActiveContainer.Containers.Contains(c));
-            if (container is not null)
-                OnContainerPropertiesChanged([(container, new(nameof(FunctionBlock.Engine)))]);
-        }
     }
 
     private void OnFunctionBlockPropertiesChanged(IEnumerable<(object? sender, PropertyChangedEventArgs e)> changedFunctionBlockProperties)
