@@ -623,8 +623,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
     internal async Task Show()
     {
-        _originalContainerNode = SelectionManager.SelectedContainers.FirstOrDefault();
-
+        _originalContainerNode = SelectionManager.SelectedContainers.Count > 0 ? SelectionManager.SelectedContainers[0] : null;
         if (_originalContainerNode is null)
             return;
 

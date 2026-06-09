@@ -14,33 +14,41 @@ namespace ViciOne.Ui.ClusterEditor.Services;
 
 public sealed class SelectionManager(DiagramService diagramService, IJSRuntime jsRuntime) : IDisposable
 {
+    private List<BlockNode>? _selectedBlockNodesCache;
     private readonly List<ConnectorMarker> _selectedConnectorMarker = [];
     private readonly List<BlockNodeConnector> _selectedConnectors = [];
+    private List<ChildContainerNode>? _selectedContainersCache;
+    private List<FunctionBlockNode>? _selectedFBsCache;
+    private List<LabelNode>? _selectedLabelsCache;
+    private List<BlockNodeLink>? _selectedLinksCache;
+    private int _selectedMarkersWithLinksCount;
+    private SelectableModel[]? _selectedModelsCache;
+    private List<IDiagramModel>? _selectedModelsFullCache;
 
-    public IEnumerable<BlockNode> SelectedBlockNodes
-        => Enumerable.Empty<BlockNode>()
-            .Concat(SelectedContainers)
-            .Concat(SelectedFBs);
-    public IEnumerable<ConnectorMarker> SelectedConnectorMarker
+    public bool HasSelection
+        => _selectedConnectors.Count > 0
+        || _selectedConnectorMarker.Count > 0
+        || SelectedContainers.Count > 0
+        || SelectedFBs.Count > 0
+        || SelectedLabels.Count > 0
+        || SelectedLinks.Count > 0;
+    public IReadOnlyList<BlockNode> SelectedBlockNodes
+        => _selectedBlockNodesCache ??= [.. SelectedContainers, .. SelectedFBs];
+    public IReadOnlyList<ConnectorMarker> SelectedConnectorMarker
         => _selectedConnectorMarker;
-    public IEnumerable<BlockNodeConnector> SelectedConnectors
+    public IReadOnlyList<BlockNodeConnector> SelectedConnectors
         => _selectedConnectors;
-    public IEnumerable<ChildContainerNode> SelectedContainers
-        => [.. (diagramService.Diagram?.GetSelectedModels() ?? []).OfType<ChildContainerNode>()];
-    public IEnumerable<FunctionBlockNode> SelectedFBs
-        => [.. (diagramService.Diagram?.GetSelectedModels() ?? []).OfType<FunctionBlockNode>()];
-    public IEnumerable<LabelNode> SelectedLabels
-        => [.. (diagramService.Diagram?.GetSelectedModels() ?? []).OfType<LabelNode>()];
-    public IEnumerable<BlockNodeLink> SelectedLinks
-        => [.. (diagramService.Diagram?.GetSelectedModels() ?? []).OfType<BlockNodeLink>()];
-    public IEnumerable<IDiagramModel> SelectedModels
-        => Enumerable.Empty<IDiagramModel>()
-            .Concat(SelectedConnectors)
-            .Concat(SelectedContainers)
-            .Concat(SelectedFBs)
-            .Concat(SelectedLabels)
-            .Concat(SelectedLinks)
-            .Concat(SelectedConnectorMarker);
+    public IReadOnlyList<ChildContainerNode> SelectedContainers
+        => _selectedContainersCache ??= BuildTypedCache<ChildContainerNode>();
+    public IReadOnlyList<FunctionBlockNode> SelectedFBs
+        => _selectedFBsCache ??= BuildTypedCache<FunctionBlockNode>();
+    public IReadOnlyList<LabelNode> SelectedLabels
+        => _selectedLabelsCache ??= BuildTypedCache<LabelNode>();
+    public IReadOnlyList<BlockNodeLink> SelectedLinks
+        => _selectedLinksCache ??= BuildTypedCache<BlockNodeLink>();
+    public IReadOnlyList<IDiagramModel> SelectedModels
+        => _selectedModelsFullCache ??= [.. SelectedConnectors, .. SelectedContainers,
+       .. SelectedFBs, .. SelectedLabels, .. SelectedLinks, .. SelectedConnectorMarker];
 
     public event Action<IEnumerable<BlockNodeConnector>>? ConnectorSelectionChanged;
     public event Action<SelectableModel>? DiagramSelectionChanged;
@@ -49,6 +57,20 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
     {
         diagramService.Diagram.SelectionChanged += OnDiagramSelectionChanged;
         diagramService.Diagram.Nodes.Removed += OnDiagramNodesRemoved;
+    }
+
+    private List<T> BuildTypedCache<T>() where T : SelectableModel
+    {
+        var snapshot = GetSelectedModelsSnapshot();
+        var result = new List<T>();
+
+        foreach (var model in snapshot)
+        {
+            if (model is T typed)
+                result.Add(typed);
+        }
+
+        return result;
     }
 
     public void Deselect(IDiagramModel model)
@@ -90,6 +112,8 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
 
                 marker.Selected = false;
                 _selectedConnectorMarker.Remove(marker);
+                if (marker.Links.Count > 0)
+                    _selectedMarkersWithLinksCount--;
             }
             else
             {
@@ -120,12 +144,11 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
         }
         if (mode.HasFlag(SelectionMode.FunctionBlockConnector))
         {
-            var nodesToUpdate = new List<BlockNode>();
+            var nodesToUpdate = new HashSet<BlockNode>();
 
             foreach (var connector in _selectedConnectors)
             {
-                if (!nodesToUpdate.Contains(connector.Node))
-                    nodesToUpdate.Add(connector.Node);
+                nodesToUpdate.Add(connector.Node);
 
                 connector.SetSelection(false);
             }
@@ -146,17 +169,17 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
         }
         if (mode.HasFlag(SelectionMode.ConnectorMarker))
         {
-            var nodesToUpdate = new List<BlockNode>();
+            var nodesToUpdate = new HashSet<BlockNode>();
 
             foreach (var publishedConnectorMarker in _selectedConnectorMarker)
             {
-                if (!nodesToUpdate.Contains(publishedConnectorMarker.Connector.Node))
-                    nodesToUpdate.Add(publishedConnectorMarker.Connector.Node);
+                nodesToUpdate.Add(publishedConnectorMarker.Connector.Node);
 
                 publishedConnectorMarker.Selected = false;
             }
 
             _selectedConnectorMarker.Clear();
+            _selectedMarkersWithLinksCount = 0;
             RefreshNodes(nodesToUpdate);
         }
     }
@@ -171,62 +194,76 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
     {
         if (marker.Links.Count == 0 &&
             marker.Connector.Connector.Published &&
-            _selectedConnectorMarker.All(m => m.Links.Count == 0))
+            _selectedMarkersWithLinksCount == 0)
         {
             SetMarkerSelection(true, marker, nodesToUpdate);
         }
 
         if (marker.Links.Count > 0)
         {
-            var invalidMarkers = _selectedConnectorMarker.Where(m => m.Links.Count == 0).ToArray();
-            foreach (var invalidMarker in invalidMarkers)
-                SetMarkerSelection(false, invalidMarker, nodesToUpdate);
+            foreach (var selectedMarker in _selectedConnectorMarker)
+            {
+                if (selectedMarker.Links.Count > 0)
+                    SetMarkerSelection(false, selectedMarker, nodesToUpdate);
+            }
 
             SetMarkerSelection(true, marker, nodesToUpdate);
         }
     }
 
+    private SelectableModel[] GetSelectedModelsSnapshot()
+        => _selectedModelsCache ??= [.. diagramService.Diagram?.GetSelectedModels() ?? []];
+
+    private void InvalidateSelectionCache()
+    {
+        _selectedModelsCache = null;
+        _selectedContainersCache = null;
+        _selectedFBsCache = null;
+        _selectedLabelsCache = null;
+        _selectedLinksCache = null;
+        _selectedBlockNodesCache = null;
+        _selectedModelsFullCache = null;
+    }
+
     public void InvertSelection(SelectionMode mode)
     {
-        if (mode.HasFlag(SelectionMode.Container))
-        {
-            var selectedContainers = SelectedContainers;
-
-            DeselectAll(SelectionMode.Container);
-            foreach (var container in diagramService.Diagram.Nodes.OfType<ChildContainerNode>().Where(n => n.Visible))
-            {
-                if (!selectedContainers.Contains(container))
-                    diagramService.Diagram.SelectModel(container, false);
-            }
-        }
-        if (mode.HasFlag(SelectionMode.FunctionBlock))
-        {
-            var selectedFBs = SelectedFBs;
-
-            DeselectAll(SelectionMode.FunctionBlock);
-            foreach (var fb in diagramService.Diagram.Nodes.OfType<FunctionBlockNode>().Where(n => n.Visible))
-            {
-                if (!selectedFBs.Contains(fb))
-                    diagramService.Diagram.SelectModel(fb, false);
-            }
-        }
         if (mode.HasFlag(SelectionMode.FunctionBlockConnector))
             throw new NotImplementedException($"{nameof(InvertSelection)} is not implemented for {nameof(SelectionMode.FunctionBlockConnector)}.");
         if (mode.HasFlag(SelectionMode.FunctionBlockLink))
             throw new NotImplementedException($"{nameof(InvertSelection)} is not implemented for {nameof(SelectionMode.FunctionBlockLink)}.");
-        if (mode.HasFlag(SelectionMode.Label))
-        {
-            var selectedLabels = SelectedLabels;
+        if (mode.HasFlag(SelectionMode.ConnectorMarker))
+            throw new NotImplementedException($"{nameof(InvertSelection)} is not implemented for {nameof(SelectionMode.ConnectorMarker)}.");
 
-            DeselectAll(SelectionMode.Label);
-            foreach (var label in diagramService.Diagram.Nodes.OfType<LabelNode>().Where(n => n.Visible))
+        var invertContainers = mode.HasFlag(SelectionMode.Container);
+        var invertFBs = mode.HasFlag(SelectionMode.FunctionBlock);
+        var invertLabels = mode.HasFlag(SelectionMode.Label);
+
+        var selectedContainers = invertContainers ? SelectedContainers : null;
+        var selectedFBs = invertFBs ? SelectedFBs : null;
+        var selectedLabels = invertLabels ? SelectedLabels : null;
+
+        if (invertContainers) DeselectAll(SelectionMode.Container);
+        if (invertFBs) DeselectAll(SelectionMode.FunctionBlock);
+        if (invertLabels) DeselectAll(SelectionMode.Label);
+
+        foreach (var node in diagramService.Diagram.Nodes)
+        {
+            if (node is ChildContainerNode container && invertContainers && container.Visible)
             {
-                if (!selectedLabels.Contains(label))
+                if (!selectedContainers!.Contains(container))
+                    diagramService.Diagram.SelectModel(container, false);
+            }
+            else if (node is FunctionBlockNode fb && invertFBs && fb.Visible)
+            {
+                if (!selectedFBs!.Contains(fb))
+                    diagramService.Diagram.SelectModel(fb, false);
+            }
+            else if (node is LabelNode label && invertLabels && label.Visible)
+            {
+                if (!selectedLabels!.Contains(label))
                     diagramService.Diagram.SelectModel(label, false);
             }
         }
-        if (mode.HasFlag(SelectionMode.ConnectorMarker))
-            throw new NotImplementedException($"{nameof(InvertSelection)} is not implemented for {nameof(SelectionMode.ConnectorMarker)}.");
     }
 
     private void InvokeConnectorSelectionChanged()
@@ -255,7 +292,10 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
         => InvokeDiagramSelectionChanged(nodeModel);
 
     private void OnDiagramSelectionChanged(SelectableModel selectableModel)
-        => InvokeDiagramSelectionChanged(selectableModel);
+    {
+        InvalidateSelectionCache();
+        InvokeDiagramSelectionChanged(selectableModel);
+    }
 
     private void RefreshNodes(IEnumerable<BlockNode> nodesToUpdate)
     {
@@ -315,48 +355,62 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
 
     public void SelectAll(SelectionMode mode)
     {
-        if (mode.HasFlag(SelectionMode.Container))
-        {
-            foreach (var node in diagramService.Diagram.Nodes.OfType<ChildContainerNode>().Where(n => n.Visible))
-                diagramService.Diagram.SelectModel(node, false);
-        }
-        if (mode.HasFlag(SelectionMode.FunctionBlock))
-        {
-            foreach (var node in diagramService.Diagram.Nodes.OfType<FunctionBlockNode>().Where(n => n.Visible))
-                diagramService.Diagram.SelectModel(node, false);
-        }
         if (mode.HasFlag(SelectionMode.FunctionBlockConnector))
             throw new NotImplementedException($"{nameof(SelectAll)} is not implemented for {nameof(SelectionMode.FunctionBlockConnector)}.");
         if (mode.HasFlag(SelectionMode.FunctionBlockLink))
             throw new NotImplementedException($"{nameof(SelectAll)} is not implemented for {nameof(SelectionMode.FunctionBlockLink)}.");
-        if (mode.HasFlag(SelectionMode.Label))
-        {
-            foreach (var node in diagramService.Diagram.Nodes.OfType<LabelNode>().Where(n => n.Visible))
-                diagramService.Diagram.SelectModel(node, false);
-        }
         if (mode.HasFlag(SelectionMode.ConnectorMarker))
             throw new NotImplementedException($"{nameof(SelectAll)} is not implemented for {nameof(SelectionMode.ConnectorMarker)}.");
+
+        var selectContainers = mode.HasFlag(SelectionMode.Container);
+        var selectFBs = mode.HasFlag(SelectionMode.FunctionBlock);
+        var selectLabels = mode.HasFlag(SelectionMode.Label);
+
+        foreach (var node in diagramService.Diagram.Nodes)
+        {
+            if (node is ChildContainerNode container && selectContainers && container.Visible)
+                diagramService.Diagram.SelectModel(container, false);
+            else if (node is FunctionBlockNode fb && selectFBs && fb.Visible)
+                diagramService.Diagram.SelectModel(fb, false);
+            else if (node is LabelNode label && selectLabels && label.Visible)
+                diagramService.Diagram.SelectModel(label, false);
+        }
     }
 
     public async Task SelectInRectangleAsync(SelectionMode mode, Rectangle rect)
     {
-        if (mode.HasFlag(SelectionMode.Container))
-        {
-            SelectInRectangleContainer(rect);
-        }
-        if (mode.HasFlag(SelectionMode.FunctionBlock))
-        {
-            SelectInRectangleFunctionBlock(rect);
-        }
         if (mode.HasFlag(SelectionMode.FunctionBlockConnector))
             throw new NotImplementedException($"{nameof(SelectInRectangleAsync)} is not implemented for {nameof(SelectionMode.FunctionBlockConnector)}.");
+
+        var selectContainers = mode.HasFlag(SelectionMode.Container);
+        var selectFBs = mode.HasFlag(SelectionMode.FunctionBlock);
+        var selectLabels = mode.HasFlag(SelectionMode.Label);
+
+        if (selectContainers || selectFBs || selectLabels)
+        {
+            foreach (var node in diagramService.Diagram.Nodes)
+            {
+                if (node is ChildContainerNode container && selectContainers && container.Visible)
+                {
+                    if (container.GetBounds()?.Intersects(rect) ?? false)
+                        diagramService.Diagram.SelectModel(container, false);
+                }
+                else if (node is FunctionBlockNode fb && selectFBs && fb.Visible)
+                {
+                    if (fb.GetBounds()?.Intersects(rect) ?? false)
+                        diagramService.Diagram.SelectModel(fb, false);
+                }
+                else if (node is LabelNode label && selectLabels && label.Visible && !label.Locked)
+                {
+                    if (label.GetBounds()?.Intersects(rect) ?? false)
+                        diagramService.Diagram.SelectModel(label, false);
+                }
+            }
+        }
+
         if (mode.HasFlag(SelectionMode.FunctionBlockLink))
         {
             await SelectInRectangleFunctionBlockLinkAsync(rect);
-        }
-        if (mode.HasFlag(SelectionMode.Label))
-        {
-            SelectInRectangleLabel(rect);
         }
         if (mode.HasFlag(SelectionMode.ConnectorMarker))
         {
@@ -366,20 +420,20 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
 
     private void SelectInRectangleConnectorMarker(Rectangle rect)
     {
-        if (SelectedBlockNodes.Any() || SelectedLabels.Any() || SelectedLinks.Any())
+        if (SelectedBlockNodes.Count > 0 || SelectedLabels.Count > 0 || SelectedLinks.Count > 0)
         {
             _selectedConnectorMarker.Clear();
+            _selectedMarkersWithLinksCount = 0;
             return;
         }
 
-        var blockNodes = Enumerable.Empty<BlockNode>()
-            .Concat(diagramService.Diagram.Nodes.OfType<ChildContainerNode>())
-            .Concat(diagramService.Diagram.Nodes.OfType<FunctionBlockNode>());
-
         var nodesToUpdate = new HashSet<BlockNode>();
 
-        foreach (var node in blockNodes)
+        foreach (var diagramNode in diagramService.Diagram.Nodes)
         {
+            if (diagramNode is not BlockNode node)
+                continue;
+
             if (!node.GetAlignmentRect().Intersects(rect))
                 continue;
 
@@ -405,24 +459,6 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
         RefreshNodes(nodesToUpdate);
     }
 
-    private void SelectInRectangleContainer(Rectangle rect)
-    {
-        foreach (var node in diagramService.Diagram.Nodes.OfType<ChildContainerNode>().Where(n => n.Visible))
-        {
-            if (node.GetBounds()?.Intersects(rect) ?? false)
-                diagramService.Diagram.SelectModel(node, false);
-        }
-    }
-
-    private void SelectInRectangleFunctionBlock(Rectangle rect)
-    {
-        foreach (var node in diagramService.Diagram.Nodes.OfType<FunctionBlockNode>().Where(n => n.Visible))
-        {
-            if (node.GetBounds()?.Intersects(rect) ?? false)
-                diagramService.Diagram.SelectModel(node, false);
-        }
-    }
-
     private async Task SelectInRectangleFunctionBlockLinkAsync(Rectangle rect)
     {
         var linkIds = await jsRuntime.InvokeAsync<IEnumerable<string>>("ViciOne.Diagram.Link.getIdsInRectangle", new
@@ -433,17 +469,15 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
             Bottom = (int)rect.Bottom
         });
 
-        foreach (var id in linkIds)
-            diagramService.Diagram.SelectModel(diagramService.Diagram.Links.First(l => l.Id == id), false);
-    }
+        var links = diagramService.Diagram.Links;
+        var linksById = new Dictionary<string, BaseLinkModel>(links.Count);
+        foreach (var link in links)
+            linksById[link.Id] = link;
 
-    private void SelectInRectangleLabel(Rectangle rect)
-    {
-        var nodes = diagramService.Diagram.Nodes.OfType<LabelNode>().Where(n => n.Visible && !n.Locked);
-        foreach (var node in nodes)
+        foreach (var id in linkIds)
         {
-            if (node.GetBounds()?.Intersects(rect) ?? false)
-                diagramService.Diagram.SelectModel(node, false);
+            if (linksById.TryGetValue(id, out var link))
+                diagramService.Diagram.SelectModel(link, false);
         }
     }
 
@@ -452,9 +486,17 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
         marker.Selected = isSelected;
 
         if (isSelected)
+        {
             _selectedConnectorMarker.Add(marker);
+            if (marker.Links.Count > 0)
+                _selectedMarkersWithLinksCount++;
+        }
         else
+        {
             _selectedConnectorMarker.Remove(marker);
+            if (marker.Links.Count > 0)
+                _selectedMarkersWithLinksCount--;
+        }
 
         nodesToUpdate.Add(marker.Connector.Node);
     }

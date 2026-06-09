@@ -76,7 +76,7 @@ public sealed class NodeEditorContextMenuState(SelectionManager selectionManager
         ContextMenuPositionY = context.MouseEventArgs.ClientY;
         SelectAllEnabled = diagramService.Diagram.Nodes.Any(x => x is BlockNode);
         MoveToNewContainerEnabled = IsMoveToNewContainerEnabled();
-        AlignmentButtonsEnabled = selectionManager.SelectedBlockNodes.Count() + selectionManager.SelectedLabels.Count() >= 2;
+        AlignmentButtonsEnabled = selectionManager.SelectedBlockNodes.Count + selectionManager.SelectedLabels.Count >= 2;
 
         if (context.Block is not null)
             UpdateBlockRelatedState(context.Block);
@@ -91,18 +91,18 @@ public sealed class NodeEditorContextMenuState(SelectionManager selectionManager
         if (block.IsChildContainer)
         {
             DissolveContainerEnabled =
-                selectionManager.SelectedContainers.Count() == 1 && selectionManager.SelectedModels.Count() == 1;
+                selectionManager.SelectedContainers.Count == 1 && selectionManager.SelectedModels.Count == 1;
 
             EditContainerEnabled =
-                selectionManager.SelectedContainers.Count() == 1
-                    && selectionManager.SelectedModels.Count() == 1
-                    && selectionManager.SelectedContainers.First().ConnectorsToList().Any();
+                selectionManager.SelectedContainers.Count == 1
+                    && selectionManager.SelectedModels.Count == 1
+                    && selectionManager.SelectedContainers[0].ConnectorsToList().Any();
         }
 
         EngineAssignmentEnabled =
             block.IsFunctionBlock || block.ChildContainer!.GetAllNestedFunctionBlocks().Any();
 
-        var fbCount = selectionManager.SelectedFBs.Count();
+        var fbCount = selectionManager.SelectedFBs.Count;
 
         SettingsEnabled = selectionManager.SelectedFBs
             .GetSettings(datastore)

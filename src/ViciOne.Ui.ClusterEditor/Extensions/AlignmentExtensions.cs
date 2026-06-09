@@ -8,11 +8,13 @@ internal static class AlignmentExtensions
 {
     public static void ApplyToSelection(this Alignment alignment, SelectionManager selectionManager)
     {
+        if (selectionManager.SelectedBlockNodes.Count + selectionManager.SelectedLabels.Count < 2)
+            return;
+
         var selectedNodes = Enumerable.Empty<NodeModel>()
             .Concat(selectionManager.SelectedBlockNodes)
             .Concat(selectionManager.SelectedLabels);
 
-        if (selectedNodes.Count() >= 2)
-            selectedNodes.AlignNodes(alignment);
+        selectedNodes.AlignNodes(alignment);
     }
 }

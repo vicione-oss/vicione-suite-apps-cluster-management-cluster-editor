@@ -149,10 +149,10 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
 
     private void OnDiagramSelectionChanged(SelectableModel _)
     {
-        _alignEnabled = (SelectionManager.SelectedBlockNodes.Count() + SelectionManager.SelectedLabels.Count()) >= 2;
-        _arrangeEnabled = SelectionManager.SelectedLabels.Any();
-        _traceEnabled = SelectionManager.SelectedBlockNodes.Any();
-        _selectClearEnabled = SelectionManager.SelectedBlockNodes.Any();
+        _alignEnabled = (SelectionManager.SelectedBlockNodes.Count + SelectionManager.SelectedLabels.Count) >= 2;
+        _arrangeEnabled = SelectionManager.SelectedLabels.Count > 0;
+        _traceEnabled = SelectionManager.SelectedBlockNodes.Count > 0;
+        _selectClearEnabled = SelectionManager.SelectedBlockNodes.Count > 0;
 
         InvokeAsync(StateHasChanged);
     }

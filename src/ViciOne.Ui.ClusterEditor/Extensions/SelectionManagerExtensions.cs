@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services;
@@ -8,22 +7,22 @@ using ViciOne.Ui.ClusterEditor.Services;
 internal static class SelectionManagerExtensions
 {
     public static ContextMenuItemFilter GetContextMenuItemFilterForSelection(this SelectionManager selectionManager)
-        => new() { ApplicableTo = selectionManager.SelectedModels.Any() ? selectionManager.GetDiagramModelTypesFromSelection() : null };
+        => new() { ApplicableTo = selectionManager.SelectedModels.Count > 0 ? selectionManager.GetDiagramModelTypesFromSelection() : null };
 
     public static IEnumerable<Type> GetDiagramModelTypesFromSelection(this SelectionManager selectionManager)
     {
         var result = new List<Type>();
 
-        if (selectionManager.SelectedContainers.Any())
+        if (selectionManager.SelectedContainers.Count > 0)
             result.Add(typeof(ChildContainerNode));
 
-        if (selectionManager.SelectedFBs.Any())
+        if (selectionManager.SelectedFBs.Count > 0)
             result.Add(typeof(FunctionBlockNode));
 
-        if (selectionManager.SelectedConnectors.Any())
+        if (selectionManager.SelectedConnectors.Count > 0)
             result.Add(typeof(BlockNodeConnector));
 
-        if (selectionManager.SelectedLabels.Any())
+        if (selectionManager.SelectedLabels.Count > 0)
             result.Add(typeof(LabelNode));
 
         return result;
