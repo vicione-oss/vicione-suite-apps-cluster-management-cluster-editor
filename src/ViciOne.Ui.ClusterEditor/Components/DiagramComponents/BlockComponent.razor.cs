@@ -188,7 +188,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         }
     }
 
-    private async Task OnContainerMarkerDblClickAsync()
+    private async Task OnContainerMarkerDblClick(BlockNodeConnector connector)
     {
         if (Datastore.ActiveContainer is not ChildContainer container)
             return;
@@ -196,9 +196,14 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         await Datastore.LoadContainer(container.Parent, DiagramService);
 
         var containerNode = Datastore.DataflowDiagramMapping.GetDiagramModel(container);
-        SelectionManager.SetSelection(containerNode);
         if (!DiagramService.Diagram.IsNodeInViewport(containerNode))
             DiagramService.Diagram.PanToNode(containerNode);
+
+        if (connector.ParentContainerConnector is not null)
+        {
+            var diagramModel = Datastore.DataflowDiagramMapping.GetDiagramModel(connector.ParentContainerConnector);
+            SelectionManager.SetSelection(diagramModel);
+        }
     }
 
     private async Task OnContextMenuAsync(MouseEventArgs e)

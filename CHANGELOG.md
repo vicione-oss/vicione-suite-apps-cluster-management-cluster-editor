@@ -5,6 +5,7 @@
 ### Changed
 
 - Restructured CHANGELOG, moved fixes to their own section
+- Double click on a `Connector` container marker now selects the associated parent container's `Connector`
 
 ### Fixed
 

@@ -252,7 +252,7 @@
 
         if (connector.IsOnContainer)
         {
-            <div @ondblclick="OnContainerMarkerDblClickAsync"
+            <div @ondblclick="@(() => OnContainerMarkerDblClick(connector))"
                  @ondblclick:stopPropagation
                  @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
                  @oncontextmenu:stopPropagation
@@ -351,7 +351,7 @@
 
         if (connector.IsOnContainer)
         {
-            <div @ondblclick="OnContainerMarkerDblClickAsync"
+            <div @ondblclick="@(() => OnContainerMarkerDblClick(connector))"
                  @ondblclick:stopPropagation
                  @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
                  @oncontextmenu:stopPropagation
