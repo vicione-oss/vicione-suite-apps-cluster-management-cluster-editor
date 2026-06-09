@@ -37,6 +37,7 @@ internal static class ChildContainerMapper
         node.SetChildrenInformation(nextLevelElements, allElements);
 
         node.Connectors.AddRange(GenerateConnectors(node, childContainer, comparerService, datastore, diagramService));
+        node.InvalidateConnectorsCache();
         node.CalculateDisplayAllConnectors();
 
         node.NameFieldHeight = nameFieldHeight;
@@ -58,19 +59,36 @@ internal static class ChildContainerMapper
             result.Add(new BlockNodeConnector?[2]);
 
         var connectors = childContainer.GetConnectors().ToArray();
-        var maxRowCount = Math.Max(BlockNodeLayout.MinimumConnectorRows - BlockNodeLayout.SystemConnectorRows,
-            connectors.Length != 0 ? connectors.Max(c => c.Index) + 1 : 0);
+        var systemConnectors = connectors.Length > 0
+            ? new HashSet<IConnector>(connectors[0].FunctionBlock.GetSystemConnectors())
+            : [];
+        var inputsByIndex = new Dictionary<uint, IConnector>();
+        var outputsByIndex = new Dictionary<uint, IConnector>();
+        uint maxIndex = 0;
+        foreach (var c in connectors)
+        {
+            if (c.Index > maxIndex)
+                maxIndex = c.Index;
 
-        for (var i = 0; i < maxRowCount; i++)
+            if (c is ContainerConnectorInput)
+                inputsByIndex[c.Index] = c;
+            else if (c is ContainerConnectorOutput)
+                outputsByIndex[c.Index] = c;
+        }
+
+        var maxRowCount = Math.Max(BlockNodeLayout.MinimumConnectorRows - BlockNodeLayout.SystemConnectorRows,
+            connectors.Length != 0 ? maxIndex + 1 : 0);
+
+        for (uint i = 0; i < maxRowCount; i++)
         {
             var row = new BlockNodeConnector?[2];
-            var inputConnector = connectors.FirstOrDefault(c => c.Index == i && c is ContainerConnectorInput);
-            var outputConnector = connectors.FirstOrDefault(c => c.Index == i && c is ContainerConnectorOutput);
+            inputsByIndex.TryGetValue(i, out var inputConnector);
+            outputsByIndex.TryGetValue(i, out var outputConnector);
 
             if (inputConnector is not null)
-                row[0] = ConnectorMapper.CreateNodeConnector(comparerService, datastore, diagramService, childContainerNode, inputConnector);
+                row[0] = ConnectorMapper.CreateNodeConnector(comparerService, datastore, diagramService, childContainerNode, inputConnector, systemConnectors.Contains(inputConnector));
             if (outputConnector is not null)
-                row[1] = ConnectorMapper.CreateNodeConnector(comparerService, datastore, diagramService, childContainerNode, outputConnector);
+                row[1] = ConnectorMapper.CreateNodeConnector(comparerService, datastore, diagramService, childContainerNode, outputConnector, systemConnectors.Contains(outputConnector));
 
             result.Add(row);
         }
@@ -132,6 +150,7 @@ internal static class ChildContainerMapper
             containerNode.RemovePort(port);
 
         containerNode.Connectors.AddRange(GenerateConnectors(containerNode, container, comparerService, datastore, diagramService));
+        containerNode.InvalidateConnectorsCache();
         containerNode.CalculateDisplayAllConnectors();
 
         containerNode.UpdateSize();

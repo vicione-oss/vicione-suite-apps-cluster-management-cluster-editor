@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using ViciOne.Cluster.Builder;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
@@ -21,15 +21,15 @@ internal static class ConnectorMapper
         IDatastore datastore,
         DiagramService diagramService,
         BlockNode blockNode,
-        IConnector connector)
+        IConnector connector,
+        bool isSystemConnector)
     {
-        var systemConnectors = connector.FunctionBlock.GetSystemConnectors().ToArray();
         var isInputConnector = connector is IConnectorInput;
         var underlyingConnector = connector.GetUnderlyingConnector();
 
         var nodeConnector = new BlockNodeConnector(comparerService, connector, datastore, diagramService, blockNode, isInputConnector)
         {
-            IsSystemConnector = systemConnectors.Contains(connector),
+            IsSystemConnector = isSystemConnector,
             Text = connector.ShortName
         };
 
