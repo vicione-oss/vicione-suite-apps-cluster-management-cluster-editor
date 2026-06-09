@@ -120,7 +120,7 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
 
     private void OnDialogShowing()
     {
-        if (DialogService.ConnectorWrappers.Any())
+        if (DialogService.ConnectorWrappers.Count > 0)
             _showConnectors = true;
         else
             _showDataPorts = true;
