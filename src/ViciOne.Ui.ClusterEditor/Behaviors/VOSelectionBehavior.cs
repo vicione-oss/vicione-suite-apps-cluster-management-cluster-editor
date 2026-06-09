@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Blazor.Diagrams.Core;
 using Blazor.Diagrams.Core.Events;
 using Blazor.Diagrams.Core.Geometry;
@@ -49,7 +48,7 @@ internal sealed class VOSelectionBehavior : Behavior
         }
         else if (model is IDiagramModel dm)
         {
-            if (ctrlKey && _selectionManager.SelectedConnectorMarker.Any())
+            if (ctrlKey && _selectionManager.SelectedConnectorMarker.Count > 0)
                 return;
 
             if (ctrlKey && _selectingConnectors.HasValue && _selectingConnectors.Value != (model is BlockNodeConnector))
@@ -87,7 +86,7 @@ internal sealed class VOSelectionBehavior : Behavior
             }
             else
             {
-                if (!isSelected || _selectionManager.SelectedModels.Count() >= 2)
+                if (!isSelected || _selectionManager.SelectedModels.Count >= 2)
                 {
                     if (!_selectingConnectors.Value && isSelected)
                         return;

@@ -291,13 +291,11 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     {
         if (controlKeyPressed)
         {
-            if (SelectionManager.SelectedBlockNodes.Any()
-                || SelectionManager.SelectedConnectors.Any()
-                || SelectionManager.SelectedLabels.Any()
-                || SelectionManager.SelectedLinks.Any())
-            {
+            if (SelectionManager.SelectedBlockNodes.Count > 0
+                || SelectionManager.SelectedConnectors.Count > 0
+                || SelectionManager.SelectedLabels.Count > 0
+                || SelectionManager.SelectedLinks.Count > 0)
                 return;
-            }
 
             if (SelectionManager.IsSelected(connectorMarker))
                 SelectionManager.Deselect(connectorMarker);

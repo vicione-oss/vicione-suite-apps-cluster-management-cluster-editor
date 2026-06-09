@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Models.Base;
 using Microsoft.AspNetCore.Components;
@@ -46,7 +45,7 @@ public sealed partial class MainToolbar : ComponentBase, IDisposable
 
     private async void OnSelectionChangedAsync(SelectableModel _)
     {
-        _alignButtonsEnabledState = SelectionManager.SelectedBlockNodes.Count() + SelectionManager.SelectedLabels.Count() >= 2 && DiagramService.DiagramState.IsInitialized;
+        _alignButtonsEnabledState = SelectionManager.SelectedBlockNodes.Count + SelectionManager.SelectedLabels.Count >= 2 && DiagramService.DiagramState.IsInitialized;
         await InvokeAsync(StateHasChanged);
     }
 

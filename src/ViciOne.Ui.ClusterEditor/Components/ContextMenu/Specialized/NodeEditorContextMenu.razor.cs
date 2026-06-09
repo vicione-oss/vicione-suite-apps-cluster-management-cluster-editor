@@ -75,7 +75,7 @@ public sealed partial class NodeEditorContextMenu : SpecializedContextMenuWithSt
         ClusterBuilderEventBuffer.StartBatchOpertation();
 
         await Datastore.DissolveContainerAsync(
-            Datastore.DataflowDiagramMapping.GetModel(SelectionManager.SelectedContainers.First()),
+            Datastore.DataflowDiagramMapping.GetModel(SelectionManager.SelectedContainers[0]),
             DiagramService,
             SelectionManager
         );

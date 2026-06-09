@@ -117,12 +117,12 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
 
     private void DeleteSelectedConnectorMarkerLinks()
     {
-        if (!SelectionManager.SelectedConnectorMarker.Any())
+        if (SelectionManager.SelectedConnectorMarker.Count == 0)
             return;
 
-        if (SelectionManager.SelectedConnectorMarker.Count() == 1)
+        if (SelectionManager.SelectedConnectorMarker.Count == 1)
         {
-            var selectedMarker = SelectionManager.SelectedConnectorMarker.First();
+            var selectedMarker = SelectionManager.SelectedConnectorMarker[0];
 
             if (selectedMarker.Links.Count == 0 && selectedMarker.Connector.Connector.Published)
             {

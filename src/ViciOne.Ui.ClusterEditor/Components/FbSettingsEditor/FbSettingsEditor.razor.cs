@@ -295,7 +295,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
 
     private async Task ShowAsync()
     {
-        var fbCount = SelectionManager.SelectedFBs.Count();
+        var fbCount = SelectionManager.SelectedFBs.Count;
 
         _settings = SelectionManager.SelectedFBs
             .GetSettings(Datastore)
