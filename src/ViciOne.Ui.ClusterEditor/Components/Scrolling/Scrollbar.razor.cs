@@ -198,10 +198,10 @@ public sealed partial class Scrollbar : ComponentBase, IDisposable
         }
 
         if (recalculationNeeded)
-            await RecalculateScrollbarPositionAsync(0);
+            await RecalculateScrollbarPositionAsync(0, notify: false);
     }
 
-    private async Task RecalculateScrollbarPositionAsync(int delta)
+    private async Task RecalculateScrollbarPositionAsync(int delta, bool notify = true)
     {
         if (!_isDisabled)
         {
@@ -226,8 +226,12 @@ public sealed partial class Scrollbar : ComponentBase, IDisposable
             return;
         }
 
-        await ScrolledPixelsChanged.InvokeAsync(_externalScrolledPixels);
-        await ScrollValueChanged.InvokeAsync(_scrollValue);
+        if (notify)
+        {
+            await ScrolledPixelsChanged.InvokeAsync(_externalScrolledPixels);
+            await ScrollValueChanged.InvokeAsync(_scrollValue);
+        }
+
         await InvokeAsync(StateHasChanged);
     }
 
