@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
@@ -17,28 +16,31 @@ public sealed class TraceService(ClusterBuilderEventBuffer clusterBuilderEventBu
         diagramService.DiagramState.SuppressEvents = true;
         HashSet<BlockNode> nodesToUpdate = [];
 
-        var tracedPublishedConnectors = datastore.DataflowDiagramMapping.GetNodeConnectors().Where(c => c.PublishedConnectorMarker.Traced);
-        foreach (var connector in tracedPublishedConnectors)
+        foreach (var connector in datastore.DataflowDiagramMapping.GetNodeConnectors())
         {
-            connector.PublishedConnectorMarker.Traced = false;
-            nodesToUpdate.Add(connector.Node);
-        }
+            if (connector.PublishedConnectorMarker.Traced)
+            {
+                connector.PublishedConnectorMarker.Traced = false;
+                nodesToUpdate.Add(connector.Node);
+            }
 
-        var tracedDataPortConnectors = datastore.DataflowDiagramMapping.GetNodeConnectors().Where(c => c.DataPortConnectorMarker.Traced);
-        foreach (var connector in tracedDataPortConnectors)
-        {
-            connector.DataPortConnectorMarker.Traced = false;
-            nodesToUpdate.Add(connector.Node);
+            if (connector.DataPortConnectorMarker.Traced)
+            {
+                connector.DataPortConnectorMarker.Traced = false;
+                nodesToUpdate.Add(connector.Node);
+            }
         }
 
         foreach (var node in nodesToUpdate)
             node.Refresh();
 
-        var tracedLinks = datastore.DataflowDiagramMapping.GetNodeLinks().Where(nl => nl.Traced);
-        foreach (var link in tracedLinks)
+        foreach (var link in datastore.DataflowDiagramMapping.GetNodeLinks())
         {
-            link.SetTraced(false);
-            link.Refresh();
+            if (link.Traced)
+            {
+                link.SetTraced(false);
+                link.Refresh();
+            }
         }
 
         diagramService.DiagramState.SuppressEvents = false;
@@ -93,7 +95,7 @@ public sealed class TraceService(ClusterBuilderEventBuffer clusterBuilderEventBu
     {
         ClearLinkTraceMarker();
 
-        if (!options.BlockNodes.Any())
+        if (options.BlockNodes.Count == 0)
             return;
 
         diagramService.DiagramState.SuppressEvents = true;

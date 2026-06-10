@@ -5,7 +5,7 @@ namespace ViciOne.Ui.ClusterEditor.Models;
 
 internal sealed class TraceOptions
 {
-    public IEnumerable<BlockNode> BlockNodes { get; set; } = [];
+    public IReadOnlyList<BlockNode> BlockNodes { get; set; } = [];
 
     public ConnectionDirection ConnectionDirection { get; set; }
 

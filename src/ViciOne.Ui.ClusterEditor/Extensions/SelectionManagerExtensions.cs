@@ -7,7 +7,7 @@ using ViciOne.Ui.ClusterEditor.Services;
 internal static class SelectionManagerExtensions
 {
     public static ContextMenuItemFilter GetContextMenuItemFilterForSelection(this SelectionManager selectionManager)
-        => new() { ApplicableTo = selectionManager.SelectedModels.Count > 0 ? selectionManager.GetDiagramModelTypesFromSelection() : null };
+        => new() { ApplicableTo = selectionManager.HasSelection ? selectionManager.GetDiagramModelTypesFromSelection() : null };
 
     public static IEnumerable<Type> GetDiagramModelTypesFromSelection(this SelectionManager selectionManager)
     {

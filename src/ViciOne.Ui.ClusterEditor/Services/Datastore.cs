@@ -473,7 +473,7 @@ internal sealed partial class Datastore : IDatastore, IAsyncDisposable
         return result;
     }
 
-    private IEnumerable<Link> GetConnectedLinks(ChildContainer childContainer, ConnectionDirection direction, int? depth)
+    private HashSet<Link> GetConnectedLinks(ChildContainer childContainer, ConnectionDirection direction, int? depth)
     {
         var linksByFb = BuildLinksByFbIndex(direction);
         var result = new HashSet<Link>();

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
@@ -35,23 +34,51 @@ internal sealed class StatisticService : IDisposable
         if (_clusterBuilder is null)
             return new();
 
-        var driverCount = _clusterBuilder.Cache.FunctionBlockDesigns
-            .Select(kvp => _clusterBuilder.ResolveFunctionBlockDesign(kvp.Key))
-            .Where(fbd => !string.IsNullOrEmpty(fbd.RuntimeDriverTypeName))
-            .Select(fdb => fdb.RuntimeDriverTypeName)
-            .Distinct()
-            .Count();
+        var driverNames = new HashSet<string>();
+        foreach (var kvp in _clusterBuilder.Cache.FunctionBlockDesigns)
+        {
+            var fbd = _clusterBuilder.ResolveFunctionBlockDesign(kvp.Key);
+            if (!string.IsNullOrEmpty(fbd.RuntimeDriverTypeName))
+                driverNames.Add(fbd.RuntimeDriverTypeName);
+        }
 
-        var links = _clusterBuilder.Cache.Links.Count(c => c.DestinationDataPortTreeNode is null && c.SourceDataPortTreeNode is null);
-        var visibleLinks = _clusterBuilder.Cache.Links.Count(c => c.Visible);
+        var driverCount = driverNames.Count;
 
-        var dataPortTreeNodes = _clusterBuilder.Cache.DataPortTreeNodes.Count(c => c.ValueType is not null);
-        var dataPortTreeNodesConnected = _clusterBuilder.Cache.DataPortTreeNodes.Count(c => c.Links.Any());
+        int links = 0, visibleLinks = 0;
+        foreach (var link in _clusterBuilder.Cache.Links)
+        {
+            if (link.DestinationDataPortTreeNode is null && link.SourceDataPortTreeNode is null)
+                links++;
+            if (link.Visible)
+                visibleLinks++;
+        }
+
+        int dataPortTreeNodes = 0, dataPortTreeNodesConnected = 0;
+        foreach (var node in _clusterBuilder.Cache.DataPortTreeNodes)
+        {
+            if (node.ValueType is not null)
+                dataPortTreeNodes++;
+
+            foreach (var _ in node.Links)
+            {
+                dataPortTreeNodesConnected++;
+                break;
+            }
+        }
+
+        int connectors = 0, connectorsEventEnabled = 0;
+        foreach (var connector in _clusterBuilder.Cache.Connectors)
+        {
+            if (connector.Type is ConnectorType.System or ConnectorType.ProcessData)
+                connectors++;
+            if (connector.EventEnabled)
+                connectorsEventEnabled++;
+        }
 
         var statistic = new Statistic()
         {
-            Connectors = _clusterBuilder.Cache.Connectors.Count(c => c.Type is ConnectorType.System or ConnectorType.ProcessData),
-            ConnectorsEventEnabled = _clusterBuilder.Cache.Connectors.Count(c => c.EventEnabled),
+            Connectors = connectors,
+            ConnectorsEventEnabled = connectorsEventEnabled,
             ConnectorsPublished = _clusterBuilder.Cache.PublishedConnectors.Count,
             Containers = _clusterBuilder.Cache.Containers.Count,
             DataPorts = _clusterBuilder.Cache.DataPorts.Count,

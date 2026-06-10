@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Threading.Tasks;
 using Blazor.Diagrams.Core;
 using Blazor.Diagrams.Core.Models.Base;
@@ -76,11 +75,22 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
 
     private bool IsImageVisible()
     {
-        var headerConnectorsHaveDraggingLinkType = Node!.Connectors!.Any(
-            c => c.Any(c => c is not null && c.IsSystemConnector && c.IsValidDropTarget));
-        var headerConnectorsSelected = SelectionManager.SelectedConnectors.Any(
-            c => c.Node!.Id == Node.Id && c.IsSystemConnector);
-        return !headerConnectorsHaveDraggingLinkType && !headerConnectorsSelected;
+        foreach (var row in Node!.Connectors)
+        {
+            foreach (var c in row)
+            {
+                if (c is not null && c.IsSystemConnector && c.IsValidDropTarget)
+                    return false;
+            }
+        }
+
+        foreach (var c in SelectionManager.SelectedConnectors)
+        {
+            if (c.Node!.Id == Node.Id && c.IsSystemConnector)
+                return false;
+        }
+
+        return true;
     }
 
     private void OnBlockContainerPointerDown()
@@ -118,7 +128,16 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
 
     private async void OnBlockNodesUpdateRequestedAsync()
     {
-        var hasDropTargets = Node!.ConnectorsToList().Exists(c => c.IsValidDropTarget);
+        var hasDropTargets = false;
+        foreach (var c in Node!.ConnectorsToList())
+        {
+            if (c.IsValidDropTarget)
+            {
+                hasDropTargets = true;
+                break;
+            }
+        }
+
         if (hasDropTargets == _hasDropTargets)
             return;
 
@@ -157,11 +176,32 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
 
         var underlyingConnector = conModel.GetUnderlyingConnector();
         var container = Datastore.DataflowDiagramMapping.GetModel((ChildContainerNode)Node!);
-        var fbConnector = container.FunctionBlocks.Find(x => x.GetConnectors().Contains(underlyingConnector)) is not null ? underlyingConnector : null;
+        Connector? fbConnector = null;
+        foreach (var fb in container.FunctionBlocks)
+        {
+            foreach (var conn in fb.GetConnectors())
+            {
+                if (conn == underlyingConnector)
+                {
+                    fbConnector = underlyingConnector;
+                    break;
+                }
+            }
+
+            if (fbConnector is not null)
+                break;
+        }
 
         ContainerConnector? containerConnector = null;
         if (fbConnector is null)
-            containerConnector = container.Containers.Find(x => x.GetConnector(underlyingConnector) is not null)?.GetConnector(underlyingConnector) ?? null;
+        {
+            foreach (var child in container.Containers)
+            {
+                containerConnector = child.GetConnector(underlyingConnector);
+                if (containerConnector is not null)
+                    break;
+            }
+        }
 
         if (fbConnector is null && containerConnector is null)
             return;
@@ -262,7 +302,11 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
 
     private void OnEngineDisplayTextPointerEnter(PointerEventArgs e)
     {
-        var engines = _block.GetEngines(out var containsUnassignedBlocks).ToList();
+        bool containsUnassignedBlocks;
+        List<Cluster.Model.Engine> engines = [];
+        foreach (var engine in _block.GetEngines(out containsUnassignedBlocks))
+            engines.Add(engine);
+
         if (engines.Count == 0 && !containsUnassignedBlocks)
             return;
 
@@ -310,7 +354,9 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
                 || SelectionManager.SelectedConnectors.Count > 0
                 || SelectionManager.SelectedLabels.Count > 0
                 || SelectionManager.SelectedLinks.Count > 0)
+            {
                 return;
+            }
 
             if (SelectionManager.IsSelected(connectorMarker))
                 SelectionManager.Deselect(connectorMarker);
