@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using DevExpress.Blazor;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Cluster.Model;
@@ -46,20 +45,24 @@ public sealed partial class ConnectorSelectionDialog : ComponentBase, IDisposabl
     private MarkupString GetIconMarkup(DataGridConnectorWrapper connector)
         => (MarkupString)ColoredIconFactory.GetConnectorIcon(ConnectorService.GetConnectorColor(connector.Connector), connector.IsInput);
 
-    private IEnumerable<DataGridConnectorWrapper> GetSelectableDataItems()
+    private List<DataGridConnectorWrapper> GetSelectableDataItems()
     {
         if (string.IsNullOrEmpty(_searchText))
-        {
             return _connectorWrappers;
-        }
-        else
+
+        List<DataGridConnectorWrapper> result = [];
+        foreach (var cw in _connectorWrappers)
         {
-            return _connectorWrappers.Where(cw =>
-                cw.ParentName.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
+            if (cw.ParentName.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
                 cw.ConnectorName.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
                 cw.ConnectorTypeName.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
-                cw.Description.Contains(_searchText, StringComparison.OrdinalIgnoreCase));
+                cw.Description.Contains(_searchText, StringComparison.OrdinalIgnoreCase))
+            {
+                result.Add(cw);
+            }
         }
+
+        return result;
     }
 
     private void OnCollapseAllGroups()
@@ -106,21 +109,48 @@ public sealed partial class ConnectorSelectionDialog : ComponentBase, IDisposabl
     {
         if (_selectedDataItems is not null)
         {
-            var containerConnectors = _selectedDataItems
-                .Where(di => ((DataGridConnectorWrapper)di).Connector is ContainerConnector)
-                .Select(di => ((DataGridConnectorWrapper)di).Connector);
+            List<IConnector> selectedConnectors = [];
 
-            var fbConnectors = _selectedDataItems
-                .Where(di => ((DataGridConnectorWrapper)di).Connector is Connector)
-                .SelectMany(di => DialogService.Connectors
-                    .Where(cw =>
-                           cw.Connector is Connector
-                        && cw.DesignName == ((DataGridConnectorWrapper)di).DesignName
-                        && cw.ConnectorName == ((DataGridConnectorWrapper)di).ConnectorName
-                        && cw.IsInput == ((DataGridConnectorWrapper)di).IsInput)
-                    .Select(cw => cw.Connector));
+            // Collect all selected container connectors directly.
+            foreach (var di in _selectedDataItems)
+            {
+                var wrapper = (DataGridConnectorWrapper)di;
+                if (wrapper.Connector is ContainerConnector)
+                    selectedConnectors.Add(wrapper.Connector);
+            }
 
-            DialogService.SelectConnectors(containerConnectors.Concat(fbConnectors));
+            // Build a lookup for FB connectors from the full dialog connector list.
+            var fbConnectorLookup = new Dictionary<(string DesignName, string ConnectorName, bool IsInput), List<IConnector>>();
+            foreach (var cw in DialogService.Connectors)
+            {
+                if (cw.Connector is not Connector)
+                    continue;
+
+                var key = (cw.DesignName, cw.ConnectorName, cw.IsInput);
+                if (!fbConnectorLookup.TryGetValue(key, out var list))
+                {
+                    list = [];
+                    fbConnectorLookup[key] = list;
+                }
+
+                list.Add(cw.Connector);
+            }
+
+            // Resolve selected FB connectors through the lookup.
+            foreach (var di in _selectedDataItems)
+            {
+                var wrapper = (DataGridConnectorWrapper)di;
+                if (wrapper.Connector is not Connector)
+                    continue;
+
+                var key = (wrapper.DesignName, wrapper.ConnectorName, wrapper.IsInput);
+                if (fbConnectorLookup.TryGetValue(key, out var list))
+                {
+                    selectedConnectors.AddRange(list);
+                }
+            }
+
+            DialogService.SelectConnectors(selectedConnectors);
         }
 
         DialogService.SetVisibility(false);
@@ -139,21 +169,34 @@ public sealed partial class ConnectorSelectionDialog : ComponentBase, IDisposabl
 
     private void OnDialogShowing()
     {
-        // Show all Container connectors.
-        _connectorWrappers = [.. DialogService.Connectors.Where(cw => cw.Connector is ContainerConnector)];
+        _connectorWrappers = [];
 
-        // Just show every FB-Design connector once, no matter how much
+        // Add all container connectors.
+        foreach (var cw in DialogService.Connectors)
+        {
+            if (cw.Connector is ContainerConnector)
+                _connectorWrappers.Add(cw);
+        }
+
+        // Show every FB-Design connector once, no matter how many
         // FBs of this design are in the selection.
-        _connectorWrappers =
-        [
-            .. _connectorWrappers,
-            .. DialogService.Connectors
-                    .Where(cw => cw.Connector is Connector)
-                    .GroupBy(cw => new { cw.DesignName })
-                    .SelectMany(g => g
-                        .GroupBy(cw => new { cw.ParentName })
-                        .First()),
-        ];
+        HashSet<string> seenDesigns = [];
+        foreach (var cw in DialogService.Connectors)
+        {
+            if (cw.Connector is not Connector)
+                continue;
+
+            if (!seenDesigns.Add(cw.DesignName))
+                continue;
+
+            // Found first group for this design – add all connectors of its parent.
+            var parentName = cw.ParentName;
+            foreach (var inner in DialogService.Connectors)
+            {
+                if (inner.Connector is Connector && inner.DesignName == cw.DesignName && inner.ParentName == parentName)
+                    _connectorWrappers.Add(inner);
+            }
+        }
     }
 
     private void OnExpandAllGroups()
@@ -161,14 +204,19 @@ public sealed partial class ConnectorSelectionDialog : ComponentBase, IDisposabl
 
     private void OnFilterButton(Func<DataGridConnectorWrapper, bool> predicate)
     {
-        if (_refDialog is null)
+        if (_refGrid is null)
             return;
 
-        _refGrid?.DeselectDataItems(_selectedDataItems);
+        _refGrid.DeselectDataItems(_selectedDataItems);
 
-        var dataItemsToSelect = GetSelectableDataItems().Where(predicate);
+        List<DataGridConnectorWrapper> dataItemsToSelect = [];
+        foreach (var item in GetSelectableDataItems())
+        {
+            if (predicate(item))
+                dataItemsToSelect.Add(item);
+        }
 
-        _refGrid?.SelectDataItems(dataItemsToSelect, true);
+        _refGrid.SelectDataItems(dataItemsToSelect, true);
     }
 
     protected override void OnInitialized()

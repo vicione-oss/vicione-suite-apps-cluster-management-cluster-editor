@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
 using ViciOne.Ui.ClusterEditor.Models;
+using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
 public sealed class ConnectorSelectionDialogService(IDatastore datastore, SelectionManager selectionManager)
 {
-    public IEnumerable<DataGridConnectorWrapper> Connectors { get; private set; } = [];
+    public IReadOnlyList<DataGridConnectorWrapper> Connectors { get; private set; } = [];
     public bool Visible { get; private set; }
 
     public event Action? VisibilityChanged;
@@ -18,15 +18,27 @@ public sealed class ConnectorSelectionDialogService(IDatastore datastore, Select
     public void SelectConnectors(IEnumerable<IConnector> connectors)
     {
         selectionManager.DeselectAll();
-        selectionManager.Select(connectors.Select(datastore.DataflowDiagramMapping.GetDiagramModel));
+
+        List<IDiagramModel> diagramModels = [];
+        foreach (var connector in connectors)
+            diagramModels.Add(datastore.DataflowDiagramMapping.GetDiagramModel(connector));
+
+        selectionManager.Select(diagramModels);
     }
 
     public void SetSourceConnectors(IEnumerable<IConnector> connectors)
-        => Connectors = connectors.Select(c => new DataGridConnectorWrapper(
+    {
+        List<DataGridConnectorWrapper> result = [];
+        foreach (var c in connectors)
+        {
+            result.Add(new DataGridConnectorWrapper(
                 c,
                 datastore.Builder.ResolveConnectorDesign(c.GetUnderlyingConnector()),
-                datastore.Builder.ResolveFunctionBlockDesign(c.FunctionBlock.DesignId)
-        ));
+                datastore.Builder.ResolveFunctionBlockDesign(c.FunctionBlock.DesignId)));
+        }
+
+        Connectors = result;
+    }
 
     public void SetVisibility(bool visible)
     {
