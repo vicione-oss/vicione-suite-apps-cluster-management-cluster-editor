@@ -447,16 +447,14 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         // This optimizes the loading procedure as the Diagram doesn't has to calculate the size of the
         // nodes again and render them twice (possibly leading to bugs because the size calculation is async).
         // The code below is the fallback when any of these values are missing.
-        if (!(container.ViewportX.HasValue && container.ViewportY.HasValue && container.Zoom.HasValue))
+        var hasSavedViewport = container.ViewportX.HasValue && container.ViewportY.HasValue && container.Zoom.HasValue;
+
+        if (!hasSavedViewport)
         {
             if (_diagram!.Nodes.Any())
             {
-                // At this point the ZoomToFit algorithm calculates a slightly wrong value and the resulting
-                // view is a bit too much zoomed in. The problem seems to be that the result of
-                // Diagram.Nodes.GetBounds() has 40px too much Height. But why is still unknown.
-                // It is a timing problem though, calling the method with a timer yields the correct zoom (but
-                // results in visible double rendering).
-                DiagramEventService.RequestZoomToFit();
+                if (!_diagram!.ArePartialVisibleNodesInViewport(DiagramService.Diagram.Nodes))
+                    DiagramEventService.RequestZoomToFit();
             }
             else
             {
@@ -464,9 +462,6 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
                 _diagram!.SetZoom(DiagramSettings.DefaultZoom);
             }
         }
-
-        if (DiagramService.Diagram.Nodes.Any() && !DiagramService.Diagram.ArePartialVisibleNodesInViewport(DiagramService.Diagram.Nodes))
-            DiagramEventService.RequestZoomToFit();
 
         if (DiagramService.DiagramState.LabelsLocked)
         {

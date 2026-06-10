@@ -11,6 +11,8 @@
 ### Fixed
 
 - Fixed moving nodes could not return to their start positions
+- Fixed `Viewport` not restored correctly after container change
+- Fixed wrong container position on FunctionBlock "Move to new container"
 
 ## 1.1.0 - 2026-06-04
 
