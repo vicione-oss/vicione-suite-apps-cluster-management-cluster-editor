@@ -54,7 +54,7 @@
                         CustomGroup="OnCustomizeCustomGroup"
                         CustomizeCellDisplayText="OnCustomizeCellDisplayText"
                         CustomSort="@OnDxGridCustomSort"
-                        Data="@(DialogService.ConnectorWrappers.Any() ? DialogService.ConnectorWrappers : DialogService.DataPortWrappers)"
+                        Data="@(DialogService.ConnectorWrappers.Count > 0 ? DialogService.ConnectorWrappers : DialogService.DataPortWrappers)"
                         FocusedRowEnabled="@(!DialogService.IsDeletionMode)"
                         FocusedRowChanged="OnFocusedRowChanged"
                         LayoutAutoSaving="OnLayoutAutoSavingAsync"

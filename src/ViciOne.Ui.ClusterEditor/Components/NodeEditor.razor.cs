@@ -531,7 +531,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         await InvokeAsync(StateHasChanged);
     }
 
-    private void OnDetailDialogServiceLinksToDeleteSelected(IEnumerable<Link> links)
+    private void OnDetailDialogServiceLinksToDeleteSelected(IReadOnlyList<Link> links)
     {
         ConnectorService.DeleteInvisibleLinks(links);
 

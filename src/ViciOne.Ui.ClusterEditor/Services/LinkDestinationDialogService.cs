@@ -10,8 +10,8 @@ namespace ViciOne.Ui.ClusterEditor.Services;
 
 public sealed class LinkDestinationDialogService(IDatastore datastore)
 {
-    public IEnumerable<DataGridConnectorWrapper> ConnectorWrappers { get; private set; } = [];
-    public IEnumerable<DataGridDataPortWrapper> DataPortWrappers { get; private set; } = [];
+    public IReadOnlyList<DataGridConnectorWrapper> ConnectorWrappers { get; private set; } = [];
+    public IReadOnlyList<DataGridDataPortWrapper> DataPortWrappers { get; private set; } = [];
     public bool IsDeletionMode { get; set; }
     public ConnectorMarker? SourceConnectorMarker { get; private set; }
     public DataPortTreeNode? SourceDataPortTreeNode { get; private set; }
@@ -19,7 +19,7 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
 
     public event Action<Connector, ConnectorMarkerType>? ConnectorSelected;
     public event Action<DataPortTreeNode>? DataPortTreeNodeSelected;
-    public event Action<IEnumerable<Link>>? LinksToDeleteSelected;
+    public event Action<IReadOnlyList<Link>>? LinksToDeleteSelected;
     public event Action? VisibilityChanged;
 
     public void InvokeConnectorSelected(Connector connector, ConnectorMarkerType marker)
@@ -33,11 +33,20 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
         if (SourceConnectorMarker is null)
             return;
 
-        var links = SourceConnectorMarker.Connector.IsInput
-            ? SourceConnectorMarker.Links.Where(l => connectors.Contains(l.SourceConnector))
-            : SourceConnectorMarker.Links.Where(l => connectors.Contains(l.DestinationConnector));
+        var connectorSet = new HashSet<Connector>(connectors);
+        List<Link> result = [];
 
-        LinksToDeleteSelected?.Invoke(links);
+        foreach (var link in SourceConnectorMarker.Links)
+        {
+            Connector? target = SourceConnectorMarker.Connector.IsInput
+                ? link.SourceConnector
+                : link.DestinationConnector;
+
+            if (target is not null && connectorSet.Contains(target))
+                result.Add(link);
+        }
+
+        LinksToDeleteSelected?.Invoke(result);
     }
 
     public void InvokeLinksToDeleteSelected(IEnumerable<DataPortTreeNode> dataPortTreeNodes)
@@ -45,11 +54,20 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
         if (SourceConnectorMarker is null)
             return;
 
-        var links = SourceConnectorMarker.Connector.IsInput
-            ? SourceConnectorMarker.Links.Where(l => dataPortTreeNodes.Contains(l.SourceDataPortTreeNode))
-            : SourceConnectorMarker.Links.Where(l => dataPortTreeNodes.Contains(l.DestinationDataPortTreeNode));
+        var nodeSet = new HashSet<DataPortTreeNode>(dataPortTreeNodes);
+        List<Link> result = [];
 
-        LinksToDeleteSelected?.Invoke(links);
+        foreach (var link in SourceConnectorMarker.Links)
+        {
+            var target = SourceConnectorMarker.Connector.IsInput
+                ? link.SourceDataPortTreeNode
+                : link.DestinationDataPortTreeNode;
+
+            if (target is not null && nodeSet.Contains(target))
+                result.Add(link);
+        }
+
+        LinksToDeleteSelected?.Invoke(result);
     }
 
     public void SetSourceConnectorMarker(ConnectorMarker? sourceConnectorMarker)
@@ -66,25 +84,43 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
 
         if (sourceConnectorMarker.Links[0].SourceConnector is null || sourceConnectorMarker.Links[0].DestinationConnector is null)
         {
-            DataPortWrappers = sourceConnectorMarker.Connector.IsInput
-                ? sourceConnectorMarker.Links
-                    .Select(l => new DataGridDataPortWrapper(l.SourceDataPortTreeNode!, l.SourceDataPortTreeNode!.GetPath(datastore)))
-                : sourceConnectorMarker.Links
-                    .Select(l => new DataGridDataPortWrapper(l.DestinationDataPortTreeNode!, l.DestinationDataPortTreeNode!.GetPath(datastore)));
+            List<DataGridDataPortWrapper> dataPortResult = [];
+            foreach (var link in sourceConnectorMarker.Links)
+            {
+                var node = sourceConnectorMarker.Connector.IsInput
+                    ? link.SourceDataPortTreeNode!
+                    : link.DestinationDataPortTreeNode!;
+                dataPortResult.Add(new DataGridDataPortWrapper(node, node.GetPath(datastore)));
+            }
+
+            DataPortWrappers = dataPortResult;
         }
         else
         {
-            ConnectorWrappers = sourceConnectorMarker.Connector.IsInput
-                ? sourceConnectorMarker.Links
-                    .Where(l => (l.SourceConnector is ConnectorOutput output) && output is not null)
-                    .Select(l => new DataGridConnectorWrapper(l.SourceConnector!,
-                        datastore.Builder.ResolveConnectorDesign(l.SourceConnector!),
-                        datastore.Builder.ResolveFunctionBlockDesign(l.SourceConnector!.FunctionBlock.DesignId)))
-                : sourceConnectorMarker.Links
-                    .Where(l => (l.DestinationConnector is ConnectorInput input) && input is not null)
-                    .Select(l => new DataGridConnectorWrapper(l.DestinationConnector!,
-                        datastore.Builder.ResolveConnectorDesign(l.DestinationConnector!),
-                        datastore.Builder.ResolveFunctionBlockDesign(l.DestinationConnector!.FunctionBlock.DesignId)));
+            List<DataGridConnectorWrapper> connectorResult = [];
+            foreach (var link in sourceConnectorMarker.Links)
+            {
+                if (sourceConnectorMarker.Connector.IsInput)
+                {
+                    if (link.SourceConnector is ConnectorOutput)
+                    {
+                        connectorResult.Add(new DataGridConnectorWrapper(link.SourceConnector!,
+                            datastore.Builder.ResolveConnectorDesign(link.SourceConnector!),
+                            datastore.Builder.ResolveFunctionBlockDesign(link.SourceConnector!.FunctionBlock.DesignId)));
+                    }
+                }
+                else
+                {
+                    if (link.DestinationConnector is ConnectorInput)
+                    {
+                        connectorResult.Add(new DataGridConnectorWrapper(link.DestinationConnector!,
+                            datastore.Builder.ResolveConnectorDesign(link.DestinationConnector!),
+                            datastore.Builder.ResolveFunctionBlockDesign(link.DestinationConnector!.FunctionBlock.DesignId)));
+                    }
+                }
+            }
+
+            ConnectorWrappers = connectorResult;
         }
 
         SourceConnectorMarker = sourceConnectorMarker;
@@ -102,14 +138,20 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
             return;
         }
 
-        ConnectorWrappers = [.. sourceDataPortTreeNode.Links
-            .Select(link => (Connector)(link.SourceConnector is null ? link.DestinationConnector : link.SourceConnector)!)
-            .Where(connector => connector is not null)
-            .Select(connector => new DataGridConnectorWrapper(connector!,
-                datastore.Builder.ResolveConnectorDesign(connector!),
-                datastore.Builder.ResolveFunctionBlockDesign(connector!.FunctionBlock.DesignId),
-                ConnectorMarkerType.DataPort))];
+        List<DataGridConnectorWrapper> result = [];
+        foreach (var link in sourceDataPortTreeNode.Links)
+        {
+            var connector = (Connector?)(link.SourceConnector is null ? link.DestinationConnector : link.SourceConnector);
+            if (connector is not null)
+            {
+                result.Add(new DataGridConnectorWrapper(connector,
+                    datastore.Builder.ResolveConnectorDesign(connector),
+                    datastore.Builder.ResolveFunctionBlockDesign(connector.FunctionBlock.DesignId),
+                    ConnectorMarkerType.DataPort));
+            }
+        }
 
+        ConnectorWrappers = result;
         SourceDataPortTreeNode = sourceDataPortTreeNode;
     }
 
