@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using ViciOne.Cluster.Builder.Abstractions;
+﻿using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
 
@@ -29,14 +28,17 @@ internal static class EngineDisplayText
 
     internal static string Get(IClusterBuilder builder, ChildContainer childContainer)
     {
-        var engines = childContainer.GetEngines(out var containsUnassignedBlocks).ToArray();
+        using var enumerator = childContainer.GetEngines(out var containsUnassignedBlocks).GetEnumerator();
 
-        if (engines.Length == 0)
+        if (!enumerator.MoveNext())
             return EngineTextNone;
-        else if (engines.Length == 1 && !containsUnassignedBlocks)
-            return GenerateLetter(GetEngineIndex(builder, engines.First()));
-        else
+
+        var first = enumerator.Current;
+
+        if (enumerator.MoveNext() || containsUnassignedBlocks)
             return EngineTextMultiple;
+
+        return GenerateLetter(GetEngineIndex(builder, first));
     }
 
     internal static string Get(IClusterBuilder builder, Cluster.Model.Engine? engine)
@@ -48,5 +50,15 @@ internal static class EngineDisplayText
         => Get(builder, functionBlock.Engine);
 
     internal static int GetEngineIndex(IClusterBuilder builder, Cluster.Model.Engine engine)
-        => builder.Cache.EngineIds.Values.ToList().IndexOf(engine);
+    {
+        var index = 0;
+        foreach (var cached in builder.Cache.EngineIds.Values)
+        {
+            if (cached == engine)
+                return index;
+            index++;
+        }
+
+        return -1;
+    }
 }

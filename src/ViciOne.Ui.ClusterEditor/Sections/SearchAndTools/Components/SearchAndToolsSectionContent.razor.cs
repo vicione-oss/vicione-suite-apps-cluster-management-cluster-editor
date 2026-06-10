@@ -174,8 +174,8 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
 
     protected override void OnInitialized()
     {
-        _searchService = new(Datastore, DiagramService);
-        _searchServiceFilter = new(Datastore, DiagramService);
+        _searchService = new(DiagramService);
+        _searchServiceFilter = new(DiagramService);
 
         DiagramEventService.ContainerLoaded += OnContainerLoaded;
         DiagramEventService.FilterAttachedRequested += OnFilterAttachedRequested;

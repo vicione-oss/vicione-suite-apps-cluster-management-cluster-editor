@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Blazor.Diagrams.Core;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models.Base;
@@ -209,9 +208,12 @@ internal sealed class VODragMovablesBehavior : Behavior
         if (IsMoving)
             return;
 
-        _initialModelPositions = Diagram.GetSelectedModels().OfType<MovableModel>()
-            .Where(m => !m.Locked)
-            .ToDictionary(m => m, m => m.Position);
+        _initialModelPositions = [];
+        foreach (var model in Diagram.GetSelectedModels())
+        {
+            if (model is MovableModel movable && !movable.Locked)
+                _initialModelPositions[movable] = movable.Position;
+        }
 
         if (_initialModelPositions.Count == 0)
             return;
@@ -219,19 +221,46 @@ internal sealed class VODragMovablesBehavior : Behavior
         _initialPointerPosition = Diagram.GetRelativeGridPoint(new(clientX, clientY), _datastore);
         _modelWasMoved = false;
 
-        var relevantLinks = Diagram.Links.OfType<BlockNodeLink>().Where(l => _initialModelPositions.Keys.Any(m => m.Id == l.SourceNode.Id || m.Id == l.TargetNode.Id)).ToArray();
-        var sourceMarkerWidth = relevantLinks.FirstOrDefault()?.SourceMarker?.Width ?? 0;
-        var targetMarkerWidth = relevantLinks.FirstOrDefault()?.TargetMarker?.Width ?? 0;
-        var linkIds = relevantLinks.Select(l => l.Id);
-        var linkSourceIds = relevantLinks.Select(l => l.SourceNode.Id);
-        var linkSourcePosXs = relevantLinks.Select(l => l.SourcePort!.MiddlePosition.X - l.SourceNode.Position.X + (l.SourcePort.Size.Width / 2) + sourceMarkerWidth);
-        var linkSourcePosYs = relevantLinks.Select(l => l.SourcePort!.MiddlePosition.Y - l.SourceNode.Position.Y);
-        var linkTargetIds = relevantLinks.Select(l => l.TargetNode.Id);
-        var linkTargetPosXs = relevantLinks.Select(l => l.TargetPort!.MiddlePosition.X - l.TargetNode.Position.X - (l.TargetPort.Size.Width / 2) - targetMarkerWidth);
-        var linkTargetPosYs = relevantLinks.Select(l => l.TargetPort!.MiddlePosition.Y - l.TargetNode.Position.Y);
+        var selectedIds = new HashSet<string>(_initialModelPositions.Count);
+        var movableModelIds = new string[_initialModelPositions.Count];
+        var i = 0;
+        foreach (var model in _initialModelPositions.Keys)
+        {
+            selectedIds.Add(model.Id);
+            movableModelIds[i++] = model.Id;
+        }
+
+        List<BlockNodeLink> relevantLinks = [];
+        foreach (var link in Diagram.Links)
+        {
+            if (link is BlockNodeLink blockLink && (selectedIds.Contains(blockLink.SourceNode.Id) || selectedIds.Contains(blockLink.TargetNode.Id)))
+                relevantLinks.Add(blockLink);
+        }
+
+        var sourceMarkerWidth = relevantLinks.Count > 0 ? relevantLinks[0].SourceMarker?.Width ?? 0 : 0;
+        var targetMarkerWidth = relevantLinks.Count > 0 ? relevantLinks[0].TargetMarker?.Width ?? 0 : 0;
+
+        var linkIds = new string[relevantLinks.Count];
+        var linkSourceIds = new string[relevantLinks.Count];
+        var linkSourcePosXs = new double[relevantLinks.Count];
+        var linkSourcePosYs = new double[relevantLinks.Count];
+        var linkTargetIds = new string[relevantLinks.Count];
+        var linkTargetPosXs = new double[relevantLinks.Count];
+        var linkTargetPosYs = new double[relevantLinks.Count];
+
+        for (var j = 0; j < relevantLinks.Count; j++)
+        {
+            var l = relevantLinks[j];
+            linkIds[j] = l.Id;
+            linkSourceIds[j] = l.SourceNode.Id;
+            linkSourcePosXs[j] = l.SourcePort!.MiddlePosition.X - l.SourceNode.Position.X + (l.SourcePort.Size.Width / 2) + sourceMarkerWidth;
+            linkSourcePosYs[j] = l.SourcePort!.MiddlePosition.Y - l.SourceNode.Position.Y;
+            linkTargetIds[j] = l.TargetNode.Id;
+            linkTargetPosXs[j] = l.TargetPort!.MiddlePosition.X - l.TargetNode.Position.X - (l.TargetPort.Size.Width / 2) - targetMarkerWidth;
+            linkTargetPosYs[j] = l.TargetPort!.MiddlePosition.Y - l.TargetNode.Position.Y;
+        }
 
         var gridSize = _datastore.Builder.Settings.GridSize;
-        var movableModelIds = _initialModelPositions.Keys.Select(m => m.Id);
 
         double[] containerPos = [Diagram.Container?.Left ?? 0, Diagram.Container?.Top ?? 0];
         double[] pan = [Diagram.Pan.X, Diagram.Pan.Y];

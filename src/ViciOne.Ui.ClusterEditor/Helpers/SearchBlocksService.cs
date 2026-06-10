@@ -1,21 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
-using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Helpers;
 
-internal class SearchBlocksService(IDatastore datastore, DiagramService diagramService)
+internal class SearchBlocksService(DiagramService diagramService)
 {
     private int _currentIndex = -1;
     private List<BlockNode>? _result;
 
     public bool HasResult => _result is not null;
 
-    public IEnumerable<BlockNode>? GetAll()
-        => _result?.ToArray();
+    public IReadOnlyList<BlockNode>? GetAll()
+        => _result;
 
     public BlockNode? GetNext()
     {
@@ -39,6 +37,17 @@ internal class SearchBlocksService(IDatastore datastore, DiagramService diagramS
         return _result[_currentIndex];
     }
 
+    private static bool MatchesAnyTerm(string name, string[] searchTerms)
+    {
+        foreach (var term in searchTerms)
+        {
+            if (name.Contains(term, StringComparison.CurrentCultureIgnoreCase))
+                return true;
+        }
+
+        return false;
+    }
+
     public void Reset()
     {
         _currentIndex = -1;
@@ -53,21 +62,14 @@ internal class SearchBlocksService(IDatastore datastore, DiagramService diagramS
         }
         else
         {
-            var searchTerms = searchString.Split(';').Select(s => s.Trim());
+            var searchTerms = searchString.Split(';', StringSplitOptions.TrimEntries);
+            _result = [];
 
-            var functionBlockModels = datastore.DataflowDiagramMapping
-                .GetModels(diagramService.Diagram.Nodes.OfType<FunctionBlockNode>().Where(n => n.Visible))
-                .Where(fbm => searchTerms.Any(st => fbm.Name.Contains(st, StringComparison.CurrentCultureIgnoreCase)));
-            var functionBlockNodes = datastore.DataflowDiagramMapping
-                .GetDiagramModels(functionBlockModels);
-
-            var containerModels = datastore.DataflowDiagramMapping
-                .GetModels(diagramService.Diagram.Nodes.OfType<ChildContainerNode>().Where(n => n.Visible))
-                .Where(cm => searchTerms.Any(st => cm.Name.Contains(st, StringComparison.CurrentCultureIgnoreCase)));
-            var containerNodes = datastore.DataflowDiagramMapping
-                .GetDiagramModels(containerModels);
-
-            _result = [.. functionBlockNodes, .. containerNodes];
+            foreach (var node in diagramService.Diagram.Nodes)
+            {
+                if (node is BlockNode blockNode && blockNode.Visible && MatchesAnyTerm(blockNode.Name, searchTerms))
+                    _result.Add(blockNode);
+            }
         }
     }
 }

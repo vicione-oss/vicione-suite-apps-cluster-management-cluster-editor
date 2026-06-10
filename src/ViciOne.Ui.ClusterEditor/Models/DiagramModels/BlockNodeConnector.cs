@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.Models.Base;
@@ -202,7 +201,7 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
     }
 
     public bool HasLink()
-        => Links.Any();
+        => Links.Count > 0;
 
     void IDragTarget.HighlightAsTarget(bool highlight)
         => SetIsValidDropTarget(highlight);

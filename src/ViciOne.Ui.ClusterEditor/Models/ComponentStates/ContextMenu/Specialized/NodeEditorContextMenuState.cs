@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
@@ -37,44 +36,129 @@ public sealed class NodeEditorContextMenuState(SelectionManager selectionManager
 
     private List<EngineContextMenuEntry> BuildEngineEntries()
     {
-        var selectedContainers = datastore.DataflowDiagramMapping.GetModels(selectionManager.SelectedContainers).ToArray();
-        var selectedFbs = datastore.DataflowDiagramMapping.GetModels(selectionManager.SelectedFBs).ToArray();
+        var selectedBlockCount = selectionManager.SelectedFBs.Count + selectionManager.SelectedContainers.Count;
+
+        List<FunctionBlock> selectedFbs = [];
+        foreach (var fb in datastore.DataflowDiagramMapping.GetModels(selectionManager.SelectedFBs))
+            selectedFbs.Add(fb);
+
+        List<ChildContainer> selectedContainers = [];
+        foreach (var c in datastore.DataflowDiagramMapping.GetModels(selectionManager.SelectedContainers))
+            selectedContainers.Add(c);
 
         var menuEntryChildren = new List<EngineContextMenuEntry>();
 
         foreach (var engine in datastore.ValidDataflowEngines)
         {
             var engineDisplayText = EngineDisplayText.Get(datastore.Builder, engine);
-            var blocksWithEngineCount = selectedFbs.Count(fb => fb.Engine == engine)
-                + selectedContainers.Count(c => c.GetEngines().Contains(engine));
+            var blocksWithEngineCount = 0;
 
-            var entry = new EngineContextMenuEntry()
+            foreach (var fb in selectedFbs)
+            {
+                if (fb.Engine == engine)
+                    blocksWithEngineCount++;
+            }
+
+            foreach (var c in selectedContainers)
+            {
+                foreach (var e in c.GetEngines())
+                {
+                    if (e == engine)
+                    {
+                        blocksWithEngineCount++;
+                        break;
+                    }
+                }
+            }
+
+            menuEntryChildren.Add(new EngineContextMenuEntry
             {
                 Engine = engine,
-                IconCssClass = ContextMenuHelper.GetIconUrl(blocksWithEngineCount, selectedFbs.Length + selectedContainers.Length),
+                IconCssClass = ContextMenuHelper.GetIconUrl(blocksWithEngineCount, selectedBlockCount),
                 Text = $"{engineDisplayText} - {engine.Name}"
-            };
-
-            menuEntryChildren.Add(entry);
+            });
         }
 
-        var orderedEngines = menuEntryChildren.OrderBy(e => e.Text, AlphaNumericComparer<string>.Default);
-        var firstEntry = orderedEngines.FirstOrDefault();
-        firstEntry?.BeginGroup = true;
+        menuEntryChildren.Sort((a, b) => AlphaNumericComparer<string>.Default.Compare(a.Text, b.Text));
 
-        return [.. orderedEngines];
+        if (menuEntryChildren.Count > 0)
+            menuEntryChildren[0].BeginGroup = true;
+
+        return menuEntryChildren;
+    }
+
+    private bool HasAnyConnector()
+    {
+        foreach (var bn in selectionManager.SelectedBlockNodes)
+        {
+            foreach (var row in bn.Connectors)
+            {
+                foreach (var c in row)
+                {
+                    if (c is not null)
+                        return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private static bool HasNestedFunctionBlocks(ChildContainer container)
+    {
+        foreach (var _ in container.GetAllNestedFunctionBlocks())
+            return true;
+
+        return false;
+    }
+
+    private bool HasSharedSettings(int fbCount)
+    {
+        var settingCounts = new Dictionary<(string Name, System.Type SettingType), int>();
+        foreach (var setting in selectionManager.SelectedFBs.GetSettings(datastore))
+        {
+            var key = (setting.Name, setting.SettingType);
+            if (settingCounts.TryGetValue(key, out var count))
+                settingCounts[key] = count + 1;
+            else
+                settingCounts[key] = 1;
+        }
+
+        foreach (var count in settingCounts.Values)
+        {
+            if (count == fbCount)
+                return true;
+        }
+
+        return false;
     }
 
     private bool IsMoveToNewContainerEnabled()
-        => Cluster.Builder.ContainerEditor.CanAddContainer(
-            [.. selectionManager.SelectedBlockNodes.Select(n => (IContainerChild)datastore.DataflowDiagramMapping.GetModel(n))]);
+    {
+        var selected = selectionManager.SelectedBlockNodes;
+        var children = new IContainerChild[selected.Count];
+        for (var i = 0; i < selected.Count; i++)
+            children[i] = datastore.DataflowDiagramMapping.GetModel(selected[i]);
+
+        return Cluster.Builder.ContainerEditor.CanAddContainer(children);
+    }
 
     public void Update(NodeEditorContextMenuContext context)
     {
         ObjectOpenedOn = context.ObjectOpenedOn;
         ContextMenuPositionX = context.MouseEventArgs.ClientX;
         ContextMenuPositionY = context.MouseEventArgs.ClientY;
-        SelectAllEnabled = diagramService.Diagram.Nodes.Any(x => x is BlockNode);
+
+        SelectAllEnabled = false;
+        foreach (var node in diagramService.Diagram.Nodes)
+        {
+            if (node is BlockNode)
+            {
+                SelectAllEnabled = true;
+                break;
+            }
+        }
+
         MoveToNewContainerEnabled = IsMoveToNewContainerEnabled();
         AlignmentButtonsEnabled = selectionManager.SelectedBlockNodes.Count + selectionManager.SelectedLabels.Count >= 2;
 
@@ -96,34 +180,55 @@ public sealed class NodeEditorContextMenuState(SelectionManager selectionManager
             EditContainerEnabled =
                 selectionManager.SelectedContainers.Count == 1
                     && selectionManager.SelectedModels.Count == 1
-                    && selectionManager.SelectedContainers[0].ConnectorsToList().Any();
+                    && selectionManager.SelectedContainers[0].ConnectorsToList().Count > 0;
         }
 
-        EngineAssignmentEnabled =
-            block.IsFunctionBlock || block.ChildContainer!.GetAllNestedFunctionBlocks().Any();
+        EngineAssignmentEnabled = block.IsFunctionBlock || HasNestedFunctionBlocks(block.ChildContainer!);
 
         var fbCount = selectionManager.SelectedFBs.Count;
+        SettingsEnabled = HasSharedSettings(fbCount);
 
-        SettingsEnabled = selectionManager.SelectedFBs
-            .GetSettings(datastore)
-            .ToArray()
-            .GroupBy(s => new { s.Name, s.SettingType })
-            .Any(sg => sg.Count() == fbCount);
-
-        ConnectorsWizardEnabled = selectionManager.SelectedBlockNodes.Any(bn => bn.Connectors.Any(cons => cons.Any(c => c is not null)));
+        ConnectorsWizardEnabled = HasAnyConnector();
     }
 
     private void UpdateConnectorSelectionStates()
     {
-        var selectedBlockNodeConnectors = selectionManager.SelectedBlockNodes.SelectMany(bn => bn.Connectors).ToArray();
-        var inputConnectors = selectedBlockNodeConnectors.Select(row => row[0]).Where(bnc => bnc is not null).ToArray();
-        var outputConnectors = selectedBlockNodeConnectors.Select(row => row[1]).Where(bnc => bnc is not null).ToArray();
+        var hasInput = false;
+        var hasOutput = false;
+        var hasNonSystemInput = false;
+        var hasSystemInput = false;
+        var hasNonSystemOutput = false;
+        var hasSystemOutput = false;
 
-        SelectAllConnectorsEnabled = inputConnectors.Length != 0 || outputConnectors.Length != 0;
-        SelectInputConnectorsEnabled = inputConnectors.Any(ic => !ic!.IsSystemConnector);
-        SelectInputConnectorsIncludingSystemConnectorsEnabled = inputConnectors.Length != 0 && inputConnectors.Any(ic => ic!.IsSystemConnector);
-        SelectOutputConnectorsEnabled = outputConnectors.Any(oc => !oc!.IsSystemConnector);
-        SelectOutputConnectorsIncludingSystemConnectorsEnabled = outputConnectors.Length != 0 && outputConnectors.Any(oc => oc!.IsSystemConnector);
-        SelectInputAndOutputConnectorsEnabled = inputConnectors.Any(ic => !ic!.IsSystemConnector) && outputConnectors.Any(oc => !oc!.IsSystemConnector);
+        foreach (var bn in selectionManager.SelectedBlockNodes)
+        {
+            foreach (var row in bn.Connectors)
+            {
+                if (row[0] is { } input)
+                {
+                    hasInput = true;
+                    if (input.IsSystemConnector)
+                        hasSystemInput = true;
+                    else
+                        hasNonSystemInput = true;
+                }
+
+                if (row[1] is { } output)
+                {
+                    hasOutput = true;
+                    if (output.IsSystemConnector)
+                        hasSystemOutput = true;
+                    else
+                        hasNonSystemOutput = true;
+                }
+            }
+        }
+
+        SelectAllConnectorsEnabled = hasInput || hasOutput;
+        SelectInputConnectorsEnabled = hasNonSystemInput;
+        SelectInputConnectorsIncludingSystemConnectorsEnabled = hasInput && hasSystemInput;
+        SelectOutputConnectorsEnabled = hasNonSystemOutput;
+        SelectOutputConnectorsIncludingSystemConnectorsEnabled = hasOutput && hasSystemOutput;
+        SelectInputAndOutputConnectorsEnabled = hasNonSystemInput && hasNonSystemOutput;
     }
 }
