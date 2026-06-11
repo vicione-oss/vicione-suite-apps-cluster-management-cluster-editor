@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.TreeBuilder.UiControlTypes;
@@ -19,8 +20,37 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
         : IPropertyDescriptorProvider<DataPortChildNodeEditContext, DataPortChildNodeModel>
 {
     private readonly Dictionary<string, List<DataPortNodeModelCustomProperty>> _dependencyMap = [];
+    private readonly Dictionary<(Delegate, Type), MethodInfo> _genericMethodCache = [];
     private readonly Dictionary<string, IPropertyDescriptor> _propertyDescriptors = [];
     private readonly StringMustNotBeEmptyPropertyValueValidator _stringMustNotBeEmptyPropertyValueValidator = new();
+
+    private IPropertyDescriptor<DataPortChildNodeModel>? CreateCustomPropertyDescriptor(DataPortNodeModelCustomProperty property)
+    {
+        if (property.PossibleValues?.Count > 0)
+        {
+            var createMethod = GetOrCreateGenericMethod(CreateSelectionPropertyDescriptor<object>, property.RuntimeType);
+            return createMethod.Invoke(this, [property, property.PossibleValues, GetDependencies(property.Name)])
+                as IPropertyDescriptor<DataPortChildNodeModel>;
+        }
+
+        if (property.Type.UiControl == NumericUpDownType.TypeKey)
+        {
+            var builder = numericPropertyDescriptorBuilderProvider.GetBuilder(property.RuntimeType);
+
+            if (property.MinValue is not null)
+                builder.WithMinimum(property.MinValue);
+
+            if (property.MaxValue is not null)
+                builder.WithMaximum(property.MaxValue);
+
+            return builder.Build<DataPortChildNodeModel>(
+                CreateNumericPropertyDescriptor<object, int, int, int>, property, GetDependencies(property.Name));
+        }
+
+        var method = GetOrCreateGenericMethod(CreatePropertyDescriptorWithDefaultValue<object>, property.RuntimeType);
+        return method.Invoke(this, [property, property.Type.DefaultValue, GetDependencies(property.Name)])
+            as IPropertyDescriptor<DataPortChildNodeModel>;
+    }
 
     private void CreateDependencyMap(IReadOnlyCollection<DataPortNodeModelCustomProperty> properties)
     {
@@ -32,7 +62,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             {
                 if (!_dependencyMap.TryGetValue(dependencyName, out var list))
                 {
-                    list ??= [];
+                    list = [];
                     _dependencyMap[dependencyName] = list;
                 }
 
@@ -56,7 +86,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             Minimum = minimum,
             Name = property.Name,
             SetValue = (instance, value) => propertyValueStore.Set(property.Name, value),
-            Visible = (instance) => DetermineVisibility<TPropertyValue>(property.Name, instance.Properties.Where(p => p.DependentProperties?.ContainsKey(property.Name) ?? false))
+            Visible = (instance) => DetermineVisibility(property.Name, instance.Properties)
         };
 
     private PropertyDescriptor<DataPortChildNodeModel, TPropertyValue> CreatePropertyDescriptor<TPropertyValue>(
@@ -69,7 +99,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             GetValue = (instance) => propertyValueStore.Get<TPropertyValue>(property.Name, default!),
             Name = property.Name,
             SetValue = (instance, value) => propertyValueStore.Set(property.Name, value),
-            Visible = (instance) => DetermineVisibility<TPropertyValue>(property.Name, instance.Properties.Where(p => p.DependentProperties?.ContainsKey(property.Name) ?? false))
+            Visible = (instance) => DetermineVisibility(property.Name, instance.Properties)
         };
 
     private PropertyDescriptor<DataPortChildNodeModel, TPropertyValue> CreatePropertyDescriptorWithDefaultValue<TPropertyValue>(
@@ -84,7 +114,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             HasValueDifferentFromDefaultValue = (instance, defaultValue) => !Equals(propertyValueStore.Get(property.Name, defaultValue), defaultValue),
             Name = property.Name,
             SetValue = (instance, value) => propertyValueStore.Set(property.Name, value),
-            Visible = (instance) => DetermineVisibility<TPropertyValue>(property.Name, instance.Properties.Where(p => p.DependentProperties?.ContainsKey(property.Name) ?? false)),
+            Visible = (instance) => DetermineVisibility(property.Name, instance.Properties),
         };
 
     private SelectionPropertyDescriptor<DataPortChildNodeModel, TPropertyValue> CreateSelectionPropertyDescriptor<TPropertyValue>(
@@ -99,22 +129,21 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             GetValue = (instance) => propertyValueStore.Get<TPropertyValue>(property.Name, defaultValue: default!),
             Name = property.Name,
             SetValue = (instance, value) => propertyValueStore.Set(property.Name, value),
-            Visible = (instance) => DetermineVisibility<TPropertyValue>(property.Name, instance.Properties.Where(p => p.DependentProperties?.ContainsKey(property.Name) ?? false)),
+            Visible = (instance) => DetermineVisibility(property.Name, instance.Properties),
         };
 
-    private bool DetermineVisibility<TPropertyValue>(string propertyName, IEnumerable<IDataPortNodeModelProperty> dataPortNodeModelProperties)
+    private bool DetermineVisibility(string propertyName, IEnumerable<IDataPortNodeModelProperty> allProperties)
     {
-        var result = true;
-
-        foreach (var property in dataPortNodeModelProperties)
+        foreach (var property in allProperties)
         {
-            result = property.DependentProperties?.FirstOrDefault(d => d.Key == propertyName).Value.Contains(propertyValueStore.Get<object>(property.Name, default!)) ?? false;
+            if (property.DependentProperties is null || !property.DependentProperties.TryGetValue(propertyName, out var allowedValues))
+                continue;
 
-            if (!result)
-                return result;
+            if (!allowedValues.Contains(propertyValueStore.Get<object>(property.Name, default!)))
+                return false;
         }
 
-        return result;
+        return true;
     }
 
     private SelectionPropertyDescriptor<DataPortChildNodeModel, DataPortDirection> GetDataPortDirectionPropertyData(
@@ -122,9 +151,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     {
         var selectableValues = new Lazy<SelectableValue<DataPortDirection>[]>(() =>
         {
-            var clusterDataPort = clusterBuilder.Cache.DataPorts.FirstOrDefault(k => k.Id == nodeId);
-
-            if (clusterDataPort is null)
+            if (!clusterBuilder.Cache.DataPortIds.TryGetValue(nodeId, out var clusterDataPort))
                 return [];
 
             return [.. directionProperty.AvailableValues
@@ -147,16 +174,33 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
 
     private List<IPropertyDescriptor>? GetDependencies(string propertyName)
     {
-        var dependencies = _dependencyMap.GetValueOrDefault(propertyName) ?? [];
-        var result = new List<IPropertyDescriptor>();
+        if (!_dependencyMap.TryGetValue(propertyName, out var dependencies))
+            return null;
+
+        List<IPropertyDescriptor>? result = null;
 
         foreach (var item in dependencies)
         {
             if (_propertyDescriptors.TryGetValue(item.Name, out var descriptor))
+            {
+                result ??= [];
                 result.Add(descriptor);
+            }
         }
 
-        return result.Count > 0 ? result : null;
+        return result;
+    }
+
+    private MethodInfo GetOrCreateGenericMethod(Delegate factoryDelegate, Type typeArgument)
+    {
+        var key = (factoryDelegate, typeArgument);
+        if (!_genericMethodCache.TryGetValue(key, out var method))
+        {
+            method = factoryDelegate.Method.GetGenericMethodDefinition().MakeGenericMethod(typeArgument);
+            _genericMethodCache[key] = method;
+        }
+
+        return method;
     }
 
     public IEnumerable<IPropertyDescriptor<DataPortChildNodeModel>> GetPropertyDescriptors(DataPortChildNodeEditContext context)
@@ -174,7 +218,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             ValueValidators = [_stringMustNotBeEmptyPropertyValueValidator]
         };
 
-        if (context.Node.AvailableIcons.Count() > 1)
+        if (context.Node.AvailableIcons.Count > 1)
         {
             propertyValueStore.Set(nameof(context.Node.Icon), context.Node.Icon);
 
@@ -207,68 +251,25 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             };
         }
 
-        var customeProperties = context.Node.Properties.OfType<DataPortNodeModelCustomProperty>().ToList();
+        var customProperties = context.Node.Properties.OfType<DataPortNodeModelCustomProperty>().ToList();
 
-        CreateDependencyMap(customeProperties);
+        CreateDependencyMap(customProperties);
 
-        foreach (var property in OrderByDependency(customeProperties))
+        foreach (var property in OrderByDependency(customProperties))
         {
             propertyValueStore.Set(property.Name, property.Value);
 
-            if (property.PossibleValues?.Count > 0)
+            var descriptor = CreateCustomPropertyDescriptor(property);
+            if (descriptor is not null)
             {
-                var propertyValueType = property.RuntimeType;
-
-                var createDelegate = CreateSelectionPropertyDescriptor<object>;
-                var createMethod = createDelegate.Method.GetGenericMethodDefinition().MakeGenericMethod(propertyValueType);
-
-                var invokeResult = createMethod.Invoke(this, [property, property.PossibleValues, GetDependencies(property.Name)]);
-                if (invokeResult is IPropertyDescriptor<DataPortChildNodeModel> result)
-                {
-                    _propertyDescriptors.Add(property.Name, result);
-
-                    yield return result;
-                }
-            }
-            else if (property.Type.UiControl == NumericUpDownType.TypeKey)
-            {
-                var builder = numericPropertyDescriptorBuilderProvider.GetBuilder(property.RuntimeType);
-
-                if (property.MinValue is not null)
-                    builder.WithMinimum(property.MinValue);
-
-                if (property.MaxValue is not null)
-                    builder.WithMaximum(property.MaxValue);
-
-                var propertyDescriptor = builder.Build<DataPortChildNodeModel>(
-                    CreateNumericPropertyDescriptor<object, int, int, int>, property, GetDependencies(property.Name));
-
-                if (propertyDescriptor is not null)
-                {
-                    _propertyDescriptors.Add(property.Name, propertyDescriptor);
-
-                    yield return propertyDescriptor;
-                }
-            }
-            else
-            {
-                var propertyValueType = property.RuntimeType;
-
-                var createDelegate = CreatePropertyDescriptorWithDefaultValue<object>;
-                var createMethod = createDelegate.Method.GetGenericMethodDefinition().MakeGenericMethod(propertyValueType);
-
-                var invokeResult = createMethod.Invoke(this, [property, property.Type.DefaultValue, GetDependencies(property.Name)]);
-                if (invokeResult is IPropertyDescriptor<DataPortChildNodeModel> propertyDescriptor)
-                {
-                    _propertyDescriptors.Add(property.Name, propertyDescriptor);
-
-                    yield return propertyDescriptor;
-                }
+                _propertyDescriptors.Add(property.Name, descriptor);
+                yield return descriptor;
             }
         }
 
         _propertyDescriptors.Clear();
         _dependencyMap.Clear();
+        _genericMethodCache.Clear();
     }
 
     private IPropertyDescriptor<DataPortChildNodeModel> GetRegularPropertyData(DataPortNodeModelSystemProperty property)
@@ -277,8 +278,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
 
         var propertyValueType = property.Value?.GetType() ?? typeof(string);
 
-        var createDelegate = CreatePropertyDescriptor<object>;
-        var createMethod = createDelegate.Method.GetGenericMethodDefinition().MakeGenericMethod(propertyValueType);
+        var createMethod = GetOrCreateGenericMethod(CreatePropertyDescriptor<object>, propertyValueType);
 
         var invokeResult = createMethod.Invoke(this, [property, GetDependencies(property.Name)]);
         if (invokeResult is not IPropertyDescriptor<DataPortChildNodeModel> result)
@@ -295,23 +295,30 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
         if (IsValueTypeProperty(stringProperty))
             return GetValueTypePropertyData(node, stringProperty, clusterBuilder);
 
-        return stringProperty.AvailableValues.Count > 0
-            ? new SelectionPropertyDescriptor<DataPortChildNodeModel, string>()
+        if (stringProperty.AvailableValues.Count > 0)
+        {
+            var selectableValues = stringProperty.AvailableValues
+                .Select(v => new SelectableValue<string> { Text = v, Value = v })
+                .ToArray();
+
+            return new SelectionPropertyDescriptor<DataPortChildNodeModel, string>()
             {
                 Category = stringProperty.Category,
-                Enabled = (instance) => stringProperty.AvailableValues.Count > 1,
-                GetSelectableValues = (instance) => stringProperty.AvailableValues.Select(v => new SelectableValue<string> { Text = v, Value = v }),
-                GetValue = (instance) => propertyValueStore.Get(stringProperty.Name, defaultValue: string.Empty),
-                Name = stringProperty.Name,
-                SetValue = (instance, value) => propertyValueStore.Set(stringProperty.Name, value)
-            }
-            : new PropertyDescriptor<DataPortChildNodeModel, string>
-            {
-                Category = stringProperty.Category,
+                Enabled = (instance) => selectableValues.Length > 1,
+                GetSelectableValues = (instance) => selectableValues,
                 GetValue = (instance) => propertyValueStore.Get(stringProperty.Name, defaultValue: string.Empty),
                 Name = stringProperty.Name,
                 SetValue = (instance, value) => propertyValueStore.Set(stringProperty.Name, value)
             };
+        }
+
+        return new PropertyDescriptor<DataPortChildNodeModel, string>
+        {
+            Category = stringProperty.Category,
+            GetValue = (instance) => propertyValueStore.Get(stringProperty.Name, defaultValue: string.Empty),
+            Name = stringProperty.Name,
+            SetValue = (instance, value) => propertyValueStore.Set(stringProperty.Name, value)
+        };
     }
 
     private SelectionPropertyDescriptor<DataPortChildNodeModel, DataPortTransferMode> GetTransferModePropertyData(
@@ -319,11 +326,15 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     {
         propertyValueStore.Set(transferModeProperty.Name, transferModeProperty.TypedValue);
 
+        var selectableValues = transferModeProperty.AvailableValues
+            .Select(v => new SelectableValue<DataPortTransferMode> { Text = v.ToString(), Value = v })
+            .ToArray();
+
         return new SelectionPropertyDescriptor<DataPortChildNodeModel, DataPortTransferMode>
         {
             Category = transferModeProperty.Category,
-            Enabled = (instance) => transferModeProperty.AvailableValues.Count > 1,
-            GetSelectableValues = (instance) => transferModeProperty.AvailableValues.Select(v => new SelectableValue<DataPortTransferMode> { Text = v.ToString(), Value = v }),
+            Enabled = (instance) => selectableValues.Length > 1,
+            GetSelectableValues = (instance) => selectableValues,
             GetValue = (instance) => propertyValueStore.Get<DataPortTransferMode>(transferModeProperty.Name, defaultValue: default),
             Name = transferModeProperty.Name,
             SetValue = (instance, value) => propertyValueStore.Set(transferModeProperty.Name, value)
@@ -350,25 +361,26 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
         DataPortTreeNodeSystemProperty<string> stringProperty, IClusterBuilder clusterBuilder)
     {
         var treeBuilder = node.RootNode.Builder;
-        var selectableValues = new Lazy<SelectableValue<string>[]>(() =>
+
+        SelectableValue<string>[] selectableValues;
+        if (!clusterBuilder.Cache.DataPortTreeNodeIds.TryGetValue(node.Id.Value, out var clusterNode))
         {
-            var clusterNode = clusterBuilder.Cache.DataPortTreeNodes.FirstOrDefault(k => k.Id == node.Id.Value);
-
-            if (clusterNode is null)
-                return [];
-
-            return [.. stringProperty.AvailableValues
+            selectableValues = [];
+        }
+        else
+        {
+            selectableValues = [.. stringProperty.AvailableValues
                 .Where(t => clusterBuilder.Editors.DataPortTreeNode.CanSetValueType(clusterNode, treeBuilder.DataTypes[t].RuntimeType))
                 .Select(v => new SelectableValue<string> { Text = v, Value = v })];
-        });
+        }
 
         return new SelectionPropertyDescriptor<DataPortChildNodeModel, string>
         {
             Category = stringProperty.Category,
-            Enabled = (instance) => selectableValues.Value.Length > 1,
-            GetSelectableValues = (instance) => selectableValues.Value,
+            Enabled = (instance) => selectableValues.Length > 1,
+            GetSelectableValues = (instance) => selectableValues,
             GetValue = (instance) => propertyValueStore.Get(stringProperty.Name, defaultValue: string.Empty),
-            InformationTooltip = selectableValues.Value.Length < 2 ? Components.Localization.DataPortSection.ValueTypeDisabledInformation : null,
+            InformationTooltip = selectableValues.Length < 2 ? Components.Localization.DataPortSection.ValueTypeDisabledInformation : null,
             Name = stringProperty.Name,
             SetValue = (instance, value) => propertyValueStore.Set(stringProperty.Name, value)
         };
@@ -380,8 +392,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     private List<DataPortNodeModelCustomProperty> OrderByDependency(IReadOnlyCollection<DataPortNodeModelCustomProperty> properties)
     {
         var sorted = new List<DataPortNodeModelCustomProperty>();
-        var visiting = new HashSet<string>();
-        var propertyByName = properties.ToDictionary(p => p.Name);
+        var state = new Dictionary<string, bool>();
 
         foreach (var property in properties)
             Visit(property);
@@ -390,13 +401,15 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
 
         void Visit(DataPortNodeModelCustomProperty property)
         {
-            if (sorted.Contains(property))
+            if (state.TryGetValue(property.Name, out var done))
+            {
+                if (!done)
+                    throw new InvalidOperationException($"Circular dependency detected at '{property.Name}'");
+
                 return;
+            }
 
-            if (visiting.Contains(property.Name))
-                throw new InvalidOperationException($"Circular dependency detected at '{property.Name}'");
-
-            visiting.Add(property.Name);
+            state[property.Name] = false;
 
             if (_dependencyMap.TryGetValue(property.Name, out var dependents))
             {
@@ -404,7 +417,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
                     Visit(dependent);
             }
 
-            visiting.Remove(property.Name);
+            state[property.Name] = true;
             sorted.Add(property);
         }
     }

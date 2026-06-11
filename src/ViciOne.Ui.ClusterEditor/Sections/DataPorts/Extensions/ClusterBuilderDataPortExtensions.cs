@@ -64,7 +64,7 @@ internal static class ClusterBuilderDataPortExtensions
                 dataPortId
             );
 
-            var defaultIcon = dataPortNode.Icon ?? dataPortNode.AvailableIcons.FirstOrDefault();
+            var defaultIcon = dataPortNode.Icon ?? (dataPortNode.AvailableIcons.Count > 0 ? dataPortNode.AvailableIcons[0] : null);
             if (defaultIcon is not null)
                 builder.Editors.DataPort.SetIcon(dataPort, defaultIcon);
 

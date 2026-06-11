@@ -8,7 +8,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 
 public abstract class DataPortNodeModel : IClusterEditorTreeNode, TreeBuilder.ITreeNode, IDragable
 {
-    public IEnumerable<string> AvailableIcons { get; set; } = [];
+    public IReadOnlyList<string> AvailableIcons { get; set; } = [];
     public bool CanHaveChildren { get; set; }
     public List<DataPortNodeModel> Children { get; init; } = [];
     IList<TreeBuilder.ITreeNode> TreeBuilder.ITreeNode.Children
@@ -25,6 +25,6 @@ public abstract class DataPortNodeModel : IClusterEditorTreeNode, TreeBuilder.IT
     public bool IsDetailViewActive { get; set; }
     public bool IsEditModeActive { get; set; }
     public NodeReference? NodeReference { get; set; }
-    public IEnumerable<DataPortChildNodeModel> PossibleChildren { get; set; } = [];
+    public IReadOnlyList<DataPortChildNodeModel> PossibleChildren { get; set; } = [];
     public bool Selected { get; set; }
 }

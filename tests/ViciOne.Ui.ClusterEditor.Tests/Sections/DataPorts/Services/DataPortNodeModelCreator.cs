@@ -61,10 +61,10 @@ internal static class DataPortNodeModelCreator
         };
     }
 
-    internal static DataPortRootNodeModel CreateDataPortRootNodeModel(string? icon = "root-icon", IEnumerable<string>? availableIcons = null)
+    internal static DataPortRootNodeModel CreateDataPortRootNodeModel(string? icon = "root-icon", IReadOnlyList<string>? availableIcons = null)
         => new()
         {
-            AvailableIcons = availableIcons is null ? [] : availableIcons,
+            AvailableIcons = availableIcons ?? [],
             Builder = new TreeBuilder.TreeBuilder(TestResources.MqttRuleset),
             DisplayText = "Root",
             Icon = icon

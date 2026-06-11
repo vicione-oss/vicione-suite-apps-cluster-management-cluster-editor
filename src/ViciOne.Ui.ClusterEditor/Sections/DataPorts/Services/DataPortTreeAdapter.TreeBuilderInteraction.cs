@@ -94,7 +94,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter
         var builder = GetOrCreateTreeBuilder(DataPortCategory, rulesetIdentifier);
         var node = AddOrGetTreeRootNode(builder);
         node.PossibleChildren = [.. node.GetPossibleChildNodes()];
-        var firstChild = node.PossibleChildren.First();
+        var firstChild = node.PossibleChildren[0];
         CreateNewChildNode(node, firstChild);
 
         Builder.Notifications.NotifyRootNodesChanged();
