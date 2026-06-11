@@ -390,32 +390,31 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
         {
             foreach (var node in diagramService.Diagram.Nodes)
             {
-                if (node is ChildContainerNode container && selectContainers && container.Visible)
+                switch (node)
                 {
-                    if (container.GetBounds()?.Intersects(rect) ?? false)
+                    case ChildContainerNode container when selectContainers && container.Visible
+                        && (container.GetBounds()?.Intersects(rect) ?? false):
                         diagramService.Diagram.SelectModel(container, false);
-                }
-                else if (node is FunctionBlockNode fb && selectFBs && fb.Visible)
-                {
-                    if (fb.GetBounds()?.Intersects(rect) ?? false)
+                        break;
+
+                    case FunctionBlockNode fb when selectFBs && fb.Visible
+                        && (fb.GetBounds()?.Intersects(rect) ?? false):
                         diagramService.Diagram.SelectModel(fb, false);
-                }
-                else if (node is LabelNode label && selectLabels && label.Visible && !label.Locked)
-                {
-                    if (label.GetBounds()?.Intersects(rect) ?? false)
+                        break;
+
+                    case LabelNode label when selectLabels && label.Visible && !label.Locked
+                        && (label.GetBounds()?.Intersects(rect) ?? false):
                         diagramService.Diagram.SelectModel(label, false);
+                        break;
                 }
             }
         }
 
         if (mode.HasFlag(SelectionMode.FunctionBlockLink))
-        {
             await SelectInRectangleFunctionBlockLinkAsync(rect);
-        }
+
         if (mode.HasFlag(SelectionMode.ConnectorMarker))
-        {
             SelectInRectangleConnectorMarker(rect);
-        }
     }
 
     private void SelectInRectangleConnectorMarker(Rectangle rect)
@@ -441,16 +440,17 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
             {
                 for (var i = 0; i < connectorRow.Length; i++)
                 {
-                    if (connectorRow[i] is null)
+                    var connector = connectorRow[i];
+                    if (connector is null)
                         continue;
 
-                    if (connectorRow[i]!.GetPublishedMarkRect().Intersects(rect))
-                        DoMarkerSelection(connectorRow[i]!.PublishedConnectorMarker, nodesToUpdate);
+                    if (connector.GetPublishedMarkRect().Intersects(rect))
+                        DoMarkerSelection(connector.PublishedConnectorMarker, nodesToUpdate);
 
-                    if (connectorRow[i]!.DataPortConnectorMarker.Links.Count > 0 &&
-                        connectorRow[i]!.GetDataPortMarkRect().Intersects(rect))
+                    if (connector.DataPortConnectorMarker.Links.Count > 0 &&
+                        connector.GetDataPortMarkRect().Intersects(rect))
                     {
-                        DoMarkerSelection(connectorRow[i]!.DataPortConnectorMarker, nodesToUpdate);
+                        DoMarkerSelection(connector.DataPortConnectorMarker, nodesToUpdate);
                     }
                 }
             }

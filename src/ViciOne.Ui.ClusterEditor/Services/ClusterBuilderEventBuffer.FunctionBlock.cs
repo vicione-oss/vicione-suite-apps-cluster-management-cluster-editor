@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Cluster.Model;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
@@ -49,43 +48,43 @@ public sealed partial class ClusterBuilderEventBuffer
     {
         if (_engineAssignedBuffer.Count > 0)
         {
-            EnginesAssigned?.Invoke([.. _engineAssignedBuffer]);
+            EnginesAssigned?.Invoke(_engineAssignedBuffer);
             _engineAssignedBuffer.Clear();
         }
 
         if (_engineUnassignedBuffer.Count > 0)
         {
-            EnginesUnassigned?.Invoke([.. _engineUnassignedBuffer]);
+            EnginesUnassigned?.Invoke(_engineUnassignedBuffer);
             _engineUnassignedBuffer.Clear();
         }
 
         if (_functionBlockAddedBuffer.Count > 0)
         {
-            FunctionBlocksAdded?.Invoke([.. _functionBlockAddedBuffer]);
+            FunctionBlocksAdded?.Invoke(_functionBlockAddedBuffer);
             _functionBlockAddedBuffer.Clear();
         }
 
         if (_functionBlockDesignAddedBuffer.Count > 0)
         {
-            FunctionBlockDesignsAdded?.Invoke([.. _functionBlockDesignAddedBuffer]);
+            FunctionBlockDesignsAdded?.Invoke(_functionBlockDesignAddedBuffer);
             _functionBlockDesignAddedBuffer.Clear();
         }
 
         if (_functionBlockDesignRemovedBuffer.Count > 0)
         {
-            FunctionBlockDesignsRemoved?.Invoke([.. _functionBlockDesignRemovedBuffer]);
+            FunctionBlockDesignsRemoved?.Invoke(_functionBlockDesignRemovedBuffer);
             _functionBlockDesignRemovedBuffer.Clear();
         }
 
         if (_functionBlockPropertyChangedBuffer.Count > 0)
         {
-            FunctionBlockPropertiesChanged?.Invoke([.. _functionBlockPropertyChangedBuffer]);
+            FunctionBlockPropertiesChanged?.Invoke(_functionBlockPropertyChangedBuffer);
             _functionBlockPropertyChangedBuffer.Clear();
         }
 
         if (_functionBlockRemovedBuffer.Count > 0)
         {
-            FunctionBlocksRemoved?.Invoke([.. _functionBlockRemovedBuffer]);
+            FunctionBlocksRemoved?.Invoke(_functionBlockRemovedBuffer);
             _functionBlockRemovedBuffer.Clear();
         }
     }
@@ -116,8 +115,14 @@ public sealed partial class ClusterBuilderEventBuffer
 
     private void OnFunctionBlockAdded(object? sender, FunctionBlock functionBlock)
     {
-        if (_functionBlockAddedBuffer.Any(fb => fb.FunctionBlock == functionBlock) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var fb in _functionBlockAddedBuffer)
+        {
+            if (fb.FunctionBlock == functionBlock)
+                return;
+        }
 
         _functionBlockAddedBuffer.Add(new((Container)sender, functionBlock));
         ScheduleBufferFlush();
@@ -125,8 +130,14 @@ public sealed partial class ClusterBuilderEventBuffer
 
     private void OnFunctionBlockDesignAdded(object? sender, Guid designId)
     {
-        if (_functionBlockDesignAddedBuffer.Any(id => id.DesignId == designId) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var (_, bufferedDesignId) in _functionBlockDesignAddedBuffer)
+        {
+            if (bufferedDesignId == designId)
+                return;
+        }
 
         _functionBlockDesignAddedBuffer.Add(new((Cluster.Model.Cluster)sender, designId));
         ScheduleBufferFlush();
@@ -134,8 +145,14 @@ public sealed partial class ClusterBuilderEventBuffer
 
     private void OnFunctionBlockDesignRemoved(object? sender, Guid designId)
     {
-        if (_functionBlockDesignRemovedBuffer.Any(id => id.DesignId == designId) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var (_, bufferedDesignId) in _functionBlockDesignRemovedBuffer)
+        {
+            if (bufferedDesignId == designId)
+                return;
+        }
 
         _functionBlockDesignRemovedBuffer.Add(new((Cluster.Model.Cluster)sender, designId));
         ScheduleBufferFlush();
@@ -149,8 +166,14 @@ public sealed partial class ClusterBuilderEventBuffer
 
     private void OnFunctionBlockRemoved(object? sender, FunctionBlock functionBlock)
     {
-        if (_functionBlockRemovedBuffer.Any(fb => fb.FunctionBlock == functionBlock) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var fb in _functionBlockRemovedBuffer)
+        {
+            if (fb.FunctionBlock == functionBlock)
+                return;
+        }
 
         _functionBlockRemovedBuffer.Add(new((Container)sender, functionBlock));
         ScheduleBufferFlush();

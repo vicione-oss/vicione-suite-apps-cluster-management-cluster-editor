@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Blazor.Diagrams.Core.Geometry;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Ui.ClusterEditor.Constants;
@@ -39,12 +38,19 @@ public sealed partial class DraggingConnector : ComponentBase, IDisposable
 
     private void OnDraggingStarted()
     {
-        if (DragService.DraggedItems?.FirstOrDefault(di => di is BlockNodeConnector) is not BlockNodeConnector connectorNode)
+        if (DragService.DraggedItems is null)
             return;
 
-        _visible = true;
-        _isInput = connectorNode.IsInput;
-        _connectorColor = connectorNode.PortColor ?? BlockNodeConnectorColors.TypeDefault;
+        foreach (var item in DragService.DraggedItems)
+        {
+            if (item is not BlockNodeConnector connectorNode)
+                continue;
+
+            _visible = true;
+            _isInput = connectorNode.IsInput;
+            _connectorColor = connectorNode.PortColor ?? BlockNodeConnectorColors.TypeDefault;
+            return;
+        }
     }
 
     protected override void OnInitialized()

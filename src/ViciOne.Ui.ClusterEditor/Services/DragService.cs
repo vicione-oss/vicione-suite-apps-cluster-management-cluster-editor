@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models.Base;
 using Microsoft.AspNetCore.Components.Web;
@@ -46,10 +45,17 @@ internal sealed class DragService(
         if (DragTargets is null)
             return;
 
+        var hasBlockNodeConnector = false;
+
         foreach (var dragTarget in DragTargets)
+        {
             dragTarget.HighlightAsTarget(highlight);
 
-        if (DragTargets.Any(dt => dt is BlockNodeConnector))
+            if (!hasBlockNodeConnector && dragTarget is BlockNodeConnector)
+                hasBlockNodeConnector = true;
+        }
+
+        if (hasBlockNodeConnector)
             diagramEventService.InvokeBlockNodesUpdateRequested();
     }
 

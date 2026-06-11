@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Blazor.Diagrams.Core.Geometry;
 using ViciOne.Cluster.Builder.Extensions;
@@ -60,15 +59,19 @@ internal static partial class FunctionBlockMapper
         var currentConnectorCount = 0;
         var systemConnectors = new HashSet<IConnector>(functionBlock.GetSystemConnectors());
 
-        var count = 0;
-        var inputConnectors = functionBlock.SystemInputs.ToDictionary(c => count++);
+        var inputConnectors = new Dictionary<int, IConnector>();
+        var inputIdx = 0;
+        foreach (var sysInput in functionBlock.SystemInputs)
+            inputConnectors.Add(inputIdx++, sysInput);
 
         var index = 0;
         foreach (var dataInput in functionBlock.ProcessDataInputs)
             inputConnectors.Add(index++ + BlockNodeLayout.SystemConnectorRows, dataInput);
 
-        count = 0;
-        var outputConnectors = functionBlock.SystemOutputs.ToDictionary(c => count++);
+        var outputConnectors = new Dictionary<int, IConnector>();
+        var outputIdx = 0;
+        foreach (var sysOutput in functionBlock.SystemOutputs)
+            outputConnectors.Add(outputIdx++, sysOutput);
 
         index = 0;
         foreach (var dataOutput in functionBlock.ProcessDataOutputs)

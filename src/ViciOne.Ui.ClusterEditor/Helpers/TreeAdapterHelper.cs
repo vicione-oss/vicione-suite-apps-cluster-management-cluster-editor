@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.TreeEditor.Builder;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
@@ -30,23 +28,19 @@ internal static class TreeAdapterHelper
             if (ceNode.DisplayText.Contains(filterText, StringComparison.InvariantCultureIgnoreCase))
                 return true;
 
-            return ResolveParents(node)
-                .OfType<IClusterEditorTreeNode>()
-                .Any(n => n.DisplayText.Contains(filterText, StringComparison.InvariantCultureIgnoreCase));
-        }
-
-        IEnumerable<ITreeNode> ResolveParents(ITreeNode node)
-        {
-            var currentNode = node;
-            var result = new List<ITreeNode>();
-
+            var currentNode = resolveParent(node);
             while (currentNode is not null)
             {
-                result.Add(currentNode);
+                if (currentNode is IClusterEditorTreeNode parentCeNode &&
+                    parentCeNode.DisplayText.Contains(filterText, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    return true;
+                }
+
                 currentNode = resolveParent(currentNode);
             }
 
-            return result;
+            return false;
         }
     }
 }

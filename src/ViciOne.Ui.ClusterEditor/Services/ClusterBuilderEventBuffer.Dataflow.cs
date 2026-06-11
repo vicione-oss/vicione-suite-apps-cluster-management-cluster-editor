@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Cluster.Model;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
@@ -33,27 +32,33 @@ public sealed partial class ClusterBuilderEventBuffer
     {
         if (_dataflowAddedBuffer.Count > 0)
         {
-            DataflowsAdded?.Invoke([.. _dataflowAddedBuffer]);
+            DataflowsAdded?.Invoke(_dataflowAddedBuffer);
             _dataflowAddedBuffer.Clear();
         }
 
         if (_dataflowPropertyChangedBuffer.Count > 0)
         {
-            DataflowPropertiesChanged?.Invoke([.. _dataflowPropertyChangedBuffer]);
+            DataflowPropertiesChanged?.Invoke(_dataflowPropertyChangedBuffer);
             _dataflowPropertyChangedBuffer.Clear();
         }
 
         if (_dataflowRemovedBuffer.Count > 0)
         {
-            DataflowsRemoved?.Invoke([.. _dataflowRemovedBuffer]);
+            DataflowsRemoved?.Invoke(_dataflowRemovedBuffer);
             _dataflowRemovedBuffer.Clear();
         }
     }
 
     private void OnDataflowAdded(object? sender, Dataflow dataflow)
     {
-        if (_dataflowAddedBuffer.Any(df => df.Dataflow == dataflow) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var df in _dataflowAddedBuffer)
+        {
+            if (df.Dataflow == dataflow)
+                return;
+        }
 
         _dataflowAddedBuffer.Add(new((Cluster.Model.Cluster)sender, dataflow));
         ScheduleBufferFlush();
@@ -67,8 +72,14 @@ public sealed partial class ClusterBuilderEventBuffer
 
     private void OnDataflowRemoved(object? sender, Dataflow dataflow)
     {
-        if (_dataflowRemovedBuffer.Any(df => df.Dataflow == dataflow) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var df in _dataflowRemovedBuffer)
+        {
+            if (df.Dataflow == dataflow)
+                return;
+        }
 
         _dataflowRemovedBuffer.Add(new((Cluster.Model.Cluster)sender, dataflow));
         ScheduleBufferFlush();

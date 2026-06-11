@@ -1,4 +1,4 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
 using Blazor.Diagrams.Core.Models;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Models;
@@ -11,9 +11,11 @@ internal static class AlignmentExtensions
         if (selectionManager.SelectedBlockNodes.Count + selectionManager.SelectedLabels.Count < 2)
             return;
 
-        var selectedNodes = Enumerable.Empty<NodeModel>()
-            .Concat(selectionManager.SelectedBlockNodes)
-            .Concat(selectionManager.SelectedLabels);
+        var selectedNodes = new List<NodeModel>(selectionManager.SelectedBlockNodes.Count + selectionManager.SelectedLabels.Count);
+        foreach (var node in selectionManager.SelectedBlockNodes)
+            selectedNodes.Add(node);
+        foreach (var label in selectionManager.SelectedLabels)
+            selectedNodes.Add(label);
 
         selectedNodes.AlignNodes(alignment);
     }

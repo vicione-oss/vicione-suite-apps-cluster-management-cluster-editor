@@ -98,26 +98,19 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
         else
         {
             List<DataGridConnectorWrapper> connectorResult = [];
+
             foreach (var link in sourceConnectorMarker.Links)
             {
-                if (sourceConnectorMarker.Connector.IsInput)
-                {
-                    if (link.SourceConnector is ConnectorOutput)
-                    {
-                        connectorResult.Add(new DataGridConnectorWrapper(link.SourceConnector!,
-                            datastore.Builder.ResolveConnectorDesign(link.SourceConnector!),
-                            datastore.Builder.ResolveFunctionBlockDesign(link.SourceConnector!.FunctionBlock.DesignId)));
-                    }
-                }
-                else
-                {
-                    if (link.DestinationConnector is ConnectorInput)
-                    {
-                        connectorResult.Add(new DataGridConnectorWrapper(link.DestinationConnector!,
-                            datastore.Builder.ResolveConnectorDesign(link.DestinationConnector!),
-                            datastore.Builder.ResolveFunctionBlockDesign(link.DestinationConnector!.FunctionBlock.DesignId)));
-                    }
-                }
+                Connector? connector = sourceConnectorMarker.Connector.IsInput
+                    ? link.SourceConnector
+                    : link.DestinationConnector;
+
+                if (connector is null)
+                    continue;
+
+                connectorResult.Add(new DataGridConnectorWrapper(connector,
+                    datastore.Builder.ResolveConnectorDesign(connector),
+                    datastore.Builder.ResolveFunctionBlockDesign(connector.FunctionBlock.DesignId)));
             }
 
             ConnectorWrappers = connectorResult;
@@ -142,13 +135,13 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
         foreach (var link in sourceDataPortTreeNode.Links)
         {
             var connector = (Connector?)(link.SourceConnector is null ? link.DestinationConnector : link.SourceConnector);
-            if (connector is not null)
-            {
-                result.Add(new DataGridConnectorWrapper(connector,
-                    datastore.Builder.ResolveConnectorDesign(connector),
-                    datastore.Builder.ResolveFunctionBlockDesign(connector.FunctionBlock.DesignId),
-                    ConnectorMarkerType.DataPort));
-            }
+            if (connector is null)
+                continue;
+
+            result.Add(new DataGridConnectorWrapper(connector,
+                datastore.Builder.ResolveConnectorDesign(connector),
+                datastore.Builder.ResolveFunctionBlockDesign(connector.FunctionBlock.DesignId),
+                ConnectorMarkerType.DataPort));
         }
 
         ConnectorWrappers = result;

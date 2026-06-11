@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using Microsoft.AspNetCore.Components.Web;
 using ViciOne.Cluster.Model;
@@ -27,12 +26,13 @@ internal static class TooltipDataPortData
         var marker = connector.DataPortConnectorMarker;
         var maxTooltipLines = 20;
 
-        var paths = connector.IsInput
-            ? marker.Links.Select(l => l.SourceDataPortTreeNode!.GetPath(datastore) + "." + l.SourceDataPortTreeNode!.Name)
-            : marker.Links.Select(l => l.DestinationDataPortTreeNode!.GetPath(datastore) + "." + l.DestinationDataPortTreeNode!.Name);
-
-        var dataPortPaths = new List<string>();
-        dataPortPaths.AddRange(paths.OrderBy(p => p, AlphaNumericComparer<string>.Default));
+        var dataPortPaths = new List<string>(marker.Links.Count);
+        foreach (var l in marker.Links)
+        {
+            var node = connector.IsInput ? l.SourceDataPortTreeNode! : l.DestinationDataPortTreeNode!;
+            dataPortPaths.Add(node.GetPath(datastore) + "." + node.Name);
+        }
+        dataPortPaths.Sort(AlphaNumericComparer<string>.Default);
 
         var overflow = 0;
         var pathCount = dataPortPaths.Count;
@@ -74,20 +74,23 @@ internal static class TooltipDataPortData
 
         var maxTooltipLines = 20;
         var sourceConnectorsCount = 0;
-        var sourceConnectorsMax = 0;
+        int sourceConnectorsMax;
         var sourceConnectorsOverflow = 0;
         var destinationConnectorsCount = 0;
-        var destinationConnectorsMax = 0;
+        int destinationConnectorsMax;
         var destinationConnectorsOverflow = 0;
 
-        var sourceConnectors = dataPortTreeNode.Links
-            .Select(l => l.SourceConnector)
-            .OfType<Connector>()
-            .ToArray();
-        var destinationConnectors = dataPortTreeNode.Links
-            .Select(l => l.DestinationConnector)
-            .OfType<Connector>()
-            .ToArray();
+        var sourceConnectorsList = new List<Connector>();
+        var destinationConnectorsList = new List<Connector>();
+        foreach (var l in dataPortTreeNode.Links)
+        {
+            if (l.SourceConnector is Connector src)
+                sourceConnectorsList.Add(src);
+            if (l.DestinationConnector is Connector dst)
+                destinationConnectorsList.Add(dst);
+        }
+        var sourceConnectors = sourceConnectorsList.ToArray();
+        var destinationConnectors = destinationConnectorsList.ToArray();
 
         var hasSourceConnectors = sourceConnectors.Length != 0;
         var hasDestinationConnectors = destinationConnectors.Length != 0;
@@ -99,7 +102,7 @@ internal static class TooltipDataPortData
         {
             sourceConnectorsMax = sourceConnectorsCount = sourceConnectors.Length;
             destinationConnectorsMax = destinationConnectorsCount = destinationConnectors.Length;
-            var lineCount = 0;
+            int lineCount;
             if (sourceConnectorsMax + destinationConnectorsMax > maxTooltipLines)
             {
                 var sourceDiff = sourceConnectorsMax - (maxTooltipLines / 2);

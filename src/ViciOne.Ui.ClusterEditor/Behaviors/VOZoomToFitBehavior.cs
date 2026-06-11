@@ -1,8 +1,9 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using Blazor.Diagrams.Core;
 using Blazor.Diagrams.Core.Events;
 using Blazor.Diagrams.Core.Geometry;
+using Blazor.Diagrams.Core.Models;
 using ViciOne.Ui.ClusterEditor.Constants;
 using ViciOne.Ui.ClusterEditor.Extensions;
 
@@ -60,7 +61,7 @@ internal sealed class VOZoomToFitBehavior : Behavior
 
     public void ZoomToFit()
     {
-        if (!Diagram.Nodes.Any())
+        if (Diagram.Nodes.Count == 0)
             return;
 
         _isSelfUpdating = true;
@@ -75,9 +76,15 @@ internal sealed class VOZoomToFitBehavior : Behavior
             if (container is null)
                 return;
 
-            var selectedNodes = Diagram.Nodes.Where(n => n.Selected);
+            var selectedNodes = new List<NodeModel>();
+            foreach (var node in Diagram.Nodes)
+            {
+                if (node.Selected)
+                    selectedNodes.Add(node);
+            }
+
             var bounds = Diagram.GetNodeBoundsWithFlags(
-                selectedNodes.Any() ? selectedNodes : Diagram.Nodes,
+                selectedNodes.Count > 0 ? selectedNodes : Diagram.Nodes,
                 DiagramSettings.DefaultZoomToFitMargin,
                 DiagramSettings.DefaultGridSize * DiagramSettings.FlagMarginGridCells
             );
