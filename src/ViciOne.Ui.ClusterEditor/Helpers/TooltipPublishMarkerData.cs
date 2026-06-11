@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using System.Linq;
 using System.Text;
 using Microsoft.AspNetCore.Components.Web;
 using ViciOne.Ui.ClusterEditor.Models;
@@ -21,16 +20,26 @@ internal static class TooltipPublishMarkerData
 
         var maxTooltipLines = 20;
         var otherLevelCount = 0;
-        var otherLevelMax = 0;
+        int otherLevelMax;
         var otherLevelOverflow = 0;
         var sameLevelCount = 0;
-        var sameLevelMax = 0;
+        int sameLevelMax;
         var sameLevelOverflow = 0;
         PublishedConnectorTooltipEntry[] otherLevelEntries;
         PublishedConnectorTooltipEntry[] sameLevelEntries;
 
-        sameLevelEntries = [.. connector.PublishedConnectorMarker.TooltipEntries.Where(te => te.IsSameLevel)];
-        otherLevelEntries = [.. connector.PublishedConnectorMarker.TooltipEntries.Where(te => !te.IsSameLevel)];
+        var tooltipEntries = connector.PublishedConnectorMarker.TooltipEntries;
+        var sameLevelList = new List<PublishedConnectorTooltipEntry>();
+        var otherLevelList = new List<PublishedConnectorTooltipEntry>();
+        foreach (var te in tooltipEntries)
+        {
+            if (te.IsSameLevel)
+                sameLevelList.Add(te);
+            else
+                otherLevelList.Add(te);
+        }
+        sameLevelEntries = [.. sameLevelList];
+        otherLevelEntries = [.. otherLevelList];
         var hasSameLevelEntries = sameLevelEntries.Length != 0;
         var hasOtherLevelEntries = otherLevelEntries.Length != 0;
         var showDivider = hasSameLevelEntries && hasOtherLevelEntries;
@@ -41,7 +50,7 @@ internal static class TooltipPublishMarkerData
         {
             sameLevelMax = sameLevelCount = sameLevelEntries.Length;
             otherLevelMax = otherLevelCount = otherLevelEntries.Length;
-            var lineCount = 0;
+            int lineCount;
             if (sameLevelMax + otherLevelMax > maxTooltipLines)
             {
                 var sameDiff = sameLevelMax - (maxTooltipLines / 2);

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -29,7 +28,7 @@ internal sealed class ClusterEditorManagement(IDatastore datastore, DiagramServi
         // Fast fail if cancellation has already been requested
         cancellationToken.ThrowIfCancellationRequested();
 
-        return _datastore.LoadContainer(_datastore.Builder.Cluster.Dataflows.First().Root, _diagramService, cancellationToken, true);
+        return _datastore.LoadContainer(_datastore.Builder.Cluster.Dataflows[0].Root, _diagramService, cancellationToken, true);
     }
 
     public Task LoadDataflow(IClusterBuilder builder, CancellationToken cancellationToken)

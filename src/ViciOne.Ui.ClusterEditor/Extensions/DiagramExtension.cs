@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using Blazor.Diagrams.Core;
 using Blazor.Diagrams.Core.Extensions;
 using Blazor.Diagrams.Core.Geometry;
@@ -12,12 +11,27 @@ namespace ViciOne.Ui.ClusterEditor.Extensions;
 internal static class DiagramExtension
 {
     public static bool AreAllNodesInViewport(this Diagram diagram, IEnumerable<NodeModel> nodes)
-        => nodes.All(diagram.IsNodeInViewport);
+    {
+        foreach (var node in nodes)
+        {
+            if (!diagram.IsNodeInViewport(node))
+                return false;
+        }
+
+        return true;
+    }
 
     public static bool ArePartialVisibleNodesInViewport(this Diagram diagram, IEnumerable<NodeModel> nodes)
     {
         var viewPort = diagram.GetViewport();
-        return nodes.Any(n => viewPort.Intersects(n.GetBounds() ?? Rectangle.Zero));
+
+        foreach (var node in nodes)
+        {
+            if (viewPort.Intersects(node.GetBounds() ?? Rectangle.Zero))
+                return true;
+        }
+
+        return false;
     }
 
     public static Rectangle GetNodeBounds(this Diagram diagram)

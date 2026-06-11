@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Models;
 
@@ -8,18 +7,31 @@ namespace ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Factories;
 
 internal static class PublishedConnectorTooltipEntriesFactory
 {
-    public static IEnumerable<PublishedConnectorTooltipEntry> Create(IConnector connector, Guid currentContainerId)
+    public static List<PublishedConnectorTooltipEntry> Create(IConnector connector, Guid currentContainerId)
     {
         var isInput = connector is ConnectorInput or ContainerConnectorInput;
-        return connector.Links
-            .Where(l => !l.Visible && l.SourceConnector is not null && l.DestinationConnector is not null)
-            .Select(l => new PublishedConnectorTooltipEntry()
+        var entries = new List<PublishedConnectorTooltipEntry>();
+
+        foreach (var l in connector.Links)
+        {
+            if (l.Visible || l.SourceConnector is null || l.DestinationConnector is null)
+                continue;
+
+            Connector? target = isInput ? l.SourceConnector : l.DestinationConnector;
+            entries.Add(new PublishedConnectorTooltipEntry
             {
-                IsSameLevel = GetIsSameLevel(isInput ? l.SourceConnector : l.DestinationConnector, currentContainerId),
-                Path = GetPath(isInput ? l.SourceConnector : l.DestinationConnector)
-            })
-            .OrderByDescending(l => l.IsSameLevel)
-            .ThenBy(l => l.Path);
+                IsSameLevel = GetIsSameLevel(target, currentContainerId),
+                Path = GetPath(target)
+            });
+        }
+
+        entries.Sort((a, b) =>
+        {
+            var cmp = b.IsSameLevel.CompareTo(a.IsSameLevel);
+            return cmp != 0 ? cmp : string.Compare(a.Path, b.Path, StringComparison.Ordinal);
+        });
+
+        return entries;
     }
 
     private static bool GetIsSameLevel(Connector? connector, Guid currentContainerId)

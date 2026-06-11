@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
-using System.Linq;
 using Microsoft.AspNetCore.Components.Web;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
@@ -19,7 +18,7 @@ internal static class TooltipEngineData
 
         if (engines.Count == 1 && !containsUnassignedBlocks)
         {
-            var engine = engines.First();
+            var engine = engines[0];
 
             if (!string.IsNullOrWhiteSpace(engine.Description))
             {

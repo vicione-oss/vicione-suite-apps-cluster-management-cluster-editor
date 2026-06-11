@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Web;
 using ViciOne.Cluster.Model;
@@ -83,8 +82,13 @@ public sealed class DiagramEventService
         if (CloseContextMenuRequested is null)
             return Task.CompletedTask;
 
-        var handlers = CloseContextMenuRequested.GetInvocationList().Cast<Func<Task>>();
-        return Task.WhenAll(handlers.Select(h => h()));
+        var invocationList = CloseContextMenuRequested.GetInvocationList();
+        var tasks = new Task[invocationList.Length];
+
+        for (var i = 0; i < invocationList.Length; i++)
+            tasks[i] = ((Func<Task>)invocationList[i])();
+
+        return Task.WhenAll(tasks);
     }
 
     public void RequestDiagramFocus()

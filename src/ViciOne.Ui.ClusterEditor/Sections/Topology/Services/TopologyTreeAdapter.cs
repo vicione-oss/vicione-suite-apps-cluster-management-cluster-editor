@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Builder;
 using ViciOne.Cluster.Builder.Abstractions;
@@ -97,9 +96,9 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
         _clusterBuilder = builder;
         RebuildTree();
 
-        var firstNodeGroup = _clusterNodeGroups.FirstOrDefault();
-        if (firstNodeGroup is not null)
+        if (_clusterNodeGroups.Count > 0)
         {
+            var firstNodeGroup = _clusterNodeGroups[0];
             firstNodeGroup.IsManuallySelected = true;
             Builder.Selection.ChangeSelection(firstNodeGroup, true);
         }
@@ -389,7 +388,9 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
             return;
 
         _clusterNodeGroups.Clear();
-        _clusterNodeGroups.AddRange(_clusterBuilder.Cluster.NodeGroups.Select(TopologyTreeFactory.BuildTreeFromClusterNodeGroup));
+
+        foreach (var nodeGroup in _clusterBuilder.Cluster.NodeGroups)
+            _clusterNodeGroups.Add(TopologyTreeFactory.BuildTreeFromClusterNodeGroup(nodeGroup));
 
         Builder.Reset();
         Builder.Filter.Apply();

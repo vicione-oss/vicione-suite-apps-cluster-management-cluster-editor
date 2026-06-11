@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
@@ -9,21 +8,41 @@ public class LabelOrderService(IDatastore datastore, DiagramService diagramServi
 {
     public void BringToFront(IEnumerable<LabelNode> labelNodes)
     {
-        var labels = labelNodes.ToArray();
-        if (labels.Length == 0)
+        var labels = new List<LabelNode>(labelNodes);
+        if (labels.Count == 0)
             return;
 
-        var orderedLabels = datastore
+        var labelsSet = new HashSet<LabelNode>(labels);
+
+        var allLabels = datastore
             .DataflowDiagramMapping
-            .GetLabelDiagramModels()
-            .Except(labels)
-            .OrderBy(o => o.Order)
-            .Concat(labels.OrderBy(l => l.Order));
+            .GetLabelDiagramModels();
+
+        // Build two sorted lists: others first, then selected
+        var others = new List<LabelNode>();
+        var selected = new List<LabelNode>();
+
+        foreach (var label in allLabels)
+        {
+            if (labelsSet.Contains(label))
+                selected.Add(label);
+            else
+                others.Add(label);
+        }
+
+        others.Sort((a, b) => a.Order.CompareTo(b.Order));
+        selected.Sort((a, b) => a.Order.CompareTo(b.Order));
 
         diagramService.Diagram.SuspendSorting = true;
 
         var order = 1;
-        foreach (var label in orderedLabels)
+        foreach (var label in others)
+        {
+            label.Order = order;
+            order++;
+        }
+
+        foreach (var label in selected)
         {
             label.Order = order;
             order++;
@@ -35,14 +54,16 @@ public class LabelOrderService(IDatastore datastore, DiagramService diagramServi
 
     public void SendToBack(IEnumerable<LabelNode> labelNodes)
     {
-        var labels = labelNodes.ToArray();
-        if (labels.Length == 0)
+        var labels = new List<LabelNode>(labelNodes);
+        if (labels.Count == 0)
             return;
 
         diagramService.Diagram.SuspendSorting = true;
 
-        // OrderBy here to keep the order between the selected labels
-        foreach (var label in labels.OrderByDescending(l => l.Order))
+        // Sort descending by order to preserve relative ordering
+        labels.Sort((a, b) => b.Order.CompareTo(a.Order));
+
+        foreach (var label in labels)
         {
             diagramService.Diagram.SendToBack(label);
         }

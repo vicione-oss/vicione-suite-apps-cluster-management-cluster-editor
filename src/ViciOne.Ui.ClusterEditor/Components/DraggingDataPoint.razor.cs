@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Blazor.Diagrams.Core.Geometry;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
@@ -41,11 +40,18 @@ public sealed partial class DraggingDataPoint : ComponentBase, IDisposable
 
     private void OnDraggingStarted()
     {
-        if (DragService.DraggedItems?.FirstOrDefault(di => di is DataPortChildNodeModel) is not DataPortChildNodeModel dataPortChildNodeModel)
+        if (DragService.DraggedItems is null)
             return;
 
-        _icon = DataPortTreeIconProvider.GetDataPointIcon(dataPortChildNodeModel, 32, Datastore.Builder.Cache);
-        _visible = true;
+        foreach (var item in DragService.DraggedItems)
+        {
+            if (item is not DataPortChildNodeModel dataPortChildNodeModel)
+                continue;
+
+            _icon = DataPortTreeIconProvider.GetDataPointIcon(dataPortChildNodeModel, 32, Datastore.Builder.Cache);
+            _visible = true;
+            return;
+        }
     }
 
     protected override void OnInitialized()

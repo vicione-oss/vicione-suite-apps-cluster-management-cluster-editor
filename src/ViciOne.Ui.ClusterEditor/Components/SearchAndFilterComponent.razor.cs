@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Ui.ClusterEditor.Models;
@@ -13,7 +12,7 @@ public sealed partial class SearchAndFilterComponent : ComponentBase
     private int _filterButtonGridColumnCount;
     private int _systemButtonGridColumnCount;
 
-    [Parameter] public IEnumerable<FilterButton> FilterButtons { get; set; } = [];
+    [Parameter] public IReadOnlyList<FilterButton> FilterButtons { get; set; } = [];
     [Parameter] public bool GroupingButtonsEnabled { get; set; }
     [Parameter] public EventCallback OnCollapseAllGroups { get; set; }
     [Parameter] public EventCallback<string> OnColumnChooser { get; set; }
@@ -30,7 +29,7 @@ public sealed partial class SearchAndFilterComponent : ComponentBase
 
     protected override void OnParametersSet()
     {
-        _filterButtonGridColumnCount = Math.Max(1, (FilterButtons.Count() * 2) - 1);
+        _filterButtonGridColumnCount = Math.Max(1, (FilterButtons.Count * 2) - 1);
         _systemButtonGridColumnCount = Math.Max(0, ((ShowColumnChooser ? 3 : 2) * 2) - 1);
     }
 }

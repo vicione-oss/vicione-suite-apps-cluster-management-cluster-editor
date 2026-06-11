@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using Blazor.Diagrams.Core.Models;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
@@ -169,7 +168,10 @@ public sealed class DataflowDiagramMapping
     }
 
     public IEnumerable<BlockNodeConnector> GetDiagramModels(IEnumerable<IConnector> connectors)
-        => connectors.Select(GetDiagramModel);
+    {
+        foreach (var connector in connectors)
+            yield return GetDiagramModel(connector);
+    }
 
     public IEnumerable<FunctionBlockNode> GetDiagramModels(IEnumerable<FunctionBlock> functionBlocks)
     {

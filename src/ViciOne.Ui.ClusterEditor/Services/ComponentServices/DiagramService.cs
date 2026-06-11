@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using Blazor.Diagrams.Core;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.ComponentStates;
@@ -37,10 +36,19 @@ public sealed class DiagramService : IDisposable
         else
         {
             var draggingLinkSourceNode = (BlockNode)DraggingLink.SourceNode;
-            var sourceNodeConnector = draggingLinkSourceNode.ConnectorsToList()
-                .First(c => c.Id == DraggingLink.SourcePort!.Id);
+            var sourcePortId = DraggingLink.SourcePort!.Id;
 
-            var sourceModel = _datastore.DataflowDiagramMapping.GetModel(sourceNodeConnector);
+            BlockNodeConnector? sourceNodeConnector = null;
+            foreach (var connector in draggingLinkSourceNode.ConnectorsToList())
+            {
+                if (connector.Id == sourcePortId)
+                {
+                    sourceNodeConnector = connector;
+                    break;
+                }
+            }
+
+            var sourceModel = _datastore.DataflowDiagramMapping.GetModel(sourceNodeConnector!);
 
             _diagramEventService.InvokeDraggingLinkChanged(_datastore, sourceModel);
             _diagramEventService.RequestEdgeDraggingVisibilityChange(true);

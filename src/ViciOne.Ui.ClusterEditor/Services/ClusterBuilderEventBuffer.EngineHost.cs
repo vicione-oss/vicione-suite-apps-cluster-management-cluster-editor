@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Cluster.Model;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
@@ -37,33 +36,39 @@ public sealed partial class ClusterBuilderEventBuffer
     {
         if (_engineAddedBuffer.Count > 0)
         {
-            EnginesAdded?.Invoke([.. _engineAddedBuffer]);
+            EnginesAdded?.Invoke(_engineAddedBuffer);
             _engineAddedBuffer.Clear();
         }
 
         if (_engineHostAddedBuffer.Count > 0)
         {
-            EngineHostsAdded?.Invoke([.. _engineHostAddedBuffer]);
+            EngineHostsAdded?.Invoke(_engineHostAddedBuffer);
             _engineHostAddedBuffer.Clear();
         }
 
         if (_engineHostRemovedBuffer.Count > 0)
         {
-            EngineHostsRemoved?.Invoke([.. _engineHostRemovedBuffer]);
+            EngineHostsRemoved?.Invoke(_engineHostRemovedBuffer);
             _engineHostRemovedBuffer.Clear();
         }
 
         if (_engineRemovedBuffer.Count > 0)
         {
-            EnginesRemoved?.Invoke([.. _engineRemovedBuffer]);
+            EnginesRemoved?.Invoke(_engineRemovedBuffer);
             _engineRemovedBuffer.Clear();
         }
     }
 
     private void OnEngineAdded(object? sender, Cluster.Model.Engine engine)
     {
-        if (_engineAddedBuffer.Any(e => e.Engine == engine) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var e in _engineAddedBuffer)
+        {
+            if (e.Engine == engine)
+                return;
+        }
 
         _engineAddedBuffer.Add(new((EngineHost)sender, engine));
         ScheduleBufferFlush();
@@ -71,8 +76,14 @@ public sealed partial class ClusterBuilderEventBuffer
 
     private void OnEngineHostAdded(object? sender, EngineHost engineHost)
     {
-        if (_engineHostAddedBuffer.Any(e => e.EngineHost == engineHost) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var e in _engineHostAddedBuffer)
+        {
+            if (e.EngineHost == engineHost)
+                return;
+        }
 
         _engineHostAddedBuffer.Add(new((ClusterApplication)sender, engineHost));
         ScheduleBufferFlush();
@@ -80,8 +91,14 @@ public sealed partial class ClusterBuilderEventBuffer
 
     private void OnEngineHostRemoved(object? sender, EngineHost engineHost)
     {
-        if (_engineHostRemovedBuffer.Any(e => e.EngineHost == engineHost) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var e in _engineHostRemovedBuffer)
+        {
+            if (e.EngineHost == engineHost)
+                return;
+        }
 
         _engineHostRemovedBuffer.Add(new((ClusterApplication)sender, engineHost));
         ScheduleBufferFlush();
@@ -89,8 +106,14 @@ public sealed partial class ClusterBuilderEventBuffer
 
     private void OnEngineRemoved(object? sender, Cluster.Model.Engine engine)
     {
-        if (_engineRemovedBuffer.Any(e => e.Engine == engine) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var e in _engineRemovedBuffer)
+        {
+            if (e.Engine == engine)
+                return;
+        }
 
         _engineRemovedBuffer.Add(new((EngineHost)sender, engine));
         ScheduleBufferFlush();

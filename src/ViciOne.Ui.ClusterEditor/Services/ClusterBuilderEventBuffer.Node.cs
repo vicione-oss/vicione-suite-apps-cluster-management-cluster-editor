@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Cluster.Model;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
@@ -37,33 +36,39 @@ public sealed partial class ClusterBuilderEventBuffer
     {
         if (_applicationAddedBuffer.Count > 0)
         {
-            ApplicationsAdded?.Invoke([.. _applicationAddedBuffer]);
+            ApplicationsAdded?.Invoke(_applicationAddedBuffer);
             _applicationAddedBuffer.Clear();
         }
 
         if (_applicationRemovedBuffer.Count > 0)
         {
-            ApplicationsRemoved?.Invoke([.. _applicationRemovedBuffer]);
+            ApplicationsRemoved?.Invoke(_applicationRemovedBuffer);
             _applicationRemovedBuffer.Clear();
         }
 
         if (_nodeAddedBuffer.Count > 0)
         {
-            NodesAdded?.Invoke([.. _nodeAddedBuffer]);
+            NodesAdded?.Invoke(_nodeAddedBuffer);
             _nodeAddedBuffer.Clear();
         }
 
         if (_nodeRemovedBuffer.Count > 0)
         {
-            NodesRemoved?.Invoke([.. _nodeRemovedBuffer]);
+            NodesRemoved?.Invoke(_nodeRemovedBuffer);
             _nodeRemovedBuffer.Clear();
         }
     }
 
     private void OnApplicationAdded(object? sender, ClusterApplication application)
     {
-        if (_applicationAddedBuffer.Any(app => app.Application == application) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var (_, bufferedApplication) in _applicationAddedBuffer)
+        {
+            if (bufferedApplication == application)
+                return;
+        }
 
         _applicationAddedBuffer.Add(new((ClusterNode)sender, application));
         ScheduleBufferFlush();
@@ -71,8 +76,14 @@ public sealed partial class ClusterBuilderEventBuffer
 
     private void OnApplicationRemoved(object? sender, ClusterApplication application)
     {
-        if (_applicationAddedBuffer.Any(app => app.Application == application) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var (_, bufferedApplication) in _applicationAddedBuffer)
+        {
+            if (bufferedApplication == application)
+                return;
+        }
 
         _applicationRemovedBuffer.Add(new((ClusterNode)sender, application));
         ScheduleBufferFlush();
@@ -80,8 +91,14 @@ public sealed partial class ClusterBuilderEventBuffer
 
     private void OnNodeAdded(object? sender, ClusterNode node)
     {
-        if (_nodeAddedBuffer.Any(n => n.Node == node) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var (_, bufferedNode) in _nodeAddedBuffer)
+        {
+            if (bufferedNode == node)
+                return;
+        }
 
         _nodeAddedBuffer.Add(new((ClusterNodeGroup)sender, node));
         ScheduleBufferFlush();
@@ -89,8 +106,14 @@ public sealed partial class ClusterBuilderEventBuffer
 
     private void OnNodeRemoved(object? sender, ClusterNode node)
     {
-        if (_nodeRemovedBuffer.Any(n => n.Node == node) || sender is null)
+        if (sender is null)
             return;
+
+        foreach (var (_, bufferedNode) in _nodeRemovedBuffer)
+        {
+            if (bufferedNode == node)
+                return;
+        }
 
         _nodeRemovedBuffer.Add(new((ClusterNodeGroup)sender, node));
         ScheduleBufferFlush();

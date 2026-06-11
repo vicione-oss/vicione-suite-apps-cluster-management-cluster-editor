@@ -1,6 +1,5 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using ViciOne.Cluster.Model;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
@@ -29,21 +28,24 @@ public sealed partial class ClusterBuilderEventBuffer
     {
         if (_nodeGroupAddedBuffer.Count > 0)
         {
-            NodeGroupsAdded?.Invoke([.. _nodeGroupAddedBuffer]);
+            NodeGroupsAdded?.Invoke(_nodeGroupAddedBuffer);
             _nodeGroupAddedBuffer.Clear();
         }
 
         if (_nodeGroupRemovedBuffer.Count > 0)
         {
-            NodeGroupsRemoved?.Invoke([.. _nodeGroupRemovedBuffer]);
+            NodeGroupsRemoved?.Invoke(_nodeGroupRemovedBuffer);
             _nodeGroupRemovedBuffer.Clear();
         }
     }
 
     private void OnNodeGroupAdded(object? sender, ClusterNodeGroup nodeGroup)
     {
-        if (_nodeGroupAddedBuffer.Any(ng => ng.NodeGroup == nodeGroup))
-            return;
+        foreach (var (_, bufferedNodeGroup) in _nodeGroupAddedBuffer)
+        {
+            if (bufferedNodeGroup == nodeGroup)
+                return;
+        }
 
         _nodeGroupAddedBuffer.Add(new(sender is null ? null : (IHasClusterNodeGroups)sender, nodeGroup));
         ScheduleBufferFlush();
@@ -51,8 +53,11 @@ public sealed partial class ClusterBuilderEventBuffer
 
     private void OnNodeGroupRemoved(object? sender, ClusterNodeGroup nodeGroup)
     {
-        if (_nodeGroupRemovedBuffer.Any(ng => ng.NodeGroup == nodeGroup))
-            return;
+        foreach (var (_, bufferedNodeGroup) in _nodeGroupRemovedBuffer)
+        {
+            if (bufferedNodeGroup == nodeGroup)
+                return;
+        }
 
         _nodeGroupRemovedBuffer.Add(new(sender is null ? null : (IHasClusterNodeGroups)sender, nodeGroup));
         ScheduleBufferFlush();

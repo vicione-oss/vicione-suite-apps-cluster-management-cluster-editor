@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Linq;
+using System.Collections.Generic;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
 using ViciOne.Core.Contracts;
@@ -24,10 +24,33 @@ public sealed class DataGridConnectorWrapper(IConnector connector,
     public Guid FunctionBlockId => Connector.FunctionBlock.Id;
     public string FunctionBlockName => Connector.FunctionBlock.Name;
     public bool IsInput => Connector is IConnectorInput;
-    public int Links => Connector.Links.Count(x => !x.Visible);
+
+    public int Links
+    {
+        get
+        {
+            var count = 0;
+            foreach (var link in Connector.Links)
+            {
+                if (!link.Visible)
+                    count++;
+            }
+            return count;
+        }
+    }
+
     public string ParentName => ((INamedContainerChild)Connector.Parent).Name;
-    public string Path => string.Join('.', ContainerChildExtensions
-        .GetAllUpstreamContainers(Connector.FunctionBlock)
-        .Select(x => x.Name)
-        .Reverse());
+
+    public string Path
+    {
+        get
+        {
+            var containers = ContainerChildExtensions.GetAllUpstreamContainers(Connector.FunctionBlock);
+            var parts = new List<string>();
+            foreach (var c in containers)
+                parts.Add(c.Name);
+            parts.Reverse();
+            return string.Join('.', parts);
+        }
+    }
 }

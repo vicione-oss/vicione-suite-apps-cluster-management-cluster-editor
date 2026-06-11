@@ -74,7 +74,12 @@ public sealed partial class LibrarySectionContent : ComponentBase, IDisposable
 
     private void OnTreeDragStarted(IEnumerable<ITreeNode> treeNodes)
     {
-        LibraryService.DraggingEntries = treeNodes.Select(tn => ((LibraryTreeNode)tn).LibraryEntry);
+        var entries = new List<LibraryEntry>();
+
+        foreach (var node in treeNodes)
+            entries.Add(((LibraryTreeNode)node).LibraryEntry);
+
+        LibraryService.DraggingEntries = entries;
         LibraryService.InvokeDragStarted();
     }
 }

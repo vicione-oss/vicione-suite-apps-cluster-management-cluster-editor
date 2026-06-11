@@ -99,8 +99,8 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
 
     private void FilterAttachedNodes()
     {
-        var selectedBlockNodes = SelectionManager.SelectedBlockNodes.ToArray();
-        if (selectedBlockNodes.Length == 0)
+        var selectedBlockNodes = SelectionManager.SelectedBlockNodes;
+        if (selectedBlockNodes.Count == 0)
             return;
 
         var relevantNodes = selectedBlockNodes.Union(Datastore.GetConnectedNodes(selectedBlockNodes));
@@ -125,8 +125,8 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
 
     private void FilterSelectedNodes()
     {
-        var selectedBlockNodes = SelectionManager.SelectedBlockNodes.ToArray();
-        if (selectedBlockNodes.Length == 0)
+        var selectedBlockNodes = SelectionManager.SelectedBlockNodes;
+        if (selectedBlockNodes.Count == 0)
             return;
 
         var connectedLinks = Datastore.GetConnectedNodeLinks(selectedBlockNodes);
@@ -143,7 +143,15 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
 
     private void OnDiagramNodeAmountChanged(NodeModel _)
     {
-        _selectEnabled = DiagramService.Diagram.Nodes.Any(n => n is ChildContainerNode or FunctionBlockNode);
+        foreach (var node in DiagramService.Diagram.Nodes)
+        {
+            if (node is ChildContainerNode or FunctionBlockNode)
+            {
+                _selectEnabled = true;
+                break;
+            }
+        }
+
         InvokeAsync(StateHasChanged);
     }
 
@@ -267,11 +275,14 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
     private void RenderNodesFilter(IEnumerable<BlockNode> filteredNodes, IEnumerable<BlockNodeLink> connectedLinks)
         => DiagramService.Diagram.Batch(() =>
         {
+            var filteredSet = filteredNodes as ISet<BlockNode> ?? new HashSet<BlockNode>(filteredNodes);
+            var linksSet = connectedLinks as ISet<BlockNodeLink> ?? new HashSet<BlockNodeLink>(connectedLinks);
+
             foreach (var node in DiagramService.Diagram.Nodes)
             {
                 if (node is IDiagramModel dmNode)
                 {
-                    dmNode.Visible = filteredNodes.Contains(dmNode);
+                    dmNode.Visible = filteredSet.Contains((BlockNode)dmNode);
                     if (!dmNode.Visible)
                         SelectionManager.Deselect(dmNode);
 
@@ -279,10 +290,13 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
                 }
             }
 
-            foreach (var link in DiagramService.Diagram.Links.OfType<BlockNodeLink>())
+            foreach (var link in DiagramService.Diagram.Links)
             {
-                link.Visible = connectedLinks.Contains(link);
-                link.Refresh();
+                if (link is BlockNodeLink blockNodeLink)
+                {
+                    blockNodeLink.Visible = linksSet.Contains(blockNodeLink);
+                    blockNodeLink.Refresh();
+                }
             }
         });
 
@@ -301,12 +315,12 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
                 }
             }
 
-            foreach (var link in DiagramService.Diagram.Links.OfType<BlockNodeLink>())
+            foreach (var link in DiagramService.Diagram.Links)
             {
-                if (!link.Visible)
+                if (link is BlockNodeLink blockNodeLink && !blockNodeLink.Visible)
                 {
-                    link.Visible = true;
-                    link.Refresh();
+                    blockNodeLink.Visible = true;
+                    blockNodeLink.Refresh();
                 }
             }
         });

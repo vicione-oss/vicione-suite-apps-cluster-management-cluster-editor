@@ -1,10 +1,17 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Topology.Models;
 
 internal static class TopologyTreeViewModelExtensions
 {
     public static IEnumerable<TopologyTreeViewModel> GetNodeAndDescendants(this TopologyTreeViewModel node)
-        => new[] { node }.Concat(node.Children.SelectMany((child) => child.GetNodeAndDescendants()));
+    {
+        yield return node;
+
+        foreach (var child in node.Children)
+        {
+            foreach (var descendant in child.GetNodeAndDescendants())
+                yield return descendant;
+        }
+    }
 }
