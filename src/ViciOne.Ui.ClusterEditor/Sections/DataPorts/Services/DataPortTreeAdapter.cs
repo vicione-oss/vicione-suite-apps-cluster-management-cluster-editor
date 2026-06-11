@@ -86,9 +86,9 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
         if (e.Node is not DataPortNodeModel dpNode)
             return;
 
-        if (dpNode.PossibleChildren.Count() == 1)
+        if (dpNode.PossibleChildren.Count == 1)
         {
-            CreateNewChildNode(dpNode, dpNode.PossibleChildren.First());
+            CreateNewChildNode(dpNode, dpNode.PossibleChildren[0]);
             Builder.Expansion.ChangeExpansion(dpNode, true);
             return;
         }
@@ -267,7 +267,9 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
 
         if (dataPortNode is DataPortRootNodeModel rootNodeModel)
         {
-            var iconName = string.IsNullOrEmpty(dataPortNode.Icon) ? dataPortNode.AvailableIcons.FirstOrDefault() : dataPortNode.Icon;
+            var iconName = string.IsNullOrEmpty(dataPortNode.Icon)
+                ? (dataPortNode.AvailableIcons.Count > 0 ? dataPortNode.AvailableIcons[0] : null)
+                : dataPortNode.Icon;
             if (!string.IsNullOrEmpty(iconName))
             {
                 var icon = _dataPortTreeIconProvider.GetSvgIcon(rootNodeModel.Builder, iconName) ?? _dataPortTreeIconProvider.GetSvgIcon(rootNodeModel.Builder, "server");
@@ -315,8 +317,8 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
     }
 
     private static string GetNodeActionAddDescription(DataPortNodeModel dataPortNode)
-        => dataPortNode.PossibleChildren.Count() == 1
-            ? string.Format(CultureInfo.InvariantCulture, s_compositeNodeActionAdd, dataPortNode.PossibleChildren.First().DisplayText)
+        => dataPortNode.PossibleChildren.Count == 1
+            ? string.Format(CultureInfo.InvariantCulture, s_compositeNodeActionAdd, dataPortNode.PossibleChildren[0].DisplayText)
             : string.Format(CultureInfo.InvariantCulture, s_compositeNodeActionAdd, DataPortSection.NewChild);
 
     private TreeBuilder.TreeBuilder GetOrCreateTreeBuilder(RulesetIdentifier rulesetId)
