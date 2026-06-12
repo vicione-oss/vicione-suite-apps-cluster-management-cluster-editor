@@ -38,8 +38,22 @@ public sealed class BlockNodeConnectorContextMenuState(IDatastore datastore, Sel
 
     private void ConfigurePublishEntry()
     {
-        PublishConnectorEnabled = selectionManager.SelectedConnectors.Any(c => !c.Published);
-        CancelConnectorPublicationEnabled = selectionManager.SelectedConnectors.Any(c => c.Published);
+        var hasPublished = false;
+        var hasUnpublished = false;
+
+        foreach (var c in selectionManager.SelectedConnectors)
+        {
+            if (c.Published)
+                hasPublished = true;
+            else
+                hasUnpublished = true;
+
+            if (hasPublished && hasUnpublished)
+                break;
+        }
+
+        PublishConnectorEnabled = hasUnpublished;
+        CancelConnectorPublicationEnabled = hasPublished;
     }
 
     private (bool EnableAdd, bool EnableRemoveFromParent, bool EnableRemove) GetConnectorAddRemoveVisibility()

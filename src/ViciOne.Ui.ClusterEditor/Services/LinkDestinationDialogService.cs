@@ -82,7 +82,8 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
             return;
         }
 
-        if (sourceConnectorMarker.Links[0].SourceConnector is null || sourceConnectorMarker.Links[0].DestinationConnector is null)
+        var firstLink = sourceConnectorMarker.Links[0];
+        if (firstLink.SourceConnector is null || firstLink.DestinationConnector is null)
         {
             List<DataGridDataPortWrapper> dataPortResult = [];
             foreach (var link in sourceConnectorMarker.Links)
