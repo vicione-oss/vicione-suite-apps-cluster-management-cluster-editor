@@ -82,7 +82,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
         if (sourceSelection.Count > 0)
         {
-            var connectorsToMove = sourceCollection.Where(sc => sc.Index >= sourceSelection.First().Index)
+            var connectorsToMove = sourceCollection.Where(sc => sc.Index >= sourceSelection[0].Index)
                 .OrderByDescending(sc => sc.Index)
                 .ToArray();
             sourceCollection.Add(placeholder);
@@ -630,7 +630,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         var containerModel = Datastore.DataflowDiagramMapping.GetModel(_originalContainerNode);
         using var cts = new CancellationTokenSource();
 
-        var nameFieldHeight = (await JsRuntime.MeasureNameFieldHeights([containerModel.Name], cts.Token)).First();
+        var nameFieldHeight = (await JsRuntime.MeasureNameFieldHeights([containerModel.Name], cts.Token))[0];
         _currentContainerNode = ChildContainerMapper.CreateNode(ComparerService, Datastore, _diagramService!, containerModel, nameFieldHeight);
 
         _currentContainerNode.Position = new(0, 0);

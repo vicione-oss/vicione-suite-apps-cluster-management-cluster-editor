@@ -278,7 +278,7 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
 
                 if (e.CtrlKey)
                 {
-                    if (selectedItems.Count > 0 && selectedItems.First().ConnectorType != currentConnectorWrapper.ConnectorType)
+                    if (selectedItems.Count > 0 && selectedItems[0].ConnectorType != currentConnectorWrapper.ConnectorType)
                         return;
 
                     if (!selectedItems.Remove(currentConnectorWrapper))
@@ -335,8 +335,30 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
     {
         var prevIFBS = _inputFilterButton.IsDisabled;
         var prevOFBS = _outputFilterButton.IsDisabled;
-        _inputFilterButton.IsDisabled = !DataAvailable || !PublishedConnectorsService.PublishedConnectorWrappers.Any(pc => pc.IsInput);
-        _outputFilterButton.IsDisabled = !DataAvailable || !PublishedConnectorsService.PublishedConnectorWrappers.Any(pc => !pc.IsInput);
+
+        if (!DataAvailable)
+        {
+            _inputFilterButton.IsDisabled = true;
+            _outputFilterButton.IsDisabled = true;
+        }
+        else
+        {
+            var hasInput = false;
+            var hasOutput = false;
+            foreach (var pc in PublishedConnectorsService.PublishedConnectorWrappers)
+            {
+                if (pc.IsInput)
+                    hasInput = true;
+                else
+                    hasOutput = true;
+
+                if (hasInput && hasOutput)
+                    break;
+            }
+
+            _inputFilterButton.IsDisabled = !hasInput;
+            _outputFilterButton.IsDisabled = !hasOutput;
+        }
 
         if (prevIFBS != _inputFilterButton.IsDisabled || prevOFBS != _outputFilterButton.IsDisabled)
             InvokeAsync(StateHasChanged);

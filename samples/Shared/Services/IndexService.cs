@@ -58,7 +58,7 @@ public sealed partial class IndexService : IAsyncDisposable
         if (_disposed)
             return;
 
-        var root = Builder.Cluster.Dataflows.First().Root;
+        var root = Builder.Cluster.Dataflows[0].Root;
         for (var i = 0; i < 5; i++)
             Builder.Editors.Container.AddContainer(root, $"Generated {i}", location: new Point(i * 200, 0));
 

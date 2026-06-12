@@ -240,11 +240,12 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
 
             if (IsValidDropTarget)
             {
-                PoolingModeColor = Color.GetRelativeLuminance(PortColor) < RelativeLuminanceThreshold
+                var luminance = Color.GetRelativeLuminance(PortColor);
+                PoolingModeColor = luminance < RelativeLuminanceThreshold
                     ? BlockNodeConnectorColors.PoolingModeIsValidDropTargetOnDarkBackground
                     : BlockNodeConnectorColors.PoolingModeIsValidDropTarget;
                 TextBackgroundColor = PortColor;
-                TextColor = Color.GetRelativeLuminance(PortColor) < RelativeLuminanceThreshold
+                TextColor = luminance < RelativeLuminanceThreshold
                     ? BlockNodeConnectorColors.TextIsValidDropTargetOnDarkBackground
                     : BlockNodeConnectorColors.TextIsValidDropTarget;
             }

@@ -186,15 +186,16 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
     private async void OnDataPortWithLinksDoubleClickedAsync(ITreeNode node)
     {
         var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeIds[((GuidNodeIdentifier)node.Id).Value];
-
-        if (dataPortTreeNode is null || !dataPortTreeNode.Links.Any())
+        var linksCount = dataPortTreeNode?.Links.Count() ?? 0;
+        if (linksCount == 0)
             return;
 
-        if (dataPortTreeNode.Links.Count() == 1)
+        if (linksCount == 1)
         {
-            Connector connectorToHighlight = dataPortTreeNode.Links.First().SourceConnector is not null
-                ? dataPortTreeNode.Links.First().SourceConnector!
-                : dataPortTreeNode.Links.First().DestinationConnector!;
+            var link = dataPortTreeNode!.Links.First();
+            Connector connectorToHighlight = link.SourceConnector is not null
+                ? link.SourceConnector!
+                : link.DestinationConnector!;
 
             await ConnectorService.ShowAndSelectDataPortConnectorMarker(connectorToHighlight);
         }

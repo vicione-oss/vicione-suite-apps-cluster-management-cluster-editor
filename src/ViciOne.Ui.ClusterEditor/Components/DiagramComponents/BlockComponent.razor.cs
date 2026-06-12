@@ -283,6 +283,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         if (blockNodeConnector.IsValidDropTarget)
         {
             var targetConnector = Datastore.DataflowDiagramMapping.GetModel(blockNodeConnector);
+            var connector = targetConnector is ContainerConnector ? targetConnector.GetUnderlyingConnector() : (Connector)targetConnector;
 
             foreach (var draggedItem in DragService.DraggedItems)
             {
@@ -293,7 +294,6 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
                 if (dataPortTreeNode is null)
                     continue;
 
-                var connector = targetConnector is ContainerConnector ? targetConnector.GetUnderlyingConnector() : (Connector)targetConnector;
                 if (Datastore.Builder.Editors.DataPortTreeNode.CanAssignConnector(dataPortTreeNode, connector))
                     Datastore.Builder.Editors.DataPortTreeNode.AssignConnector(dataPortTreeNode, connector);
             }
@@ -377,19 +377,21 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
 
         if (connectorMarker.Links.Count == 1)
         {
-            if (connectorMarker.Links[0].SourceConnector is null || connectorMarker.Links[0].DestinationConnector is null)
+            var link = connectorMarker.Links[0];
+
+            if (link.SourceConnector is null || link.DestinationConnector is null)
             {
                 var dataPortTreeNode = connectorMarker.Connector.IsInput
-                    ? connectorMarker.Links[0].SourceDataPortTreeNode!
-                    : connectorMarker.Links[0].DestinationDataPortTreeNode!;
+                    ? link.SourceDataPortTreeNode!
+                    : link.DestinationDataPortTreeNode!;
 
                 ShowAndSelectDataPort(dataPortTreeNode);
             }
             else
             {
                 Connector targetConnector = connectorMarker.Connector.IsInput
-                    ? connectorMarker.Links[0].SourceConnector!
-                    : connectorMarker.Links[0].DestinationConnector!;
+                    ? link.SourceConnector!
+                    : link.DestinationConnector!;
 
                 await ConnectorService.ShowAndSelectConnector(targetConnector);
             }

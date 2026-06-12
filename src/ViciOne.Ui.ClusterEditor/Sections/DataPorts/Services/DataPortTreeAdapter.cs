@@ -246,7 +246,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
             if (n is not DataPortNodeModel dpNode)
                 return;
 
-            if (_datastore.Builder.Cache.DataPortTreeNodeIds.ContainsKey(dpNode.Id.Value) && _datastore.Builder.Cache.DataPortTreeNodeIds[dpNode.Id.Value].Links.Any())
+            if (_datastore.Builder.Cache.DataPortTreeNodeIds.TryGetValue(dpNode.Id.Value, out var treeNode) && treeNode.Links.Any())
                 DataPortWithLinksDoubleClicked?.Invoke(node);
             else
                 Builder.Expansion.ChangeExpansion(node, !((DataPortNodeModel)node).Expanded);

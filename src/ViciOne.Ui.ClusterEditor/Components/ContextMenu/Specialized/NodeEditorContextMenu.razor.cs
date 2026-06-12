@@ -240,7 +240,7 @@ public sealed partial class NodeEditorContextMenu : SpecializedContextMenuWithSt
         var containerEditor = Datastore.Builder.Editors.Container;
         var functionBlockEditor = Datastore.Builder.Editors.FunctionBlock;
 
-        var assignEngine = selectedContainers.Any(sc => !sc.GetEngines().Any() || sc.GetEngines().Any(e => !e.Equals(engine)))
+        var assignEngine = selectedContainers.Any(sc => { var engines = sc.GetEngines(); return !engines.Any() || engines.Any(e => !e.Equals(engine)); })
             || selectedFbs.Any(n => n.Engine != engine);
 
         if (assignEngine)
