@@ -289,7 +289,10 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
     // In the future this might not hold true, e.g. when we introduce a wizard
     // that removes or exchanges blocks, but for now it should be good enough
     private void OnDiagramNodesRemoved(NodeModel nodeModel)
-        => InvokeDiagramSelectionChanged(nodeModel);
+    {
+        InvalidateSelectionCache();
+        InvokeDiagramSelectionChanged(nodeModel);
+    }
 
     private void OnDiagramSelectionChanged(SelectableModel selectableModel)
     {
