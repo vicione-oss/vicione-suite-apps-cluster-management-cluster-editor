@@ -45,7 +45,7 @@
                             </div>
 
                             <div @onclick="@(() => AddPlaceholder(true))"
-                                 class="command-button"
+                                 class="command-button @(_addInputPlaceholderEnabled ? string.Empty : "disabled")"
                                  style="--button-position: 3;"
                                  title="@Localization.ContainerEditor.AddPlaceholder">
 
@@ -114,7 +114,7 @@
                             </div>
 
                             <div @onclick="@(() => AddPlaceholder(false))"
-                                 class="command-button"
+                                 class="command-button @(_addOutputPlaceholderEnabled ? string.Empty : "disabled")"
                                  style="--button-position: 3;"
                                  title="@Localization.ContainerEditor.AddPlaceholder">
 
@@ -142,7 +142,7 @@
                             @foreach (var connector in _inputConnectors)
                             {
                                 <ContainerEditorListElement Connector="connector"
-                                                            OnClick="@((e) => OnConnectorClicked(e.Connector, e.CtrlKey, true))" />
+                                                            OnClick="@((e) => OnConnectorClicked(e.Connector, true, e.CtrlKey, e.ShiftKey))" />
                             }
                         </div>
 
@@ -160,7 +160,7 @@
                             @foreach (var connector in _outputConnectors)
                             {
                                 <ContainerEditorListElement Connector="connector"
-                                                            OnClick="@((e) => OnConnectorClicked(e.Connector, e.CtrlKey, false))" />
+                                                            OnClick="@((e) => OnConnectorClicked(e.Connector, false,  e.CtrlKey, e.ShiftKey))" />
                             }
                         </div>
                     </div>

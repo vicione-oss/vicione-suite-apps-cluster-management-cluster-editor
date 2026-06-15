@@ -1,4 +1,4 @@
-﻿<div @onclick="@((args) => InvokeOnClick(args.CtrlKey))"
+﻿<div @onclick="@((args) => InvokeOnClick(args.CtrlKey, args.ShiftKey))"
      class="list-element @(Connector.Selected ? "selected" : string.Empty)">
 
     @if (string.IsNullOrEmpty(Connector.Color))
