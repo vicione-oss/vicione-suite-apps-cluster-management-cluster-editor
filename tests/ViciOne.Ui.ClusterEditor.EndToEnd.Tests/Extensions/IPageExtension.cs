@@ -1,4 +1,5 @@
 ﻿using Microsoft.Playwright;
+using static Microsoft.Playwright.Assertions;
 
 namespace ViciOne.Ui.ClusterEditor.EndToEnd.Tests.Extensions;
 
@@ -6,7 +7,7 @@ internal static class IPageExtension
 {
     private static async Task<ILocator> GetDataflowToolbarSectionContentLocatorAsync(this IPage page, SectionNames section)
     {
-        var buttonTitle = section switch
+        var title = section switch
         {
             SectionNames.DataPorts => "DataPorts",
             SectionNames.Library => "Library",
@@ -16,27 +17,24 @@ internal static class IPageExtension
             SectionNames.Topology => "Cluster Topology",
             _ => throw new ArgumentOutOfRangeException(nameof(section)),
         };
-        var contentContainerClass = section switch
-        {
-            SectionNames.DataPorts => ".dataport-section-container",
-            SectionNames.Library => ".library-section-container",
-            SectionNames.Property => ".property-section-container",
-            SectionNames.PublishedConnectors => ".published-connectors-section-container",
-            SectionNames.SearchAndTools => ".search-and-tools-section-container",
-            SectionNames.Topology => ".topology-section-container",
-            _ => throw new ArgumentOutOfRangeException(nameof(section)),
-        };
-        var sidebarLocator = page.Locator(".sidebar--right");
-        var resultLocator = sidebarLocator
-            .Locator(contentContainerClass);
 
-        if (!await resultLocator.IsVisibleAsync())
+        var sidebarLocator = page.Locator(".sidebar--right");
+        var sectionLocator = sidebarLocator.Locator(".flyout > .section:not( .hidden) .section-layout");
+        var sectionContentLocator = sectionLocator.Locator(".content");
+
+        var headerTitleLocator = sectionLocator
+            .Locator("> .header > .title")
+            .GetByText(title, new() { Exact = true });
+
+        if (!await headerTitleLocator.IsVisibleAsync())
         {
-            var buttonLocator = sidebarLocator.GetByRole(AriaRole.Link, new() { Exact = true, Name = buttonTitle });
+            var buttonLocator = sidebarLocator.GetByRole(AriaRole.Link, new() { Exact = true, Name = title });
             await buttonLocator.ClickAsync();
+
+            await Expect(headerTitleLocator).ToBeVisibleAsync();
         }
 
-        return resultLocator;
+        return sectionContentLocator;
     }
 
     private static async Task<ILocator> GetInfrastructureToolbarSectionContentLocatorAsync(this IPage page, SectionNames section)
