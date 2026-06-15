@@ -8,6 +8,7 @@
 - Double click on a `Connector` container marker now selects the associated parent container's `Connector`
 - Double click on a `Link` now selects the associated Connector instead of the Node 
 - Reduce GC pressure on interaction hot paths by replacing LINQ chains with allocation-free loops, eliminating spread-operator array copies in event buffers, and fixing quadratic diagram filter lookup
+- Added shift-click range selection for connectors in `ContainerEditor`
 
 ### Fixed
 

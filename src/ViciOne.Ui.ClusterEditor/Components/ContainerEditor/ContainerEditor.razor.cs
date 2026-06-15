@@ -33,6 +33,8 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     private const int MaxPreviewWidth = 192;
     private const float UiScaleFactor = 1.2f;
 
+    private bool _addInputPlaceholderEnabled;
+    private bool _addOutputPlaceholderEnabled;
     private double _allocationContainerHeight;
     private ChildContainerNode? _currentContainerNode;
     private BlazorDiagram? _diagram;
@@ -40,6 +42,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     private readonly List<ContainerEditorConnector> _inputConnectors = [];
     private bool _inputDownEnabled;
     private bool _inputUpEnabled;
+    private ContainerEditorConnector? _lastClickedConnector;
     private int _listsHeightOffset;
     private ChildContainerNode? _originalContainerNode;
     private readonly List<ContainerEditorConnector> _outputConnectors = [];
@@ -88,16 +91,13 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
             sourceCollection.Add(placeholder);
 
             foreach (var movingConnector in connectorsToMove)
-                Move(movingConnector, false, isInput);
+                Move(movingConnector, isInput, false);
         }
         else
         {
             sourceCollection.Add(placeholder);
             _scrollContainer?.SetAutoscrollToEnd();
         }
-
-        sourceSelection.Clear();
-        sourceSelection.Add(placeholder);
 
         StartRefreshDebounce();
     }
@@ -201,37 +201,22 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         oldCts?.Dispose();
     }
 
-    private int GetHighestConnectorIndex()
-        => Math.Max(
-            _inputConnectors.Any(c => !c.IsPlaceholder) ? _inputConnectors.IndexOf(_inputConnectors.Last(c => !c.IsPlaceholder)) : 0,
-            _outputConnectors.Any(c => !c.IsPlaceholder) ? _outputConnectors.IndexOf(_outputConnectors.Last(c => !c.IsPlaceholder)) : 0
-        );
+    private static bool GetAddPlaceholderButtonEnabled(List<ContainerEditorConnector> selectedConnectors)
+        => selectedConnectors.Count > 0;
 
-    private static bool GetMoveDownButtonEnabled(List<ContainerEditorConnector> connectors, IList<ContainerEditorConnector> selectedConnectors)
-        => selectedConnectors.Any() && selectedConnectors.All(c => c.Index < connectors.Count - 1);
+    private static bool GetMoveDownButtonEnabled(List<ContainerEditorConnector> connectors, List<ContainerEditorConnector> selectedConnectors)
+        => selectedConnectors.Count > 0 && selectedConnectors.All(c => c.Index < connectors.Count - 1);
 
-    private static bool GetMoveUpButtonEnabled(IList<ContainerEditorConnector> selectedConnectors)
-        => selectedConnectors.Any() && selectedConnectors.All(c => c.Index > 0);
+    private static bool GetMoveUpButtonEnabled(List<ContainerEditorConnector> selectedConnectors)
+        => selectedConnectors.Count > 0 && selectedConnectors.All(c => c.Index > 0);
 
-    private static bool GetRemoveInputPlaceholderButtonEnabled(IEnumerable<ContainerEditorConnector> connectors, IList<ContainerEditorConnector> selectedConnectors)
-    {
-        if (selectedConnectors is null || connectors is null)
-            return false;
-
-        var minimalNeededIndex = BlockNodeLayout.MinimumConnectorRows - BlockNodeLayout.SystemConnectorRows - 1;
-
-        return selectedConnectors.Any()
-            && selectedConnectors.All(c => c.IsPlaceholder)
-            && connectors.Any(c => c.Index > minimalNeededIndex);
-    }
+    private static bool GetRemoveInputPlaceholderButtonEnabled(List<ContainerEditorConnector> selectedConnectors)
+        => selectedConnectors.Count > 0 && selectedConnectors.All(c => c.IsPlaceholder);
 
     private int GetRequiredPreviewContainerConnectorRowCount()
     {
-        var previewContainerConnectorRowCount = GetHighestConnectorIndex() + BlockNodeLayout.SystemConnectorRows + 1;
-
-        var requiredConnectorRowCount = Math.Max(previewContainerConnectorRowCount, BlockNodeLayout.MinimumConnectorRows);
-
-        return requiredConnectorRowCount;
+        var listRowCount = Math.Max(_inputConnectors.Count, _outputConnectors.Count) + BlockNodeLayout.SystemConnectorRows;
+        return Math.Max(listRowCount, BlockNodeLayout.MinimumConnectorRows);
     }
 
     private void InitializeConnectorLists()
@@ -299,7 +284,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     private void InitializeDiagramService()
         => _diagramService = new(Datastore, new());
 
-    private void Move(ContainerEditorConnector connector, bool moveUp, bool isInput)
+    private void Move(ContainerEditorConnector connector, bool isInput, bool moveUp)
     {
         var sourceCollection = isInput ? _inputConnectors : _outputConnectors;
         var direction = moveUp ? -1 : 1;
@@ -315,8 +300,6 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         var item = sourceCollection[oldListIndex];
         sourceCollection.RemoveAt(oldListIndex);
         sourceCollection.Insert(newListIndex, item);
-
-        StartRefreshDebounce();
     }
 
     private async void OnAllocationContainerSizeChanged(Size size)
@@ -329,20 +312,43 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         await InvokeAsync(StateHasChanged);
     }
 
-    private void OnConnectorClicked(ContainerEditorConnector connector, bool ctrlKey, bool isInput)
+    private void OnConnectorClicked(ContainerEditorConnector connector, bool isInput, bool ctrlKey, bool shiftKey)
     {
-        connector.Selected ^= true; // toggle selection
+        var sourceCollection = isInput ? _inputConnectors : _outputConnectors;
 
-        if (!ctrlKey)
+        if (shiftKey && _lastClickedConnector is not null && _lastClickedConnector != connector)
         {
-            var sourceSelection = isInput ? _inputConnectors : _outputConnectors;
-            foreach (var con in sourceSelection)
-            {
-                if (con == connector || !con.Selected)
-                    continue;
+            var anchorIndex = sourceCollection.IndexOf(_lastClickedConnector);
+            var targetIndex = sourceCollection.IndexOf(connector);
 
-                con.Selected = false;
+            if (anchorIndex >= 0 && targetIndex >= 0)
+            {
+                var from = Math.Min(anchorIndex, targetIndex);
+                var to = Math.Max(anchorIndex, targetIndex);
+
+                if (!ctrlKey)
+                    ClearSelectedConnectors(sourceCollection);
+
+                for (var i = from; i <= to; i++)
+                    sourceCollection[i].Selected = true;
             }
+        }
+        else
+        {
+            connector.Selected ^= true;
+
+            if (!ctrlKey)
+            {
+                foreach (var con in sourceCollection)
+                {
+                    if (con == connector || !con.Selected)
+                        continue;
+
+                    con.Selected = false;
+                }
+            }
+
+            _lastClickedConnector = connector;
         }
 
         ClearSelectedConnectors(isInput ? _outputConnectors : _inputConnectors);
@@ -442,18 +448,28 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
     private void OnMoveDownClicked(bool isInput)
     {
-        var sourceCollection = isInput ? _inputConnectors : _outputConnectors;
-        var sourceSelection = sourceCollection.Where(c => c.Selected).ToList();
-        foreach (var connector in sourceSelection.OrderByDescending(con => con.Index))
-            Move(connector, false, isInput);
+        var sourceSelection = (isInput ? _inputConnectors : _outputConnectors)
+            .Where(c => c.Selected)
+            .OrderByDescending(sc => sc.Index)
+            .ToArray();
+
+        foreach (var connector in sourceSelection)
+            Move(connector, isInput, false);
+
+        StartRefreshDebounce();
     }
 
     private void OnMoveUpClicked(bool isInput)
     {
-        var sourceCollection = isInput ? _inputConnectors : _outputConnectors;
-        var sourceSelection = sourceCollection.Where(c => c.Selected).ToList();
-        foreach (var connector in sourceSelection.OrderBy(con => con.Index))
-            Move(connector, true, isInput);
+        var sourceSelection = (isInput ? _inputConnectors : _outputConnectors)
+            .Where(c => c.Selected)
+            .OrderBy(sc => sc.Index)
+            .ToArray();
+
+        foreach (var connector in sourceSelection)
+            Move(connector, isInput, true);
+
+        StartRefreshDebounce();
     }
 
     private void OnPropertyChanged(IEnumerable<(object? sender, System.ComponentModel.PropertyChangedEventArgs e)> _)
@@ -480,11 +496,8 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         if (previouslySelectedConnectorIndex.HasValue)
         {
             var connector = sourceCollection.FirstOrDefault(ic => ic.Index == previouslySelectedConnectorIndex);
-
             connector ??= sourceCollection.LastOrDefault(ic => ic.Index < previouslySelectedConnectorIndex);
-
-            if (connector is not null)
-                sourceSelection.Add(connector);
+            connector?.Selected = true;
         }
 
         StartRefreshDebounce();
@@ -499,7 +512,6 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
     private void OnSelectedConnectorChanged(BlockNodeConnector selectedConnector, bool ctrlKey)
     {
-        var isInput = selectedConnector.IsInput;
         var sourceConnectors = selectedConnector.IsInput ? _inputConnectors : _outputConnectors;
 
         if (!ctrlKey)
@@ -508,7 +520,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         var connector = sourceConnectors.FirstOrDefault(c => c.BlockNodeConnector == selectedConnector);
         connector?.Selected = !connector.Selected;
 
-        ClearSelectedConnectors(isInput ? _outputConnectors : _inputConnectors);
+        ClearSelectedConnectors(selectedConnector.IsInput ? _outputConnectors : _inputConnectors);
 
         StartRefreshDebounce();
     }
@@ -581,15 +593,16 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         if (!placeholder.IsPlaceholder)
             return;
 
-        var sourceCollection = isInput ? _inputConnectors : _outputConnectors;
+        var sourceList = isInput ? _inputConnectors : _outputConnectors;
         var indexOfRemoved = placeholder.Index;
+        var connectorsToMove = sourceList
+            .Where(con => con.Index > indexOfRemoved)
+            .ToArray();
 
-        foreach (var connector in sourceCollection.Where(con => con.Index > indexOfRemoved).ToArray())
-            Move(connector, true, isInput);
+        foreach (var connector in connectorsToMove)
+            Move(connector, isInput, true);
 
-        sourceCollection.Remove(placeholder);
-
-        StartRefreshDebounce();
+        sourceList.Remove(placeholder);
     }
 
     private void ResetConnectors()
@@ -611,12 +624,14 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     private void SetButtonStates()
     {
         var selectedInputConnectors = _inputConnectors.Where(c => c.Selected).ToList();
-        _removeInputPlaceholderEnabled = GetRemoveInputPlaceholderButtonEnabled(_inputConnectors, selectedInputConnectors);
+        _addInputPlaceholderEnabled = GetAddPlaceholderButtonEnabled(selectedInputConnectors);
+        _removeInputPlaceholderEnabled = GetRemoveInputPlaceholderButtonEnabled(selectedInputConnectors);
         _inputDownEnabled = GetMoveDownButtonEnabled(_inputConnectors, selectedInputConnectors);
         _inputUpEnabled = GetMoveUpButtonEnabled(selectedInputConnectors);
 
         var selectedOutputConnectors = _outputConnectors.Where(c => c.Selected).ToList();
-        _removeOutputPlaceholderEnabled = GetRemoveInputPlaceholderButtonEnabled(_outputConnectors, selectedOutputConnectors);
+        _addOutputPlaceholderEnabled = GetAddPlaceholderButtonEnabled(selectedOutputConnectors);
+        _removeOutputPlaceholderEnabled = GetRemoveInputPlaceholderButtonEnabled(selectedOutputConnectors);
         _outputDownEnabled = GetMoveDownButtonEnabled(_outputConnectors, selectedOutputConnectors);
         _outputUpEnabled = GetMoveUpButtonEnabled(selectedOutputConnectors);
     }
@@ -632,7 +647,6 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
         var nameFieldHeight = (await JsRuntime.MeasureNameFieldHeights([containerModel.Name], cts.Token))[0];
         _currentContainerNode = ChildContainerMapper.CreateNode(ComparerService, Datastore, _diagramService!, containerModel, nameFieldHeight);
-
         _currentContainerNode.Position = new(0, 0);
 
         _listsHeightOffset = Convert.ToInt32((_currentContainerNode.NameFieldHeight + (5 * BlockNodeLayout.RowHeight)) * UiScaleFactor);
@@ -660,22 +674,30 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     private void SyncConnectorLists()
     {
         var minimumConnectorRows = BlockNodeLayout.MinimumConnectorRows - BlockNodeLayout.SystemConnectorRows;
-        var rowCount = Math.Max(GetHighestConnectorIndex() + 1, minimumConnectorRows);
+
+        var highestInputIndex = _inputConnectors.FindLastIndex(c => !c.IsPlaceholder);
+        var highestOutputIndex = _outputConnectors.FindLastIndex(c => !c.IsPlaceholder);
+        var highestRealIndex = Math.Max(highestInputIndex, highestOutputIndex);
+
+        var requiredRows = Math.Max(highestRealIndex + 1, minimumConnectorRows);
 
         for (var lc = 0; lc < 2; lc++)
         {
             var sourceCollection = lc == 0 ? _inputConnectors : _outputConnectors;
-            if (sourceCollection.Count < rowCount)
+
+            // Trim trailing placeholders beyond the required row count
+            while (sourceCollection.Count > requiredRows && sourceCollection[^1].IsPlaceholder)
+                sourceCollection.RemoveAt(sourceCollection.Count - 1);
+
+            // Fill up to required row count
+            for (var i = sourceCollection.Count; i < requiredRows; i++)
             {
-                for (var i = sourceCollection.Count; i < rowCount; i++)
+                sourceCollection.Add(new(Datastore.Builder.Editors.Connector)
                 {
-                    sourceCollection.Add(new(Datastore.Builder.Editors.Connector)
-                    {
-                        Backup = ContainerEditorConnectorBackup.Empty,
-                        Index = i,
-                        IsPlaceholder = true,
-                    });
-                }
+                    Backup = ContainerEditorConnectorBackup.Empty,
+                    Index = i,
+                    IsPlaceholder = true,
+                });
             }
         }
     }

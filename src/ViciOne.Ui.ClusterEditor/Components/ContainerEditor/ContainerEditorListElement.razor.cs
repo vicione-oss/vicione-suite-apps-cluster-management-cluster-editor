@@ -9,6 +9,6 @@ public sealed partial class ContainerEditorListElement : ComponentBase
     [Parameter] public required ContainerEditorConnector Connector { get; set; }
     [Parameter] public EventCallback<OnContainerEditorListElementClickedArgs> OnClick { get; set; }
 
-    private void InvokeOnClick(bool ctrlKey)
-        => OnClick.InvokeAsync(new(Connector, ctrlKey));
+    private void InvokeOnClick(bool ctrlKey, bool shiftKey)
+        => OnClick.InvokeAsync(new(Connector, ctrlKey, shiftKey));
 }
