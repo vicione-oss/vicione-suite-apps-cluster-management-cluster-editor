@@ -19,7 +19,7 @@ public class FileSectionTests(ServerFixture fixture)
         {
             await page.GotoAsync(fixture.ServerAddress);
 
-            await DiagramHelper.AddFunctionBlockAsync(page, "DecimalToIntegral", 2);
+            await DiagramHelper.AddFunctionBlockAsync(page, "ObjectData", 2);
             await DiagramHelper.AddContainerAsync(page, new() { X = 10, Y = 10 });
             await DiagramHelper.AddLabelAsync(page, new() { X = 160, Y = 10 });
             await Expect(page.Locator(".diagram-canvas .diagram-node")).ToHaveCountAsync(4);

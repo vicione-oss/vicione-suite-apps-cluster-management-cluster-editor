@@ -25,6 +25,7 @@ internal static class DiagramHelper
         await Expect(libraryLocator).ToBeVisibleAsync();
 
         var fbLocator = libraryLocator.GetByTitle(name);
+        await Expect(fbLocator).ToBeVisibleAsync();
 
         for (var i = 0; i < count; i++)
             await fbLocator.DblClickAsync();
