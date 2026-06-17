@@ -1,6 +1,6 @@
 ﻿using ViciOne.Cluster.Model;
 
-namespace ViciOne.Ui.ClusterEditor.Models;
+namespace ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Models;
 
 public class ContainerEditorConnectorBackup
 {
