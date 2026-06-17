@@ -17,6 +17,13 @@
 - Fixed wrong container position on FunctionBlock "Move to new container"
 - Fixed `Playwright` end-to-end tests
 
+### Updated external references
+
+- `ViciOne.Ui.Blazor.Components` package, updated to version `5.14.0`
+- `ViciOne.Ui.Design` package, added in version `2.1.0`
+- `ViciOne.Ui.Localization` package, updated to version `3.4.0`
+- `ViciOne.Ui.MonochromeIcons` packages, updated to version `4.11.0`
+
 ## 1.1.0 - 2026-06-04
 
 ### Changed

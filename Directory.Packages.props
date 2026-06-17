@@ -3,11 +3,11 @@
     <DotNetVersion>10.0.8</DotNetVersion>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <ViciOneClusterBuilderVersion>1.0.0</ViciOneClusterBuilderVersion>
-    <ViciOneUiMonochromeIconsVersion>4.10.0</ViciOneUiMonochromeIconsVersion>
+    <ViciOneUiMonochromeIconsVersion>4.11.0</ViciOneUiMonochromeIconsVersion>
   </PropertyGroup>
   <ItemGroup>
     <GlobalPackageReference Include="ViciOne.CodeAnalysis" Version="1.4.0" />
-    <PackageVersion Include="AspNetCore.SassCompiler" Version="1.99.0" />
+    <PackageVersion Include="AspNetCore.SassCompiler" Version="1.100.0" />
     <PackageVersion Include="AwesomeAssertions" Version="9.4.0" />
     <PackageVersion Include="bunit" Version="1.40.0" />
     <PackageVersion Include="Markdig" Version="0.42.0" />
@@ -28,11 +28,11 @@
     <PackageVersion Include="ViciOne.Cluster.Model" Version="$(ViciOneClusterBuilderVersion)" />
     <PackageVersion Include="ViciOne.Cluster.Builder" Version="$(ViciOneClusterBuilderVersion)" />
     <PackageVersion Include="ViciOne.Core.Dataflow.DataModel.Generation" Version="1.0.0" />
-    <PackageVersion Include="ViciOne.Suite.Core.Artifacts" Version="1.2.1-ci2471956629" />
+    <PackageVersion Include="ViciOne.Suite.Core.Artifacts" Version="1.2.2" />
     <PackageVersion Include="ViciOne.Suite.System.DataPort" Version="1.0.0" />
-    <PackageVersion Include="ViciOne.Ui.Blazor.Components" Version="5.13.0" />
-    <PackageVersion Include="ViciOne.Ui.Design" Version="2.0.3" />
-    <PackageVersion Include="ViciOne.Ui.Localization" Version="3.3.0" />
+    <PackageVersion Include="ViciOne.Ui.Blazor.Components" Version="5.14.0" />
+    <PackageVersion Include="ViciOne.Ui.Design" Version="2.1.0" />
+    <PackageVersion Include="ViciOne.Ui.Localization" Version="3.4.0" />
     <PackageVersion Include="ViciOne.Ui.MonochromeIcons.Assets" Version="$(ViciOneUiMonochromeIconsVersion)" />
     <PackageVersion Include="ViciOne.Ui.MonochromeIcons.Components" Version="$(ViciOneUiMonochromeIconsVersion)" />
     <PackageVersion Include="ViciOne.Ui.Shared.Dx" Version="0.19.1" />
