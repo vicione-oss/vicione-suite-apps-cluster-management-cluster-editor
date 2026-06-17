@@ -36,6 +36,8 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     private bool _addInputPlaceholderEnabled;
     private bool _addOutputPlaceholderEnabled;
     private double _allocationContainerHeight;
+    private bool _containerSelected;
+    private ContainerEditorChildContainer? _currentContainer;
     private ChildContainerNode? _currentContainerNode;
     private BlazorDiagram? _diagram;
     private DiagramService? _diagramService;
@@ -53,7 +55,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     private bool _refreshDebounceRunning;
     private bool _removeInputPlaceholderEnabled;
     private bool _removeOutputPlaceholderEnabled;
-    private bool _resetConnectors = true;
+    private bool _resetElements = true;
     private ScrollContainer? _scrollContainer;
     private CESelectionBehavior? _selectionBehavior;
     private bool _visible;
@@ -115,6 +117,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
             _currentContainerNode = null;
         }
 
+        _currentContainer = null;
         _originalContainerNode = null;
 
         _inputConnectors.Clear();
@@ -130,7 +133,8 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
             });
         }
 
-        _resetConnectors = true;
+        _resetElements = true;
+        _containerSelected = false;
     }
 
     private static void ClearSelectedConnectors(List<ContainerEditorConnector> connectors)
@@ -176,6 +180,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
     public void Dispose()
     {
+        ClusterBuilderEventBuffer.ContainerPropertiesChanged -= OnPropertyChanged;
         ClusterBuilderEventBuffer.ConnectorPropertiesChanged -= OnPropertyChanged;
         ContainerEditorRequest.ContainerEditorRequestedAsync -= OnContainerEditorRequested;
 
@@ -188,6 +193,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
             _scrollContainer.Dispose();
         }
 
+        _selectionBehavior?.ContainerSelected -= OnContainerSelected;
         _selectionBehavior?.SelectedConnectorChanged -= OnSelectedConnectorChanged;
 
         Cleanup();
@@ -273,6 +279,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
         _selectionBehavior = new(_diagram);
         _diagram.RegisterBehavior(_selectionBehavior);
+        _selectionBehavior.ContainerSelected += OnContainerSelected;
         _selectionBehavior.SelectedConnectorChanged += OnSelectedConnectorChanged;
 
         _zoomToFitBehavior = new(_diagram);
@@ -351,12 +358,21 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
             _lastClickedConnector = connector;
         }
 
+        _containerSelected = false;
         ClearSelectedConnectors(isInput ? _outputConnectors : _inputConnectors);
         StartRefreshDebounce();
     }
 
     private async Task OnContainerEditorRequested()
         => await Show();
+
+    private void OnContainerSelected()
+    {
+        _containerSelected = true;
+        ClearSelectedConnectors(_inputConnectors);
+        ClearSelectedConnectors(_outputConnectors);
+        StartRefreshDebounce();
+    }
 
     private void OnCurrentContainerNodeSizeChanged(global::Blazor.Diagrams.Core.Models.NodeModel node)
         => _zoomEnabled = _allocationContainerHeight > 0 && node.Size?.Height > _allocationContainerHeight;
@@ -370,15 +386,19 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         oldCts?.CancelAsync();
         oldCts?.Dispose();
 
-        _resetConnectors = true;
+        _resetElements = true;
         await _refDialog.CloseAsync();
     }
 
     private async Task OnDialogClosing()
     {
-        if (_resetConnectors)
+        if (_resetElements)
+        {
+            ResetContainer();
             ResetConnectors();
+        }
 
+        ClusterBuilderEventBuffer.ContainerPropertiesChanged -= OnPropertyChanged;
         ClusterBuilderEventBuffer.ConnectorPropertiesChanged -= OnPropertyChanged;
 
         ChildContainerMapper.ReloadConnectors(
@@ -418,12 +438,13 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         oldCts?.CancelAsync();
         oldCts?.Dispose();
 
-        _resetConnectors = false;
+        _resetElements = false;
         await _refDialog.CloseAsync();
     }
 
     private void OnDialogShowing()
     {
+        ClusterBuilderEventBuffer.ContainerPropertiesChanged += OnPropertyChanged;
         ClusterBuilderEventBuffer.ConnectorPropertiesChanged += OnPropertyChanged;
 
         ContainerEditorPropertyGridController.SetInstances([], new ContainerEditorPropertyGridContext());
@@ -522,6 +543,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
         ClearSelectedConnectors(selectedConnector.IsInput ? _outputConnectors : _inputConnectors);
 
+        _containerSelected = false;
         StartRefreshDebounce();
     }
 
@@ -621,6 +643,14 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         }
     }
 
+    private void ResetContainer()
+    {
+        _currentContainer?.BackColor = _currentContainer.Backup.BackColor;
+        _currentContainer?.Description = _currentContainer.Backup.Description;
+        _currentContainer?.ForeColor = _currentContainer.Backup.ForeColor;
+        _currentContainer?.Name = _currentContainer.Backup.Name;
+    }
+
     private void SetButtonStates()
     {
         var selectedInputConnectors = _inputConnectors.Where(c => c.Selected).ToList();
@@ -643,6 +673,17 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
             return;
 
         var containerModel = Datastore.DataflowDiagramMapping.GetModel(_originalContainerNode);
+        _currentContainer = new(Datastore.Builder.Editors.Container)
+        {
+            Backup = new()
+            {
+                BackColor = containerModel.BackColor,
+                Container = containerModel,
+                Description = containerModel.Description,
+                ForeColor = containerModel.ForeColor,
+                Name = containerModel.Name
+            }
+        };
         using var cts = new CancellationTokenSource();
 
         var nameFieldHeight = (await JsRuntime.MeasureNameFieldHeights([containerModel.Name], cts.Token))[0];
@@ -707,6 +748,10 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         if (_currentContainerNode is null)
             return;
 
+        _currentContainerNode.Name = _currentContainer?.Name ?? string.Empty;
+        _currentContainerNode.NameBackgroundColor = _currentContainer?.BackColor ?? BlockNodeColors.BackgroundDefault;
+        _currentContainerNode.NameForeColor = _currentContainer?.ForeColor ?? BlockNodeColors.ForegroundDefault;
+
         var requiredConnectorRowCount = GetRequiredPreviewContainerConnectorRowCount();
         if (requiredConnectorRowCount > _currentContainerNode.Connectors.Count)
         {
@@ -753,6 +798,12 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
 
     private void UpdatePropertyGrid()
     {
+        if (_containerSelected)
+        {
+            ContainerEditorPropertyGridController.SetInstances([_currentContainer!], new ContainerEditorPropertyGridContext());
+            return;
+        }
+
         var selection = _inputConnectors.Concat(_outputConnectors).Where(c => c.Selected).ToList();
         if (selection.All(c => !c.IsPlaceholder))
             ContainerEditorPropertyGridController.SetInstances(selection, new());

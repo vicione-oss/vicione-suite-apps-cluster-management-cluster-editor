@@ -1,6 +1,5 @@
 ﻿using Microsoft.AspNetCore.Components;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Models;
-using ViciOne.Ui.ClusterEditor.Models;
 
 namespace ViciOne.Ui.ClusterEditor.Components.ContainerEditor;
 

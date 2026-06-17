@@ -8,6 +8,7 @@ namespace ViciOne.Ui.ClusterEditor.Behaviors;
 
 internal sealed class CESelectionBehavior : Behavior
 {
+    public event Action? ContainerSelected;
     public event Action<BlockNodeConnector, bool>? SelectedConnectorChanged;
 
     public CESelectionBehavior(Diagram diagram) : base(diagram)
@@ -29,9 +30,13 @@ internal sealed class CESelectionBehavior : Behavior
 
     private void Process(Model? model, bool cmButtonPressed, bool ctrlKey)
     {
-        if ((model is null or not BlockNodeConnector) || !cmButtonPressed)
+        if (model is null || !cmButtonPressed)
             return;
 
-        SelectedConnectorChanged?.Invoke((BlockNodeConnector)model, ctrlKey);
+        if (model is BlockNodeConnector blockNodeConnector)
+            SelectedConnectorChanged?.Invoke(blockNodeConnector, ctrlKey);
+
+        if (model is ChildContainerNode)
+            ContainerSelected?.Invoke();
     }
 }

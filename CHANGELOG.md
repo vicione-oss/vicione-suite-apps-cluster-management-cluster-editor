@@ -1,14 +1,18 @@
 # Changelog
 
-## 1.1.1 - unreleased
+## 1.2.0 - Unreleased
+
+### Added
+
+- Added shift-click range selection for connectors in `ContainerEditor`
+- Added `PropertyGrid` support for Container in `ContainerEditor`
 
 ### Changed
 
 - Restructured CHANGELOG, moved fixes to their own section
 - Double click on a `Connector` container marker now selects the associated parent container's `Connector`
 - Double click on a `Link` now selects the associated Connector instead of the Node 
-- Reduce GC pressure on interaction hot paths by replacing LINQ chains with allocation-free loops, eliminating spread-operator array copies in event buffers, and fixing quadratic diagram filter lookup
-- Added shift-click range selection for connectors in `ContainerEditor`
+- Reduced GC pressure on interaction hot paths by replacing LINQ chains with allocation-free loops, eliminated spread-operator array copies in event buffers, fixed quadratic diagram filter lookup
 
 ### Fixed
 

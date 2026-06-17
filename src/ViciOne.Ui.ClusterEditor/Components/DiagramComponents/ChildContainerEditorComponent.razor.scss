@@ -33,7 +33,7 @@
 .child-container-container {
     background-color: colors.$editor-border;
     border: var(--node-border-width) solid transparent;
-    cursor: default;
+    cursor: pointer;
     font-size: calc(var(--canvas-grid-size) * 1.4);
     line-height: calc(var(--canvas-grid-size) * 2 - 2px);
     width: calc(16 * var(--canvas-grid-size));

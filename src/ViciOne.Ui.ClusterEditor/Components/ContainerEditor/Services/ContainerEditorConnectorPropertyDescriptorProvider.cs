@@ -2,10 +2,10 @@
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
+using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Models;
 using ViciOne.Ui.ClusterEditor.Localization.Resources;
-using ViciOne.Ui.ClusterEditor.Models;
 
-namespace ViciOne.Ui.ClusterEditor.Sections.Property.Services;
+namespace ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Services;
 
 internal sealed class ContainerEditorConnectorPropertyDescriptorProvider<TContext>
     : IPropertyDescriptorProvider<TContext, ContainerEditorConnector>

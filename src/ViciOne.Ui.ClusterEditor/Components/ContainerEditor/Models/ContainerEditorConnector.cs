@@ -2,7 +2,7 @@
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 
-namespace ViciOne.Ui.ClusterEditor.Models;
+namespace ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Models;
 
 public sealed class ContainerEditorConnector(IConnectorEditor editor)
 {
