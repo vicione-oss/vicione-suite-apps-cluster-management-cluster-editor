@@ -181,7 +181,7 @@ Deploy EC10:
   image: ${IMAGE_NAME}
   variables:
     DIRECTORY: 'artifacts/publish'
-    HOST_IP: '10.45.24.161'
+    HOST_IP: '10.100.17.71'
     INSTALL_DIRECTORY: '/opt/dfe'
     BINARY: "Server"
     LOGFILE: '/var/log/vo-cluster-editor.log'
@@ -210,7 +210,7 @@ Deploy EC10:
   needs:
     - 'Publish arm64'
   environment:
-    name: 'Demo EC10-1'
-    url: http://$HOST_IP
+    name: 'ec-701.tdl.vicione.dev'
+    url: 'https://ec-701.tdl.vicione.dev/'
   tags:
     - tdl
