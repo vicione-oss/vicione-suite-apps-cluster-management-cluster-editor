@@ -1,4 +1,4 @@
-﻿@use "./../../Styles/colors";
+@use "./../../Styles/design/colors";
 
 .zoom-display-container {
     display: grid;
@@ -14,7 +14,7 @@
             width: 24px;
 
             path, polygon {
-                fill: colors.$editor-font;
+                fill: colors.$font;
             }
         }
     }

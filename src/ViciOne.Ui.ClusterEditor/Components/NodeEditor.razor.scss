@@ -1,4 +1,5 @@
-﻿@use "./../Styles/colors";
+@use "./../Styles/colors" as editor;
+@use "./../Styles/design/colors";
 
 .diagram-container {
     display: grid;
@@ -66,7 +67,7 @@
 }
 
 .node-editor-container {
-    background-color: colors.$editor-background;
+    background-color: colors.$background-dark;
     display: grid;
     height: 100%;
     grid-column-gap: 5px;

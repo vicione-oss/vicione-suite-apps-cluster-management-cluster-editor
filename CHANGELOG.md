@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.3.0 - Unreleased
+
+### Changed
+
+- Exchanged legacy scss color variables with these from the `ViciOne.Ui.Design` library
+
 ## 1.2.0 - 2026-06-17
 
 ### Added

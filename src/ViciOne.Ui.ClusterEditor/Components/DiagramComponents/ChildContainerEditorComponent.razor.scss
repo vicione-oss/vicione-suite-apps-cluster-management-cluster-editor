@@ -1,4 +1,5 @@
-﻿@use "./../../Styles/colors";
+@use "./../../Styles/colors" as editor;
+@use "./../../Styles/design/colors";
 
 ::deep .diagram-port {
     height: calc(2 * var(--canvas-grid-size) - 2px);
@@ -21,7 +22,7 @@
     grid-template-rows: calc(2 * var(--canvas-grid-size));
 
     &.divider {
-        border-bottom: 1px solid colors.$editor-background;
+        border-bottom: 1px solid colors.$background-dark;
         grid-template-rows: calc(2 * var(--canvas-grid-size) - 1px);
     }
 
@@ -31,7 +32,7 @@
 }
 
 .child-container-container {
-    background-color: colors.$editor-border;
+    background-color: colors.$border;
     border: var(--node-border-width) solid transparent;
     cursor: pointer;
     font-size: calc(var(--canvas-grid-size) * 1.4);
@@ -41,7 +42,7 @@
 
 .child-container-image {
     align-items: center;
-    background-color: colors.$editor-border;
+    background-color: colors.$border;
     display: flex;
     height: calc(8 * var(--canvas-grid-size) - 1px);
     justify-content: center;
@@ -56,7 +57,7 @@
     }
 
     span {
-        color: colors.$editor-font;
+        color: colors.$font;
         font-size: calc(1.8 * var(--canvas-grid-size));
         line-height: calc(2 * var(--canvas-grid-size));
         padding: 10px;
@@ -73,12 +74,12 @@
 }
 
 .container-info-children-elements {
-    background-color: colors.$editor-foreground-dark;
+    background-color: editor.$editor-foreground-dark;
     grid-column: 7 / span 10;
 }
 
 .container-info-container {
-    color: colors.$editor-font;
+    color: colors.$font;
     display: grid;
     font-weight: bold;
     grid-template-columns: calc(var(--canvas-grid-size) - var(--node-border-width)) repeat(14, var(--canvas-grid-size)) calc(var(--canvas-grid-size) - var(--node-border-width));

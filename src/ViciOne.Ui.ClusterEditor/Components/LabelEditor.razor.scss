@@ -1,9 +1,9 @@
-﻿@use "sass:color";
-@use "./../Styles/colors";
+@use "./../Styles/colors" as editor;
 @use "./../Styles/design/scrollbar" as scrollbar;
+@use "./../Styles/design/colors";
 
 .label-editor-content-container {
-    background-color: colors.$editor-background;
+    background-color: colors.$background-dark;
     height: 100%;
     padding: 0 2em;
     position: relative;
@@ -12,10 +12,10 @@
     ::deep .EasyMDEContainer {
 
         .CodeMirror {
-            background-color: colors.$editor-background-dark;
-            border-color: colors.$editor-disabled-background-dark;
+            background-color: colors.$background-darker;
+            border-color: editor.$editor-disabled-background-dark;
             border-radius: unset;
-            color: colors.$editor-font;
+            color: colors.$font;
             font-size: 13px;
             padding-bottom: 1px;
 
@@ -30,7 +30,7 @@
             }
 
             .CodeMirror-cursor {
-                border-left-color: colors.$editor-font;
+                border-left-color: colors.$font;
             }
 
             .CodeMirror-selected {
@@ -38,8 +38,8 @@
             }
 
             .CodeMirror-selectedtext {
-                background-color: colors.$editor-accent;
-                color: colors.$editor-background-dark;
+                background-color: colors.$accent;
+                color: colors.$background-darker;
             }
 
             .CodeMirror-vscrollbar {
@@ -48,11 +48,11 @@
         }
 
         .editor-preview {
-            background-color: colors.$editor-background-dark;
-            color: colors.$editor-font;
+            background-color: colors.$background-darker;
+            color: colors.$font;
 
             blockquote {
-                border-left: 3px solid colors.$editor-disabled-dark;
+                border-left: 3px solid editor.$editor-disabled-dark;
                 padding-left: 1em;
             }
 
@@ -64,8 +64,8 @@
         }
 
         .editor-preview-side {
-            border-color: colors.$editor-disabled-background-dark;
-            color: colors.$editor-font;
+            border-color: editor.$editor-disabled-background-dark;
+            color: colors.$font;
 
             @include scrollbar.adjust-styles();
         }
@@ -75,12 +75,12 @@
             border-radius: unset;
 
             button {
-                color: colors.$editor-font;
+                color: colors.$font;
 
                 &.active {
                     background: unset;
                     border: unset;
-                    color: colors.$editor-accent;
+                    color: colors.$accent;
                 }
 
                 &:hover {

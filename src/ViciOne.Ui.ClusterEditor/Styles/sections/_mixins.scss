@@ -1,22 +1,23 @@
-﻿@use "./../colors";
+@use "./../colors" as editor;
+@use "./../design/colors";
 
 @mixin action-button-container-styles() {
     .action-button-container {
         grid-template-columns: repeat(var(--button-count), min-content);
 
         > button {
-            background-color: colors.$editor-background;
-            color: colors.$editor-font;
+            background-color: colors.$background-dark;
+            color: colors.$font;
             height: 22px;
             width: 22px;
 
             &:disabled {
                 cursor: default;
-                color: colors.$editor-disabled-background-dark;
+                color: editor.$editor-disabled-background-dark;
             }
 
             &:hover:not(:disabled) {
-                background-color: colors.$editor-background-hover;
+                background-color: colors.$background-dark-hover;
             }
 
             .icon {

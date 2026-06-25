@@ -7,25 +7,22 @@ $connector-default-port-text: rgb(0, 0, 0);
 $connector-default-text: rgb(222, 222, 222);
 $connector-default-text-background: rgba(0, 0, 0, 0);
 
-$editor-accent: rgb(255, 150, 0);
-$editor-accent-hover: color.adjust($editor-accent, $lightness: +10%);
-$editor-background: rgb(52, 52, 52);
+// Only needed for $editor-background-dark-active here. Do NOT use $editor-background-dark directly, use $background-darker from /Styles/design/colors instead.
 $editor-background-dark: rgb(42, 42, 42);
 $editor-background-dark-active: color.adjust($editor-background-dark, $lightness: +5%);
-$editor-background-dark-hover: color.adjust($editor-background-dark, $lightness: +10%);
-$editor-background-hover: color.adjust($editor-background, $lightness: +10%);
-$editor-background-light: rgb(68, 68, 68);
-$editor-background-light-hover: color.adjust($editor-background-light, $lightness: +10%);
-$editor-border: rgb(77, 77, 77);
+
+// Only needed for $editor-border-dark and $editor-border-light here. Do NOT use $editor-border directly, use $border from /Styles/design/colors instead.
+$editor-border: rgb(77, 77, 77); 
 $editor-border-dark: color.adjust($editor-border, $lightness: -5%);
 $editor-border-light: color.adjust($editor-border, $lightness: +5%);
-$editor-danger: rgb(227, 75, 53);
+
 $editor-disabled: rgb(166, 166, 166);
 $editor-disabled-background-dark: rgb(89, 89, 89);
 $editor-disabled-dark: color.adjust($editor-disabled, $lightness: -10%);
-$editor-font: rgb(222, 222, 222);
-$editor-font-light: rgb(255, 255, 255);
+
 $editor-foreground: rgb(176, 176, 176);
 $editor-foreground-dark: rgb(105, 105, 105);
+
 $editor-selected: rgb(78, 135, 242);
+
 $editor-traced: rgb(0, 180, 0);

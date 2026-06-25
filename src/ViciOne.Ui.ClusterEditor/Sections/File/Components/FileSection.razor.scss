@@ -1,5 +1,6 @@
-@use "./../../../Styles/colors";
+@use "./../../../Styles/colors" as editor;
 @use "./../../../Styles/mixins";
+@use "./../../../Styles/design/colors";
 
 .debug {
     & .button-debug {
@@ -10,7 +11,7 @@
 .button-base {
     border: none;
     background-color: inherit;
-    color: colors.$editor-font;
+    color: colors.$font;
     cursor: pointer;
     display: grid;
     grid-template-columns: 24px auto;
@@ -24,7 +25,7 @@
     }
 
     &:hover {
-        background-color: colors.$editor-background-dark-hover;
+        background-color: colors.$background-darker-hover;
     }
 
     > span {

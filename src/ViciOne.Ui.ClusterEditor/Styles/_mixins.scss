@@ -1,8 +1,8 @@
-﻿@use "./colors";
+@use "./colors" as editor;
 
 @mixin button-text-span-disabled() {
     > span {
-        color: colors.$editor-disabled-dark;
+        color: editor.$editor-disabled-dark;
     }
 }
 
@@ -15,12 +15,12 @@
     ::deep {
         & > svg {
             path, polygon {
-                fill: colors.$editor-disabled-dark;
+                fill: editor.$editor-disabled-dark;
             }
         }
 
         & > .monochrome-icon {
-            color: colors.$editor-disabled-dark;
+            color: editor.$editor-disabled-dark;
         }
     }
 }

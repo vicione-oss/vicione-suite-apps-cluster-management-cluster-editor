@@ -1,4 +1,4 @@
-﻿@use "./../../Styles/colors";
+@use "./../../Styles/design/colors";
 @use "./../../Styles/shared-dialog-styles";
 
 @mixin checkbox-focus-state() {
@@ -30,7 +30,7 @@
 }
 
 .validation-message-container {
-    color: colors.$editor-danger;
+    color: colors.$error;
     font-size: 10px;
     margin-top: 2px;
     overflow: hidden;
