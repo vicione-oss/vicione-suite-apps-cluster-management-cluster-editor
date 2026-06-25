@@ -32,6 +32,7 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
     private bool _isEventEnabled;
 
     public Cluster.Model.IConnector Connector { get; }
+    public string? ConnectorContainerStyle { get; private set; }
     public ConnectorMarker DataPortConnectorMarker { get; set; }
     public bool HasChangedProperties => !_hasDefaultEventEnabled ||
         !_hasDefaultMarkAsChangedOnlyIfNotEqual || !_hasDefaultPoolingMode || !_hasDefaultValue;
@@ -46,7 +47,9 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
     public Cluster.Model.IConnector? ParentContainerConnector { get; private set; }
     public string PoolingMode { get; private set; } = GetPoolingModeSymbol("Internal");
     public string PoolingModeColor { get; private set; } = BlockNodeConnectorColors.PoolingModeDefault;
+    public string? PoolingModeStyle { get; private set; }
     public string PortColor { get; private set; } = BlockNodeConnectorColors.PortDefault;
+    public string? PortStyle { get; private set; }
     public string PortText { get; private set; } = string.Empty;
     public string PortTextColor { get; private set; } = BlockNodeConnectorColors.PortTextDefault;
     public bool Published => Connector.Published;
@@ -55,6 +58,7 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
     public string Text { get; set; } = string.Empty;
     public string TextBackgroundColor { get; private set; } = BlockNodeConnectorColors.TextBackgroundDefault;
     public string TextColor { get; private set; } = BlockNodeConnectorColors.TextDefault;
+    public string? TextStyle { get; private set; }
     public new bool Visible { get; set; } = true;
 
     public BlockNodeConnector(
@@ -211,6 +215,38 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
         // Methode hängt und dann nur die betroffenen Nodes aktualisiert
         => Node.CalculateDisplayAllConnectors();
 
+    private void RebuildStyleCaches()
+    {
+        var prefix = IsInput ? "input" : "output";
+
+        ConnectorContainerStyle = TextBackgroundColor == BlockNodeConnectorColors.TextBackgroundDefault
+            ? null
+            : $"--{prefix}-text-background-color:{TextBackgroundColor}";
+
+        TextStyle = TextColor == BlockNodeConnectorColors.TextDefault
+            ? null
+            : $"--{prefix}-text-color:{TextColor}";
+
+        PoolingModeStyle = !IsInput || PoolingModeColor == BlockNodeConnectorColors.PoolingModeDefault
+            ? null
+            : $"--input-pooling-mode-color:{PoolingModeColor}";
+
+        var portColorPart = PortColor == BlockNodeConnectorColors.PortDefault
+            ? null
+            : $"--{prefix}-port-color:{PortColor}";
+        var portTextColorPart = PortTextColor == BlockNodeConnectorColors.PortTextDefault
+            ? null
+            : $"--{prefix}-port-text-color:{PortTextColor}";
+
+        PortStyle = (portColorPart, portTextColorPart) switch
+        {
+            (null, null) => null,
+            (not null, null) => portColorPart,
+            (null, not null) => portTextColorPart,
+            _ => $"{portColorPart};{portTextColorPart}"
+        };
+    }
+
     private void SetConnectorColors()
     {
         if (Selected)
@@ -250,6 +286,8 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
                     : BlockNodeConnectorColors.TextIsValidDropTarget;
             }
         }
+
+        RebuildStyleCaches();
     }
 
     public void SetEventEnabled(bool eventEnabled, bool defaultEventEnabled)
@@ -325,6 +363,8 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
         PortTextColor = Color.GetRelativeLuminance(color) < RelativeLuminanceThreshold
             ? BlockNodeConnectorColors.PortTextOnDarkBackground
             : BlockNodeConnectorColors.PortTextDefault;
+
+        RebuildStyleCaches();
     }
 
     private void SetPortText()

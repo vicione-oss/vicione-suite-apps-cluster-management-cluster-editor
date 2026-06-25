@@ -1,5 +1,12 @@
 ﻿@use 'sass:color';
 
+/* see BlockNodeConnectorColors.cs */
+$connector-default-pooling-mode: rgb(222, 222, 222);
+$connector-default-port: rgb(255, 20, 147);
+$connector-default-port-text: rgb(0, 0, 0);
+$connector-default-text: rgb(222, 222, 222);
+$connector-default-text-background: rgba(0, 0, 0, 0);
+
 $editor-accent: rgb(255, 150, 0);
 $editor-accent-hover: color.adjust($editor-accent, $lightness: +10%);
 $editor-background: rgb(52, 52, 52);

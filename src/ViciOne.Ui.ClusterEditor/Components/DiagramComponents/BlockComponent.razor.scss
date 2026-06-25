@@ -119,16 +119,16 @@
 }
 
 .input-pooling-mode {
-    background-color: var(--input-text-background-color);
-    color: var(--input-pooling-mode-color);
+    background-color: var(--input-text-background-color,colors.$connector-default-text-background);
+    color: var(--input-pooling-mode-color,colors.$connector-default-pooling-mode);
     grid-column: 3 / span 2;
     margin: 1px 0;
     text-align: center;
 }
 
 .input-port-container {
-    background-color: var(--input-port-color);
-    color: var(--input-port-text-color);
+    background-color: var(--input-port-color,colors.$connector-default-port);
+    color: var(--input-port-text-color,colors.$connector-default-port-text);
     cursor: pointer;
     grid-column: 1 / span 2;
     margin: 1px 0;
@@ -136,8 +136,8 @@
 }
 
 .input-text {
-    background-color: var(--input-text-background-color);
-    color: var(--input-text-color);
+    background-color: var(--input-text-background-color,colors.$connector-default-text-background);
+    color: var(--input-text-color,colors.$connector-default-text);
     grid-column: 5 / span 4;
     margin: 1px 0;
     overflow: hidden;
@@ -156,7 +156,6 @@
 
 .marker {
     @extend .marker-base;
-    cursor: var(--cursor);
     line-height: calc(2 * var(--canvas-grid-size) - 2px);
     overflow: hidden;
     padding: 0px 2px;
@@ -166,6 +165,7 @@
     &.connector-container {
         background-color: var(--container-marker-background-color);
         color: var(--container-marker-text-color);
+        cursor: default;
         position: absolute;
 
         &.input {
@@ -194,6 +194,7 @@
         background-color: var(--dataport-marker-background-color);
         border-radius: 9px;
         color: var(--dataport-marker-text-color);
+        cursor: pointer;
         position: absolute;
 
         &.input {
@@ -214,6 +215,7 @@
         background-color: var(--publish-marker-background-color);
         clip-path: polygon(0 0, 83.33% 0, 100% 50%, 100% calc(50% + 1px), 83.33% 100%, 0 100%, 16.66% calc(50% + 1px), 16.66% 50%);
         color: var(--publish-marker-text-color);
+        cursor: pointer;
         position: absolute;
 
         &.input {
@@ -282,8 +284,8 @@
 }
 
 .output-port-container {
-    background-color: var(--output-port-color);
-    color: var(--output-port-text-color);
+    background-color: var(--output-port-color,colors.$connector-default-port);
+    color: var(--output-port-text-color,colors.$connector-default-port-text);
     cursor: pointer;
     grid-column: 7 / span 2;
     margin: 1px 0;
@@ -291,8 +293,8 @@
 }
 
 .output-text {
-    background-color: var(--output-text-background-color);
-    color: var(--output-text-color);
+    background-color: var(--output-text-background-color,colors.$connector-default-text-background);
+    color: var(--output-text-color,colors.$connector-default-text);
     grid-column: 1 / span 6;
     margin: 1px 0;
     overflow: hidden;
