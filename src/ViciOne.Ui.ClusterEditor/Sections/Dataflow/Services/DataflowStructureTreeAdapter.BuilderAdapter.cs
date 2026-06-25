@@ -57,8 +57,8 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
             _dataflowMap.Add(dataflow, new DataflowStructureTreeNode()
             {
                 Dataflow = dataflow,
-                DisplayText = dataflow.Name,
                 Id = new GuidNodeIdentifier(dataflow.Id),
+                Name = dataflow.Name,
             });
 
             var root = dataflow.Root;
@@ -70,8 +70,8 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
                 _containerMap.Add(container, new ContainerStructureTreeNode()
                 {
                     ChildContainer = container,
-                    DisplayText = container.Name,
                     Id = new GuidNodeIdentifier(container.Id),
+                    Name = container.Name,
                 });
             }
 
@@ -79,9 +79,9 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
             {
                 _functionBlockMap.Add(fb, new FunctionBlockStructureTreeNode()
                 {
-                    DisplayText = fb.Name,
                     FunctionBlock = fb,
                     Id = new GuidNodeIdentifier(fb.Id),
+                    Name = fb.Name,
                 });
             }
         }
@@ -98,7 +98,7 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
         _containerMap.TryAdd(childContainer, new ContainerStructureTreeNode()
         {
             ChildContainer = childContainer,
-            DisplayText = childContainer.Name,
+            Name = childContainer.Name,
         });
     }
 
@@ -113,7 +113,7 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
 
             if (e.PropertyName == nameof(ChildContainer.Name))
             {
-                mappedContainer.DisplayText = childContainer.Name;
+                mappedContainer.Name = childContainer.Name;
                 propertyChanged = true;
             }
 
@@ -148,8 +148,8 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
             var added = _containerMap.TryAdd(childContainer, new ContainerStructureTreeNode()
             {
                 ChildContainer = childContainer,
-                DisplayText = childContainer.Name,
                 Id = new GuidNodeIdentifier(childContainer.Id),
+                Name = childContainer.Name,
             });
 
             if (added)
@@ -182,7 +182,7 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
                 continue;
 
             if (e.PropertyName == nameof(Cluster.Model.Dataflow.Name))
-                dataflowNode.DisplayText = dataflow.Name;
+                dataflowNode.Name = dataflow.Name;
 
             Builder.Notifications.NotifyNodeChanged(dataflowNode);
         }
@@ -198,8 +198,8 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
             _dataflowMap[dataflow.Dataflow] = new()
             {
                 Dataflow = dataflow.Dataflow,
-                DisplayText = dataflow.Dataflow.Name,
                 Id = new GuidNodeIdentifier(dataflow.Dataflow.Id),
+                Name = dataflow.Dataflow.Name,
             };
         }
 
@@ -226,7 +226,7 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
 
             if (e.PropertyName == nameof(FunctionBlock.Name))
             {
-                mappedFb.DisplayText = functionBlock.Name;
+                mappedFb.Name = functionBlock.Name;
                 propertyChanged = true;
             }
 
@@ -257,9 +257,9 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
         {
             var added = _functionBlockMap.TryAdd(functionBlock.FunctionBlock, new FunctionBlockStructureTreeNode()
             {
-                DisplayText = functionBlock.FunctionBlock.Name,
                 FunctionBlock = functionBlock.FunctionBlock,
                 Id = new GuidNodeIdentifier(functionBlock.FunctionBlock.Id),
+                Name = functionBlock.FunctionBlock.Name,
             });
 
             if (added && !updatedParents.Contains(functionBlock.Parent))

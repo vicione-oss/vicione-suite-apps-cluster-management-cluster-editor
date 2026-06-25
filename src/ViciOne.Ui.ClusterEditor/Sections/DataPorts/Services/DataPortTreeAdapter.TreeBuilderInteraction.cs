@@ -33,11 +33,11 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter
             {
                 AvailableIcons = treeBuilder.Ruleset.Root!.Icons, // always exactly one
                 Builder = treeBuilder,
-                DisplayText = treeBuilder.Ruleset.Root!.Name,
                 Icon = treeBuilder.Ruleset.Root!.Icons.FirstOrDefault(),
                 Id = Guid.TryParse(treeBuilder.Ruleset.Root!.Id, out var rnId)
                     ? new GuidNodeIdentifier(rnId)
                     : GuidNodeIdentifier.New(),
+                Name = treeBuilder.Ruleset.Root!.Name,
             };
             _dataPorts.Add(rootNode);
         }
@@ -192,11 +192,11 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter
         var childrenList = children.ToList();
         var parentChildNodes = childrenList.Where(c => c.PossibleChildren.Any()).ToList();
         var nonParentChildNodes = childrenList.Except(parentChildNodes).ToList();
-        parentChildNodes = [.. parentChildNodes.OrderBy(c => c.DisplayText, AlphaNumericComparer<string>.Default)];
+        parentChildNodes = [.. parentChildNodes.OrderBy(c => c.Name, AlphaNumericComparer<string>.Default)];
 
         if (sortNonParentChildren)
         {
-            nonParentChildNodes = [.. nonParentChildNodes.OrderBy(c => c.DisplayText, AlphaNumericComparer<string>.Default)];
+            nonParentChildNodes = [.. nonParentChildNodes.OrderBy(c => c.Name, AlphaNumericComparer<string>.Default)];
         }
 
         children = [.. parentChildNodes, .. nonParentChildNodes];

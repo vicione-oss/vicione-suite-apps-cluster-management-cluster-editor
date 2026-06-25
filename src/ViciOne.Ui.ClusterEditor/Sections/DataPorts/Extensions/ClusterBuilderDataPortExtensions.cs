@@ -58,7 +58,7 @@ internal static class ClusterBuilderDataPortExtensions
             dataPort = builder.Editors.Dataflow.AddDataPort(
                 datastore.ActiveDataflow,
                 nodeType.Id,
-                dataPortNode.DisplayText,
+                dataPortNode.Name,
                 nodeTransferDirection,
                 dataPortType,
                 dataPortId
@@ -69,7 +69,7 @@ internal static class ClusterBuilderDataPortExtensions
                 builder.Editors.DataPort.SetIcon(dataPort, defaultIcon);
 
             // builder changes the name if it already exists "MQTT Broker" -> "MQTT Broker 1"
-            dataPortNode.DisplayText = dataPort.Name;
+            dataPortNode.Name = dataPort.Name;
         }
         else
         {
@@ -104,7 +104,7 @@ internal static class ClusterBuilderDataPortExtensions
                         ?? builder.Editors.DataPort.AddTreeNode(
                         nodeType.Id,
                         dataPort,
-                        childNode.DisplayText,
+                        childNode.Name,
                         dataType,
                         childNode.GetRequiredSystemProperty<DataPortTransferMode>().TypedValue,
                         treeNodeId));
@@ -117,7 +117,7 @@ internal static class ClusterBuilderDataPortExtensions
                 ?? builder.Editors.DataPortTreeNode.AddTreeNode(
                 nodeType.Id,
                 treeParent,
-                childNode.DisplayText,
+                childNode.Name,
                 dataType,
                 childNode.GetRequiredSystemProperty<DataPortTransferMode>().TypedValue,
                 treeNodeId));
@@ -125,7 +125,7 @@ internal static class ClusterBuilderDataPortExtensions
         // ClusterBuilder updates the names of the node if it already exists...eg. second Folder -> Folder 1
         static DataPortTreeNode FixNodeProperties(DataPortChildNodeModel target, DataPortTreeNode source)
         {
-            target.DisplayText = source.Name;
+            target.Name = source.Name;
             return source;
         }
     }

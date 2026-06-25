@@ -25,14 +25,14 @@ internal static class TreeAdapterHelper
             if (node is not IClusterEditorTreeNode ceNode)
                 return false;
 
-            if (ceNode.DisplayText.Contains(filterText, StringComparison.InvariantCultureIgnoreCase))
+            if (ceNode.Name.Contains(filterText, StringComparison.InvariantCultureIgnoreCase))
                 return true;
 
             var currentNode = resolveParent(node);
             while (currentNode is not null)
             {
                 if (currentNode is IClusterEditorTreeNode parentCeNode &&
-                    parentCeNode.DisplayText.Contains(filterText, StringComparison.InvariantCultureIgnoreCase))
+                    parentCeNode.Name.Contains(filterText, StringComparison.InvariantCultureIgnoreCase))
                 {
                     return true;
                 }

@@ -7,9 +7,9 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Dataflow.Models;
 internal sealed class ContainerStructureTreeNode : IClusterEditorTreeNode
 {
     public required ChildContainer ChildContainer { get; set; }
-    public string DisplayText { get; set; } = string.Empty;
     public bool Expanded { get; set; }
     public bool Highlighted { get; set; }
     public INodeIdentifier Id { get; set; } = GuidNodeIdentifier.New();
+    public string Name { get; set; } = string.Empty;
     public bool Selected { get; set; }
 }

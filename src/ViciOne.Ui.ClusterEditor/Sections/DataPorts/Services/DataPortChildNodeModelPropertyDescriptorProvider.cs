@@ -206,15 +206,15 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     public IEnumerable<IPropertyDescriptor<DataPortChildNodeModel>> GetPropertyDescriptors(DataPortChildNodeEditContext context)
     {
         propertyValueStore.Clear();
-        propertyValueStore.Set(nameof(context.Node.DisplayText), context.Node.DisplayText);
+        propertyValueStore.Set(nameof(context.Node.Name), context.Node.Name);
 
         yield return new PropertyDescriptor<DataPortChildNodeModel, string>
         {
             Category = DataPortNodeModelSystemProperty.SystemCategory,
-            Enabled = (instance) => !instance.DisplayTextIsReadOnly,
-            GetValue = (instance) => propertyValueStore.Get(nameof(instance.DisplayText), defaultValue: string.Empty),
-            Name = nameof(DataPortChildNodeModel.DisplayText),
-            SetValue = (instance, value) => propertyValueStore.Set(nameof(instance.DisplayText), value),
+            Enabled = (instance) => !instance.NameIsReadOnly,
+            GetValue = (instance) => propertyValueStore.Get(nameof(instance.Name), defaultValue: string.Empty),
+            Name = nameof(DataPortChildNodeModel.Name),
+            SetValue = (instance, value) => propertyValueStore.Set(nameof(instance.Name), value),
             ValueValidators = [_stringMustNotBeEmptyPropertyValueValidator]
         };
 

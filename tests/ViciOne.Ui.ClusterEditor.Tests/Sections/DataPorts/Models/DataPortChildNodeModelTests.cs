@@ -28,12 +28,12 @@ public class DataPortChildNodeModelTests
         var rootNode = new DataPortRootNodeModel
         {
             Builder = builder,
-            DisplayText = builder.Ruleset.Root?.Name ?? "MQTT DataPort",
+            Name = builder.Ruleset.Root?.Name ?? "MQTT DataPort",
         };
 
         return new DataPortChildNodeModel()
         {
-            DisplayText = "Test",
+            Name = "Test",
             Parent = rootNode,
             Properties = properties ?? [],
             RootNode = rootNode,

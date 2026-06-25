@@ -50,9 +50,9 @@ internal static class DataPortNodeModelCreator
 
         return new()
         {
-            DisplayText = "Child",
             Icon = icon,
             IsDataPoint = isDataPoint,
+            Name = "Child",
             NodeReference = nodeReference,
             Parent = parent is null ? CreateDataPortRootNodeModel() : parent,
             Properties = properties,
@@ -66,7 +66,7 @@ internal static class DataPortNodeModelCreator
         {
             AvailableIcons = availableIcons ?? [],
             Builder = new TreeBuilder.TreeBuilder(TestResources.MqttRuleset),
-            DisplayText = "Root",
-            Icon = icon
+            Icon = icon,
+            Name = "Root"
         };
 }

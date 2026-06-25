@@ -11,7 +11,7 @@ internal static class DataPortChildNodeModelExtensions
 {
     public static void AssignValuesAndProperties(this DataPortChildNodeModel targetChildNode, DataPortTreeNode clusterTreeNode, TreeBuilder.TreeBuilder treeBuilder)
     {
-        targetChildNode.DisplayText = clusterTreeNode.Name;
+        targetChildNode.Name = clusterTreeNode.Name;
         targetChildNode.Icon = clusterTreeNode.Icon ?? targetChildNode.Icon;
         targetChildNode.PossibleChildren = [.. targetChildNode.GetPossibleChildNodes()];
 
@@ -28,7 +28,7 @@ internal static class DataPortChildNodeModelExtensions
 
     public static void AssignValuesAndProperties(this DataPortChildNodeModel targetChildNode, DataPort dataPort)
     {
-        targetChildNode.DisplayText = dataPort.Name;
+        targetChildNode.Name = dataPort.Name;
         targetChildNode.Icon = dataPort.Icon ?? targetChildNode.Icon;
         targetChildNode.PossibleChildren = [.. targetChildNode.GetPossibleChildNodes()];
 
@@ -40,8 +40,8 @@ internal static class DataPortChildNodeModelExtensions
 
     public static void AssignValuesAndProperties(this DataPortChildNodeModel targetChildNode, DataPortChildNodePropertyValueStore propertyValueStore)
     {
-        if (propertyValueStore.TryGet<string>(nameof(DataPortChildNodeModel.DisplayText), out var displayText))
-            targetChildNode.DisplayText = displayText;
+        if (propertyValueStore.TryGet<string>(nameof(DataPortChildNodeModel.Name), out var name))
+            targetChildNode.Name = name;
 
         if (propertyValueStore.TryGet<string>(nameof(DataPortChildNodeModel.Icon), out var icon))
             targetChildNode.Icon = icon;

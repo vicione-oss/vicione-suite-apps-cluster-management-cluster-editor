@@ -8,10 +8,10 @@ internal sealed class DataflowStructureTreeNode : IClusterEditorTreeNode
     public bool Active { get; set; }
     public required Cluster.Model.Dataflow Dataflow { get; set; }
     public bool Deleting { get; set; }
-    public string DisplayText { get; set; } = string.Empty;
     public bool Editing { get; set; }
     public bool Expanded { get; set; }
     public bool Highlighted { get; set; }
     public INodeIdentifier Id { get; set; } = GuidNodeIdentifier.New();
+    public string Name { get; set; } = string.Empty;
     public bool Selected { get; set; }
 }

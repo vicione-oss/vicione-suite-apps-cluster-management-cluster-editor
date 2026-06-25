@@ -5,6 +5,7 @@
 ### Changed
 
 - Exchanged legacy scss color variables with these from the `ViciOne.Ui.Design` library
+- Renamed `DisplayText` property to `Name` for TreeNodes
 
 ## 1.2.0 - 2026-06-17
 

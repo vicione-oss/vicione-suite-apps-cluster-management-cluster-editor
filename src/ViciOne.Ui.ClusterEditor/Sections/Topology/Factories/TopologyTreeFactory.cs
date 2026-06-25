@@ -48,45 +48,45 @@ public static class TopologyTreeFactory
     public static TopologyTreeViewModel CreateApplicationNode(ClusterApplication application, TopologyTreeViewModel parent)
         => new(application)
         {
-            DisplayText = application.Name,
             Expanded = true,
             Id = new GuidNodeIdentifier(application.Id),
+            Name = application.Name,
             Parent = parent,
         };
 
     public static TopologyTreeViewModel CreateClusterNodeGroupNode(ClusterNodeGroup nodeGroup, TopologyTreeViewModel? parent)
         => new(nodeGroup)
         {
-            DisplayText = nodeGroup.Name,
             Expanded = true,
             Id = new GuidNodeIdentifier(nodeGroup.Id),
+            Name = nodeGroup.Name,
             Parent = parent,
         };
 
     public static TopologyTreeViewModel CreateClusterNodeNode(ClusterNode node, TopologyTreeViewModel parent)
         => new(node)
         {
-            DisplayText = node.Name,
             Expanded = true,
             Id = new GuidNodeIdentifier(node.Id),
+            Name = node.Name,
             Parent = parent,
         };
 
     public static TopologyTreeViewModel CreateEngineHostNode(EngineHost engineHost, TopologyTreeViewModel parent)
         => new(engineHost)
         {
-            DisplayText = engineHost.Name,
             Expanded = true,
             Id = new GuidNodeIdentifier(engineHost.Id),
+            Name = engineHost.Name,
             Parent = parent,
         };
 
     public static TopologyTreeViewModel CreateEngineNode(Cluster.Model.Engine engine, TopologyTreeViewModel parent)
         => new(engine)
         {
-            DisplayText = engine.Name,
             Expanded = true,
             Id = new GuidNodeIdentifier(engine.Id),
+            Name = engine.Name,
             Parent = parent,
         };
 }

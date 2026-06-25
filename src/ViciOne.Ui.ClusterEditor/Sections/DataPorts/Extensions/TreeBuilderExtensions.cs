@@ -34,11 +34,11 @@ internal static class TreeBuilderExtensions
         {
             AvailableIcons = nodeType.Icons,
             CanHaveChildren = nodeType.ChildNodes.Length != 0,
-            DisplayText = dataPort.Name,
-            DisplayTextIsReadOnly = nodeType.NameIsReadOnly,
             Icon = dataPort.Icon,
             Id = new GuidNodeIdentifier(dataPort.Id),
             IsDataPoint = nodeType.IsDataPoint(),
+            Name = dataPort.Name,
+            NameIsReadOnly = nodeType.NameIsReadOnly,
             NodeReference = nodeRef,
             Parent = rootNode,
             Properties = [.. builder.GetProperties(nodeType)],

@@ -255,7 +255,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
     public override string GetDisplayText(ITreeNode node)
     {
         if (node is DataPortNodeModel dpNode)
-            return dpNode.DisplayText;
+            return dpNode.Name;
 
         return string.Empty;
     }
@@ -318,7 +318,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
 
     private static string GetNodeActionAddDescription(DataPortNodeModel dataPortNode)
         => dataPortNode.PossibleChildren.Count == 1
-            ? string.Format(CultureInfo.InvariantCulture, s_compositeNodeActionAdd, dataPortNode.PossibleChildren[0].DisplayText)
+            ? string.Format(CultureInfo.InvariantCulture, s_compositeNodeActionAdd, dataPortNode.PossibleChildren[0].Name)
             : string.Format(CultureInfo.InvariantCulture, s_compositeNodeActionAdd, DataPortSection.NewChild);
 
     private TreeBuilder.TreeBuilder GetOrCreateTreeBuilder(RulesetIdentifier rulesetId)
@@ -587,9 +587,9 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
             var dataPort = _datastore.Builder.GetDataPort(childNode);
 
             // TODO - make it possible to change the engine in the node edit section
-            _datastore.Builder.Editors.DataPort.SetName(dataPort, childNode.DisplayText);
-            if (dataPort.Name != childNode.DisplayText)
-                childNode.DisplayText = dataPort.Name;
+            _datastore.Builder.Editors.DataPort.SetName(dataPort, childNode.Name);
+            if (dataPort.Name != childNode.Name)
+                childNode.Name = dataPort.Name;
             _datastore.Builder.Editors.DataPort.SetIcon(dataPort, childNode.Icon);
             _datastore.Builder.SetCustomDataPortProperties(dataPort, childNode);
             _datastore.Builder.SetSystemDataPortProperties(dataPort, childNode, Builder);
@@ -602,9 +602,9 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
         if (clusterNode is null)
             return; // TODO: Error?!
 
-        _datastore.Builder.Editors.DataPortTreeNode.SetName(clusterNode, childNode.DisplayText);
-        if (clusterNode.Name != childNode.DisplayText)
-            childNode.DisplayText = clusterNode.Name;
+        _datastore.Builder.Editors.DataPortTreeNode.SetName(clusterNode, childNode.Name);
+        if (clusterNode.Name != childNode.Name)
+            childNode.Name = clusterNode.Name;
         _datastore.Builder.Editors.DataPortTreeNode.SetIcon(clusterNode, childNode.Icon);
         _datastore.Builder.SetSystemDataPortTreeNodeProperties(clusterNode, childNode);
         _datastore.Builder.SetCustomDataPortTreeNodeProperties(clusterNode, childNode);
