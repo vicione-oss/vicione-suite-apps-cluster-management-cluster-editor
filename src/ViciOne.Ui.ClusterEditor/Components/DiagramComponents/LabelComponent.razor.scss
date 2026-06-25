@@ -1,4 +1,5 @@
-﻿@use "./../../Styles/colors";
+@use "./../../Styles/colors" as editor;
+@use "./../../Styles/design/colors";
 
 .label-container {
     background-color: var(--background-color);
@@ -10,7 +11,7 @@
 }
 
 .label-resize-marker-bottom-left-bottom {
-    background-color: colors.$editor-font-light;
+    background-color: colors.$font-light;
     height: 4px;
     left: -1px;
     position: absolute;
@@ -19,7 +20,7 @@
 }
 
 .label-resize-marker-bottom-left-left {
-    background-color: colors.$editor-font-light;
+    background-color: colors.$font-light;
     height: 12px;
     left: -1px;
     position: absolute;
@@ -28,7 +29,7 @@
 }
 
 .label-resize-marker-bottom-right-bottom {
-    background-color: colors.$editor-font-light;
+    background-color: colors.$font-light;
     height: 4px;
     left: calc(var(--container-width) - 11px);
     position: absolute;
@@ -37,7 +38,7 @@
 }
 
 .label-resize-marker-bottom-right-right {
-    background-color: colors.$editor-font-light;
+    background-color: colors.$font-light;
     height: 12px;
     left: calc(var(--container-width) - 3px);
     position: absolute;
@@ -46,7 +47,7 @@
 }
 
 .label-resize-marker-top-left-left {
-    background-color: colors.$editor-font-light;
+    background-color: colors.$font-light;
     height: 12px;
     left: -1px;
     position: absolute;
@@ -55,7 +56,7 @@
 }
 
 .label-resize-marker-top-left-top {
-    background-color: colors.$editor-font-light;
+    background-color: colors.$font-light;
     height: 4px;
     left: -1px;
     position: absolute;
@@ -64,7 +65,7 @@
 }
 
 .label-resize-marker-top-right-right {
-    background-color: colors.$editor-font-light;
+    background-color: colors.$font-light;
     height: 12px;
     left: calc(var(--container-width) - 3px);
     position: absolute;
@@ -73,7 +74,7 @@
 }
 
 .label-resize-marker-top-right-top {
-    background-color: colors.$editor-font-light;
+    background-color: colors.$font-light;
     height: 4px;
     left: calc(var(--container-width) - 11px);
     position: absolute;
@@ -156,7 +157,7 @@
 }
 
 .label-selection {
-    border: calc(var(--node-border-width) + 3px) solid colors.$editor-selected;
+    border: calc(var(--node-border-width) + 3px) solid editor.$editor-selected;
     height: calc(100% + 2px);
     left: -1px;
     pointer-events: none;
@@ -170,7 +171,7 @@
 
     ::deep {
         blockquote {
-            border-left: 3px solid colors.$editor-disabled-dark;
+            border-left: 3px solid editor.$editor-disabled-dark;
             padding-left: 1em;
         }
 
@@ -179,7 +180,7 @@
         }
 
         th, td {
-            border: 1px solid colors.$editor-font;
+            border: 1px solid colors.$font;
         }
     }
 }

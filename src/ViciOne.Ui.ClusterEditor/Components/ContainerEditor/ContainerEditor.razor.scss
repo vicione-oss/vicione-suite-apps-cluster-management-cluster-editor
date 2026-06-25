@@ -1,4 +1,5 @@
-﻿@use "./../../Styles/colors";
+@use "./../../Styles/colors" as editor;
+@use "./../../Styles/design/colors";
 
 ::deep {
     --canvas-grid-size: 12px;
@@ -16,9 +17,9 @@
             --scroll-container-offset-x: 5px;
             --scroll-container-offset-y: 5px;
 
-            --scrollbar-container-bg: #{rgba(colors.$editor-background, 0)};
-            --scrollbar-container-bg-hover: #{rgba(colors.$editor-background-hover, 0.15)};
-            --scrollbar-container-slider-bg: #{colors.$editor-background-light};
+            --scrollbar-container-bg: #{rgba(colors.$background-dark, 0)};
+            --scrollbar-container-bg-hover: #{rgba(colors.$background-dark-hover, 0.15)};
+            --scrollbar-container-slider-bg: #{colors.$background-light};
             --scrollbar-container-border-width: 1px;
 
             bottom: 0;
@@ -46,16 +47,16 @@
     grid-column: calc((var(--button-position) * 2) + 2);
 
     &:hover:not(.disabled) {
-        background-color: colors.$editor-background-hover;
+        background-color: colors.$background-dark-hover;
     }
 
     &.disabled {
         cursor: default;
-        color: colors.$editor-background-hover;
+        color: colors.$background-dark-hover;
         pointer-events: none;
 
         ::deep svg path {
-            fill: colors.$editor-background-hover;
+            fill: colors.$background-dark-hover;
         }
     }
 
@@ -64,7 +65,7 @@
         width: 24px;
 
         path {
-            fill: colors.$editor-foreground;
+            fill: editor.$editor-foreground;
         }
     }
 }
@@ -83,7 +84,7 @@
 }
 
 .header-container {
-    border-bottom: 1px solid colors.$editor-border;
+    border-bottom: 1px solid colors.$border;
     display: grid;
     grid-template-rows: 40px 24px 10px;
 

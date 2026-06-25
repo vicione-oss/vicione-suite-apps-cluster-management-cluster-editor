@@ -1,4 +1,4 @@
-@use "./../../Styles/colors";
+@use "./../../Styles/design/colors";
 
 .list-element {
     cursor: pointer;
@@ -39,7 +39,7 @@
         }
 
         &.empty {
-            border: 1px dotted colors.$editor-font;
+            border: 1px dotted colors.$font;
         }
     }
 }

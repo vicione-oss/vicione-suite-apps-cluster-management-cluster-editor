@@ -1,4 +1,5 @@
-@use "./colors";
+@use "./colors" as editor;
+@use "./design/colors";
 
 @mixin heading {
     font-size: 12px;
@@ -17,7 +18,7 @@
     grid-template-rows: 28px;
 
     &.st-button:hover:not(.disabled) {
-        background-color: colors.$editor-background-dark;
+        background-color: colors.$background-darker;
     }
 }
 
@@ -32,6 +33,6 @@
 
     &.disabled {
         cursor: default;
-        color: colors.$editor-disabled;
+        color: editor.$editor-disabled;
     }
 }

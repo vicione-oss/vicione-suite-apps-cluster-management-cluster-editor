@@ -1,14 +1,15 @@
-﻿@use "./../../../Styles/colors";
+@use "./../../../Styles/colors" as editor;
 @use "./../../../Styles/shared-search-tools-styles";
+@use "./../../../Styles/design/colors";
 
 .content-divider {
-    background-color: colors.$editor-background-light;
+    background-color: colors.$background-light;
     height: 1px;
     margin: 16px 0 0 -28px;
 }
 
 .divider {
-    background-color: colors.$editor-background-light;
+    background-color: colors.$background-light;
     height: 1px;
 }
 
@@ -28,7 +29,7 @@
     padding-right: 6px;
 
     &:hover:not(.disabled) {
-        background-color: colors.$editor-background-hover;
+        background-color: colors.$background-dark-hover;
     }
 }
 
@@ -39,7 +40,7 @@
 .searchfilter-button-text {
     align-self: center;
     font-size: 13px;
-    color: colors.$editor-font;
+    color: colors.$font;
     margin-left: 4px;
 }
 
@@ -49,7 +50,7 @@
 }
 
 .searchfilter-container {
-    background-color: colors.$editor-background;
+    background-color: colors.$background-dark;
     display: grid;
     grid-template-rows: 16px 24px 12px 28px 16px;
     padding: 0 12px 0 16px;

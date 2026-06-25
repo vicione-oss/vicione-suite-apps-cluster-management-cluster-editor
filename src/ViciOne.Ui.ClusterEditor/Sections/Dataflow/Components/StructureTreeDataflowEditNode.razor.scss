@@ -1,4 +1,5 @@
-﻿@use "./../../../Styles/colors";
+@use "./../../../Styles/colors" as editor;
+@use "./../../../Styles/design/colors";
 
 $property-container-expansion-placeholder-width: 16px;
 $property-container-property-name-width: 60px;
@@ -6,7 +7,7 @@ $property-container-property-value-padding-left: 5px;
 $property-container-row-height: 38px;
 
 .property-container {
-    background-color: colors.$editor-background-dark;
+    background-color: colors.$background-darker;
     display: grid;
     grid-template-columns: auto;
 
@@ -15,13 +16,13 @@ $property-container-row-height: 38px;
     }
 
     ::deep .property-row {
-        background-color: colors.$editor-background-dark;
+        background-color: colors.$background-darker;
     }
 }
 
 .form-button-container {
     align-items: center;
-    background-color: colors.$editor-background-dark;
+    background-color: colors.$background-darker;
     display: flex;
     min-height: $property-container-row-height;
     padding-left: $property-container-expansion-placeholder-width + $property-container-property-name-width + $property-container-property-value-padding-left;

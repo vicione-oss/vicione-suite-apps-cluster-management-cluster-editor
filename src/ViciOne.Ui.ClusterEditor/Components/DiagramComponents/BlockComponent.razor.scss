@@ -1,4 +1,5 @@
-﻿@use "./../../Styles/colors";
+@use "./../../Styles/colors" as editor;
+@use "./../../Styles/design/colors";
 
 ::deep .diagram-port {
     height: calc(2 * var(--canvas-grid-size) - 2px);
@@ -17,7 +18,7 @@
 }
 
 .block-container {
-    background-color: colors.$editor-border;
+    background-color: colors.$border;
     border: var(--node-border-width) solid transparent;
     font-size: calc(var(--canvas-grid-size) * 1.4);
     line-height: calc(var(--canvas-grid-size) * 2 - 2px);
@@ -26,7 +27,7 @@
 
 .block-image {
     align-items: center;
-    background-color: colors.$editor-border;
+    background-color: colors.$border;
     display: flex;
     height: calc(8 * var(--canvas-grid-size) - 1px);
     justify-content: center;
@@ -41,7 +42,7 @@
     }
 
     span {
-        color: colors.$editor-font;
+        color: colors.$font;
         font-size: calc(1.8 * var(--canvas-grid-size));
         line-height: calc(2 * var(--canvas-grid-size));
         padding: 10px;
@@ -65,7 +66,7 @@
 }
 
 .block-info-container {
-    color: colors.$editor-font;
+    color: colors.$font;
     display: grid;
     font-weight: bold;
     grid-template-columns: calc(var(--canvas-grid-size) - var(--node-border-width)) repeat(14, var(--canvas-grid-size)) calc(var(--canvas-grid-size) - var(--node-border-width));
@@ -75,7 +76,7 @@
 }
 
 .block-selection {
-    border: calc(var(--node-border-width) + 3px) solid colors.$editor-selected;
+    border: calc(var(--node-border-width) + 3px) solid editor.$editor-selected;
     height: calc(100% + 2px);
     left: -1px;
     pointer-events: none;
@@ -85,7 +86,7 @@
 }
 
 .children-elements {
-    background-color: colors.$editor-foreground-dark;
+    background-color: editor.$editor-foreground-dark;
     grid-column: 7 / span 10;
 }
 
@@ -95,7 +96,7 @@
     grid-template-rows: calc(2 * var(--canvas-grid-size));
 
     &.divider {
-        border-bottom: 1px solid colors.$editor-background;
+        border-bottom: 1px solid colors.$background-dark;
         grid-template-rows: calc(2 * var(--canvas-grid-size) - 1px);
     }
 
@@ -119,16 +120,16 @@
 }
 
 .input-pooling-mode {
-    background-color: var(--input-text-background-color,colors.$connector-default-text-background);
-    color: var(--input-pooling-mode-color,colors.$connector-default-pooling-mode);
+    background-color: var(--input-text-background-color,editor.$connector-default-text-background);
+    color: var(--input-pooling-mode-color,editor.$connector-default-pooling-mode);
     grid-column: 3 / span 2;
     margin: 1px 0;
     text-align: center;
 }
 
 .input-port-container {
-    background-color: var(--input-port-color,colors.$connector-default-port);
-    color: var(--input-port-text-color,colors.$connector-default-port-text);
+    background-color: var(--input-port-color,editor.$connector-default-port);
+    color: var(--input-port-text-color,editor.$connector-default-port-text);
     cursor: pointer;
     grid-column: 1 / span 2;
     margin: 1px 0;
@@ -136,8 +137,8 @@
 }
 
 .input-text {
-    background-color: var(--input-text-background-color,colors.$connector-default-text-background);
-    color: var(--input-text-color,colors.$connector-default-text);
+    background-color: var(--input-text-background-color,editor.$connector-default-text-background);
+    color: var(--input-text-color,editor.$connector-default-text);
     grid-column: 5 / span 4;
     margin: 1px 0;
     overflow: hidden;
@@ -169,7 +170,7 @@
         position: absolute;
 
         &.input {
-            border-right: calc(0.5 * var(--canvas-grid-size)) solid colors.$editor-foreground-dark;
+            border-right: calc(0.5 * var(--canvas-grid-size)) solid editor.$editor-foreground-dark;
             left: calc(-1 * (5 + 2) * var(--canvas-grid-size));
             padding-left: 5px;
             text-align: right;
@@ -180,7 +181,7 @@
         }
 
         &.output {
-            border-left: calc(0.5 * var(--canvas-grid-size)) solid colors.$editor-foreground-dark;
+            border-left: calc(0.5 * var(--canvas-grid-size)) solid editor.$editor-foreground-dark;
             left: calc((16 + 2) * var(--canvas-grid-size));
             text-align: left;
 
@@ -206,8 +207,8 @@
         }
 
         &.selected {
-            background-color: colors.$editor-selected;
-            color: colors.$editor-font;
+            background-color: editor.$editor-selected;
+            color: colors.$font;
         }
     }
 
@@ -223,12 +224,12 @@
             padding-left: var(--canvas-grid-size);
 
             &.regular {
-                border-right: var(--canvas-grid-size) solid colors.$editor-foreground-dark;
+                border-right: var(--canvas-grid-size) solid editor.$editor-foreground-dark;
             }
 
             &.selected {
-                background-color: colors.$editor-selected;
-                color: colors.$editor-font;
+                background-color: editor.$editor-selected;
+                color: colors.$font;
                 padding-left: 0px;
             }
         }
@@ -238,12 +239,12 @@
             padding-right: var(--canvas-grid-size);
 
             &.regular {
-                border-left: var(--canvas-grid-size) solid colors.$editor-foreground-dark;
+                border-left: var(--canvas-grid-size) solid editor.$editor-foreground-dark;
             }
 
             &.selected {
-                background-color: colors.$editor-selected;
-                color: colors.$editor-font;
+                background-color: editor.$editor-selected;
+                color: colors.$font;
                 padding-left: 12px;
             }
         }
@@ -251,7 +252,7 @@
 }
 
 .marker-line {
-    background-color: colors.$editor-foreground-dark;
+    background-color: editor.$editor-foreground-dark;
     cursor: default;
     height: 3px;
     margin-top: calc(var(--canvas-grid-size) - 1px);
@@ -268,11 +269,11 @@
     }
 
     &.selected {
-        background-color: colors.$editor-selected;
+        background-color: editor.$editor-selected;
     }
 
     &.traced {
-        background-color: colors.$editor-traced;
+        background-color: editor.$editor-traced;
     }
 }
 
@@ -284,8 +285,8 @@
 }
 
 .output-port-container {
-    background-color: var(--output-port-color,colors.$connector-default-port);
-    color: var(--output-port-text-color,colors.$connector-default-port-text);
+    background-color: var(--output-port-color,editor.$connector-default-port);
+    color: var(--output-port-text-color,editor.$connector-default-port-text);
     cursor: pointer;
     grid-column: 7 / span 2;
     margin: 1px 0;
@@ -293,8 +294,8 @@
 }
 
 .output-text {
-    background-color: var(--output-text-background-color,colors.$connector-default-text-background);
-    color: var(--output-text-color,colors.$connector-default-text);
+    background-color: var(--output-text-background-color,editor.$connector-default-text-background);
+    color: var(--output-text-color,editor.$connector-default-text);
     grid-column: 1 / span 6;
     margin: 1px 0;
     overflow: hidden;
@@ -308,13 +309,13 @@
 }
 
 .run-mode {
-    background-color: colors.$editor-foreground-dark;
+    background-color: editor.$editor-foreground-dark;
     grid-column: 7 / span 4;
     margin-right: 1px;
 }
 
 .run-mode-cycle-settings {
-    background-color: colors.$editor-foreground-dark;
+    background-color: editor.$editor-foreground-dark;
     margin-right: 1px;
 
     &.frequency {
@@ -332,7 +333,7 @@
 }
 
 .run-mode-dummy {
-    background-color: colors.$editor-foreground-dark;
+    background-color: editor.$editor-foreground-dark;
     grid-column: 15 / span 2;
 }
 

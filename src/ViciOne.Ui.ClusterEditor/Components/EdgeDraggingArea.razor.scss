@@ -1,4 +1,5 @@
-﻿@use "./../Styles/colors";
+@use "./../Styles/colors" as editor;
+@use "./../Styles/design/colors";
 
 .edge-dragging-area-container {
     display: grid;
@@ -133,8 +134,8 @@
 }
 
 .trigger-area {
-    background-color: rgba(colors.$editor-foreground, 0.5);
-    color: colors.$editor-font-light;
+    background-color: rgba(editor.$editor-foreground, 0.5);
+    color: colors.$font-light;
     display: flex;
     height: 100%;
     opacity: 0.5;
@@ -142,6 +143,6 @@
     width: 100%;
 
     &:hover {
-        background-color: rgba(colors.$editor-accent, 0.5);
+        background-color: rgba(colors.$accent, 0.5);
     }
 }

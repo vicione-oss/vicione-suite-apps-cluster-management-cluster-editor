@@ -1,28 +1,29 @@
-﻿@use "./../Styles/colors";
+@use "./../Styles/colors" as editor;
 @use "./../Styles/shared-search-tools-styles";
+@use "./../Styles/design/colors";
 
 .command-button {
     cursor: pointer;
     height: 24px;
 
     &:hover:not(.disabled) {
-        background-color: colors.$editor-background-hover;
+        background-color: colors.$background-dark-hover;
     }
 
     &.active {
-        color: colors.$editor-accent;
+        color: colors.$accent;
 
         ::deep svg path {
-            fill: colors.$editor-accent;
+            fill: colors.$accent;
         }
     }
 
     &.disabled {
         cursor: default;
-        color: colors.$editor-background-hover;
+        color: colors.$background-dark-hover;
 
         ::deep svg path {
-            fill: colors.$editor-background-hover;
+            fill: colors.$background-dark-hover;
         }
     }
 
@@ -49,7 +50,7 @@
 }
 
 .search-body {
-    background-color: colors.$editor-background;
+    background-color: colors.$background-dark;
     display: grid;
     grid-template-rows: min-content 17px 32px 8px auto;
     padding: 16px 12px 16px 16px;

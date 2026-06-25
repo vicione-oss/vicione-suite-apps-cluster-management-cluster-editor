@@ -1,10 +1,11 @@
-@use "./../Styles/colors";
+@use "./../Styles/colors" as editor;
+@use "./../Styles/design/colors";
 
 .tooltip-container {
-    background-color: colors.$editor-background;
+    background-color: colors.$background-dark;
     border-radius: 5px;
-    box-shadow: 0 3px 5px 0 colors.$editor-background-dark;
-    color: colors.$editor-font;
+    box-shadow: 0 3px 5px 0 colors.$background-darker;
+    color: colors.$font;
     font-size: 11px;
     left: var(--tooltip-position-left);
     line-height: 14px;
@@ -20,8 +21,8 @@
 }
 
 .tooltip-header {
-    border-bottom: 1px solid colors.$editor-border;
-    color: colors.$editor-font-light;
+    border-bottom: 1px solid colors.$border;
+    color: colors.$font-light;
     display: flex;
     font-size: 11px;
     justify-content: center;
@@ -39,7 +40,7 @@
         grid-template-rows: min-content;
 
         .separator {
-            border-top: 1px solid colors.$editor-border;
+            border-top: 1px solid colors.$border;
             margin: 4px 0;
         }
 

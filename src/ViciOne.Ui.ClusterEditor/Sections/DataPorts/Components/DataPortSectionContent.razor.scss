@@ -1,5 +1,6 @@
-﻿@use "./../../../Styles/colors";
+@use "./../../../Styles/colors" as editor;
 @use "./../../../Styles/sections";
+@use "./../../../Styles/design/colors";
 
 .added-while-filtered-info {
     font-size: 10px;
@@ -22,11 +23,11 @@
             position: inherit;
 
             &.highlighted {
-                border: 1px solid colors.$editor-accent;
+                border: 1px solid colors.$accent;
                 margin: -1px;
 
                 &:hover {
-                    border-color: colors.$editor-font;
+                    border-color: colors.$font;
                 }
             }
         }

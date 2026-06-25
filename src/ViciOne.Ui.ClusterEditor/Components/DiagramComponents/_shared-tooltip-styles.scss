@@ -1,4 +1,4 @@
-﻿@use "./../../Styles/colors";
+@use "./../../Styles/design/colors";
 
 .no-wrap {
     white-space: nowrap;
@@ -11,7 +11,7 @@
 
     .icon {
         align-self: center;
-        fill: colors.$editor-font;
+        fill: colors.$font;
         height: 9px;
         width: 9px;
     }

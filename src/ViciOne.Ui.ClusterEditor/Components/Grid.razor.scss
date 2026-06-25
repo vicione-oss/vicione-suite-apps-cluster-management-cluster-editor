@@ -1,7 +1,8 @@
-﻿@use "./../Styles/colors";
+@use "./../Styles/colors" as editor;
+@use "./../Styles/design/colors";
 
 .grid {
-    background-color: colors.$editor-background;
+    background-color: colors.$background-dark;
     grid-column: 1;
     grid-row: 1;
 
@@ -11,11 +12,11 @@
         background-position-y: var(--grid-pos-y);
 
         &.line {
-            background-image: linear-gradient(colors.$editor-border-dark 1px, transparent 1px), linear-gradient(90deg, colors.$editor-border-dark 1px, transparent 1px);
+            background-image: linear-gradient(editor.$editor-border-dark 1px, transparent 1px), linear-gradient(90deg, editor.$editor-border-dark 1px, transparent 1px);
         }
 
         &.point {
-            background-image: radial-gradient(circle at 0 0, colors.$editor-border-light 1px, transparent 1px);
+            background-image: radial-gradient(circle at 0 0, editor.$editor-border-light 1px, transparent 1px);
         }
     }
 }

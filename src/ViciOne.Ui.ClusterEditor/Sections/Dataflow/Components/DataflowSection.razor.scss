@@ -1,5 +1,6 @@
-﻿@use "./../../../Styles/colors";
+@use "./../../../Styles/colors" as editor;
 @use "./../../../Styles/sections";
+@use "./../../../Styles/design/colors";
 
 .added-while-filtered-info {
     font-size: 10px;
@@ -30,11 +31,11 @@
             transition: background-color .3s ease-in-out;
 
             &:hover, &:focus {
-                background-color: colors.$editor-background-dark-hover;
+                background-color: colors.$background-darker-hover;
             }
 
             &:after {
-                border: 1px solid colors.$editor-border;
+                border: 1px solid colors.$border;
                 border-radius: inherit;
                 content: " ";
                 height: 100%;
@@ -56,7 +57,7 @@
         .tree-node {
             &.dataflow-active {
                 .node-text {
-                    color: colors.$editor-accent;
+                    color: colors.$accent;
                 }
             }
         }

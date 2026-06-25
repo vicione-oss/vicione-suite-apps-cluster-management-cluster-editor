@@ -1,7 +1,7 @@
-﻿@use "./../../Styles/colors";
+@use "./../../Styles/design/colors";
 
 .sidebar-top-container {
-    background-color: colors.$editor-background;
+    background-color: colors.$background-dark;
     display: grid;
     grid-template-columns: minmax(0, 1fr) auto;
     height: 64px;

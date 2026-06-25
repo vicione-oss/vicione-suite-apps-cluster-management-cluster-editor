@@ -1,8 +1,8 @@
-﻿@use "./../Styles/colors";
+@use "./../Styles/colors" as editor;
 
 .select-box {
-    background-color: rgba(colors.$editor-selected, 0.3);
-    border: 1px solid colors.$editor-selected;
+    background-color: rgba(editor.$editor-selected, 0.3);
+    border: 1px solid editor.$editor-selected;
     grid-column: 1;
     grid-row: 1;
     height: var(--select-box-height);

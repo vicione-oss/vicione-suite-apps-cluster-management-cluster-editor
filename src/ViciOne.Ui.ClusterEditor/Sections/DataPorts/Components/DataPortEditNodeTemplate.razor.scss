@@ -1,4 +1,5 @@
-﻿@use "./../../../Styles/colors";
+@use "./../../../Styles/colors" as editor;
+@use "./../../../Styles/design/colors";
 
 // Values adopted from PropertyGroup.razor.scss
 $property-group-expansion-placeholder-width: 16px;
@@ -8,7 +9,7 @@ $property-group-row-height: 38px;
 
 .form-button-container {
     align-items: center;
-    background-color: colors.$editor-background;
+    background-color: colors.$background-dark;
     display: flex;
     min-height: $property-group-row-height;
     padding-left: $property-group-expansion-placeholder-width + $property-group-property-name-width + $property-group-property-value-padding-left;

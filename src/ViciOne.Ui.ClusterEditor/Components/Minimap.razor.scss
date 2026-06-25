@@ -1,4 +1,4 @@
-﻿@use "./../Styles/colors";
+@use "./../Styles/colors" as editor;
 
 .minimap {
     bottom: 4px;
@@ -10,7 +10,7 @@
 }
 
 .minimap-container {
-    background-color: colors.$editor-foreground-dark;
+    background-color: editor.$editor-foreground-dark;
     border-radius: 3px;
     bottom: 50px;
     height: calc(var(--container-height) + 8px);
@@ -42,7 +42,7 @@
 }
 
 .viewport {
-    border: 1px solid colors.$editor-border-dark;
+    border: 1px solid editor.$editor-border-dark;
     border-radius: 3px;
     height: var(--viewport-height);
     left: var(--viewport-pos-x);
