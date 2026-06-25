@@ -47,7 +47,7 @@ internal sealed class LibraryTreeAdapter : TreeAdapter
     public override string GetDisplayText(ITreeNode node)
     {
         if (node is LibraryTreeNode libNode)
-            return libNode.DisplayText;
+            return libNode.Name;
 
         return string.Empty;
     }
@@ -127,10 +127,10 @@ internal sealed class LibraryTreeAdapter : TreeAdapter
         LibraryTreeNode EntryToNode(LibraryEntry entry, LibraryTreeNode? parent)
             => new()
             {
-                DisplayText = entry.Name,
                 Expanded = entry.IsStructureNode,
                 Id = new GuidNodeIdentifier(entry.UniqueId),
                 LibraryEntry = entry,
+                Name = entry.Name,
                 Parent = parent,
             };
     }

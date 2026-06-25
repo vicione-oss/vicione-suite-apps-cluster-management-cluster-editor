@@ -202,9 +202,9 @@ internal static class TooltipDataPortData
         }
 
         if (info.Content.Count == 0)
-            info.Content.Add([treeNode.DisplayText]);
+            info.Content.Add([treeNode.Name]);
         else
-            info.Header = treeNode.DisplayText;
+            info.Header = treeNode.Name;
 
         return info;
     }

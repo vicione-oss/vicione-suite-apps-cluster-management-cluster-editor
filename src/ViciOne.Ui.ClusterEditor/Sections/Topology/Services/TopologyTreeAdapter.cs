@@ -260,7 +260,7 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
     public override string GetDisplayText(ITreeNode node)
     {
         if (node is TopologyTreeViewModel model)
-            return model.DisplayText;
+            return model.Name;
 
         return string.Empty;
     }
@@ -351,31 +351,31 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
             case ClusterNodeGroup nodeGroup:
                 var originalNodeGroup = (ClusterNodeGroup)model.DataItem;
                 originalNodeGroup.Apply(_clusterBuilder.Editors.NodeGroup, nodeGroup);
-                model.DisplayText = originalNodeGroup.Name;
+                model.Name = originalNodeGroup.Name;
                 break;
 
             case ClusterNode node:
                 var originalNode = (ClusterNode)model.DataItem;
                 originalNode.Apply(_clusterBuilder.Editors.Node, node);
-                model.DisplayText = originalNode.Name;
+                model.Name = originalNode.Name;
                 break;
 
             case ClusterApplication application:
                 var originalApp = (ClusterApplication)model.DataItem;
                 originalApp.Apply(_clusterBuilder.Editors.Application, application);
-                model.DisplayText = originalApp.Name;
+                model.Name = originalApp.Name;
                 break;
 
             case EngineHost engineHost:
                 var originalHost = (EngineHost)model.DataItem;
                 originalHost.Apply(_clusterBuilder.Editors.EngineHost, engineHost);
-                model.DisplayText = originalHost.Name;
+                model.Name = originalHost.Name;
                 break;
 
             case Cluster.Model.Engine engine:
                 var originalEngine = (Cluster.Model.Engine)model.DataItem;
                 originalEngine.Apply(_clusterBuilder.Editors.Engine, engine);
-                model.DisplayText = originalEngine.Name;
+                model.Name = originalEngine.Name;
                 break;
         }
 

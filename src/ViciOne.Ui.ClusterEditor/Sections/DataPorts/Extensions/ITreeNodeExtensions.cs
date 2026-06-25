@@ -22,10 +22,10 @@ internal static class ITreeNodeExtensions
             {
                 AvailableIcons = nodeType.Icons,
                 CanHaveChildren = nodeType.ChildNodes.Length != 0,
-                DisplayText = nodeType.Name,
-                DisplayTextIsReadOnly = nodeType.NameIsReadOnly,
                 Icon = nodeType.Icons.FirstOrDefault(),
                 IsDataPoint = nodeType.IsDataPoint(),
+                Name = nodeType.Name,
+                NameIsReadOnly = nodeType.NameIsReadOnly,
                 NodeReference = successorRef,
                 Parent = dataPortNode,
                 Properties = [.. rootNode.Builder.GetProperties(nodeType)],

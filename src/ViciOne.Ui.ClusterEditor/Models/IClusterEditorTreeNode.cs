@@ -4,5 +4,5 @@ namespace ViciOne.Ui.ClusterEditor.Models;
 
 internal interface IClusterEditorTreeNode : ITreeNode
 {
-    string DisplayText { get; set; }
+    string Name { get; set; }
 }

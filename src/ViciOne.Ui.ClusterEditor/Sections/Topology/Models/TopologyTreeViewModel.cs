@@ -10,7 +10,6 @@ public sealed class TopologyTreeViewModel(object dataItem) : IClusterEditorTreeN
 {
     public List<TopologyTreeViewModel> Children { get; init; } = [];
     public object DataItem { get; } = dataItem;
-    public string DisplayText { get; set; } = string.Empty;
     public bool Expanded { get; set; }
     public bool HasChangedProperties { get; set; }
     public bool Highlighted { get; set; }
@@ -24,6 +23,7 @@ public sealed class TopologyTreeViewModel(object dataItem) : IClusterEditorTreeN
     public bool IsEditable { get; set; }
     public bool IsEditModeActive { get; set; }
     public bool IsManuallySelected { get; set; }
+    public string Name { get; set; } = string.Empty;
     public TopologyTreeViewModel? Parent { get; set; }
     public bool Selected { get; set; }
 

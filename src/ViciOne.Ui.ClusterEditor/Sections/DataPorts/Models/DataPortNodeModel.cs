@@ -13,8 +13,6 @@ public abstract class DataPortNodeModel : IClusterEditorTreeNode, TreeBuilder.IT
     public List<DataPortNodeModel> Children { get; init; } = [];
     IList<TreeBuilder.ITreeNode> TreeBuilder.ITreeNode.Children
         => [.. Children];
-    public required string DisplayText { get; set; }
-    public bool DisplayTextIsReadOnly { get; set; }
     public bool Expanded { get; set; }
     public bool HasChangedProperties { get; set; }
     public bool Highlighted { get; set; }
@@ -24,6 +22,8 @@ public abstract class DataPortNodeModel : IClusterEditorTreeNode, TreeBuilder.IT
         => Id;
     public bool IsDetailViewActive { get; set; }
     public bool IsEditModeActive { get; set; }
+    public required string Name { get; set; }
+    public bool NameIsReadOnly { get; set; }
     public NodeReference? NodeReference { get; set; }
     public IReadOnlyList<DataPortChildNodeModel> PossibleChildren { get; set; } = [];
     public bool Selected { get; set; }

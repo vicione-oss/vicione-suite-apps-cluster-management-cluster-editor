@@ -169,8 +169,8 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
             var containerStructureNode = new ContainerStructureTreeNode()
             {
                 ChildContainer = container,
-                DisplayText = container.Name,
                 Id = new GuidNodeIdentifier(container.Id),
+                Name = container.Name,
             };
 
             _containerMap[container] = containerStructureNode;
@@ -188,9 +188,9 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
 
             var fbStructureNode = new FunctionBlockStructureTreeNode()
             {
-                DisplayText = fb.Name,
                 FunctionBlock = fb,
                 Id = new GuidNodeIdentifier(fb.Id),
+                Name = fb.Name,
             };
 
             _functionBlockMap[fb] = fbStructureNode;
@@ -199,8 +199,8 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
 
         return
         [
-            .. containerResult.OrderBy(n => ((ContainerStructureTreeNode)n).DisplayText, AlphaNumericComparer<string>.Default),
-            .. fbResult.OrderBy(n => ((FunctionBlockStructureTreeNode)n).DisplayText, AlphaNumericComparer<string>.Default),
+            .. containerResult.OrderBy(n => ((ContainerStructureTreeNode)n).Name, AlphaNumericComparer<string>.Default),
+            .. fbResult.OrderBy(n => ((FunctionBlockStructureTreeNode)n).Name, AlphaNumericComparer<string>.Default),
         ];
     }
 
@@ -232,9 +232,9 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
     public override string GetDisplayText(ITreeNode node)
         => node switch
         {
-            ContainerStructureTreeNode cNode => cNode.DisplayText,
-            DataflowStructureTreeNode dfNode => dfNode.DisplayText,
-            FunctionBlockStructureTreeNode fbNode => fbNode.DisplayText,
+            ContainerStructureTreeNode cNode => cNode.Name,
+            DataflowStructureTreeNode dfNode => dfNode.Name,
+            FunctionBlockStructureTreeNode fbNode => fbNode.Name,
             _ => string.Empty
         };
 
@@ -274,7 +274,7 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
     public override IEnumerable<ITreeNode> GetRootNodes()
         => _dataflowMap
             .Select(dstn => dstn.Value)
-            .OrderBy(n => n.DisplayText, AlphaNumericComparer<string>.Default);
+            .OrderBy(n => n.Name, AlphaNumericComparer<string>.Default);
 
     public override bool HasChildren(ITreeNode node)
         => node switch

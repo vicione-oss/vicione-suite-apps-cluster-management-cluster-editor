@@ -33,11 +33,11 @@ internal static class DataPortTreeNodeExtensions
         {
             AvailableIcons = nodeType.Icons,
             CanHaveChildren = nodeType.ChildNodes.Length != 0,
-            DisplayText = clusterTreeNode.Name,
-            DisplayTextIsReadOnly = nodeType.NameIsReadOnly,
             Icon = clusterTreeNode.Icon ?? nodeType.Icons.FirstOrDefault(),
             Id = new GuidNodeIdentifier(clusterTreeNode.Id),
             IsDataPoint = nodeType.IsDataPoint(),
+            Name = clusterTreeNode.Name,
+            NameIsReadOnly = nodeType.NameIsReadOnly,
             NodeReference = nodeRef,
             Parent = editorParent,
             Properties = [.. rootNode.Builder.GetProperties(nodeType)],

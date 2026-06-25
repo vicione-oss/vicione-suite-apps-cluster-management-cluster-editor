@@ -18,7 +18,7 @@ public class NodeTypeExtensions_GetInheritedTransferDirections
         DataPortRootNodeModel rootNode = new()
         {
             Builder = new(TestResources.MqttRuleset),
-            DisplayText = string.Empty,
+            Name = string.Empty,
         };
 
         var result = nodeType.GetInheritedTransferDirections(rootNode);
@@ -36,11 +36,11 @@ public class NodeTypeExtensions_GetInheritedTransferDirections
         DataPortRootNodeModel rootNode = new()
         {
             Builder = new(TestResources.MqttRuleset),
-            DisplayText = string.Empty,
+            Name = string.Empty,
         };
         DataPortChildNodeModel parentNode = new()
         {
-            DisplayText = string.Empty,
+            Name = string.Empty,
             Parent = rootNode,
             Properties = [],
             RootNode = rootNode,
@@ -62,11 +62,11 @@ public class NodeTypeExtensions_GetInheritedTransferDirections
         DataPortRootNodeModel rootNode = new()
         {
             Builder = new(TestResources.MqttRuleset),
-            DisplayText = string.Empty,
+            Name = string.Empty,
         };
         DataPortChildNodeModel parentNode = new()
         {
-            DisplayText = string.Empty,
+            Name = string.Empty,
             Parent = rootNode,
             Properties = [],
             RootNode = rootNode,
