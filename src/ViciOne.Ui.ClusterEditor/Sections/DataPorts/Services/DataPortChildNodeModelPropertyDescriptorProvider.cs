@@ -19,7 +19,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     DataPortChildNodePropertyValueStore propertyValueStore, NumericPropertyDescriptorBuilderProvider numericPropertyDescriptorBuilderProvider)
         : IPropertyDescriptorProvider<DataPortChildNodeEditContext, DataPortChildNodeModel>
 {
-    private readonly Dictionary<string, List<DataPortNodeModelCustomProperty>> _dependencyMap = [];
+    private readonly Dictionary<string, List<IDataPortNodeModelProperty>> _dependencyMap = [];
     private readonly Dictionary<(Delegate, Type), MethodInfo> _genericMethodCache = [];
     private readonly Dictionary<string, IPropertyDescriptor> _propertyDescriptors = [];
     private readonly StringMustNotBeEmptyPropertyValueValidator _stringMustNotBeEmptyPropertyValueValidator = new();
@@ -52,7 +52,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             as IPropertyDescriptor<DataPortChildNodeModel>;
     }
 
-    private void CreateDependencyMap(IReadOnlyCollection<DataPortNodeModelCustomProperty> properties)
+    private void CreateDependencyMap(IReadOnlyCollection<IDataPortNodeModelProperty> properties)
     {
         foreach (var prop in properties)
         {
@@ -231,9 +231,13 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             };
         }
 
-        foreach (var property in context.Node.Properties.OfType<DataPortNodeModelSystemProperty>())
+        var systemProperties = context.Node.Properties.OfType<DataPortNodeModelSystemProperty>().ToList();
+
+        CreateDependencyMap(systemProperties);
+
+        foreach (var property in OrderByDependency(systemProperties))
         {
-            yield return property switch
+            var systemProperty = property switch
             {
                 DataPortTreeNodeSystemProperty<DataPortDirection> directionProperty
                     => GetDataPortDirectionPropertyData(directionProperty, context.Node.Id.Value, context.ClusterBuilder),
@@ -245,10 +249,14 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
                     => GetStringPropertyData(stringProperty, context.Node, context.ClusterBuilder),
 
                 DataPortTreeNodeSystemProperty<uint?> uintProperty
-                    => GetUintPropertyData(uintProperty),
+                    => GetUintPropertyData(uintProperty, GetDependencies(property.Name)),
 
-                _ => GetRegularPropertyData(property)
+                _ => GetRegularPropertyData((DataPortNodeModelSystemProperty)property)
             };
+
+            _propertyDescriptors.Add(property.Name, systemProperty);
+
+            yield return systemProperty;
         }
 
         var customProperties = context.Node.Properties.OfType<DataPortNodeModelCustomProperty>().ToList();
@@ -259,7 +267,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
         {
             propertyValueStore.Set(property.Name, property.Value);
 
-            var descriptor = CreateCustomPropertyDescriptor(property);
+            var descriptor = CreateCustomPropertyDescriptor((DataPortNodeModelCustomProperty)property);
             if (descriptor is not null)
             {
                 _propertyDescriptors.Add(property.Name, descriptor);
@@ -341,19 +349,21 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
         };
     }
 
-    private PropertyDescriptor<DataPortChildNodeModel, uint?> GetUintPropertyData(DataPortTreeNodeSystemProperty<uint?> uintProperty)
+    private PropertyDescriptor<DataPortChildNodeModel, uint?> GetUintPropertyData(DataPortTreeNodeSystemProperty<uint?> uintProperty, IReadOnlyCollection<IPropertyDescriptor>? dependencies)
     {
         propertyValueStore.Set(uintProperty.Name, uintProperty.TypedValue);
 
         return new NumericPropertyDescriptor<DataPortChildNodeModel, uint?, uint, uint>
         {
             Category = uintProperty.Category,
+            DependsOn = dependencies,
             GetValue = (instance) => propertyValueStore.Get<uint?>(uintProperty.Name, defaultValue: default),
             Interval = 1,
             Maximum = uint.MaxValue,
             Minimum = uint.MinValue,
             Name = uintProperty.Name,
-            SetValue = (instance, value) => propertyValueStore.Set(uintProperty.Name, value)
+            SetValue = (instance, value) => propertyValueStore.Set(uintProperty.Name, value),
+            Visible = (instance) => DetermineVisibility(uintProperty.Name, instance.Properties)
         };
     }
 
@@ -389,9 +399,9 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     private static bool IsValueTypeProperty(DataPortTreeNodeSystemProperty<string> stringProperty)
         => stringProperty.Name == nameof(DataPortTreeNode.ValueType);
 
-    private List<DataPortNodeModelCustomProperty> OrderByDependency(IReadOnlyCollection<DataPortNodeModelCustomProperty> properties)
+    private List<IDataPortNodeModelProperty> OrderByDependency(IReadOnlyCollection<IDataPortNodeModelProperty> properties)
     {
-        var sorted = new List<DataPortNodeModelCustomProperty>();
+        var sorted = new List<IDataPortNodeModelProperty>();
         var state = new Dictionary<string, bool>();
 
         foreach (var property in properties)
@@ -399,7 +409,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
 
         return sorted;
 
-        void Visit(DataPortNodeModelCustomProperty property)
+        void Visit(IDataPortNodeModelProperty property)
         {
             if (state.TryGetValue(property.Name, out var done))
             {
