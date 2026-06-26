@@ -2,6 +2,10 @@
 
 ## 1.3.0 - Unreleased
 
+### Added
+
+- Added dependency between TransferMode and TransferInterval properties of DataPortChildNodes
+
 ### Changed
 
 - Exchanged legacy scss color variables with these from the `ViciOne.Ui.Design` library

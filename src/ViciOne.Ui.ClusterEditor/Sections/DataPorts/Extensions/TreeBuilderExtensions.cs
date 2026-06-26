@@ -77,12 +77,14 @@ internal static class TreeBuilderExtensions
 
         var availableModes = dataPortTreeNodeType.TransferModes
             .Select(TranslateToClusterModel).Distinct().ToList();
-        yield return new DataPortTreeNodeSystemProperty<DataPortTransferMode>
+        var transferModeProperty = new DataPortTreeNodeSystemProperty<DataPortTransferMode>
         {
             AvailableValues = availableModes,
             Name = nameof(DataPortTreeNode.TransferMode),
             Value = availableModes[0],
         };
+        transferModeProperty.DependentProperties?.Add(nameof(DataPortTreeNode.TransferIntervalInMs), [DataPortTransferMode.Periodic]);
+        yield return transferModeProperty;
 
         if (dataPortTreeNodeType.DataTypes.Length != 0)
         {

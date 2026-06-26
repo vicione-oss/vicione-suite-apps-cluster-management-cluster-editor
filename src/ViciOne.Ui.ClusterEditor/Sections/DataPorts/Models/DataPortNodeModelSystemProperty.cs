@@ -5,9 +5,10 @@ namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 internal abstract class DataPortNodeModelSystemProperty : IDataPortNodeModelProperty
 {
     internal const string SystemCategory = "General"; // Categories are not localized
+    private readonly Dictionary<string, object[]>? _dependentProperties = [];
 
     public string Category { get; } = SystemCategory;
-    public Dictionary<string, object[]>? DependentProperties => [];
+    public Dictionary<string, object[]>? DependentProperties => _dependentProperties;
     public required string Name { get; set; }
     public abstract object? Value { get; set; }
 }
