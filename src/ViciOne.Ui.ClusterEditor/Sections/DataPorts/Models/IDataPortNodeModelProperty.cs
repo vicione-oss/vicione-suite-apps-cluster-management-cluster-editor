@@ -5,6 +5,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 public interface IDataPortNodeModelProperty
 {
     string Category { get; }
+    object? DefaultValue { get; set; }
     Dictionary<string, object[]>? DependentProperties { get; }
     string Name { get; set; }
     object? Value { get; set; }
@@ -12,5 +13,6 @@ public interface IDataPortNodeModelProperty
 
 public interface IDataPortNodeModelProperty<T> : IDataPortNodeModelProperty
 {
+    T? TypedDefaultValue { get; set; }
     T? TypedValue { get; set; }
 }

@@ -24,6 +24,7 @@ internal static class DataPortNodeModelCreator
             new DataPortTreeNodeSystemProperty<Cluster.Model.DataPortTransferMode>
             {
                 AvailableValues = [.. Enum.GetValues<Cluster.Model.DataPortTransferMode>()],
+                DefaultValue = dataPortTransferMode,
                 Name = nameof(DataPortTreeNode.TransferMode),
                 Value = dataPortTransferMode,
             }
@@ -34,6 +35,7 @@ internal static class DataPortNodeModelCreator
             properties.Add(new DataPortTreeNodeSystemProperty<string>
             {
                 Name = nameof(DataPortTreeNode.ValueType),
+                TypedDefaultValue = dataTypeValue,
                 TypedValue = dataTypeValue,
             });
         }
@@ -44,6 +46,7 @@ internal static class DataPortNodeModelCreator
             {
                 AvailableValues = [DataPortDirection.In, DataPortDirection.Out, DataPortDirection.InOut],
                 Name = nameof(DataPort.Direction),
+                TypedDefaultValue = dataPortDirection.Value,
                 TypedValue = dataPortDirection.Value,
             });
         }

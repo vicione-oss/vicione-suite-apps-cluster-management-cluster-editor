@@ -5,6 +5,7 @@
 ### Added
 
 - Added dependency between TransferMode and TransferInterval properties of DataPortChildNodes
+- Implemented default value comparison and reset value for DataPortNode properties
 
 ### Changed
 

@@ -59,11 +59,13 @@ internal static class TreeBuilderExtensions
     {
         var availableDirections = TranslateToClusterModel(dataPortNodeType.TransferDirections)
             .Distinct().ToList();
+        var defaultDirection = GetDefaultDirection(availableDirections);
         yield return new DataPortTreeNodeSystemProperty<DataPortDirection>
         {
             AvailableValues = availableDirections,
+            DefaultValue = defaultDirection,
             Name = nameof(DataPort.Direction),
-            Value = GetDefaultDirection(availableDirections),
+            Value = defaultDirection,
         };
     }
 
@@ -72,6 +74,7 @@ internal static class TreeBuilderExtensions
         yield return new DataPortTreeNodeSystemProperty<uint?>
         {
             Name = nameof(DataPortTreeNode.TransferIntervalInMs),
+            TypedDefaultValue = null,
             TypedValue = null,
         };
 
@@ -80,6 +83,7 @@ internal static class TreeBuilderExtensions
         var transferModeProperty = new DataPortTreeNodeSystemProperty<DataPortTransferMode>
         {
             AvailableValues = availableModes,
+            DefaultValue = availableModes[0],
             Name = nameof(DataPortTreeNode.TransferMode),
             Value = availableModes[0],
         };
@@ -88,11 +92,13 @@ internal static class TreeBuilderExtensions
 
         if (dataPortTreeNodeType.DataTypes.Length != 0)
         {
+            var defaultValue = dataPortTreeNodeType.DataTypes.FirstOrDefault();
             yield return new DataPortTreeNodeSystemProperty<string>
             {
                 AvailableValues = [.. dataPortTreeNodeType.DataTypes],
+                DefaultValue = defaultValue,
                 Name = nameof(DataPortTreeNode.ValueType),
-                Value = dataPortTreeNodeType.DataTypes.FirstOrDefault(),
+                Value = defaultValue,
             };
         }
     }
@@ -134,6 +140,7 @@ internal static class TreeBuilderExtensions
 
         yield return new DataPortTreeNodeSystemProperty<string>
         {
+            DefaultValue = nodeType.Description,
             Name = nameof(nodeType.Description),
             Value = nodeType.Description
         };
@@ -149,6 +156,7 @@ internal static class TreeBuilderExtensions
                 yield return new DataPortNodeModelCustomProperty()
                 {
                     Category = propertyCategory.Name,
+                    DefaultValue = propertyType.DefaultValue,
                     DependentProperties = propertyType.DependentProperties,
                     Id = Guid.NewGuid(),
                     MaxValue = propertyType.MaxValue,
