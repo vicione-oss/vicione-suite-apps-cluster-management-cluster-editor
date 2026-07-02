@@ -50,17 +50,20 @@ public class DataPortChildNodeModelTests
             new DataPortTreeNodeSystemProperty<DataPortTransferMode>()
             {
                 AvailableValues = [DataPortTransferMode.Periodic, DataPortTransferMode.OnChange],
+                DefaultValue = DataPortTransferMode.Periodic,
                 Name = nameof(DataPortTransferMode),
                 Value = DataPortTransferMode.Periodic,
             },
             new DataPortTreeNodeSystemProperty<uint>()
             {
                 Name = UIntProperty,
+                TypedDefaultValue = 0,
                 TypedValue = 5066
             },
             new DataPortTreeNodeSystemProperty<string>()
             {
                 AvailableValues = ["Test", "Best"],
+                DefaultValue = "Test",
                 Name = StringProperty,
                 Value = "Best",
             },

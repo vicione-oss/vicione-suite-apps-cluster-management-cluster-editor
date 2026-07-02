@@ -8,6 +8,7 @@ internal abstract class DataPortNodeModelSystemProperty : IDataPortNodeModelProp
     private readonly Dictionary<string, object[]>? _dependentProperties = [];
 
     public string Category { get; } = SystemCategory;
+    public abstract object? DefaultValue { get; set; }
     public Dictionary<string, object[]>? DependentProperties => _dependentProperties;
     public required string Name { get; set; }
     public abstract object? Value { get; set; }
@@ -16,6 +17,12 @@ internal abstract class DataPortNodeModelSystemProperty : IDataPortNodeModelProp
 internal sealed class DataPortTreeNodeSystemProperty<TData> : DataPortNodeModelSystemProperty, IDataPortNodeModelProperty<TData>
 {
     public List<TData> AvailableValues { get; init; } = [];
+    public override object? DefaultValue
+    {
+        get => TypedDefaultValue;
+        set => TypedDefaultValue = value is null ? default : (TData)value;
+    }
+    public TData? TypedDefaultValue { get; set; }
     public TData? TypedValue { get; set; }
     public override object? Value
     {
