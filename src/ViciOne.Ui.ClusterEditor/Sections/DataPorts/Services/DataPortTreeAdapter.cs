@@ -88,7 +88,8 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
 
         if (dpNode.PossibleChildren.Count == 1)
         {
-            CreateNewChildNode(dpNode, dpNode.PossibleChildren[0]);
+            var childNode = DataPortChildNodeModelFactory.CreateDataPortChildNodeModel(dpNode.PossibleChildren[0], dpNode);
+            CreateNewChildNode(dpNode, childNode);
             Builder.Expansion.ChangeExpansion(dpNode, true);
             return;
         }
@@ -97,7 +98,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
         {
             MouseEventArgs = e.MouseArgs!,
             ParentNode = dpNode,
-            PossibleChildren = SortNodes([.. dpNode.PossibleChildren.Cast<DataPortNodeModel>()], true).Cast<DataPortChildNodeModel>(),
+            PossibleChildren = dpNode.PossibleChildren
         });
     }
 

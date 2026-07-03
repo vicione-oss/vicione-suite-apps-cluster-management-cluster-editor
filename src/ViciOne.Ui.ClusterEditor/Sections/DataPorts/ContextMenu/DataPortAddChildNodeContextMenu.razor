@@ -9,9 +9,9 @@
     {
         foreach (var possibleChild in Context.PossibleChildren)
         {
-            <ContextMenuItem IconData="@GetIconData(possibleChild)"
-                             OnClick="@(() => ContextMenuItemClickAsync(possibleChild))"
-                             Text="@possibleChild.Name" />
+            <DataPortChildNodeContextMenuItem Descriptor="@possibleChild"
+                                              OnClick="@ContextMenuItemClickAsync"
+                                              GetIconDataFunc="@GetIconData" />
         }
     }
 </ContextMenu>

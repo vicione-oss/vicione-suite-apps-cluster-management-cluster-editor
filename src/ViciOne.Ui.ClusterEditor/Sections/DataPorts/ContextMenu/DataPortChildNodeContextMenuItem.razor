@@ -1,0 +1,22 @@
+@using ViciOne.Ui.Blazor.Components.ContextMenu.Components
+
+@if (Descriptor.Children.Count > 0)
+{
+    <ContextMenuItem IconData="@GetIconDataFunc(Descriptor)"
+                     Text="@Descriptor.Name"
+                     Context="_">
+
+        @foreach (var child in Descriptor.Children)
+        {
+            <DataPortChildNodeContextMenuItem Descriptor="@child"
+                                              OnClick="@OnClick"
+                                              GetIconDataFunc="@GetIconDataFunc" />
+        }
+    </ContextMenuItem>
+}
+else
+{
+    <ContextMenuItem IconData="@GetIconDataFunc(Descriptor)"
+                     OnClick="@HandleClickAsync"
+                     Text="@Descriptor.Name" />
+}

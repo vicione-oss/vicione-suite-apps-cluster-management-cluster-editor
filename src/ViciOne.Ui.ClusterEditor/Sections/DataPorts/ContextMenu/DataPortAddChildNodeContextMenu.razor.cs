@@ -3,10 +3,12 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Cluster.Model;
+using ViciOne.TreeBuilder.NodeTypes;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Components;
 using ViciOne.Ui.ClusterEditor.Models.Data;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
+using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ColorableIcons;
 
@@ -19,34 +21,45 @@ public sealed partial class DataPortAddChildNodeContextMenu : SpecializedContext
     [Parameter]
     public EventCallback<DataPortAddChildNodeContextMenuItemClickEventArgs> OnContextMenuItemClick { get; set; }
 
-    private async Task ContextMenuItemClickAsync(DataPortChildNodeModel possibleChild)
+    private async Task ContextMenuItemClickAsync(DataPortChildNodeContextMenuDescriptor possibleChild)
     {
-        if (OnContextMenuItemClick.HasDelegate && Context is not null)
+        if (Context is null)
+            return;
+
+        var dataPortChild = DataPortChildNodeModelFactory.CreateDataPortChildNodeModel(possibleChild, Context.ParentNode);
+
+        if (OnContextMenuItemClick.HasDelegate)
         {
             await OnContextMenuItemClick.InvokeAsync(new DataPortAddChildNodeContextMenuItemClickEventArgs
             {
                 ParentNode = Context.ParentNode,
-                PossibleChild = possibleChild
+                PossibleChild = dataPortChild
             });
         }
     }
 
-    public static string GetIconData(DataPortChildNodeModel possibleChild)
+    private static string GetIconData(DataPortChildNodeContextMenuDescriptor descriptor)
     {
-        var color = ConnectorColor.Get(typeof(object));
-        var dataTypeValue = possibleChild.GetSystemProperty<string>(nameof(DataPortTreeNode.ValueType));
+        var rootNode = descriptor.ParentNode.GetRootNode();
 
-        if (dataTypeValue is not null && !string.IsNullOrEmpty(dataTypeValue.TypedValue))
+        if (!rootNode.Builder.NodeTypes.TryGetValue(descriptor.NodeReference.Id, out var nodeType))
+            return string.Empty;
+
+        var dataPortDirection = (descriptor.ParentNode as DataPortChildNodeModel)?.GetRootSuccessor().GetSystemProperty<DataPortDirection>()?.TypedValue ?? DataPortDirection.In;
+
+        var runtimeType = typeof(object);
+        if (nodeType is DataPortTreeNodeType dataPortTreeNodeType
+            && dataPortTreeNodeType.DataTypes.Length > 0
+            && rootNode.Builder.DataTypes.TryGetValue(dataPortTreeNodeType.DataTypes[0], out var dataType)
+            && dataType.RuntimeType is not null)
         {
-            var runtimeType = possibleChild.RootNode.Builder.DataTypes[dataTypeValue.TypedValue].RuntimeType;
-            color = ConnectorColor.Get(runtimeType ?? typeof(object));
+            runtimeType = dataType.RuntimeType;
         }
 
-        var dataPortDirection = possibleChild.GetRootSuccessor().GetSystemProperty<DataPortDirection>()?.TypedValue;
-
-        var icon = possibleChild.Icon != "datapoint"
-            ? possibleChild.RootNode.Builder.GetSvgIcon(possibleChild.Icon ?? string.Empty)
-            : ColoredIconFactory.GetDataPortIcon(color, dataPortDirection ?? DataPortDirection.In, true, true);
+        var color = ConnectorColor.Get(runtimeType);
+        var icon = descriptor.IconName != "datapoint"
+            ? rootNode.Builder.GetSvgIcon(descriptor.IconName)
+            : ColoredIconFactory.GetDataPortIcon(color, dataPortDirection, true, true);
 
         icon = icon?.Replace("viewBox=\"0 0 32 32\"", "viewBox=\"4 4 28 28\" width=\"16\" height=\"16\"",
             StringComparison.InvariantCulture);
