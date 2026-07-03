@@ -6,11 +6,13 @@
 
 - Added dependency between TransferMode and TransferInterval properties of DataPortChildNodes
 - Implemented default value comparison and reset value for DataPortNode properties
+- Added sub menus for DataPortTreeNode `+` button context menus which represents namespaces
 
 ### Changed
 
 - Exchanged legacy scss color variables with these from the `ViciOne.Ui.Design` library
 - Renamed `DisplayText` property to `Name` for TreeNodes
+- Refactored DataPort context menu item handling to use descriptors instead of "real" `DataPortNodeModels`
 
 ### Removed
 

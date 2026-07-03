@@ -10,5 +10,5 @@ public sealed class DataPortAddChildNodeContextMenuContext : IContextMenuContext
     public ContextMenuItemFilter? ItemFilter { get; init; }
     public required MouseEventArgs MouseEventArgs { get; init; }
     public required DataPortNodeModel ParentNode { get; init; }
-    public required IEnumerable<DataPortChildNodeModel> PossibleChildren { get; set; }
+    public required IReadOnlyList<DataPortChildNodeContextMenuDescriptor> PossibleChildren { get; init; }
 }

@@ -25,6 +25,6 @@ public abstract class DataPortNodeModel : IClusterEditorTreeNode, TreeBuilder.IT
     public required string Name { get; set; }
     public bool NameIsReadOnly { get; set; }
     public NodeReference? NodeReference { get; set; }
-    public IReadOnlyList<DataPortChildNodeModel> PossibleChildren { get; set; } = [];
+    public IReadOnlyList<DataPortChildNodeContextMenuDescriptor> PossibleChildren { get; set; } = [];
     public bool Selected { get; set; }
 }
