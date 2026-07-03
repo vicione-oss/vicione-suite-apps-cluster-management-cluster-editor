@@ -1,0 +1,13 @@
+[Unit]
+Description=Cluster Editor
+
+[Service]
+Type=simple
+Restart=always
+User=debian
+Group=debian
+WorkingDirectory=/opt/cluster-editor/
+ExecStart=/opt/cluster-editor/Server --urls http://0.0.0.0:80
+
+[Install]
+WantedBy=multi-user.target

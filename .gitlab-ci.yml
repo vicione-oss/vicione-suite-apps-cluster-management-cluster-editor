@@ -5,6 +5,8 @@
   - eval $(ssh-agent -s)
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
   - mkdir -p ~/.ssh && chmod 700 ~/.ssh && touch ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
+  - chmod 600 .deploy/deploy_ed25519
+  - ssh-add .deploy/deploy_ed25519
 
 .prepare_npm: &prepare_npm
   - cd src/ViciOne.Ui.ClusterEditor
@@ -61,6 +63,14 @@
     when: manual
     allow_failure: true
   - <<: *rule_web
+    when: manual
+    allow_failure: true
+
+.rules_deploy: &rules_deploy
+  - <<: *rule_default_branch
+    when: manual
+    allow_failure: true
+  - <<: *rule_mr
     when: manual
     allow_failure: true
 
@@ -176,41 +186,72 @@ Publish arm64:
   tags:
     - saas-linux-large-arm64
 
-Deploy EC10:
+### Deployments
+
+.prepare_deploy: &prepare_deploy
+  - apt update -y && apt install -y rsync bash
+  - *prepare_keys
+  - ssh-keyscan -T 250 $HOST_IP >> ~/.ssh/known_hosts
+  - *patch_version
+
+.deploy_cluster_editor: &deploy_cluster_editor
+  - mkdir -p "${DIRECTORY}"
+  - ABSOLUTE_DIRECTORY=$(realpath "${DIRECTORY}")
+  - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "sudo pkill -9 -f ${BINARY}" || true
+  - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "sudo mkdir -p ${INSTALL_DIRECTORY} && sudo chown -R ${PUBLISH_USER}:${PUBLISH_USER} ${INSTALL_DIRECTORY}"
+  - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "sudo touch ${LOGFILE} && sudo chown ${PUBLISH_USER}:${PUBLISH_USER} ${LOGFILE}"
+  - rsync -e 'ssh -q  -o "ConnectTimeout=10"' -rz --inplace --stats --delete "${ABSOLUTE_DIRECTORY}"/ ${PUBLISH_USER}@${HOST_IP}:${INSTALL_DIRECTORY}
+  - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "sudo setcap 'cap_net_bind_service=+ep' ${INSTALL_DIRECTORY}/${BINARY}"
+  - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "echo \"cd ${INSTALL_DIRECTORY} ;  nohup ./${BINARY} --urls http://0.0.0.0:80 &> ${LOGFILE} &\" > ${INSTALL_DIRECTORY}/run.sh"
+  - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "chmod +x ${INSTALL_DIRECTORY}/run.sh ; ${INSTALL_DIRECTORY}/run.sh"
+
+.deploy_cluster_editor_systemd: &deploy_cluster_editor_systemd
+  - mkdir -p "${DIRECTORY}"
+  - ABSOLUTE_DIRECTORY=$(realpath "${DIRECTORY}")
+  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo systemctl stop cluster-editor.service" || true
+  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo mkdir -p ${INSTALL_DIRECTORY} && sudo chown -R ${DEPLOY_USER}:${DEPLOY_USER} ${INSTALL_DIRECTORY}"
+  - rsync -e 'ssh -q  -o "ConnectTimeout=10"' -rz --inplace --stats --delete "${ABSOLUTE_DIRECTORY}"/ ${DEPLOY_USER}@${HOST_IP}:${INSTALL_DIRECTORY}
+  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo setcap 'cap_net_bind_service=+ep' ${INSTALL_DIRECTORY}/${BINARY}"
+  - scp .deploy/cluster-editor.service ${DEPLOY_USER}@${HOST_IP}:.
+  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo mv cluster-editor.service /etc/systemd/system/"
+  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo systemctl daemon-reload"
+  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo systemctl enable --now cluster-editor.service"
+  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo systemctl restart cluster-editor.service"
+
+.deploy_job:
   stage: deploy
   image: ${IMAGE_NAME}
+  before_script:
+    - *prepare_deploy
+  script:
+    - *deploy_cluster_editor
+  rules: *rules_deploy
+  needs:
+    - 'Publish arm64'
+  tags:
+    - tdl
+
+Deploy EC10:
+  extends: .deploy_job
   variables:
     DIRECTORY: 'artifacts/publish'
     HOST_IP: '10.100.17.71'
     INSTALL_DIRECTORY: '/opt/dfe'
     BINARY: "Server"
     LOGFILE: '/var/log/vo-cluster-editor.log'
-  before_script:
-    - apt update -y && apt install -y rsync bash
-    - *prepare_keys
-    - ssh-keyscan -T 250 $HOST_IP >> ~/.ssh/known_hosts
-    - *patch_version
-  script:
-    - mkdir -p "${DIRECTORY}"
-    - ABSOLUTE_DIRECTORY=$(realpath "${DIRECTORY}")
-    - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "sudo pkill -9 -f ${BINARY}" || true
-    - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "sudo mkdir -p ${INSTALL_DIRECTORY} && sudo chown -R ${PUBLISH_USER}:${PUBLISH_USER} ${INSTALL_DIRECTORY}"
-    - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "sudo touch ${LOGFILE} && sudo chown ${PUBLISH_USER}:${PUBLISH_USER} ${LOGFILE}"
-    - rsync -e 'ssh -q  -o "ConnectTimeout=10"' -rz --inplace --stats --delete "${ABSOLUTE_DIRECTORY}"/ ${PUBLISH_USER}@${HOST_IP}:${INSTALL_DIRECTORY}
-    - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "sudo setcap 'cap_net_bind_service=+ep' ${INSTALL_DIRECTORY}/${BINARY}"
-    - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "echo \"cd ${INSTALL_DIRECTORY} ;  nohup ./${BINARY} --urls http://0.0.0.0:80 &> ${LOGFILE} &\" > ${INSTALL_DIRECTORY}/run.sh"
-    - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "chmod +x ${INSTALL_DIRECTORY}/run.sh ; ${INSTALL_DIRECTORY}/run.sh"
-  rules:
-    - if : '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-      when: manual
-      allow_failure: true
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      when: manual
-      allow_failure: true
-  needs:
-    - 'Publish arm64'
   environment:
     name: 'ec-701.tdl.vicione.dev'
     url: 'https://ec-701.tdl.vicione.dev/'
-  tags:
-    - tdl
+
+Deploy EC20:
+  extends: .deploy_job
+  variables:
+    DIRECTORY: 'artifacts/publish'
+    HOST_IP: '10.100.13.75'
+    INSTALL_DIRECTORY: '/opt/cluster-editor'
+    BINARY: "Server"
+  script:
+    - *deploy_cluster_editor_systemd
+  environment:
+    name: 'ec-305.tdl.vicione.dev'
+    url: 'https://ec-305.tdl.vicione.dev/'
