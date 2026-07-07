@@ -14,6 +14,7 @@
 - Renamed `DisplayText` property to `Name` for TreeNodes
 - Refactored DataPort context menu item handling to use descriptors instead of "real" `DataPortNodeModels`
 - Changed npm install to npm ci
+- Use `Id` instead of `Name` of `DataPortNode` properties for dependency checks
 
 ### Removed
 

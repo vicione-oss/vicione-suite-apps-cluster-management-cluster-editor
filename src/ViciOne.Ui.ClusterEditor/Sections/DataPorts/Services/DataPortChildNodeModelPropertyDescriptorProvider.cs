@@ -29,7 +29,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
         if (property.PossibleValues?.Count > 0)
         {
             var createMethod = GetOrCreateGenericMethod(CreateSelectionPropertyDescriptor<object>, property.RuntimeType);
-            return createMethod.Invoke(this, [property, property.PossibleValues, property.DefaultValue, GetDependencies(property.Name)])
+            return createMethod.Invoke(this, [property, property.PossibleValues, property.DefaultValue, GetDependencies(property.DependencyId)])
                 as IPropertyDescriptor<DataPortChildNodeModel>;
         }
 
@@ -44,11 +44,11 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
                 builder.WithMaximum(property.MaxValue);
 
             return builder.Build<DataPortChildNodeModel>(
-                CreateNumericPropertyDescriptor<object, int, int, int>, property, property.DefaultValue, GetDependencies(property.Name));
+                CreateNumericPropertyDescriptor<object, int, int, int>, property, property.DefaultValue, GetDependencies(property.DependencyId));
         }
 
         var method = GetOrCreateGenericMethod(CreatePropertyDescriptorWithDefaultValue<object>, property.RuntimeType);
-        return method.Invoke(this, [property, property.Type.DefaultValue, GetDependencies(property.Name)])
+        return method.Invoke(this, [property, property.Type.DefaultValue, GetDependencies(property.DependencyId)])
             as IPropertyDescriptor<DataPortChildNodeModel>;
     }
 
@@ -88,7 +88,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             Name = property.Name,
             ResetValue = (instance) => propertyValueStore.Set(property.Name, defaultValue),
             SetValue = (instance, value) => propertyValueStore.Set(property.Name, value),
-            Visible = (instance) => DetermineVisibility(property.Name, instance.Properties)
+            Visible = (instance) => DetermineVisibility(property.DependencyId, instance.Properties)
         };
 
     private PropertyDescriptor<DataPortChildNodeModel, TPropertyValue> CreatePropertyDescriptorWithDefaultValue<TPropertyValue>(
@@ -104,7 +104,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             Name = property.Name,
             ResetValue = (instance) => propertyValueStore.Set(property.Name, defaultValue),
             SetValue = (instance, value) => propertyValueStore.Set(property.Name, value),
-            Visible = (instance) => DetermineVisibility(property.Name, instance.Properties),
+            Visible = (instance) => DetermineVisibility(property.DependencyId, instance.Properties),
         };
 
     private SelectionPropertyDescriptor<DataPortChildNodeModel, TPropertyValue> CreateSelectionPropertyDescriptor<TPropertyValue>(
@@ -121,14 +121,14 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             Name = property.Name,
             ResetValue = (instance) => propertyValueStore.Set(property.Name, defaultValue),
             SetValue = (instance, value) => propertyValueStore.Set(property.Name, value),
-            Visible = (instance) => DetermineVisibility(property.Name, instance.Properties),
+            Visible = (instance) => DetermineVisibility(property.DependencyId, instance.Properties),
         };
 
-    private bool DetermineVisibility(string propertyName, IEnumerable<IDataPortNodeModelProperty> allProperties)
+    private bool DetermineVisibility(string dependencyId, IEnumerable<IDataPortNodeModelProperty> allProperties)
     {
         foreach (var property in allProperties)
         {
-            if (property.DependentProperties is null || !property.DependentProperties.TryGetValue(propertyName, out var allowedValues))
+            if (property.DependentProperties is null || !property.DependentProperties.TryGetValue(dependencyId, out var allowedValues))
                 continue;
 
             if (!allowedValues.Contains(propertyValueStore.Get<object>(property.Name, default!)))
@@ -166,9 +166,9 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
         };
     }
 
-    private List<IPropertyDescriptor>? GetDependencies(string propertyName)
+    private List<IPropertyDescriptor>? GetDependencies(string dependencyId)
     {
-        if (!_dependencyMap.TryGetValue(propertyName, out var dependencies))
+        if (!_dependencyMap.TryGetValue(dependencyId, out var dependencies))
             return null;
 
         List<IPropertyDescriptor>? result = null;
@@ -245,7 +245,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
                     => GetStringPropertyData(stringProperty, context.Node, context.ClusterBuilder),
 
                 DataPortTreeNodeSystemProperty<uint?> uintProperty
-                    => GetUintPropertyData(uintProperty, GetDependencies(property.Name)),
+                    => GetUintPropertyData(uintProperty, GetDependencies(property.DependencyId)),
 
                 _ => GetRegularPropertyData((DataPortNodeModelSystemProperty)property)
             };
@@ -284,7 +284,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
 
         var createMethod = GetOrCreateGenericMethod(CreatePropertyDescriptorWithDefaultValue<object>, propertyValueType);
 
-        var invokeResult = createMethod.Invoke(this, [property, property.DefaultValue, GetDependencies(property.Name)]);
+        var invokeResult = createMethod.Invoke(this, [property, property.DefaultValue, GetDependencies(property.DependencyId)]);
         if (invokeResult is not IPropertyDescriptor<DataPortChildNodeModel> result)
             throw new InvalidOperationException();
 
@@ -367,7 +367,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             Name = uintProperty.Name,
             ResetValue = (instance) => propertyValueStore.Set(uintProperty.Name, uintProperty.TypedDefaultValue),
             SetValue = (instance, value) => propertyValueStore.Set(uintProperty.Name, value),
-            Visible = (instance) => DetermineVisibility(uintProperty.Name, instance.Properties)
+            Visible = (instance) => DetermineVisibility(uintProperty.DependencyId, instance.Properties)
         };
     }
 
@@ -417,7 +417,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
 
         void Visit(IDataPortNodeModelProperty property)
         {
-            if (state.TryGetValue(property.Name, out var done))
+            if (state.TryGetValue(property.DependencyId, out var done))
             {
                 if (!done)
                     throw new InvalidOperationException($"Circular dependency detected at '{property.Name}'");
@@ -425,15 +425,15 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
                 return;
             }
 
-            state[property.Name] = false;
+            state[property.DependencyId] = false;
 
-            if (_dependencyMap.TryGetValue(property.Name, out var dependents))
+            if (_dependencyMap.TryGetValue(property.DependencyId, out var dependents))
             {
                 foreach (var dependent in dependents)
                     Visit(dependent);
             }
 
-            state[property.Name] = true;
+            state[property.DependencyId] = true;
             sorted.Add(property);
         }
     }

@@ -8,6 +8,7 @@ internal sealed class DataPortNodeModelCustomProperty : IDataPortNodeModelProper
 {
     public required string Category { get; set; }
     public object? DefaultValue { get; set; }
+    public string DependencyId => Type.Id;
     public Dictionary<string, object[]>? DependentProperties { get; set; }
     public required Guid Id { get; set; }
     public object? MaxValue { get; set; }

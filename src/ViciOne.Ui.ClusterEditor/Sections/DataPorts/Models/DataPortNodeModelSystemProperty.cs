@@ -9,6 +9,7 @@ internal abstract class DataPortNodeModelSystemProperty : IDataPortNodeModelProp
 
     public string Category { get; } = SystemCategory;
     public abstract object? DefaultValue { get; set; }
+    public string DependencyId => Name;
     public Dictionary<string, object[]>? DependentProperties => _dependentProperties;
     public required string Name { get; set; }
     public abstract object? Value { get; set; }

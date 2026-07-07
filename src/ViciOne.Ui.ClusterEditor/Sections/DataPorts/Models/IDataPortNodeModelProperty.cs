@@ -6,6 +6,7 @@ public interface IDataPortNodeModelProperty
 {
     string Category { get; }
     object? DefaultValue { get; set; }
+    string DependencyId { get; }
     Dictionary<string, object[]>? DependentProperties { get; }
     string Name { get; set; }
     object? Value { get; set; }
