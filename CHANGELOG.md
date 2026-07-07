@@ -13,6 +13,7 @@
 - Exchanged legacy scss color variables with these from the `ViciOne.Ui.Design` library
 - Renamed `DisplayText` property to `Name` for TreeNodes
 - Refactored DataPort context menu item handling to use descriptors instead of "real" `DataPortNodeModels`
+- Changed npm install to npm ci
 
 ### Removed
 
