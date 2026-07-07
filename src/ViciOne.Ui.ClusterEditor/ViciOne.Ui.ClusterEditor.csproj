@@ -430,7 +430,7 @@
 
   <Target Name="InstallNpmPackagesAndRunBuildScript" Condition="'$(Configuration)' == 'Debug'">
     <!-- install node modules when neccessary -->
-    <Exec Command="npm i" Condition="!Exists('./../../node_modules')" />
+    <Exec Command="npm ci" Condition="!Exists('./../../node_modules')" />
     <!-- run initial npm build when neccessary -->
     <Exec Command="npm run build" Condition="!Exists('./wwwroot/scripts')" />
   </Target>
