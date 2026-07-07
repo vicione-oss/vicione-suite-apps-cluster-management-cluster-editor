@@ -6,6 +6,7 @@ using NSubstitute;
 using ViciOne.Cluster.Builder;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
+using ViciOne.TreeBuilder.PropertyTypes;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Extensions;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
@@ -130,5 +131,67 @@ public class DataPortChildNodeModelTests
 
         // Assert
         Assert.Equal(typedProp.Value, baseProp.Value);
+    }
+
+    [Fact]
+    public void Custom_property_visibility_should_resolve_dependencies_by_ruleset_id()
+    {
+        // Arrange - the display Name differs from the ruleset Id to prove the dependency
+        // is resolved via the ruleset Id and not the Name.
+        var urlProperty = new DataPortNodeModelCustomProperty
+        {
+            Category = "Connection",
+            Id = Guid.NewGuid(),
+            Name = "Broker URL",
+            Reference = new PropertyReference { Id = "Url" },
+            RuntimeType = typeof(string),
+            Type = new PropertyType { DataType = "string", Id = "Url", Name = "Broker URL" },
+        };
+
+        var protocolProperty = new DataPortNodeModelCustomProperty
+        {
+            Category = "Connection",
+            DependentProperties = new() { ["Url"] = [1] },
+            Id = Guid.NewGuid(),
+            Name = "Protocol",
+            Reference = new PropertyReference { Id = "Protocol" },
+            RuntimeType = typeof(int),
+            Type = new PropertyType { Id = "Protocol", Name = "Protocol" },
+            Value = 1,
+        };
+
+        var childNode = CreateChildNode([urlProperty, protocolProperty]);
+
+        using var clusterBuilder = new ClusterBuilder(Substitute.For<IDependencyResolver>());
+
+        var services = new ServiceCollection()
+            .AddScoped<NumericPropertyDescriptorBuilderProvider>();
+
+        services.AddPropertyGrid<DataPortChildNodeEditContext>()
+            .WithPropertyDescriptorProvider<DataPortChildNodeModelPropertyDescriptorProvider>();
+
+        services.AddScoped<DataPortChildNodePropertyValueStore>();
+
+        using var serviceProvider = services.BuildServiceProvider();
+
+        var propertyDescriptorProvider = serviceProvider
+            .GetRequiredService<IEnumerable<IPropertyDescriptorProvider<DataPortChildNodeEditContext>>>()
+            .OfType<DataPortChildNodeModelPropertyDescriptorProvider>()
+            .First();
+
+        var propertyValueStore = serviceProvider.GetRequiredService<DataPortChildNodePropertyValueStore>();
+
+        var editContext = new DataPortChildNodeEditContext { ClusterBuilder = clusterBuilder, Node = childNode };
+
+        // Act
+        var propertyDescriptors = propertyDescriptorProvider.GetPropertyDescriptors(editContext).ToArray();
+        var urlDescriptor = propertyDescriptors.First(descriptor => descriptor.Name == urlProperty.Name);
+
+        // Assert
+        propertyValueStore.Set(protocolProperty.Name, 0);
+        Assert.False(urlDescriptor.Visible!(childNode));
+
+        propertyValueStore.Set(protocolProperty.Name, 1);
+        Assert.True(urlDescriptor.Visible!(childNode));
     }
 }
