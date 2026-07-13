@@ -9,7 +9,7 @@ using ViciOne.Cluster.Builder;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Core.Dataflow.DataModel;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Services;
-using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using Xunit;
 

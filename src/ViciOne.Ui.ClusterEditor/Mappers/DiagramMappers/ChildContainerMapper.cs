@@ -7,7 +7,7 @@ using ViciOne.Cluster.Model.Extensions;
 using ViciOne.Ui.ClusterEditor.Constants;
 using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
-using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.Shared.Dx.Services;
 
@@ -17,7 +17,7 @@ internal static class ChildContainerMapper
 {
     internal static ChildContainerNode CreateNode(
         ComparerService comparerService,
-        IDatastore datastore,
+        IDatastoreState datastoreState,
         DiagramService diagramService,
         ChildContainer childContainer,
         int nameFieldHeight)
@@ -30,13 +30,13 @@ internal static class ChildContainerMapper
             NameForeColor = childContainer.ForeColor ?? BlockNodeColors.ForegroundDefault
         };
 
-        node.SetEngineDisplayText(EngineDisplayText.Get(datastore.Builder, childContainer));
+        node.SetEngineDisplayText(EngineDisplayText.Get(datastoreState.Builder, childContainer));
 
         var nextLevelElements = GetContainerElementCount(childContainer, true);
         var allElements = GetContainerElementCount(childContainer, false);
         node.SetChildrenInformation(nextLevelElements, allElements);
 
-        node.Connectors.AddRange(GenerateConnectors(node, childContainer, comparerService, datastore, diagramService));
+        node.Connectors.AddRange(GenerateConnectors(node, childContainer, comparerService, datastoreState, diagramService));
         node.InvalidateConnectorsCache();
         node.CalculateDisplayAllConnectors();
 
@@ -50,7 +50,7 @@ internal static class ChildContainerMapper
         ChildContainerNode childContainerNode,
         ChildContainer childContainer,
         ComparerService comparerService,
-        IDatastore datastore,
+        IDatastoreState datastoreState,
         DiagramService diagramService)
     {
         var result = new List<BlockNodeConnector?[]>();
@@ -86,9 +86,9 @@ internal static class ChildContainerMapper
             outputsByIndex.TryGetValue(i, out var outputConnector);
 
             if (inputConnector is not null)
-                row[0] = ConnectorMapper.CreateNodeConnector(comparerService, datastore, diagramService, childContainerNode, inputConnector, systemConnectors.Contains(inputConnector));
+                row[0] = ConnectorMapper.CreateNodeConnector(comparerService, datastoreState, diagramService, childContainerNode, inputConnector, systemConnectors.Contains(inputConnector));
             if (outputConnector is not null)
-                row[1] = ConnectorMapper.CreateNodeConnector(comparerService, datastore, diagramService, childContainerNode, outputConnector, systemConnectors.Contains(outputConnector));
+                row[1] = ConnectorMapper.CreateNodeConnector(comparerService, datastoreState, diagramService, childContainerNode, outputConnector, systemConnectors.Contains(outputConnector));
 
             result.Add(row);
         }
@@ -112,7 +112,7 @@ internal static class ChildContainerMapper
     internal static void PropertyChanged(
         ChildContainer container,
         ChildContainerNode containerNode,
-        IDatastore datastore,
+        IDatastoreState datastoreState,
         string propertyName)
     {
         switch (propertyName)
@@ -121,7 +121,7 @@ internal static class ChildContainerMapper
                 containerNode.NameBackgroundColor = container.BackColor ?? BlockNodeColors.BackgroundDefault;
                 break;
             case nameof(FunctionBlock.Engine):
-                containerNode.SetEngineDisplayText(EngineDisplayText.Get(datastore.Builder, container));
+                containerNode.SetEngineDisplayText(EngineDisplayText.Get(datastoreState.Builder, container));
                 break;
             case nameof(ChildContainer.ForeColor):
                 containerNode.NameForeColor = container.ForeColor ?? BlockNodeColors.ForegroundDefault;
@@ -142,27 +142,27 @@ internal static class ChildContainerMapper
         ComparerService comparerService,
         ChildContainer container,
         ChildContainerNode containerNode,
-        IDatastore datastore,
+        IDatastoreState datastoreState,
         DiagramService diagramService)
     {
         containerNode.Connectors.Clear();
         foreach (var port in containerNode.Ports.ToArray())
             containerNode.RemovePort(port);
 
-        containerNode.Connectors.AddRange(GenerateConnectors(containerNode, container, comparerService, datastore, diagramService));
+        containerNode.Connectors.AddRange(GenerateConnectors(containerNode, container, comparerService, datastoreState, diagramService));
         containerNode.InvalidateConnectorsCache();
         containerNode.CalculateDisplayAllConnectors();
 
         containerNode.UpdateSize();
 
-        datastore.DataflowDiagramMapping.Remove(container);
-        datastore.DataflowDiagramMapping.Add(container, containerNode);
+        datastoreState.DataflowDiagramMapping.Remove(container);
+        datastoreState.DataflowDiagramMapping.Add(container, containerNode);
     }
 
-    internal static void UpdatePosition(IDatastore datastore, ChildContainerNode containerNode)
+    internal static void UpdatePosition(IDatastoreState datastoreState, ChildContainerNode containerNode)
     {
-        var container = datastore.DataflowDiagramMapping.GetModel(containerNode);
-        datastore.Builder.Editors.Container.SetLocation(
+        var container = datastoreState.DataflowDiagramMapping.GetModel(containerNode);
+        datastoreState.Builder.Editors.Container.SetLocation(
             container,
             new((int)containerNode.Position.X, (int)containerNode.Position.Y));
     }

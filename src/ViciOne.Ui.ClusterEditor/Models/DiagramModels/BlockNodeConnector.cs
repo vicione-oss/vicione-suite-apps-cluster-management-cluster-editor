@@ -12,7 +12,7 @@ using ViciOne.Ui.ClusterEditor.Constants;
 using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Factories;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Models;
-using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.Shared.Dx.Services;
 
@@ -23,7 +23,7 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
     private const double RelativeLuminanceThreshold = 0.6;
 
     private readonly ComparerService _comparerService;
-    private readonly IDatastore _datastore;
+    private readonly IDatastoreState _datastoreState;
     private readonly DiagramService _diagramService;
     private bool _hasDefaultEventEnabled = true;
     private bool _hasDefaultMarkAsChangedOnlyIfNotEqual = true;
@@ -64,13 +64,13 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
     public BlockNodeConnector(
         ComparerService comparerService,
         Cluster.Model.IConnector connector,
-        IDatastore datastore,
+        IDatastoreState datastoreState,
         DiagramService diagramService,
         BlockNode node,
         bool isInput) : base(node, isInput ? PortAlignment.Left : PortAlignment.Right)
     {
         _comparerService = comparerService;
-        _datastore = datastore;
+        _datastoreState = datastoreState;
         _diagramService = diagramService;
 
         Connector = connector;
@@ -126,9 +126,9 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
             return false;
 
         var sourcePort = (BlockNodeConnector)_diagramService.DraggingLink!.SourcePort!;
-        return _datastore.Builder.Editors.Connector.CanCreateLink(
-            (IConnectorOutput)_datastore.DataflowDiagramMapping.GetModel(sourcePort),
-            (IConnectorInput)_datastore.DataflowDiagramMapping.GetModel(fbPort)
+        return _datastoreState.Builder.Editors.Connector.CanCreateLink(
+            (IConnectorOutput)_datastoreState.DataflowDiagramMapping.GetModel(sourcePort),
+            (IConnectorInput)_datastoreState.DataflowDiagramMapping.GetModel(fbPort)
         );
     }
 
@@ -177,9 +177,9 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
 
     public string GetTooltipHeader(bool isContainerMarker = false)
     {
-        if (isContainerMarker && _datastore.ActiveContainer is ChildContainer parent)
+        if (isContainerMarker && _datastoreState.ActiveContainer is ChildContainer parent)
         {
-            var conModel = _datastore.DataflowDiagramMapping.GetModel(this);
+            var conModel = _datastoreState.DataflowDiagramMapping.GetModel(this);
             var parentConnector = parent.GetConnector(conModel.GetUnderlyingConnector());
             return $"{parentConnector!.ShortName} = {conModel.FunctionBlock.Name}.{conModel.Name}";
         }
@@ -197,7 +197,7 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
         }
         else
         {
-            var conModel = _datastore.DataflowDiagramMapping.GetModel(this);
+            var conModel = _datastoreState.DataflowDiagramMapping.GetModel(this);
             return string.Equals(conModel.Name, conModel.ShortName, StringComparison.OrdinalIgnoreCase)
                     ? conModel.Name
                     : $"{conModel.ShortName} = {conModel.Name}";
@@ -336,7 +336,7 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
 
     public void SetPoolingMode(IConnectorInput input)
     {
-        var defaultPoolingMode = _datastore.Builder.ResolveDefaultCrossSourceAggregatingPooling(input.GetUnderlyingConnector());
+        var defaultPoolingMode = _datastoreState.Builder.ResolveDefaultCrossSourceAggregatingPooling(input.GetUnderlyingConnector());
         SetPoolingMode(input.CrossSourcePoolingStrategy, input.CrossSourceAggregatingPooling, defaultPoolingMode);
     }
 
@@ -407,7 +407,7 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
         }
 
         var underlyingConnector = input.GetUnderlyingConnector();
-        SetValue(underlyingConnector.Value, _datastore.Builder.ResolveDefaultValue(underlyingConnector));
+        SetValue(underlyingConnector.Value, _datastoreState.Builder.ResolveDefaultValue(underlyingConnector));
     }
 
     public void SetValue(object? value, object? defaultValue)
@@ -441,7 +441,7 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
 
         DataPortConnectorMarker.Visible = DataPortConnectorMarker.Links.Count > 0;
         DataPortConnectorMarker.Selected = DataPortConnectorMarker.Visible && DataPortConnectorMarker.Selected;
-        PublishedConnectorMarker.TooltipEntries = PublishedConnectorTooltipEntriesFactory.Create(Connector, _datastore.ActiveContainer.Id);
+        PublishedConnectorMarker.TooltipEntries = PublishedConnectorTooltipEntriesFactory.Create(Connector, _datastoreState.ActiveContainer.Id);
         PublishedConnectorMarker.Visible = PublishedConnectorMarker.Links.Count > 0 || Connector.Published;
         PublishedConnectorMarker.Selected = PublishedConnectorMarker.Visible && PublishedConnectorMarker.Selected;
 

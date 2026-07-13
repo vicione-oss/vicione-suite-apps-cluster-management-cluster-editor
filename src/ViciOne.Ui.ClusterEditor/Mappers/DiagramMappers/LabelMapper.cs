@@ -1,7 +1,7 @@
 ﻿using Blazor.Diagrams.Core.Geometry;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
-using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 
 namespace ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
 
@@ -56,10 +56,10 @@ internal static class LabelMapper
         labelNode.Refresh();
     }
 
-    internal static void UpdatePosition(IDatastore datastore, LabelNode labelNode)
+    internal static void UpdatePosition(IDatastoreState datastoreState, LabelNode labelNode)
     {
-        var label = datastore.DataflowDiagramMapping.GetModel(labelNode);
-        datastore.Builder.Editors.Label.SetLocation(
+        var label = datastoreState.DataflowDiagramMapping.GetModel(labelNode);
+        datastoreState.Builder.Editors.Label.SetLocation(
             label,
             new((int)labelNode.Position.X, (int)labelNode.Position.Y)
         );

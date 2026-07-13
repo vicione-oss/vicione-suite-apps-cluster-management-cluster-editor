@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
-using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 
 namespace ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 
@@ -22,7 +22,7 @@ public class Block
     public Block()
     { }
 
-    public Block(IDatastore datastore, BlockNode node)
+    public Block(IDatastoreState datastore, BlockNode node)
     {
         var nodeModel = datastore.DataflowDiagramMapping.GetModel(node);
 

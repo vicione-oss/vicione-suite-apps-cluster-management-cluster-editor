@@ -26,6 +26,7 @@ using ViciOne.Ui.ClusterEditor.Sections.Property.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Extensions;
 using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices.ContainerEditor;
 using ViciOne.Ui.Shared.Dx.Services;
@@ -54,7 +55,7 @@ public static class IServiceCollectionExtensions
         services.AddScoped<ConnectorSelectionDialogService>();
         services.AddScoped<ConnectorService>();
         services.AddScoped<IDataPortTreeIconProvider, DataPortTreeIconProvider>();
-        services.AddScoped<IDatastore, Datastore>();
+        services.AddDatastore();
         services.AddScoped<DiagramEventService>();
         services.AddScoped<DiagramService>();
         services.AddScoped<FullscreenService>();
@@ -119,6 +120,23 @@ public static class IServiceCollectionExtensions
         services.AddScoped<ClusterEditorManagement>();
         services.AddScoped<IClusterEditorManagement>(sp => sp.GetRequiredService<ClusterEditorManagement>());
         services.AddScoped<IClusterEditorManagementInternal>(sp => sp.GetRequiredService<ClusterEditorManagement>());
+        return services;
+    }
+
+    internal static IServiceCollection AddDatastore(this IServiceCollection services)
+    {
+        services.TryAddScoped<DatastoreState>();
+        services.TryAddScoped<IDatastoreState>(sp => sp.GetRequiredService<DatastoreState>());
+
+        services.TryAddScoped<BuilderEventProjectionService>();
+        services.TryAddScoped<DiagramProjectionService>();
+        services.TryAddScoped<LinkQueryService>();
+        services.TryAddScoped<ClusterEditService>();
+        services.TryAddScoped<ContainerLoadService>();
+        services.TryAddScoped<ContainerRestructureService>();
+
+        services.TryAddScoped<IDatastore, Datastore>();
+
         return services;
     }
 

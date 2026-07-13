@@ -6,15 +6,12 @@ using System.Threading.Tasks;
 using Bunit;
 using Bunit.TestDoubles;
 using Microsoft.Extensions.DependencyInjection;
-using NSubstitute;
-using ViciOne.Cluster.Builder;
-using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
-using ViciOne.Core.Dataflow.DataModel;
 using ViciOne.Ui.Blazor.Components.Breadcrumb.Components;
-using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
+using ViciOne.Ui.ClusterEditor.Tests.TestHelpers;
 using Xunit;
 using Container = ViciOne.Cluster.Model.Container;
 
@@ -47,16 +44,6 @@ public sealed class ContainerBreadcrumbTests : IDisposable
         var datastore = Ctx.Services.GetRequiredService<IDatastore>();
         var diagramService = Ctx.Services.GetRequiredService<DiagramService>();
 
-        // Create a function block design for testing
-        var dependencyResolver = Substitute.For<IDependencyResolver>();
-        var designId = Guid.NewGuid();
-        var design = new FunctionBlockDesign
-        {
-            DefaultCycleFrequency = 10,
-            Id = designId,
-            Name = "TestDesign"
-        };
-        dependencyResolver.ResolveFunctionBlockDesign(designId).Returns(design);
 
         var root = current;
         if (current is ChildContainer childContainer)
@@ -66,7 +53,7 @@ public sealed class ContainerBreadcrumbTests : IDisposable
                 root = child.Parent;
         }
 
-        using var builder = new ClusterBuilder(dependencyResolver);
+        using var builder = BuilderFactory.Create();
         builder.Cluster.Dataflows.First().Root = root;
 
         await datastore.Load(builder, diagramService, CancellationToken.None);

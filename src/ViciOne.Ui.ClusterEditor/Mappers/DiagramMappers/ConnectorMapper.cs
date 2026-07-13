@@ -6,7 +6,7 @@ using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Models.Data;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Factories;
-using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.Shared.Dx.Services;
 
@@ -16,7 +16,7 @@ internal static class ConnectorMapper
 {
     public static BlockNodeConnector CreateNodeConnector(
         ComparerService comparerService,
-        IDatastore datastore,
+        IDatastoreState datastoreState,
         DiagramService diagramService,
         BlockNode blockNode,
         IConnector connector,
@@ -25,13 +25,13 @@ internal static class ConnectorMapper
         var isInputConnector = connector is IConnectorInput;
         var underlyingConnector = connector.GetUnderlyingConnector();
 
-        var nodeConnector = new BlockNodeConnector(comparerService, connector, datastore, diagramService, blockNode, isInputConnector)
+        var nodeConnector = new BlockNodeConnector(comparerService, connector, datastoreState, diagramService, blockNode, isInputConnector)
         {
             IsSystemConnector = isSystemConnector,
             Text = connector.ShortName
         };
 
-        if (datastore.ActiveContainer is ChildContainer parent)
+        if (datastoreState.ActiveContainer is ChildContainer parent)
             nodeConnector.SetParentContainerConnector(parent.GetConnector(underlyingConnector));
 
         nodeConnector.SetEventEnabled(connector.EventEnabled, ConnectorDefaults.EventEnabled);
@@ -45,9 +45,9 @@ internal static class ConnectorMapper
             nodeConnector.SetValue(connectorInput);
         }
 
-        var connectorType = datastore.Builder.DetermineValueType(underlyingConnector);
+        var connectorType = datastoreState.Builder.DetermineValueType(underlyingConnector);
         nodeConnector.SetPortColor(ConnectorColor.Get(connectorType));
-        nodeConnector.SetTooltipEntries(PublishedConnectorTooltipEntriesFactory.Create(connector, datastore.ActiveContainer.Id));
+        nodeConnector.SetTooltipEntries(PublishedConnectorTooltipEntriesFactory.Create(connector, datastoreState.ActiveContainer.Id));
 
         nodeConnector.SetIsOnContainer(connector.Parent.Parent is ChildContainer parentAsChildContainer
             && parentAsChildContainer.GetConnector(underlyingConnector) is not null);
@@ -61,9 +61,9 @@ internal static class ConnectorMapper
     public static void Init(DiagramEventService diagramEventService)
         => diagramEventService.DraggingLinkChanged += OnDraggingLinkChanged;
 
-    private static void OnDraggingLinkChanged(IDatastore datastore, IConnector? connector)
+    private static void OnDraggingLinkChanged(IDatastoreState datastoreState, IConnector? connector)
     {
-        var nodeConnectors = datastore.DataflowDiagramMapping
+        var nodeConnectors = datastoreState.DataflowDiagramMapping
             .GetInputNodeConnectors();
 
         if (connector is null)
@@ -75,9 +75,9 @@ internal static class ConnectorMapper
         {
             foreach (var nodeConn in nodeConnectors)
             {
-                nodeConn.SetIsValidDropTarget(datastore.Builder.Editors.Connector.CanCreateLink(
+                nodeConn.SetIsValidDropTarget(datastoreState.Builder.Editors.Connector.CanCreateLink(
                     (IConnectorOutput)connector,
-                    (IConnectorInput)datastore.DataflowDiagramMapping.GetModel(nodeConn))
+                    (IConnectorInput)datastoreState.DataflowDiagramMapping.GetModel(nodeConn))
                 );
             }
         }

@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using Blazor.Diagrams;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
-using ViciOne.Cluster.Builder;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.TreeBuilder.NodeTypes;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
@@ -12,7 +11,9 @@ using ViciOne.Ui.ClusterEditor.Sections.DataPorts.ContextMenu;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
+using ViciOne.Ui.ClusterEditor.Tests.TestHelpers;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Icons;
 using Xunit;
 
@@ -21,7 +22,7 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Sections.DataPorts.Services;
 public sealed class DataPortTreeAdapterTests : IAsyncDisposable
 {
     private readonly DataPortTreeAdapter _adapter;
-    private readonly ClusterBuilder _builder;
+    private readonly IClusterBuilder _builder;
     private readonly IDatastore _datastore;
     private readonly DiagramService _diagramService;
     private readonly DragService _dragService;
@@ -57,8 +58,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
             _mockDataManagementService,
             _mockIconProvider);
 
-        var dependencyResolver = Substitute.For<IDependencyResolver>();
-        _builder = new ClusterBuilder(dependencyResolver);
+        _builder = BuilderFactory.Create();
 
         _datastore.Builder.Returns(_builder);
     }

@@ -4,7 +4,7 @@ using Blazor.Diagrams.Core.Extensions;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using ViciOne.Cluster.Builder.Extensions;
-using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 
 namespace ViciOne.Ui.ClusterEditor.Extensions;
 

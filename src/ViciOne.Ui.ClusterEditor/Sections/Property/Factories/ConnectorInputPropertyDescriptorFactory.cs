@@ -9,6 +9,7 @@ using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services.TypeDescriptors;
 using ViciOne.Ui.ClusterEditor.Localization.Resources;
 using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using PropertyGridConstants = ViciOne.Ui.Blazor.Components.PropertyGrid.Constants;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Property.Factories;
