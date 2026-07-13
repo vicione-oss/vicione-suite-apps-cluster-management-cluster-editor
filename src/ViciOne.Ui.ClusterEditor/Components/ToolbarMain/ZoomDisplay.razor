@@ -1,4 +1,6 @@
-﻿<div class="zoom-display-container">
+﻿@using ViciOne.Ui.Blazor.Components.ComboBox
+
+<div class="zoom-display-container">
     <div @onclick="@(() => ChangeZoomValue(false))"
          class="btn btn-zoom @(Enabled ? string.Empty : "disabled")"
          title="@Localization.ZoomDisplay.ZoomOut">
@@ -7,12 +9,10 @@
                         Size="MonochromeIconSize.SmallMedium" />
     </div>
 
-    <DxComboBox @bind-Text="@ZoomText"
-                AllowUserInput="true"
-                Data="@_zoomValues"
-                Enabled="@Enabled"
-                TData="@(string)"
-                TValue="@(string)" />
+    <ComboBox @bind-Value="ZoomText"
+              AllowUserInput="true"
+              Items="_zoomValues"
+              Enabled="Enabled" />
 
     <div @onclick="@(() => ChangeZoomValue(true))"
          class="btn btn-zoom @(Enabled ? string.Empty : "disabled")"
