@@ -23,6 +23,7 @@ public class UniversalInputTests
     {
         var testContext = new Bunit.TestContext();
         testContext.Services.AddUniversalInput();
+        testContext.JSInterop.Mode = JSRuntimeMode.Loose;
 
         return testContext;
     }

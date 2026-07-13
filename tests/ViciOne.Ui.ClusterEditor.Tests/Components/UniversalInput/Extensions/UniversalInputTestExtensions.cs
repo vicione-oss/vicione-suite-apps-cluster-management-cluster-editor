@@ -11,12 +11,11 @@ internal static class UniversalInputTestExtensions
 {
     public static void SelectItemAtIndex<TItem, TValue>(this IRenderedComponent<ComboBox<TItem, TValue>> cbo, int idx)
     {
-        var select = cbo.WaitForElement("select");
-        var options = cbo.WaitForElements("option").OfType<IHtmlOptionElement>();
+        var dropdownItems = cbo.WaitForElements(".drop-down-item").OfType<IHtmlDivElement>();
 
-        var option = options.GetItemByIndex(idx);
+        var dropdownItem = dropdownItems.GetItemByIndex(idx);
 
-        select.Change(option.Value);
+        dropdownItem.Click();
     }
 
     public static void TextEditChange(this IRenderedComponent<TextBox> textbox, string text)

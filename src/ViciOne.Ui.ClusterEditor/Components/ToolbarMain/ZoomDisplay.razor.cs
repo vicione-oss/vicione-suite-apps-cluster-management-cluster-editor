@@ -39,6 +39,7 @@ public sealed partial class ZoomDisplay : ComponentBase, IDisposable
             {
                 _zoomingToFit = true;
                 DiagramEventService.RequestZoomToFit();
+                _currentZoomText = value;
             }
             else if (double.TryParse(parsedValue, out var inputValue))
             {

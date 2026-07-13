@@ -15,10 +15,16 @@
 - Refactored DataPort context menu item handling to use descriptors instead of "real" `DataPortNodeModels`
 - Changed npm install to npm ci
 - Use `Id` instead of `Name` of `DataPortNode` properties for dependency checks
+- Replaced `DxComboBox` with `ViciOne.Ui.Blazor.Components.ComboBox`
 
 ### Removed
 
 - Removed include of now unused JavaScript provided by `ViciOne.Ui.Shared.Dx`
+
+### Updated external references
+
+- `Microsoft` packages, update to version `10.0.9`
+- `ViciOne.Ui.Blazor.Components` package, updated to version `5.17.1`
 
 ## 1.2.0 - 2026-06-17
 
