@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using ViciOne.Ui.Blazor.Components.Resizing.Services;
+using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Services;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
@@ -15,6 +16,7 @@ using ViciOne.Ui.ClusterEditor.Sections.Information.Services;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Services;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
 using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.Shared.Dx.Services;
 using Xunit;
@@ -117,7 +119,7 @@ internal static class TestContextExtensions
         ctx.Services.TryAddScoped<DiagramEventService>();
         ctx.Services.TryAddScoped<ClusterBuilderEventBuffer>();
 
-        ctx.Services.TryAddScoped<IDatastore, Datastore>();
+        ctx.Services.AddDatastore();
 
         return ctx;
     }

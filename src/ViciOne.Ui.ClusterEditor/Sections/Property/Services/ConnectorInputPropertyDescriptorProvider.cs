@@ -6,7 +6,7 @@ using ViciOne.Ui.ClusterEditor.Sections.Property.Factories;
 using ViciOne.Ui.ClusterEditor.Sections.Property.Models;
 using ViciOne.Ui.ClusterEditor.Sections.Property.Models.PropertyDescriptors.ConnectorInputs;
 using ViciOne.Ui.ClusterEditor.Sections.Property.Models.PropertyDescriptors.Connectors;
-using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Property.Services;
 

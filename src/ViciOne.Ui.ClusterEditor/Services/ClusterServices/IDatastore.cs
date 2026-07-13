@@ -6,24 +6,16 @@ using Blazor.Diagrams.Core.Geometry;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Models;
-using ViciOne.Ui.ClusterEditor.Models.Data;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using Connector = ViciOne.Cluster.Model.Connector;
 using FunctionBlock = ViciOne.Cluster.Model.FunctionBlock;
 using Link = ViciOne.Cluster.Model.Link;
 
-namespace ViciOne.Ui.ClusterEditor.Services;
+namespace ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 
-public interface IDatastore : IAsyncDisposable
+public interface IDatastore : IDatastoreState, IAsyncDisposable
 {
-    Container ActiveContainer { get; }
-    Dataflow ActiveDataflow { get; }
-    IClusterBuilder Builder { get; }
-    DataflowDiagramMapping DataflowDiagramMapping { get; }
-    bool HasBuilder { get; }
-    IEnumerable<Cluster.Model.Engine> ValidDataflowEngines { get; }
-
     event Action? ActiveDataflowChanged;
     event Action? BuilderChanged;
     event Action<BlockNodeLink>? ConnectorLinkRemoved;

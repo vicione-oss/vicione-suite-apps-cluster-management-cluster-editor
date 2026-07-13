@@ -16,6 +16,7 @@
 - Changed npm install to npm ci
 - Use `Id` instead of `Name` of `DataPortNode` properties for dependency checks
 - Replaced `DxComboBox` with `ViciOne.Ui.Blazor.Components.ComboBox`
+- Refactored `Datastore` into multiple services to avoid excessive class coupling and improve maintainability
 
 ### Removed
 

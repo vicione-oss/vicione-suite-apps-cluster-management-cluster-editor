@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Web;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Models;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 
 namespace ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
@@ -17,7 +18,7 @@ public sealed class DiagramEventService
     public event Action<ChildContainer>? ContainerRemoved;
     public event Func<Task>? DiagramFocusRequested;
     public event Action? DiagramPointerLeave;
-    public event Action<IDatastore, IConnector?>? DraggingLinkChanged;
+    public event Action<IDatastoreState, IConnector?>? DraggingLinkChanged;
     public event Action<PointerEventArgs>? EdgeDraggingPointerMove;
     public event Action<PointerEventArgs>? EdgeDraggingPointerUp;
     public event Action<bool>? EdgeDraggingVisibilityChangeRequested;
@@ -53,8 +54,8 @@ public sealed class DiagramEventService
     public void InvokeDiagramPointerLeave()
         => DiagramPointerLeave?.Invoke();
 
-    public void InvokeDraggingLinkChanged(IDatastore datastore, IConnector? connector)
-        => DraggingLinkChanged?.Invoke(datastore, connector);
+    public void InvokeDraggingLinkChanged(IDatastoreState datastoreState, IConnector? connector)
+        => DraggingLinkChanged?.Invoke(datastoreState, connector);
 
     public void InvokeEdgeDraggingPointerMove(PointerEventArgs e)
         => EdgeDraggingPointerMove?.Invoke(e);

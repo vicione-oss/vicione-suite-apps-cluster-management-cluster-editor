@@ -8,7 +8,7 @@ using ViciOne.Cluster.Model.Extensions;
 using ViciOne.Ui.ClusterEditor.Constants;
 using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
-using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.Shared.Dx.Services;
 
@@ -18,7 +18,7 @@ internal static partial class FunctionBlockMapper
 {
     internal static FunctionBlockNode CreateNode(
         ComparerService comparerService,
-        IDatastore datastore,
+        IDatastoreState datastoreState,
         DiagramService diagramService,
         FunctionBlock functionBlock,
         int nameFieldHeight)
@@ -27,17 +27,17 @@ internal static partial class FunctionBlockMapper
         var node = new FunctionBlockNode(position)
         {
             ImageSrc = null,
-            ImageText = GetNodeImageText(datastore.Builder.ResolveFunctionBlockDesign(functionBlock.DesignId).Name),
+            ImageText = GetNodeImageText(datastoreState.Builder.ResolveFunctionBlockDesign(functionBlock.DesignId).Name),
             Name = functionBlock.Name,
             NameBackgroundColor = functionBlock.BackColor ?? BlockNodeColors.BackgroundDefault,
             NameForeColor = functionBlock.ForeColor ?? BlockNodeColors.ForegroundDefault
         };
 
-        node.SetEngineDisplayText(EngineDisplayText.Get(datastore.Builder, functionBlock));
+        node.SetEngineDisplayText(EngineDisplayText.Get(datastoreState.Builder, functionBlock));
         node.SetCycleFrequency(functionBlock.CycleFrequency);
         node.SetRunMode(functionBlock.RunMode);
 
-        node.Connectors.AddRange(GenerateConnectors(comparerService, datastore, diagramService, functionBlock, node));
+        node.Connectors.AddRange(GenerateConnectors(comparerService, datastoreState, diagramService, functionBlock, node));
         node.InvalidateConnectorsCache();
         node.CalculateDisplayAllConnectors();
 
@@ -49,7 +49,7 @@ internal static partial class FunctionBlockMapper
 
     private static List<BlockNodeConnector?[]> GenerateConnectors(
         ComparerService comparerService,
-        IDatastore datastore,
+        IDatastoreState datastoreState,
         DiagramService diagramService,
         FunctionBlock functionBlock,
         FunctionBlockNode functionBlockNode)
@@ -87,12 +87,12 @@ internal static partial class FunctionBlockMapper
 
             if (inputConnector is not null)
             {
-                row[0] = ConnectorMapper.CreateNodeConnector(comparerService, datastore, diagramService, functionBlockNode, inputConnector, systemConnectors.Contains(inputConnector));
+                row[0] = ConnectorMapper.CreateNodeConnector(comparerService, datastoreState, diagramService, functionBlockNode, inputConnector, systemConnectors.Contains(inputConnector));
                 currentConnectorCount++;
             }
             if (outputConnector is not null)
             {
-                row[1] = ConnectorMapper.CreateNodeConnector(comparerService, datastore, diagramService, functionBlockNode, outputConnector, systemConnectors.Contains(outputConnector));
+                row[1] = ConnectorMapper.CreateNodeConnector(comparerService, datastoreState, diagramService, functionBlockNode, outputConnector, systemConnectors.Contains(outputConnector));
                 currentConnectorCount++;
             }
             result.Add(row);
@@ -122,7 +122,7 @@ internal static partial class FunctionBlockMapper
     private static partial Regex ImageTextRegex();
 
     internal static void PropertyChanged(
-        IDatastore datastore,
+        IDatastoreState datastoreState,
         FunctionBlock functionBlock,
         FunctionBlockNode functionBlockNode,
         string propertyName)
@@ -136,7 +136,7 @@ internal static partial class FunctionBlockMapper
                 functionBlockNode.SetCycleFrequency(functionBlock.CycleFrequency);
                 break;
             case nameof(functionBlock.Engine):
-                functionBlockNode.SetEngineDisplayText(EngineDisplayText.Get(datastore.Builder, functionBlock));
+                functionBlockNode.SetEngineDisplayText(EngineDisplayText.Get(datastoreState.Builder, functionBlock));
                 break;
             case nameof(functionBlock.ForeColor):
                 functionBlockNode.NameForeColor = functionBlock.ForeColor ?? BlockNodeColors.ForegroundDefault;
@@ -156,10 +156,10 @@ internal static partial class FunctionBlockMapper
         functionBlockNode.RefreshAll();
     }
 
-    internal static void UpdatePosition(IDatastore datastore, FunctionBlockNode functionBlockNode)
+    internal static void UpdatePosition(IDatastoreState datastoreState, FunctionBlockNode functionBlockNode)
     {
-        var functionBlock = datastore.DataflowDiagramMapping.GetModel(functionBlockNode);
-        datastore.Builder.Editors.FunctionBlock.SetLocation(
+        var functionBlock = datastoreState.DataflowDiagramMapping.GetModel(functionBlockNode);
+        datastoreState.Builder.Editors.FunctionBlock.SetLocation(
             functionBlock,
             new((int)functionBlockNode.Position.X, (int)functionBlockNode.Position.Y)
         );

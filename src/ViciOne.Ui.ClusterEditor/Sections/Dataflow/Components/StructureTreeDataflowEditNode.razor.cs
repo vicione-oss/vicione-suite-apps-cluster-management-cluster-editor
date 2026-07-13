@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Components;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Messages;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Models;
-using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.TreeEditor.Templates;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Dataflow.Components;

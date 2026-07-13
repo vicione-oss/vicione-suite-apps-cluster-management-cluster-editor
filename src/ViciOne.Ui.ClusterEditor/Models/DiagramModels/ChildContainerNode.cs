@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Blazor.Diagrams.Core.Geometry;
 using ViciOne.Ui.ClusterEditor.Constants;
-using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 
 namespace ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 

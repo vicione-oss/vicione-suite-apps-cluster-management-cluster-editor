@@ -2,14 +2,14 @@
 using System.Collections.Generic;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
-using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
 
 internal static class LinkMapper
 {
-    internal static BlockNodeLink CreateLink(IDatastore datastore, Link link)
+    internal static BlockNodeLink CreateLink(IDatastoreState datastoreState, Link link)
     {
         if (link.SourceConnector is null)
             throw new InvalidOperationException("Link missing source connector");
@@ -17,8 +17,8 @@ internal static class LinkMapper
         if (link.DestinationConnector is null)
             throw new InvalidOperationException("Link missing destination connector");
 
-        var sourceNodeConnector = datastore.DataflowDiagramMapping.GetDiagramModel(link.SourceConnector);
-        var targetNodeConnector = datastore.DataflowDiagramMapping.GetDiagramModel(link.DestinationConnector);
+        var sourceNodeConnector = datastoreState.DataflowDiagramMapping.GetDiagramModel(link.SourceConnector);
+        var targetNodeConnector = datastoreState.DataflowDiagramMapping.GetDiagramModel(link.DestinationConnector);
 
         var nodeLink = new BlockNodeLink(sourceNodeConnector, targetNodeConnector)
         {
@@ -29,18 +29,18 @@ internal static class LinkMapper
         return nodeLink;
     }
 
-    internal static void ReloadLinks(IDatastore datastore, DiagramService diagramService, IEnumerable<Link> links)
+    internal static void ReloadLinks(IDatastoreState datastoreState, DiagramService diagramService, IEnumerable<Link> links)
     {
-        diagramService.Diagram.Links.Remove(datastore.DataflowDiagramMapping.GetDiagramModels(links));
+        diagramService.Diagram.Links.Remove(datastoreState.DataflowDiagramMapping.GetDiagramModels(links));
 
         var newLinks = new List<BlockNodeLink>();
         foreach (var link in links)
         {
-            datastore.DataflowDiagramMapping.Remove(link);
+            datastoreState.DataflowDiagramMapping.Remove(link);
 
-            var linkNode = CreateLink(datastore, link);
+            var linkNode = CreateLink(datastoreState, link);
             newLinks.Add(linkNode);
-            datastore.DataflowDiagramMapping.Add(link, linkNode);
+            datastoreState.DataflowDiagramMapping.Add(link, linkNode);
         }
 
         diagramService.Diagram.Links.Add(newLinks);
