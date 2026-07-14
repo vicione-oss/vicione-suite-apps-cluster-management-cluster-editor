@@ -7,6 +7,7 @@
 - Added dependency between TransferMode and TransferInterval properties of DataPortChildNodes
 - Implemented default value comparison and reset value for DataPortNode properties
 - Added sub menus for DataPortTreeNode `+` button context menus which represents namespaces
+- Implemented property value validation of `DataPortNodes`
 
 ### Changed
 

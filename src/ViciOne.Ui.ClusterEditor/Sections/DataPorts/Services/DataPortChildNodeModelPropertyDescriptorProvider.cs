@@ -9,8 +9,8 @@ using ViciOne.Ui.Blazor.Components.Extensions;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
-using ViciOne.Ui.Blazor.Components.PropertyGrid.Validators;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
+using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Validators;
 using ViciOne.Ui.ClusterEditor.Services;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
@@ -22,9 +22,8 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     private readonly Dictionary<string, List<IDataPortNodeModelProperty>> _dependencyMap = [];
     private readonly Dictionary<(Delegate, Type), MethodInfo> _genericMethodCache = [];
     private readonly Dictionary<string, IPropertyDescriptor> _propertyDescriptors = [];
-    private readonly StringMustNotBeEmptyPropertyValueValidator _stringMustNotBeEmptyPropertyValueValidator = new();
 
-    private IPropertyDescriptor<DataPortChildNodeModel>? CreateCustomPropertyDescriptor(DataPortNodeModelCustomProperty property)
+    private IPropertyDescriptor<DataPortChildNodeModel>? CreateCustomPropertyDescriptor(DataPortNodeModelCustomProperty property, TreeBuilder.TreeBuilder treeBuilder)
     {
         if (property.PossibleValues?.Count > 0)
         {
@@ -44,11 +43,11 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
                 builder.WithMaximum(property.MaxValue);
 
             return builder.Build<DataPortChildNodeModel>(
-                CreateNumericPropertyDescriptor<object, int, int, int>, property, property.DefaultValue, GetDependencies(property.DependencyId));
+                CreateNumericPropertyDescriptor<object, int, int, int>, property, property.DefaultValue, GetDependencies(property.DependencyId), treeBuilder);
         }
 
         var method = GetOrCreateGenericMethod(CreatePropertyDescriptorWithDefaultValue<object>, property.RuntimeType);
-        return method.Invoke(this, [property, property.Type.DefaultValue, GetDependencies(property.DependencyId)])
+        return method.Invoke(this, [property, property.Type.DefaultValue, GetDependencies(property.DependencyId), treeBuilder])
             as IPropertyDescriptor<DataPortChildNodeModel>;
     }
 
@@ -72,7 +71,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     }
 
     private NumericPropertyDescriptor<Models.DataPortChildNodeModel, TPropertyValue, TInterval, TLimit> CreateNumericPropertyDescriptor<DataPortChildNodeModel, TPropertyValue, TInterval, TLimit>(
-        TInterval interval, TLimit minimum, TLimit maximum, IDataPortNodeModelProperty property, TPropertyValue defaultValue, IReadOnlyCollection<IPropertyDescriptor>? dependencies)
+        TInterval interval, TLimit minimum, TLimit maximum, IDataPortNodeModelProperty property, TPropertyValue defaultValue, IReadOnlyCollection<IPropertyDescriptor>? dependencies, TreeBuilder.TreeBuilder treeBuilder)
             where TInterval : struct
             where TLimit : struct
         => new()
@@ -88,11 +87,12 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             Name = property.Name,
             ResetValue = (instance) => propertyValueStore.Set(property.Name, defaultValue),
             SetValue = (instance, value) => propertyValueStore.Set(property.Name, value),
+            ValueValidators = [new DataPortNodePropertyValueValidator<TPropertyValue>(treeBuilder, property)],
             Visible = (instance) => DetermineVisibility(property.DependencyId, instance.Properties)
         };
 
     private PropertyDescriptor<DataPortChildNodeModel, TPropertyValue> CreatePropertyDescriptorWithDefaultValue<TPropertyValue>(
-        IDataPortNodeModelProperty property, TPropertyValue defaultValue, IReadOnlyCollection<IPropertyDescriptor>? dependencies)
+        IDataPortNodeModelProperty property, TPropertyValue defaultValue, IReadOnlyCollection<IPropertyDescriptor>? dependencies, TreeBuilder.TreeBuilder treeBuilder)
         => new()
         {
             CanBeSetToNull = defaultValue is null || typeof(TPropertyValue).IsNullableValueType(),
@@ -104,6 +104,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             Name = property.Name,
             ResetValue = (instance) => propertyValueStore.Set(property.Name, defaultValue),
             SetValue = (instance, value) => propertyValueStore.Set(property.Name, value),
+            ValueValidators = [new DataPortNodePropertyValueValidator<TPropertyValue>(treeBuilder, property)],
             Visible = (instance) => DetermineVisibility(property.DependencyId, instance.Properties),
         };
 
@@ -199,6 +200,8 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
 
     public IEnumerable<IPropertyDescriptor<DataPortChildNodeModel>> GetPropertyDescriptors(DataPortChildNodeEditContext context)
     {
+        var treeBuilder = context.Node.RootNode.Builder;
+
         propertyValueStore.Clear();
         propertyValueStore.Set(nameof(context.Node.Name), context.Node.Name);
 
@@ -208,8 +211,8 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
             Enabled = (instance) => !instance.NameIsReadOnly,
             GetValue = (instance) => propertyValueStore.Get(nameof(instance.Name), defaultValue: string.Empty),
             Name = nameof(DataPortChildNodeModel.Name),
-            SetValue = (instance, value) => propertyValueStore.Set(nameof(instance.Name), value),
-            ValueValidators = [_stringMustNotBeEmptyPropertyValueValidator]
+            SetValue = (instance, value) => propertyValueStore.Set(nameof(instance.Name), value.Trim()),
+            ValueValidators = [new DataPortNodeNameValidator(treeBuilder, context.Node)]
         };
 
         if (context.Node.AvailableIcons.Count > 1)
@@ -247,7 +250,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
                 DataPortTreeNodeSystemProperty<uint?> uintProperty
                     => GetUintPropertyData(uintProperty, GetDependencies(property.DependencyId)),
 
-                _ => GetRegularPropertyData((DataPortNodeModelSystemProperty)property)
+                _ => GetRegularPropertyData((DataPortNodeModelSystemProperty)property, treeBuilder)
             };
 
             _propertyDescriptors.Add(property.Name, systemProperty);
@@ -263,7 +266,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
         {
             propertyValueStore.Set(property.Name, property.Value);
 
-            var descriptor = CreateCustomPropertyDescriptor((DataPortNodeModelCustomProperty)property);
+            var descriptor = CreateCustomPropertyDescriptor((DataPortNodeModelCustomProperty)property, treeBuilder);
             if (descriptor is not null)
             {
                 _propertyDescriptors.Add(property.Name, descriptor);
@@ -276,7 +279,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
         _genericMethodCache.Clear();
     }
 
-    private IPropertyDescriptor<DataPortChildNodeModel> GetRegularPropertyData(DataPortNodeModelSystemProperty property)
+    private IPropertyDescriptor<DataPortChildNodeModel> GetRegularPropertyData(DataPortNodeModelSystemProperty property, TreeBuilder.TreeBuilder treeBuilder)
     {
         propertyValueStore.Set(property.Name, property.Value);
 
@@ -284,7 +287,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
 
         var createMethod = GetOrCreateGenericMethod(CreatePropertyDescriptorWithDefaultValue<object>, propertyValueType);
 
-        var invokeResult = createMethod.Invoke(this, [property, property.DefaultValue, GetDependencies(property.DependencyId)]);
+        var invokeResult = createMethod.Invoke(this, [property, property.DefaultValue, GetDependencies(property.DependencyId), treeBuilder]);
         if (invokeResult is not IPropertyDescriptor<DataPortChildNodeModel> result)
             throw new InvalidOperationException();
 
