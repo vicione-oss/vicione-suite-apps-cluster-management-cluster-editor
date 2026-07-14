@@ -44,10 +44,6 @@
         "Version": "1.0.0"
     },
     {
-        "Name": "ViciOne.Driver.IoTCore",
-        "Version": "2.0.0"
-    },
-    {
         "Name": "ifm.moneo.Counter.Pieces",
         "Version": "1.0.0"
     },
