@@ -128,6 +128,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>SvgIcons.resx</DependentUpon>
     </Compile>
+    <Compile Update="Sections\DataPorts\Validators\Localization\DataPortNodeValidationMessages.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DataPortNodeValidationMessages.resx</DependentUpon>
+    </Compile>
     <Compile Update="Sections\Debugging\Components\Localization\DebugSection.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -249,6 +254,10 @@
     <EmbeddedResource Update="Localization\Resources\DataflowToolbarSectionNames.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>DataflowToolbarSectionNames.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Sections\DataPorts\Validators\Localization\DataPortNodeValidationMessages.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DataPortNodeValidationMessages.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="Sections\Debugging\Components\Localization\DebugSection.resx">
       <Generator>ResXFileCodeGenerator</Generator>

@@ -81,6 +81,8 @@ public sealed partial class DataPortEditNodeTemplate : NodeTemplateBase, IDispos
             _anyErrors = anyErrors;
             await InvokeAsync(StateHasChanged);
         }
+        if (anyErrors)
+            _editContext?.Node.HasChangedProperties = true;
     }
 
     private void OnPropertyGridPropertyChanged(PropertyGridPropertyChangedEventArgs _)
