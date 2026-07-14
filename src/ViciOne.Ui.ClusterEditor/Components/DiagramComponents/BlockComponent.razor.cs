@@ -30,10 +30,16 @@ namespace ViciOne.Ui.ClusterEditor.Components.DiagramComponents;
 public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandleEvent
 {
     private Block _block = new();
+    private readonly object _blockTooltipKey = new();
+    private readonly object _connectorTooltipKey = new();
+    private readonly object _dataPortMarkerTooltipKey = new();
+    private readonly object _engineTooltipKey = new();
     private bool? _hasDropTargets;
     private bool _isDirty = true;
     private bool _isHovered;
     private BlockNode? _node;
+    private readonly object _parentMarkerTooltipKey = new();
+    private readonly object _publishMarkerTooltipKey = new();
 
     [CascadingParameter] internal Diagram? Diagram { get; set; }
     [Inject] private IContextMenuRequest<BlockNodeConnectorContextMenuContext> BlockNodeConnectorContextMenuRequest { get; set; } = default!;
@@ -59,6 +65,8 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         Node!.Changed -= OnNodeChanged;
         LinkDestinationDialogService.ConnectorSelected -= OnLinkDestinationDialogConnectorSelected;
         DiagramEventService.BlockNodesUpdateRequested -= OnBlockNodesUpdateRequestedAsync;
+
+        StopAllTooltips();
 
         GC.SuppressFinalize(this);
     }
@@ -95,7 +103,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     }
 
     private void OnBlockContainerPointerDown()
-        => TooltipService.StopTooltip();
+        => TooltipService.StopTooltip(_blockTooltipKey);
 
     private void OnBlockContainerPointerEnter(PointerEventArgs e)
     {
@@ -108,7 +116,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
 
         if (_block.IsFunctionBlock || !string.IsNullOrWhiteSpace(_block.Description))
         {
-            TooltipService.StartTooltip(TooltipBlockData.GetBlockTooltipInfo(e, _block, Node!, BoundsService.GetDiagramBounds()));
+            TooltipService.StartTooltip(_blockTooltipKey, TooltipBlockData.GetBlockTooltipInfo(e, _block, Node!, BoundsService.GetDiagramBounds()));
         }
     }
 
@@ -121,10 +129,11 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
             InvokeAsync(StateHasChanged);
         }
 
-        if (_block.IsFunctionBlock || !string.IsNullOrWhiteSpace(_block.Description))
-        {
-            TooltipService.StopTooltip();
-        }
+        // Stop all tooltips owned by this block, not just the block tooltip:
+        // connectors/markers rendered on hover in Simplified View may have been
+        // removed from the DOM (by the re-render above, or by moving onto an
+        // overlapping block) before their own pointerleave could fire.
+        StopAllTooltips();
     }
 
     private async void OnBlockNodesUpdateRequestedAsync()
@@ -262,10 +271,10 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     }
 
     private void OnDataPortMarkerPointerEnter(PointerEventArgs e, BlockNodeConnector connector)
-        => TooltipService.StartTooltip(TooltipDataPortData.GetDataPortMarkerTooltipInfo(Datastore, e, connector, BoundsService.GetDiagramBounds()));
+        => TooltipService.StartTooltip(_dataPortMarkerTooltipKey, TooltipDataPortData.GetDataPortMarkerTooltipInfo(Datastore, e, connector, BoundsService.GetDiagramBounds()));
 
     private void OnDataPortMarkerPointerLeave()
-        => TooltipService.StopTooltip();
+        => TooltipService.StopTooltip(_dataPortMarkerTooltipKey);
 
     private async Task OnDoubleClickAsync(MouseEventArgs e)
     {
@@ -311,11 +320,11 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         if (engines.Count == 0 && !containsUnassignedBlocks)
             return;
 
-        TooltipService.StartTooltip(TooltipEngineData.GetEngineTooltipInfo(e, Node!, engines, containsUnassignedBlocks, BoundsService.GetDiagramBounds()));
+        TooltipService.StartTooltip(_engineTooltipKey, TooltipEngineData.GetEngineTooltipInfo(e, Node!, engines, containsUnassignedBlocks, BoundsService.GetDiagramBounds()));
     }
 
     private void OnEngineDisplayTextPointerLeave()
-        => TooltipService.StopTooltip();
+        => TooltipService.StopTooltip(_engineTooltipKey);
 
     protected override void OnInitialized()
     {
@@ -422,19 +431,19 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     }
 
     private void OnParentContainerMarkerPointerEnter(PointerEventArgs e, BlockNodeConnector connector)
-        => TooltipService.StartTooltip(TooltipConnectorData.GetParentConnectorTooltipInfo(Datastore.Builder, e, connector, BoundsService.GetDiagramBounds()));
+        => TooltipService.StartTooltip(_parentMarkerTooltipKey, TooltipConnectorData.GetParentConnectorTooltipInfo(Datastore.Builder, e, connector, BoundsService.GetDiagramBounds()));
 
     private void OnParentContainerMarkerPointerLeave()
-        => TooltipService.StopTooltip();
+        => TooltipService.StopTooltip(_parentMarkerTooltipKey);
 
     private void OnPortContainerPointerEnter(PointerEventArgs e, BlockNodeConnector connector)
-        => TooltipService.StartTooltip(TooltipConnectorData.GetConnectorTooltipInfo(Datastore.Builder, e, connector, BoundsService.GetDiagramBounds()));
+        => TooltipService.StartTooltip(_connectorTooltipKey, TooltipConnectorData.GetConnectorTooltipInfo(Datastore.Builder, e, connector, BoundsService.GetDiagramBounds()));
 
     private void OnPortContainerPointerLeave()
     {
         DiagramService.SetDraggingLinkActive();
 
-        TooltipService.StopTooltip();
+        TooltipService.StopTooltip(_connectorTooltipKey);
     }
 
     private void OnPublishMarkerPointerEnter(PointerEventArgs e, BlockNodeConnector connector)
@@ -443,17 +452,11 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         if (count == 0)
             return;
 
-        TooltipService.StartTooltip(TooltipPublishMarkerData.GetPublishMarkerTooltipInfo(e, connector, BoundsService.GetDiagramBounds()));
+        TooltipService.StartTooltip(_publishMarkerTooltipKey, TooltipPublishMarkerData.GetPublishMarkerTooltipInfo(e, connector, BoundsService.GetDiagramBounds()));
     }
 
-    private void OnPublishMarkerPointerLeave(BlockNodeConnector connector)
-    {
-        var count = connector.PublishedConnectorMarker.Links.Count;
-        if (count == 0)
-            return;
-
-        TooltipService.StopTooltip();
-    }
+    private void OnPublishMarkerPointerLeave()
+        => TooltipService.StopTooltip(_publishMarkerTooltipKey);
 
     private void OnTitleDblClick()
     {
@@ -491,5 +494,21 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     {
         LinkDestinationDialogService.SetSourceConnectorMarker(connectorMarker);
         LinkDestinationDialogService.SetVisibility(true);
+    }
+
+    // Stops every tooltip this block owns. Child elements (connectors, markers)
+    // are only in the DOM while hovered in Simplified View; when the block
+    // re-renders or the pointer moves onto an overlapping block, those elements
+    // are removed WITHOUT firing their own pointerleave, so their tooltips would
+    // otherwise leak. The block container's pointerleave is the authoritative
+    // cleanup point.
+    private void StopAllTooltips()
+    {
+        TooltipService.StopTooltip(_blockTooltipKey);
+        TooltipService.StopTooltip(_connectorTooltipKey);
+        TooltipService.StopTooltip(_dataPortMarkerTooltipKey);
+        TooltipService.StopTooltip(_engineTooltipKey);
+        TooltipService.StopTooltip(_parentMarkerTooltipKey);
+        TooltipService.StopTooltip(_publishMarkerTooltipKey);
     }
 }

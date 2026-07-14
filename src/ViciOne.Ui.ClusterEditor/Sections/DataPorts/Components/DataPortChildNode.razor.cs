@@ -22,6 +22,7 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
     private CancellationTokenSource? _mouseMoveCts;
     private bool _mouseMoveDebounceRunning;
     private bool _tooltipVisible;
+    private readonly object _tooltipKey = new();
 
     [Inject] private BoundsService BoundsService { get; set; } = default!;
     [Inject] private IDatastore Datastore { get; set; } = default!;
@@ -54,6 +55,8 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
         }
 
         Node.DragAndDropStateChanged -= OnDragAndDropStateChangedAsync;
+
+        TooltipService.StopTooltip(_tooltipKey);
 
         var oldCts = Interlocked.Exchange(ref _mouseMoveCts, null);
         oldCts?.Cancel();
@@ -88,7 +91,7 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
         _lastPointerMoveEvents = null;
         _tooltipVisible = false;
         CancelMouseMoveDebounce();
-        TooltipService.StopTooltip();
+        TooltipService.StopTooltip(_tooltipKey);
     }
 
     private void OnNodeTextPointerMove(PointerEventArgs e)
@@ -164,7 +167,7 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
                 if (_lastPointerMoveEvents is not null)
                 {
                     _tooltipVisible = true;
-                    TooltipService.StartTooltip(TooltipDataPortData.GetDataPortTooltipInfo(Datastore, _lastPointerMoveEvents, (DataPortNodeModel)Node.TreeNode, await BoundsService.GetWindowBoundsAsync().ConfigureAwait(false)));
+                    TooltipService.StartTooltip(_tooltipKey, TooltipDataPortData.GetDataPortTooltipInfo(Datastore, _lastPointerMoveEvents, (DataPortNodeModel)Node.TreeNode, await BoundsService.GetWindowBoundsAsync().ConfigureAwait(false)));
                 }
                 return;
             }

@@ -212,7 +212,7 @@
                  @ondblclick="@(async () => await OnMarkerDoubleClickAsync(connector.PublishedConnectorMarker))"
                  @ondblclick:stopPropagation
                  @onpointerenter="@((e) => OnPublishMarkerPointerEnter(e, connector))"
-                 @onpointerleave="@(() => OnPublishMarkerPointerLeave(connector))"
+                 @onpointerleave="@OnPublishMarkerPointerLeave"
                  class="marker publish input @(connector.PublishedConnectorMarker.Selected ? "selected" : "regular")" 
                  style="--publish-marker-background-color: @(count == 0 ? BlockNodeColors.UnusedPublishedConnector : connector.PortColor);
                         --publish-marker-text-color: @connector.PortTextColor">
@@ -384,7 +384,7 @@
                  @ondblclick="async (_) => await OnMarkerDoubleClickAsync(connector.PublishedConnectorMarker)"
                  @ondblclick:stopPropagation
                  @onpointerenter = "@((e) => OnPublishMarkerPointerEnter(e, connector))"
-                 @onpointerleave = "@(() => OnPublishMarkerPointerLeave(connector))"
+                 @onpointerleave="@OnPublishMarkerPointerLeave"
                  class="marker publish output @(connector.PublishedConnectorMarker.Selected ? "selected" : "regular")"
                  style="--publish-marker-background-color: @(count == 0 ? BlockNodeColors.UnusedPublishedConnector : connector.PortColor);
                         --publish-marker-text-color: @connector.PortTextColor">
