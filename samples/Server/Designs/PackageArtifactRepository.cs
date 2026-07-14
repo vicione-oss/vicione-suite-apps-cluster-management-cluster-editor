@@ -31,7 +31,7 @@ internal sealed class PackageArtifactRepository(IFileSystem fileSystem, IArtifac
         }
     }
 
-    public Task<PackageArtifactLoadResult> DownloadAndExtractAsync(string targetFolder, string name, string version, CancellationToken cancellationToken)
+    public Task<PackageDownloadResult> DownloadAndExtractAsync(string targetFolder, string name, string version, CancellationToken cancellationToken)
     {
         var targetPath = fileSystem.Path.Combine(targetFolder, name, version.ToString());
 
@@ -43,9 +43,13 @@ internal sealed class PackageArtifactRepository(IFileSystem fileSystem, IArtifac
             => fs.Directory.Exists(functionBlockPath) && fs.Directory.GetFiles(functionBlockPath).Length > 0;
     }
 
-    public async Task<PackageArtifactLoadResult> ProcessDownload(string functionBlockName, string version, string targetPath, Func<bool>? skipTarget, CancellationToken cancellationToken)
+    public async Task<PackageDownloadResult> ProcessDownload(string functionBlockName, string version, string targetPath, Func<bool>? skipTarget, CancellationToken cancellationToken)
     {
-        var result = new PackageArtifactLoadResult($"{PackageFolder}/{functionBlockName}/{version}", targetPath);
+        var result = new PackageDownloadResult($"{PackageFolder}/{functionBlockName}/{version}", targetPath)
+        {
+            PackageName = functionBlockName,
+            PackageVersion = version,
+        };
 
         try
         {

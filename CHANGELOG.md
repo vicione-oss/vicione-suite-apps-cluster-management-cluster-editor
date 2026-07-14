@@ -20,6 +20,7 @@
 - Refactored `Datastore` into multiple services to avoid excessive class coupling and improve maintainability
 - Fixed Tooltips when Simplified View is active
 - Optimized `BlockComponent` rendering
+- Improved sample app `DesignLoader` to be more resilient against package download errors
 
 ### Removed
 

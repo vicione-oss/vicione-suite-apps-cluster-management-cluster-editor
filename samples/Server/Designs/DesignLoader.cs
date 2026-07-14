@@ -19,12 +19,7 @@ internal sealed partial class DesignLoader(
     IWorkspaceProvider<FakeBackendModule> workspaceProvider,
     PackageArtifactRepository packageDownloader) : BackgroundService, IDownloader
 {
-    private readonly IClusterDependencyStore _clusterDependencyStore = clusterDependencyStore;
     private readonly TaskCompletionSource _downloadProcess = new(TaskCreationOptions.RunContinuationsAsynchronously);
-    private readonly IFileSystem _fileSystem = fileSystem;
-    private readonly ILogger<DesignLoader> _logger = logger;
-    private readonly PackageArtifactRepository _packageDownloader = packageDownloader;
-    private readonly IWorkspaceProvider<FakeBackendModule> _workspaceProvider = workspaceProvider;
 
     internal int LoadedDataPortDesigns { get; private set; }
     internal int LoadedFunctionBlockDesigns { get; private set; }
@@ -47,22 +42,21 @@ internal sealed partial class DesignLoader(
         };
     }
 
-    private async Task DownloadClusterDependencies(IReadOnlyCollection<ClusterDependency> dependencies, CancellationToken stoppingToken)
+    private async Task<HashSet<ClusterDependency>> DownloadClusterDependencies(IReadOnlyCollection<ClusterDependency> dependencies, CancellationToken stoppingToken)
     {
-        var watch = new Stopwatch();
-        watch.Start();
+        var watch = Stopwatch.StartNew();
 
-        var packagesPath = _fileSystem.GetDependenciesPath(_workspaceProvider);
-        _fileSystem.Directory.CreateDirectory(packagesPath);
+        var packagesPath = fileSystem.GetDependenciesPath(workspaceProvider);
+        fileSystem.Directory.CreateDirectory(packagesPath);
 
-        var results = await Task.WhenAll(dependencies.Select(fb => _packageDownloader.DownloadAndExtractAsync(packagesPath, fb.Name, fb.Version, stoppingToken)));
+        var results = await Task.WhenAll(dependencies.Select(cd => packageDownloader.DownloadAndExtractAsync(packagesPath, cd.Name, cd.Version, stoppingToken)));
 
         watch.Stop();
 
-        if (_logger.IsEnabled(LogLevel.Information))
+        if (logger.IsEnabled(LogLevel.Information))
         {
 #pragma warning disable CA1873 // Avoid potentially expensive logging - there is a logger.IsEnabled check
-            LogDownloadComplete(_logger,
+            LogDownloadComplete(logger,
                 results.Count(r => r is { Skipped: false, Error: null }),
                 results.Count(r => r.Skipped),
                 results.Count(r => r.Error is not null),
@@ -70,8 +64,14 @@ internal sealed partial class DesignLoader(
 #pragma warning restore CA1873 // Avoid potentially expensive logging
         }
 
+        HashSet<ClusterDependency> failed = [];
         foreach (var result in results.Where(k => k.Error is not null))
-            LogUpdateFailed(_logger, result.Error, result.SourcePath);
+        {
+            LogUpdateFailed(logger, result.Error, result.SourcePath);
+            failed.Add(new ClusterDependency { Name = result.PackageName, Version = result.PackageVersion });
+        }
+
+        return failed;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -79,19 +79,21 @@ internal sealed partial class DesignLoader(
         stoppingToken.Register(() => _downloadProcess.TrySetCanceled(stoppingToken));
         try
         {
-            var dependencies = await _clusterDependencyStore.LoadDependencies(stoppingToken);
-            await DownloadClusterDependencies(dependencies, stoppingToken);
+            var dependencies = await clusterDependencyStore.LoadDependencies(stoppingToken);
+            var failedDownloads = await DownloadClusterDependencies(dependencies, stoppingToken);
 
-            var packagesPath = _fileSystem.GetDependenciesPath(_workspaceProvider);
-            _fileSystem.Directory.CreateDirectory(packagesPath);
+            var validDependencies = dependencies.Except(failedDownloads).ToList().AsReadOnly();
+
+            var packagesPath = fileSystem.GetDependenciesPath(workspaceProvider);
+            fileSystem.Directory.CreateDirectory(packagesPath);
 
             if (packagesStore is InMemoryPackagesStore inMemoryPackagesStore)
-                inMemoryPackagesStore.Initialize(dependencies);
+                inMemoryPackagesStore.Initialize(validDependencies);
 
             // ViciOne.Suite.System.DataPort is a FunctionBlock interface for the providers
             var systemDataPortDependency = LoadSystemDataPortFunctionBlock();
 
-            var existingPackages = PackagesFileProvider.GetComponents(packagesPath, _fileSystem);
+            var existingPackages = PackagesFileProvider.GetComponents(packagesPath, fileSystem);
             var latestPackages = existingPackages.ResolveLatestVersion();
 
             foreach (var component in latestPackages)
@@ -106,10 +108,10 @@ internal sealed partial class DesignLoader(
                     continue;
 
                 if (!packagesStore.TryAddPackage(dependency, component.Value))
-                    LogAddPackageFailed(_logger, component.Key.Name, ToVersion(component.Key.Version));
+                    LogAddPackageFailed(logger, component.Key.Name, ToVersion(component.Key.Version));
             }
 
-            LogDependencyLoadingDone(_logger);
+            LogDependencyLoadingDone(logger);
 
             ClusterSerializer.SetTypedSerializerOptions();
         }
@@ -129,7 +131,7 @@ internal sealed partial class DesignLoader(
         var systemDataPortDependency = CreateDependency(dataportType);
 
         if (!packagesStore.TryAddPackage(systemDataPortDependency, [dataportType], [], true))
-            LogAddSystemDataPortPackageFailed(_logger, systemDataPortDependency.Name, systemDataPortDependency.Version);
+            LogAddSystemDataPortPackageFailed(logger, systemDataPortDependency.Name, systemDataPortDependency.Version);
 
         if (packagesStore is InMemoryPackagesStore inMemoryPackagesStore)
             inMemoryPackagesStore.SetSystemDataPortDependency(systemDataPortDependency);
@@ -149,7 +151,7 @@ internal sealed partial class DesignLoader(
     [LoggerMessage(Level = LogLevel.Information, Message = "Downloading {Count} dependencies (skipped={Skipped}, errors={Errors}) took {Elapsed}.")]
     private static partial void LogDownloadComplete(ILogger logger, int count, int skipped, int errors, TimeSpan elapsed);
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to update {SourcePath}.")]
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to update {SourcePath}.")]
     private static partial void LogUpdateFailed(ILogger logger, Exception? exception, string sourcePath);
 
     private static string ToVersion(SemVersion version)
