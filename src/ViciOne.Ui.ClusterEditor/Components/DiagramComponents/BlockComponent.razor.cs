@@ -37,6 +37,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     private bool? _hasDropTargets;
     private bool _isDirty = true;
     private bool _isHovered;
+    private bool _isImageVisible = true;
     private BlockNode? _node;
     private readonly object _parentMarkerTooltipKey = new();
     private readonly object _publishMarkerTooltipKey = new();
@@ -65,42 +66,47 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         Node!.Changed -= OnNodeChanged;
         LinkDestinationDialogService.ConnectorSelected -= OnLinkDestinationDialogConnectorSelected;
         DiagramEventService.BlockNodesUpdateRequested -= OnBlockNodesUpdateRequestedAsync;
+        SelectionManager.ConnectorSelectionChanged -= OnConnectorSelectionChanged;
 
         StopAllTooltips();
 
         GC.SuppressFinalize(this);
     }
 
+    private static (MarkerLine? Outer, MarkerLine? Inner) GetMarkerLines(BlockNodeConnector connector)
+    {
+        var published = connector.PublishedConnectorMarker;
+        var dataPort = connector.DataPortConnectorMarker;
+
+        var baseLength = published.Visible ? 15 :
+            dataPort.Visible ? 8 :
+            connector.IsOnContainer ? 2 : 0;
+
+        if (baseLength == 0)
+            return (null, null);
+
+        var selectedLength = published.Selected ? 15 : dataPort.Selected ? 8 : 0;
+        var tracedLength = published.Traced ? 15 : dataPort.Traced ? 8 : 0;
+
+        var farModifier = selectedLength == baseLength ? "selected"
+            : tracedLength == baseLength ? "traced"
+            : string.Empty;
+
+        var portModifier = selectedLength > 0 ? "selected"
+            : tracedLength > 0 ? "traced"
+            : string.Empty;
+
+        var outer = new MarkerLine(baseLength, farModifier);
+
+        if (portModifier == farModifier)
+            return (outer, null);
+
+        var innerLength = selectedLength > 0 ? selectedLength : tracedLength;
+        return (outer, new MarkerLine(innerLength, portModifier));
+    }
+
     Task IHandleEvent.HandleEventAsync(EventCallbackWorkItem callback, object? arg)
         => callback.InvokeAsync(arg);
-
-    private bool HasDetailedRunModeSettings()
-    {
-        if (_block.IsFunctionBlock)
-            return ((FunctionBlockNode)Node!).RunModeText == "Y";
-
-        return false;
-    }
-
-    private bool IsImageVisible()
-    {
-        foreach (var row in Node!.Connectors)
-        {
-            foreach (var c in row)
-            {
-                if (c is not null && c.IsSystemConnector && c.IsValidDropTarget)
-                    return false;
-            }
-        }
-
-        foreach (var c in SelectionManager.SelectedConnectors)
-        {
-            if (c.Node!.Id == Node.Id && c.IsSystemConnector)
-                return false;
-        }
-
-        return true;
-    }
 
     private void OnBlockContainerPointerDown()
         => TooltipService.StopTooltip(_blockTooltipKey);
@@ -148,7 +154,9 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
             }
         }
 
-        if (hasDropTargets == _hasDropTargets)
+        RecalculateImageVisible();
+
+        if (hasDropTargets == _hasDropTargets && !_isDirty)
             return;
 
         _hasDropTargets = hasDropTargets;
@@ -236,6 +244,14 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
             if (!DiagramService.Diagram.IsNodeInViewport(containerNode))
                 DiagramService.Diagram.PanToNode(containerNode);
         }
+    }
+
+    private void OnConnectorSelectionChanged(IEnumerable<BlockNodeConnector> obj)
+    {
+        RecalculateImageVisible();
+
+        if (_isDirty)
+            InvokeAsync(StateHasChanged);
     }
 
     private async Task OnContainerMarkerDblClick(BlockNodeConnector connector)
@@ -331,11 +347,10 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         ArgumentNullException.ThrowIfNull(Diagram, nameof(Diagram));
         ArgumentNullException.ThrowIfNull(Node, nameof(Node));
 
-        _block = new(Datastore, Node);
-
         Node.Changed += OnNodeChanged;
         LinkDestinationDialogService.ConnectorSelected += OnLinkDestinationDialogConnectorSelected;
         DiagramEventService.BlockNodesUpdateRequested += OnBlockNodesUpdateRequestedAsync;
+        SelectionManager.ConnectorSelectionChanged += OnConnectorSelectionChanged;
     }
 
     private async void OnLinkDestinationDialogConnectorSelected(Connector selectedConnector, ConnectorMarkerType markerType)
@@ -428,6 +443,8 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
             _block = new(Datastore, _node);
             _isDirty = true;
         }
+
+        RecalculateImageVisible();
     }
 
     private void OnParentContainerMarkerPointerEnter(PointerEventArgs e, BlockNodeConnector connector)
@@ -462,6 +479,26 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     {
         ToolbarService.RequestDataflowToolbarSection(DataflowToolbarSection.Properties);
         PropertyGridController.FocusProperty(nameof(INamedContainerChild.Name));
+    }
+
+    private void RecalculateImageVisible()
+    {
+        var isVisible = true;
+
+        foreach (var c in Node!.ConnectorsToList())
+        {
+            if (c.IsSystemConnector && (c.IsValidDropTarget || c.Selected))
+            {
+                isVisible = false;
+                break;
+            }
+        }
+
+        if (isVisible == _isImageVisible)
+            return;
+
+        _isImageVisible = isVisible;
+        _isDirty = true;
     }
 
     private bool ShouldDisplayAllConnectors()
@@ -511,4 +548,6 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         TooltipService.StopTooltip(_parentMarkerTooltipKey);
         TooltipService.StopTooltip(_publishMarkerTooltipKey);
     }
+
+    private readonly record struct MarkerLine(int Length, string Modifier);
 }

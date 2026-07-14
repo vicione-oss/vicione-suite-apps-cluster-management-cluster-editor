@@ -253,9 +253,9 @@
 
 .marker-line {
     background-color: editor.$editor-foreground-dark;
-    cursor: default;
     height: 3px;
     margin-top: calc(var(--canvas-grid-size) - 1px);
+    pointer-events: none;
     position: absolute;
 
     &.input {
@@ -325,10 +325,6 @@
     &.spacer {
         grid-column: 11 / span 4;
         margin-left: -2px;
-    }
-
-    &.dummy {
-        grid-column: 11 / span 4;
     }
 }
 

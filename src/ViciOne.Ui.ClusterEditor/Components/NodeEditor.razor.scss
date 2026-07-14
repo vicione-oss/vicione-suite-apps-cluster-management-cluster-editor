@@ -80,6 +80,8 @@
     padding-top: 0px;
 
     ::deep {
+        /* see Constants.DiagramSettings.cs */
+        --alignment-border-grid-cells: 20;
         --canvas-grid-size: 10px;
         --node-border-width: 1px;
 
