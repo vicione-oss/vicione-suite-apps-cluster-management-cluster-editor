@@ -20,6 +20,8 @@ public sealed partial class ChildContainerEditorComponent : ComponentBase
 
     [Parameter] public ChildContainerNode? Node { get; set; }
 
+    private readonly object _connectorTooltipKey = new();
+
     private BlockNodeConnector GetOriginalConnectorDiagramModel(BlockNodeConnector nodeConnector)
         => Datastore.DataflowDiagramMapping.GetDiagramModel(((ContainerConnector)nodeConnector.Connector).Connector);
 
@@ -27,9 +29,9 @@ public sealed partial class ChildContainerEditorComponent : ComponentBase
     {
         var originalConnector = GetOriginalConnectorDiagramModel(connector);
 
-        TooltipService.StartTooltip(TooltipConnectorData.GetConnectorTooltipInfo(Datastore.Builder, e, originalConnector, BoundsService.GetDiagramBounds()));
+        TooltipService.StartTooltip(_connectorTooltipKey, TooltipConnectorData.GetConnectorTooltipInfo(Datastore.Builder, e, originalConnector, BoundsService.GetDiagramBounds()));
     }
 
     private void OnPortContainerPointerLeave()
-        => TooltipService.StopTooltip();
+        => TooltipService.StopTooltip(_connectorTooltipKey);
 }

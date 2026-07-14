@@ -13,7 +13,14 @@ public sealed class TooltipService : IDisposable
     private bool _disposed;
     private bool _hasActiveTooltip;
     private CancellationTokenSource? _renderDelayCts;
-    private readonly Stack<TooltipInfo> _tooltipInfos = [];
+
+    // Ordered list of active tooltips keyed by their owner (the UI element that
+    // requested them). The last entry is the one currently shown on top.
+    // Using an owner key instead of a blind stack ensures that leaving one
+    // element removes *its* tooltip, regardless of the order enter/leave events
+    // arrive in (which is not strictly LIFO once connectors/markers appear on
+    // hover in Simplified View).
+    private readonly List<(object Owner, TooltipInfo Info)> _tooltipInfos = [];
 
     public event Action? HideTooltip;
     public event Action<TooltipInfo>? ShowTooltip;
@@ -52,10 +59,21 @@ public sealed class TooltipService : IDisposable
         if (_tooltipInfos.Count < 1)
             return;
 
-        var tooltipInfo = _tooltipInfos.Peek();
+        var tooltipInfo = _tooltipInfos[^1].Info;
         ShowTooltip?.Invoke(tooltipInfo);
 
         _hasActiveTooltip = true;
+    }
+
+    private int IndexOfOwner(object owner)
+    {
+        for (var i = 0; i < _tooltipInfos.Count; i++)
+        {
+            if (_tooltipInfos[i].Owner == owner)
+                return i;
+        }
+
+        return -1;
     }
 
     private void OnDiagramContainerLoaded(Container _)
@@ -94,9 +112,16 @@ public sealed class TooltipService : IDisposable
         _ = ShowTooltipDebounced(newCts.Token);
     }
 
-    public void StartTooltip(TooltipInfo tooltipInfo)
+    public void StartTooltip(object owner, TooltipInfo tooltipInfo)
     {
-        _tooltipInfos.Push(tooltipInfo);
+        ArgumentNullException.ThrowIfNull(owner);
+
+        // Replace any existing tooltip for this owner and move it to the top.
+        var existingIndex = IndexOfOwner(owner);
+        if (existingIndex >= 0)
+            _tooltipInfos.RemoveAt(existingIndex);
+
+        _tooltipInfos.Add((owner, tooltipInfo));
 
         if (_hasActiveTooltip)
             EmitShowTooltip();
@@ -104,11 +129,15 @@ public sealed class TooltipService : IDisposable
             StartRenderDelay();
     }
 
-    public void StopTooltip()
+    public void StopTooltip(object owner)
     {
+        ArgumentNullException.ThrowIfNull(owner);
+
         CancelRenderDelay();
 
-        _tooltipInfos.TryPop(out var _);
+        var index = IndexOfOwner(owner);
+        if (index >= 0)
+            _tooltipInfos.RemoveAt(index);
 
         if (_tooltipInfos.Count > 0)
         {
