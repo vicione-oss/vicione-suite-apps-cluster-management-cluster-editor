@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.Models.Base;
-using Microsoft.AspNetCore.Components.Web;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
@@ -33,7 +32,9 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
 
     public Cluster.Model.IConnector Connector { get; }
     public string? ConnectorContainerStyle { get; private set; }
+    public string ContainerMarkerStyle { get; private set; } = "";
     public ConnectorMarker DataPortConnectorMarker { get; set; }
+    public string DataPortMarkerStyle { get; private set; } = "";
     public bool HasChangedProperties => !_hasDefaultEventEnabled ||
         !_hasDefaultMarkAsChangedOnlyIfNotEqual || !_hasDefaultPoolingMode || !_hasDefaultValue;
     public bool HasDefaultConfiguration { get; private set; } = true;
@@ -43,7 +44,6 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
     public bool IsSystemConnector { get; init; }
     public bool IsValidDropTarget { get; private set; }
     public BlockNode Node { get; }
-    public Action<MouseEventArgs> OnContextMenuAction { get; set; } = e => { };
     public Cluster.Model.IConnector? ParentContainerConnector { get; private set; }
     public string PoolingMode { get; private set; } = GetPoolingModeSymbol("Internal");
     public string PoolingModeColor { get; private set; } = BlockNodeConnectorColors.PoolingModeDefault;
@@ -245,6 +245,9 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
             (null, not null) => portTextColorPart,
             _ => $"{portColorPart};{portTextColorPart}"
         };
+
+        ContainerMarkerStyle = $"--container-marker-background-color:{PortColor};--container-marker-text-color:{PortTextColor}";
+        DataPortMarkerStyle = $"--dataport-marker-background-color:{PortColor};--dataport-marker-text-color:{PortTextColor}";
     }
 
     private void SetConnectorColors()

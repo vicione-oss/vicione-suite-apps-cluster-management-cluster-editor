@@ -12,6 +12,8 @@ namespace ViciOne.Ui.ClusterEditor.Components.DiagramComponents;
 
 public sealed partial class ChildContainerEditorComponent : ComponentBase
 {
+    private readonly object _connectorTooltipKey = new();
+
     [CascadingParameter] internal Diagram? Diagram { get; set; }
 
     [Inject] private BoundsService BoundsService { get; set; } = default!;
@@ -19,8 +21,6 @@ public sealed partial class ChildContainerEditorComponent : ComponentBase
     [Inject] private TooltipService TooltipService { get; set; } = default!;
 
     [Parameter] public ChildContainerNode? Node { get; set; }
-
-    private readonly object _connectorTooltipKey = new();
 
     private BlockNodeConnector GetOriginalConnectorDiagramModel(BlockNodeConnector nodeConnector)
         => Datastore.DataflowDiagramMapping.GetDiagramModel(((ContainerConnector)nodeConnector.Connector).Connector);

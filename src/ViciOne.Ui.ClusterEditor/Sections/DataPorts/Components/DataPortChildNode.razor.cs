@@ -21,8 +21,8 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
     private PointerEventArgs? _lastPointerMoveEvents;
     private CancellationTokenSource? _mouseMoveCts;
     private bool _mouseMoveDebounceRunning;
-    private bool _tooltipVisible;
     private readonly object _tooltipKey = new();
+    private bool _tooltipVisible;
 
     [Inject] private BoundsService BoundsService { get; set; } = default!;
     [Inject] private IDatastore Datastore { get; set; } = default!;

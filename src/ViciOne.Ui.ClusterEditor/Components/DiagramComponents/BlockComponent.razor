@@ -7,16 +7,14 @@
      @onpointerdown="@OnBlockContainerPointerDown"
      @onpointerenter="@OnBlockContainerPointerEnter"
      @onpointerleave="@OnBlockContainerPointerLeave"
-     class="block-container"
-     style="--alignment-border-grid-cells: @(DiagramSettings.FlagMarginGridCells);">
+     class="block-container">
 
     <div class="alignment-border"></div>
 
     <div @ondblclick="@OnTitleDblClick"
          @ondblclick:stopPropagation
          class="title-container"
-         style="--title-name-background-color: @Node!.NameBackgroundColor;
-                --title-name-fore-color: @Node.NameForeColor;">
+         style="--title-name-background-color: @Node!.NameBackgroundColor; --title-name-fore-color: @Node.NameForeColor">
 
         @Node.Name
     </div>
@@ -38,11 +36,14 @@
         }
         else if (_block.IsFunctionBlock)
         {
-            <div class="run-mode @(HasDetailedRunModeSettings() ? "short" : "")">@(((FunctionBlockNode)Node).RunModeText)</div>
+            var fbNode = (FunctionBlockNode)Node;
+            var detailed = fbNode.RunModeText == "Y";
 
-            @if (HasDetailedRunModeSettings())
+            <div class="run-mode">@fbNode.RunModeText</div>
+
+            @if (detailed)
             {
-                <div class="run-mode-cycle-settings frequency">@(((FunctionBlockNode)Node).CycleFrequency)</div>
+                <div class="run-mode-cycle-settings frequency">@fbNode.CycleFrequency</div>
             }
             else
             {
@@ -54,7 +55,7 @@
     </div>
 
     <div class="block-image-container">
-        @if (IsImageVisible())
+        @if (_isImageVisible)
         {
             <div class="block-image">
                 @if (string.IsNullOrEmpty(Node.ImageSrc))
@@ -115,7 +116,9 @@
 </div>
 
 @code {
-    private RenderFragment<BlockNodeConnector> InputConnectorFragment => connector => __builder =>
+    private RenderFragment<BlockNodeConnector>? _inputConnectorFragment;
+    private RenderFragment<BlockNodeConnector> InputConnectorFragment
+        => _inputConnectorFragment ??= connector => __builder =>
     {
         if (!connector.Visible) { return; }
 
@@ -155,50 +158,15 @@
             </div>
         </div>
 
-        var markerLineLength = connector.PublishedConnectorMarker.Visible ? 15 :
-            connector.DataPortConnectorMarker.Visible ? 8 :
-            connector.IsOnContainer ? 2 : 0;
-
-        if (markerLineLength > 0)
+        var (outerLine, innerLine) = GetMarkerLines(connector);
+        if (outerLine is { } outer)
         {
-            <div @onclick:stopPropagation
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
-                 @oncontextmenu:stopPropagation
-                 @ondblclick:stopPropagation
-                 @onpointerdown:stopPropagation
-                 class="marker-line input"
-                 style="--marker-line-length: @markerLineLength">
-            </div>
-        }
+            <div class="marker-line input @outer.Modifier" style="--marker-line-length: @outer.Length"></div>
 
-        var markerLineTracedLength = connector.PublishedConnectorMarker.Traced ? 15 :
-            connector.DataPortConnectorMarker.Traced ? 8 : 0;
-
-        if (markerLineTracedLength > 0)
-        {
-            <div @onclick:stopPropagation
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
-                 @oncontextmenu:stopPropagation
-                 @ondblclick:stopPropagation
-                 @onpointerdown:stopPropagation
-                 class="marker-line traced input"
-                 style="--marker-line-length: @markerLineTracedLength">
-            </div>
-        }
-
-        var markerLineSelectedLength = connector.PublishedConnectorMarker.Selected ? 15 :
-            connector.DataPortConnectorMarker.Selected ? 8 : 0;
-
-        if (markerLineSelectedLength > 0)
-        {
-            <div @onclick:stopPropagation
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
-                 @oncontextmenu:stopPropagation
-                 @ondblclick:stopPropagation
-                 @onpointerdown:stopPropagation
-                 class="marker-line selected input"
-                 style="--marker-line-length: @markerLineSelectedLength">
-            </div>
+            if (innerLine is { } inner)
+            {
+                <div class="marker-line input @inner.Modifier" style="--marker-line-length: @inner.Length"></div>
+            }
         }
 
         if (connector.PublishedConnectorMarker.Visible)
@@ -214,8 +182,7 @@
                  @onpointerenter="@((e) => OnPublishMarkerPointerEnter(e, connector))"
                  @onpointerleave="@OnPublishMarkerPointerLeave"
                  class="marker publish input @(connector.PublishedConnectorMarker.Selected ? "selected" : "regular")" 
-                 style="--publish-marker-background-color: @(count == 0 ? BlockNodeColors.UnusedPublishedConnector : connector.PortColor);
-                        --publish-marker-text-color: @connector.PortTextColor">
+                 style="--publish-marker-background-color: @(count == 0 ? BlockNodeColors.UnusedPublishedConnector : connector.PortColor); --publish-marker-text-color: @connector.PortTextColor">
 
                 @if (count > 0)
                 {
@@ -235,8 +202,7 @@
                  @onpointerenter="@((e) => OnDataPortMarkerPointerEnter(e, connector))"
                  @onpointerleave="@OnDataPortMarkerPointerLeave"
                  class="marker dataport input @(connector.DataPortConnectorMarker.Selected ? "selected" : string.Empty)"
-                 style="--dataport-marker-background-color: @connector.PortColor;
-                        --dataport-marker-text-color: @connector.PortTextColor;">
+                 style="@connector.DataPortMarkerStyle">
 
                 @connector.DataPortConnectorMarker.Links.Count
             </div>
@@ -251,15 +217,16 @@
                  @onpointerenter="@((e) => OnParentContainerMarkerPointerEnter(e, connector))"
                  @onpointerleave="@OnParentContainerMarkerPointerLeave"
                  class="marker connector-container input @(connector.HasUpstreamLinks ? "sliced" : string.Empty)"
-                 style="--container-marker-background-color: @connector.PortColor;
-                        --container-marker-text-color: @connector.PortTextColor">
+                 style="@connector.ContainerMarkerStyle">
 
                 <span>@connector.ParentContainerConnector?.ShortName</span>
             </div>
         }
     };
 
-    private RenderFragment<BlockNodeConnector> OutputConnectorFragment => connector => __builder =>
+    private RenderFragment<BlockNodeConnector>? _outputConnectorFragment;
+    private RenderFragment<BlockNodeConnector> OutputConnectorFragment
+        => _outputConnectorFragment ??= connector => __builder =>
     {
         if (!connector.Visible) { return; }
 
@@ -293,50 +260,15 @@
             </div>
         </div>
 
-        var markerLineLength = connector.PublishedConnectorMarker.Visible ? 15 :
-            connector.DataPortConnectorMarker.Visible ? 8 :
-            connector.IsOnContainer ? 2 : 0;
-
-        if (markerLineLength > 0)
+        var (outerLine, innerLine) = GetMarkerLines(connector);
+        if (outerLine is { } outer)
         {
-            <div @onclick:stopPropagation
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
-                 @oncontextmenu:stopPropagation
-                 @ondblclick:stopPropagation
-                 @onpointerdown:stopPropagation
-                 class="marker-line output"
-                 style="--marker-line-length: @markerLineLength">
-            </div>
-        }
+            <div class="marker-line output @outer.Modifier" style="--marker-line-length: @outer.Length"></div>
 
-        var markerLineTracedLength = connector.PublishedConnectorMarker.Traced ? 15 :
-            connector.DataPortConnectorMarker.Traced ? 8 : 0;
-
-        if (markerLineTracedLength > 0)
-        {
-            <div @onclick:stopPropagation
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
-                 @oncontextmenu:stopPropagation
-                 @ondblclick:stopPropagation
-                 @onpointerdown:stopPropagation
-                 class="marker-line traced output"
-                 style="--marker-line-length: @markerLineTracedLength">
-            </div>
-        }
-
-        var markerLineSelectedLength = connector.PublishedConnectorMarker.Selected ? 15 :
-            connector.DataPortConnectorMarker.Selected ? 8 : 0;
-
-        if (markerLineSelectedLength > 0)
-        {
-            <div @onclick:stopPropagation
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
-                 @oncontextmenu:stopPropagation
-                 @ondblclick:stopPropagation
-                 @onpointerdown:stopPropagation
-                 class="marker-line selected output"
-                 style="--marker-line-length: @markerLineSelectedLength">
-            </div>
+            if (innerLine is { } inner)
+            {
+                <div class="marker-line output @inner.Modifier" style="--marker-line-length: @inner.Length"></div>
+            }
         }
 
         if (connector.IsOnContainer)
@@ -348,8 +280,7 @@
                  @onpointerenter="@((e) => OnParentContainerMarkerPointerEnter(e, connector))"
                  @onpointerleave="@OnParentContainerMarkerPointerLeave"
                  class="marker connector-container output @(connector.HasUpstreamLinks ? "sliced" : string.Empty)"
-                 style="--container-marker-background-color: @connector.PortColor;
-                        --container-marker-text-color: @connector.PortTextColor">
+                 style="@connector.ContainerMarkerStyle">
 
                 <span>@connector.ParentContainerConnector?.ShortName</span>
             </div>
@@ -366,8 +297,7 @@
                  @onpointerenter="@((e) => OnDataPortMarkerPointerEnter(e, connector))"
                  @onpointerleave="@OnDataPortMarkerPointerLeave"
                  class="marker dataport output @(connector.DataPortConnectorMarker.Selected ? "selected" : string.Empty)"
-                 style="--dataport-marker-background-color: @connector.PortColor;
-                        --dataport-marker-text-color: @connector.PortTextColor">
+                 style="@connector.DataPortMarkerStyle">
 
                 @connector.DataPortConnectorMarker.Links.Count
             </div>
@@ -386,8 +316,7 @@
                  @onpointerenter = "@((e) => OnPublishMarkerPointerEnter(e, connector))"
                  @onpointerleave="@OnPublishMarkerPointerLeave"
                  class="marker publish output @(connector.PublishedConnectorMarker.Selected ? "selected" : "regular")"
-                 style="--publish-marker-background-color: @(count == 0 ? BlockNodeColors.UnusedPublishedConnector : connector.PortColor);
-                        --publish-marker-text-color: @connector.PortTextColor">
+                 style="--publish-marker-background-color: @(count == 0 ? BlockNodeColors.UnusedPublishedConnector : connector.PortColor); --publish-marker-text-color: @connector.PortTextColor">
 
                 @if (count > 0)
                 {
