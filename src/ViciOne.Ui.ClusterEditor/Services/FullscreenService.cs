@@ -1,33 +1,35 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using ViciOne.Ui.ClusterEditor.Extensions;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
-public sealed class FullscreenService(IJSRuntime jSRuntime) : IDisposable
+public sealed class FullscreenService(IJSRuntime jSRuntime, ILogger<FullscreenService> logger) : IDisposable
 {
     private DotNetObjectReference<FullscreenService>? _refObject;
 
     public ElementReference DataflowEditorContainerReference { get; set; }
     public bool IsFullscreen { get; private set; }
 
-    public event Action<bool>? FullscreenStateChanged;
+    public event Func<bool, Task>? FullscreenStateChanged;
 
     public void Dispose()
         => _refObject?.Dispose();
 
     [JSInvokable("fullscreenExitHandler")]
-    public void FullscreenExitHandler()
+    public async Task FullscreenExitHandler()
     {
         IsFullscreen = false;
-        FullscreenStateChanged?.Invoke(false);
+        await FullscreenStateChanged.InvokeEventAsync(false, logger, nameof(FullscreenStateChanged));
     }
 
-    public async Task SetFullscreenAsync(bool isFullscreen)
+    public async Task SetFullscreen(bool isFullscreen)
     {
         IsFullscreen = isFullscreen;
-        FullscreenStateChanged?.Invoke(isFullscreen);
+        await FullscreenStateChanged.InvokeEventAsync(isFullscreen, logger, nameof(FullscreenStateChanged));
 
         _refObject ??= DotNetObjectReference.Create(this);
 
@@ -39,6 +41,6 @@ public sealed class FullscreenService(IJSRuntime jSRuntime) : IDisposable
         );
     }
 
-    public async Task ToggleFullscreenAsync()
-        => await SetFullscreenAsync(!IsFullscreen);
+    public async Task ToggleFullscreen()
+        => await SetFullscreen(!IsFullscreen);
 }

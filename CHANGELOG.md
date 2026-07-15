@@ -21,6 +21,7 @@
 - Fixed Tooltips when Simplified View is active
 - Optimized `BlockComponent` rendering
 - Improved sample app `DesignLoader` to be more resilient against package download errors
+- Refactored "async void" to "async Task" where needed
 
 ### Removed
 

@@ -28,7 +28,10 @@ public sealed class ClusterEditorManagementTests : IAsyncDisposable
         _datastore = Substitute.For<IDatastore>();
         _libraryService = Substitute.For<ILibraryService>();
         _logger = Substitute.For<ILogger<ClusterEditor.Services.ClusterEditorManagement>>();
-        _diagramService = new DiagramService(_datastore, new DiagramEventService());
+        _diagramService = new DiagramService(
+            _datastore,
+            new DiagramEventService(Substitute.For<ILogger<DiagramEventService>>()),
+            Substitute.For<ILogger<DiagramService>>());
         _sut = new ClusterEditor.Services.ClusterEditorManagement(_datastore, _diagramService, _libraryService, _logger);
     }
 

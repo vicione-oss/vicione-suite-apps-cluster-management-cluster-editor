@@ -37,13 +37,13 @@
             </div>
 
             <div class="actions">
-                <button @onclick="@ToggleDebugLogAsync"
+                <button @onclick="@ToggleDebugLog"
                         class="action-btn">
 
                     Toggle log
                 </button>
 
-                <input @onchange="@((e) => SetDbgHeightPxAsync(Convert.ToInt32(e.Value)))"
+                <input @onchange="@((e) => SetDbgHeightPx(Convert.ToInt32(e.Value)))"
                        class="log-height"
                        title="The hight of the log in pixels"
                        type="number"

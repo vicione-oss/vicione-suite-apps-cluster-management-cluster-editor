@@ -130,9 +130,13 @@ public sealed class ContainerLoadServiceTests : IAsyncDisposable
     {
         // Arrange
         var builderChanged = false;
-        _state.BuilderChanged += () => builderChanged = true;
+        _state.BuilderChanged += () => { builderChanged = true; return Task.CompletedTask; };
         Container? loadedContainer = null;
-        _diagramEvents.ContainerLoaded += c => loadedContainer = c;
+        _diagramEvents.ContainerLoaded += c =>
+        {
+            loadedContainer = c;
+            return Task.CompletedTask;
+        };
 
         // Act
         await LoadRootAsync();
@@ -153,7 +157,11 @@ public sealed class ContainerLoadServiceTests : IAsyncDisposable
         // Arrange
         await LoadRootAsync();
         var raised = false;
-        _diagramEvents.ContainerLoaded += _ => raised = true;
+        _diagramEvents.ContainerLoaded += _ =>
+        {
+            raised = true;
+            return Task.CompletedTask;
+        };
         await _sut.DisposeAsync();
 
         // Act
@@ -316,7 +324,11 @@ public sealed class ContainerLoadServiceTests : IAsyncDisposable
         await LoadRootAsync();
         _logger.IsEnabled(LogLevel.Error).Returns(true);
         var raised = false;
-        _diagramEvents.ContainerLoaded += _ => raised = true;
+        _diagramEvents.ContainerLoaded += _ =>
+        {
+            raised = true;
+            return Task.CompletedTask;
+        };
         var orphan = new Container { Id = Guid.NewGuid(), Name = "Orphan" };
 
         // Act - the orphan belongs to no dataflow, so resolution fails after the active container is set
@@ -338,7 +350,7 @@ public sealed class ContainerLoadServiceTests : IAsyncDisposable
         // Arrange
         await LoadRootAsync();
         var forcedRefresh = false;
-        _state.ForcedRefreshRequested += () => forcedRefresh = true;
+        _state.ForcedRefreshRequested += () => { forcedRefresh = true; return Task.CompletedTask; };
 
         // Act
         await _sut.LoadContainer(Root, _diagramService, force: true);
@@ -355,7 +367,11 @@ public sealed class ContainerLoadServiceTests : IAsyncDisposable
         // Arrange
         await LoadRootAsync();
         var loadCount = 0;
-        _diagramEvents.ContainerLoaded += _ => loadCount++;
+        _diagramEvents.ContainerLoaded += _ =>
+        {
+            loadCount++;
+            return Task.CompletedTask;
+        };
 
         // Act
         await _sut.LoadContainer(Root, _diagramService, force: force);

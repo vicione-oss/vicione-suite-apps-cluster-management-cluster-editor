@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.Models.Base;
 using Microsoft.AspNetCore.Components;
@@ -139,8 +140,11 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
     private void OnAlignClick(Alignment align)
         => align.ApplyToSelection(SelectionManager);
 
-    private void OnContainerLoaded(Container _)
-        => ClearFilter();
+    private Task OnContainerLoaded(Container _)
+    {
+        ClearFilter();
+        return Task.CompletedTask;
+    }
 
     private void OnDiagramNodeAmountChanged(NodeModel _)
     {
@@ -156,14 +160,14 @@ public sealed partial class SearchAndToolsSectionContent : ComponentBase, IDispo
         InvokeAsync(StateHasChanged);
     }
 
-    private void OnDiagramSelectionChanged(SelectableModel _)
+    private async Task OnDiagramSelectionChanged(SelectableModel _)
     {
         _alignEnabled = (SelectionManager.SelectedBlockNodes.Count + SelectionManager.SelectedLabels.Count) >= 2;
         _arrangeEnabled = SelectionManager.SelectedLabels.Count > 0;
         _traceEnabled = SelectionManager.SelectedBlockNodes.Count > 0;
         _selectClearEnabled = SelectionManager.SelectedBlockNodes.Count > 0;
 
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
 
     private void OnFilterAttachedClick()

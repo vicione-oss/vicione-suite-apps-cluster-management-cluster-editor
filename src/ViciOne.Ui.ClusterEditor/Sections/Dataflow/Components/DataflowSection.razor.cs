@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Model;
@@ -30,22 +31,22 @@ public sealed partial class DataflowSection : ComponentBase, IDisposable
 
     public void Dispose()
     {
-        Datastore.BuilderChanged -= OnBuilderChangedAsync;
-        DiagramEventService.ContainerLoaded -= OnContainerLoadedAsync;
+        Datastore.BuilderChanged -= OnBuilderChanged;
+        DiagramEventService.ContainerLoaded -= OnContainerLoaded;
 
-        TreeAdapter.DeleteStarted -= OnDataflowDeleteStartedAsync;
+        TreeAdapter.DeleteStarted -= OnDataflowDeleteStarted;
         _treeBuilder.Selection.SelectionChanged -= OnSelectionChanged;
 
         _treeBuilder.Dispose();
     }
 
-    private async void OnBuilderChangedAsync()
+    private async Task OnBuilderChanged()
     {
         TryInitTreeAdapter();
         await InvokeAsync(StateHasChanged);
     }
 
-    private async void OnCancelClickedAsync()
+    private async Task OnCancelClicked()
         => await _confirmDeleteDialogRef!.CloseAsync();
 
     private void OnClosingDataflowDeleteDialog()
@@ -59,7 +60,7 @@ public sealed partial class DataflowSection : ComponentBase, IDisposable
         }
     }
 
-    private async void OnConfirmDeleteClickedAsync()
+    private async Task OnConfirmDeleteClicked()
     {
         if (_currentDeletingNode is null)
             return;
@@ -70,7 +71,7 @@ public sealed partial class DataflowSection : ComponentBase, IDisposable
         await _confirmDeleteDialogRef!.CloseAsync();
     }
 
-    private async void OnContainerLoadedAsync(Container container)
+    private async Task OnContainerLoaded(Container container)
     {
         if (_currentSelectedNode is not null)
             _treeBuilder.Notifications.NotifyNodeChanged(_currentSelectedNode);
@@ -86,7 +87,7 @@ public sealed partial class DataflowSection : ComponentBase, IDisposable
         Datastore.AddDataflow();
     }
 
-    private async void OnDataflowDeleteStartedAsync(DataflowStructureTreeNode node)
+    private async Task OnDataflowDeleteStarted(DataflowStructureTreeNode node)
     {
         _currentDeletingNode = node;
 
@@ -111,9 +112,9 @@ public sealed partial class DataflowSection : ComponentBase, IDisposable
 
     protected override void OnInitialized()
     {
-        Datastore.BuilderChanged += OnBuilderChangedAsync;
-        DiagramEventService.ContainerLoaded += OnContainerLoadedAsync;
-        TreeAdapter.DeleteStarted += OnDataflowDeleteStartedAsync;
+        Datastore.BuilderChanged += OnBuilderChanged;
+        DiagramEventService.ContainerLoaded += OnContainerLoaded;
+        TreeAdapter.DeleteStarted += OnDataflowDeleteStarted;
 
         _treeBuilder.SetAdapter(TreeAdapter);
         _treeBuilder.Selection.SelectionChanged += OnSelectionChanged;

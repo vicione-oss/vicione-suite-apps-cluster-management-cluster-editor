@@ -7,6 +7,7 @@ using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Behaviors;
 using DevExpress.XtraRichEdit.Layout.Engine;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
@@ -70,7 +71,9 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     [Inject] private IContainerEditorRequest ContainerEditorRequest { get; set; } = default!;
     [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private IDatastore Datastore { get; set; } = default!;
+    [Inject] private ILogger<DiagramEventService> DiagramEventServiceLogger { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
+    [Inject] private ILogger<DiagramService> DiagramServiceLogger { get; set; } = default!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
 
@@ -290,7 +293,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     }
 
     private void InitializeDiagramService()
-        => _diagramService = new(Datastore, new());
+        => _diagramService = new(Datastore, new(DiagramEventServiceLogger), DiagramServiceLogger);
 
     private void Move(ContainerEditorConnector connector, bool isInput, bool moveUp)
     {

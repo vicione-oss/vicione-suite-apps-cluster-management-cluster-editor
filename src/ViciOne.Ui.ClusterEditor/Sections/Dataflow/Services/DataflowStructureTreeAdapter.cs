@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Extensions;
@@ -39,21 +40,24 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
     private readonly DiagramEventService _diagramEventService;
     private readonly DiagramService _diagramService;
     private readonly Dictionary<FunctionBlock, FunctionBlockStructureTreeNode> _functionBlockMap = [];
+    private readonly ILogger<DataflowStructureTreeAdapter> _logger;
     private readonly SelectionManager _selectionManager;
 
-    public event Action<DataflowStructureTreeNode>? DeleteStarted;
+    public event Func<DataflowStructureTreeNode, Task>? DeleteStarted;
 
     public DataflowStructureTreeAdapter(
         ClusterBuilderEventBuffer clusterBuilderEventBuffer,
         IDatastore datastore,
         DiagramService diagramService,
         DiagramEventService diagramEventService,
+        ILogger<DataflowStructureTreeAdapter> logger,
         SelectionManager selectionManager)
     {
         _clusterBuilderEventBuffer = clusterBuilderEventBuffer;
         _datastore = datastore;
         _diagramService = diagramService;
         _diagramEventService = diagramEventService;
+        _logger = logger;
         _selectionManager = selectionManager;
 
         _datastore.ActiveDataflowChanged += UpdateDataflowActiveState;
@@ -114,7 +118,7 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
                 },
                 new NodeButton()
                 {
-                    Action = (s, e) => DeleteStarted?.Invoke(dataflowNode),
+                    Action = (s, e) => DeleteStarted?.InvokeEventAsync(dataflowNode, _logger, nameof(DeleteStarted)),
                     Description = CommonVocabulary.RemoveVerb,
                     EnabledFunc = (e) =>
                         _datastore.ActiveDataflow != dataflowNode.Dataflow

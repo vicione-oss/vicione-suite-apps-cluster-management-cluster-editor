@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using ViciOne.Core.Dataflow.DataModel;
+using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Models;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Library.Services;
 
-internal sealed class LibraryService : ILibraryService
+internal sealed class LibraryService(ILogger<LibraryService> logger) : ILibraryService
 {
     public IEnumerable<LibraryEntry>? DraggingEntries { get; set; } = null!;
     public IEnumerable<LibraryEntry> LibraryEntries { get; private set; } = [];
@@ -14,7 +17,7 @@ internal sealed class LibraryService : ILibraryService
     public event Action? DragEnded;
     public event Action? DragStarted;
     public event Action? EntriesChanged;
-    public event Action<Guid>? FunctionBlockCreationRequested;
+    public event Func<Guid, Task>? FunctionBlockCreationRequested;
 
     private static List<LibraryEntry> CreateEntries(Dictionary<string, List<FunctionBlockDesign>> functionBlockDesignNamespaces, LibraryEntry? parent = null)
     {
@@ -90,6 +93,6 @@ internal sealed class LibraryService : ILibraryService
     public void InvokeDragStarted()
         => DragStarted?.Invoke();
 
-    public void RequestFunctionBlockCreation(Guid designId)
-        => FunctionBlockCreationRequested?.Invoke(designId);
+    public Task RequestFunctionBlockCreation(Guid designId)
+        => FunctionBlockCreationRequested.InvokeEventAsync(designId, logger, nameof(FunctionBlockCreationRequested));
 }

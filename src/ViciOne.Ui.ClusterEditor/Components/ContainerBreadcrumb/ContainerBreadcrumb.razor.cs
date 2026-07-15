@@ -39,15 +39,15 @@ public sealed partial class ContainerBreadcrumb : ComponentBase, IDisposable
     private Container GetCurrentContainer()
         => _bufferedContainer ??= Datastore.ActiveContainer;
 
-    private Task HandleClickAsync(BreadcrumbItem item)
+    private Task HandleClick(BreadcrumbItem item)
         => Datastore.LoadContainer(((BreadcrumbContainerItem)item).Container, DiagramService);
 
-    private async void OnContainerLoaded(Container container)
+    private async Task OnContainerLoaded(Container container)
     {
         _bufferedContainer = container;
         _shouldRecalcCurrentItem = true;
 
-        await RefreshAsync();
+        await Refresh();
     }
 
     private async void OnContainerPropertiesChanged(IEnumerable<(object? sender, System.ComponentModel.PropertyChangedEventArgs e)> changedProperties)
@@ -63,7 +63,7 @@ public sealed partial class ContainerBreadcrumb : ComponentBase, IDisposable
         }
 
         if (shouldRefresh)
-            await RefreshAsync();
+            await Refresh();
     }
 
     private async void OnContainersAdded(IEnumerable<(Container Parent, Container Container)> events)
@@ -81,7 +81,7 @@ public sealed partial class ContainerBreadcrumb : ComponentBase, IDisposable
             }
         }
 
-        await RefreshAsync();
+        await Refresh();
     }
 
     private async void OnContainersRemoved(IEnumerable<(Container Parent, Container Container)> events)
@@ -99,7 +99,7 @@ public sealed partial class ContainerBreadcrumb : ComponentBase, IDisposable
             }
         }
 
-        await RefreshAsync();
+        await Refresh();
     }
 
     protected override void OnInitialized()
@@ -113,7 +113,7 @@ public sealed partial class ContainerBreadcrumb : ComponentBase, IDisposable
         DiagramEventService.ContainerLoaded += OnContainerLoaded;
     }
 
-    private async Task RefreshAsync()
+    private async Task Refresh()
     {
         if (_shouldRecalcCurrentItem)
         {

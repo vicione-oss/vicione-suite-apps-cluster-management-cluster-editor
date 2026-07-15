@@ -61,8 +61,11 @@ public sealed partial class TopologySectionContent : IDisposable
             _elementsAddedWhileFiltered++;
     }
 
-    private void OnBuilderChanged()
-        => TryInitTreeAdapter();
+    private Task OnBuilderChanged()
+    {
+        TryInitTreeAdapter();
+        return Task.CompletedTask;
+    }
 
     private void OnCollapseAllGroups()
         => _treeBuilder.Expansion.ChangeExpansionForLayers(false);

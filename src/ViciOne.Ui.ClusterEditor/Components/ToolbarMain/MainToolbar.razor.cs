@@ -19,8 +19,8 @@ public sealed partial class MainToolbar : ComponentBase, IDisposable
 
     public void Dispose()
     {
-        FullscreenService.FullscreenStateChanged -= OnFullscreenStateChangedAsync;
-        SelectionManager.DiagramSelectionChanged -= OnSelectionChangedAsync;
+        FullscreenService.FullscreenStateChanged -= OnFullscreenStateChanged;
+        SelectionManager.DiagramSelectionChanged -= OnSelectionChanged;
 
         GC.SuppressFinalize(this);
     }
@@ -28,27 +28,27 @@ public sealed partial class MainToolbar : ComponentBase, IDisposable
     protected override void OnAfterRender(bool firstRender)
     {
         if (firstRender)
-            SelectionManager.DiagramSelectionChanged += OnSelectionChangedAsync;
+            SelectionManager.DiagramSelectionChanged += OnSelectionChanged;
     }
 
-    private async void OnFullscreenStateChangedAsync(bool isFullscreen)
+    private async Task OnFullscreenStateChanged(bool isFullscreen)
     {
         _isFullscreen = isFullscreen;
         await InvokeAsync(StateHasChanged);
     }
 
     protected override void OnInitialized()
-        => FullscreenService.FullscreenStateChanged += OnFullscreenStateChangedAsync;
+        => FullscreenService.FullscreenStateChanged += OnFullscreenStateChanged;
 
     private void OnNodeAlignRequested(Alignment align)
         => align.ApplyToSelection(SelectionManager);
 
-    private async void OnSelectionChangedAsync(SelectableModel _)
+    private async Task OnSelectionChanged(SelectableModel _)
     {
         _alignButtonsEnabledState = SelectionManager.SelectedBlockNodes.Count + SelectionManager.SelectedLabels.Count >= 2 && DiagramService.DiagramState.IsInitialized;
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task OnToggleFullscreenClickAsync()
-        => await FullscreenService.ToggleFullscreenAsync();
+    private async Task OnToggleFullscreenClick()
+        => await FullscreenService.ToggleFullscreen();
 }

@@ -1,20 +1,22 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Model;
+using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 
 namespace ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
-public sealed class DiagramEventService
+public sealed class DiagramEventService(ILogger<DiagramEventService> logger)
 {
     public Func<bool> ContextMenuAllowed { get; set; } = () => true;
 
     public event Action? BlockNodesUpdateRequested;
     public event Func<Task>? CloseContextMenuRequested;
     public event Action<ChildContainer>? ContainerAdded;
-    public event Action<Container>? ContainerLoaded;
+    public event Func<Container, Task>? ContainerLoaded;
     public event Action<ChildContainer>? ContainerRemoved;
     public event Func<Task>? DiagramFocusRequested;
     public event Action? DiagramPointerLeave;
@@ -30,7 +32,7 @@ public sealed class DiagramEventService
     public event Func<GridMode, Task>? GridModeChangeRequested;
     public event Action? MinimapColoringChanged;
     public event Action<bool>? MinimapVisibilityChangeRequested;
-    public event Action<bool>? NodeAlignmentBorderVisibilityChanged;
+    public event Func<bool, Task>? NodeAlignmentBorderVisibilityChanged;
     public event Action<bool>? PanBehaviorChangeRequested;
     public event Action<bool>? SimplifiedViewChangeRequested;
     public event Action<double>? ZoomChanged;
@@ -42,8 +44,8 @@ public sealed class DiagramEventService
     public void InvokeContainerAdded(ChildContainer container)
         => ContainerAdded?.Invoke(container);
 
-    public void InvokeContainerLoaded(Container container)
-        => ContainerLoaded?.Invoke(container);
+    public Task InvokeContainerLoaded(Container container)
+        => ContainerLoaded.InvokeEventAsync(container, logger, nameof(ContainerLoaded));
 
     public void InvokeContainerRemoved(ChildContainer container)
         => ContainerRemoved?.Invoke(container);
@@ -72,8 +74,8 @@ public sealed class DiagramEventService
     public void InvokeMinimapColoringChanged()
         => MinimapColoringChanged?.Invoke();
 
-    public void InvokeNodeAlignmentBorderVisibilityChanged(bool isVisible)
-        => NodeAlignmentBorderVisibilityChanged?.Invoke(isVisible);
+    public Task InvokeNodeAlignmentBorderVisibilityChanged(bool isVisible)
+        => NodeAlignmentBorderVisibilityChanged.InvokeEventAsync(isVisible, logger, nameof(NodeAlignmentBorderVisibilityChanged));
 
     public void InvokeZoomChanged(double newZoom)
         => ZoomChanged?.Invoke(newZoom);

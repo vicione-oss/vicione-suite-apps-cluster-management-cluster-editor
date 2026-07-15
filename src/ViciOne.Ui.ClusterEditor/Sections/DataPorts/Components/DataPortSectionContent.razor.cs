@@ -66,14 +66,14 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
 
     public void Dispose()
     {
-        Datastore.BuilderChanged -= OnBuilderChangedAsync;
-        Datastore.ForcedRefreshRequested -= OnBuilderChangedAsync;
+        Datastore.BuilderChanged -= OnBuilderChanged;
+        Datastore.ForcedRefreshRequested -= OnBuilderChanged;
         DragService.DraggingEnded -= OnConnectorDraggingEnded;
         DragService.DraggingStarted -= OnConnectorDraggingStarted;
         LinkDestinationDialogService.DataPortTreeNodeSelected -= OnDataPortTreeNodeSelected;
 
         TreeAdapter.OnDeleteNodeUserConfirmationRequest = null;
-        TreeAdapter.DataPortWithLinksDoubleClicked -= OnDataPortWithLinksDoubleClickedAsync;
+        TreeAdapter.DataPortWithLinksDoubleClicked -= OnDataPortWithLinksDoubleClicked;
         _treeBuilder.Notifications.RootNodesUpdated -= OnRootNodesUpdated;
         _treeBuilder.Dispose();
 
@@ -110,9 +110,9 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
             GetPossibleTargetNodes(node, connector, nodesToHighlight);
     }
 
-    private async Task OnAddDataPortClickedAsync(MouseEventArgs args)
+    private async Task OnAddDataPortClicked(MouseEventArgs args)
     {
-        await RefreshPossibleDataPortsAsync();
+        await RefreshPossibleDataPorts();
         await AddDataPortContextMenuRequest.SendAsync(new AddDataPortContextMenuContext
         {
             AddDataPortContextMenuItems = _addDataPortContextMenuItems,
@@ -128,12 +128,12 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
             _elementsAddedWhileFiltered++;
     }
 
-    private async void OnBuilderChangedAsync()
+    private async Task OnBuilderChanged()
     {
         CreateEditTemplateContext();
         TryInitDataPortTree();
         await UpdateGroupingButtonState();
-        await RefreshPossibleDataPortsAsync();
+        await RefreshPossibleDataPorts();
     }
 
     private void OnCollapseAllGroups()
@@ -184,7 +184,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         treeNode.ScrollToNode(TreeAdapter.Builder);
     }
 
-    private async void OnDataPortWithLinksDoubleClickedAsync(ITreeNode node)
+    private async Task OnDataPortWithLinksDoubleClicked(ITreeNode node)
     {
         var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeIds[((GuidNodeIdentifier)node.Id).Value];
         var linksCount = dataPortTreeNode?.Links.Count() ?? 0;
@@ -207,7 +207,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         }
     }
 
-    private async Task OnDeleteNodeCancelAsync()
+    private async Task OnDeleteNodeCancel()
     {
         if (_confirmDeleteDialogRef is null)
             return;
@@ -216,7 +216,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         await InvokeAsync(StateHasChanged);
     }
 
-    private async Task OnDeleteNodeConfirmAsync()
+    private async Task OnDeleteNodeConfirm()
     {
         if (_confirmDeleteDialogAction is not null)
             _confirmDeleteDialogAction();
@@ -228,7 +228,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         await InvokeAsync(StateHasChanged);
     }
 
-    private async void OnDeleteNodeUserConfirmationRequestAsync(ITreeNode node, Action action)
+    private async void OnDeleteNodeUserConfirmationRequest(ITreeNode node, Action action)
     {
         if (node is not DataPortNodeModel treeNode || treeNode.Children.Count == 0)
         {
@@ -247,15 +247,15 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
 
     protected override async Task OnInitializedAsync()
     {
-        Datastore.BuilderChanged += OnBuilderChangedAsync;
-        Datastore.ForcedRefreshRequested += OnBuilderChangedAsync;
+        Datastore.BuilderChanged += OnBuilderChanged;
+        Datastore.ForcedRefreshRequested += OnBuilderChanged;
         DragService.DraggingStarted += OnConnectorDraggingStarted;
         LinkDestinationDialogService.DataPortTreeNodeSelected += OnDataPortTreeNodeSelected;
 
         _treeBuilder.SetAdapter(TreeAdapter);
         TreeAdapter.Initialize();
-        TreeAdapter.OnDeleteNodeUserConfirmationRequest = OnDeleteNodeUserConfirmationRequestAsync;
-        TreeAdapter.DataPortWithLinksDoubleClicked += OnDataPortWithLinksDoubleClickedAsync;
+        TreeAdapter.OnDeleteNodeUserConfirmationRequest = OnDeleteNodeUserConfirmationRequest;
+        TreeAdapter.DataPortWithLinksDoubleClicked += OnDataPortWithLinksDoubleClicked;
 
         _treeBuilder.Notifications.RootNodesUpdated += OnRootNodesUpdated;
 
@@ -266,7 +266,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         CreateEditTemplateContext();
         await UpdateGroupingButtonState();
 
-        await RefreshPossibleDataPortsAsync();
+        await RefreshPossibleDataPorts();
     }
 
     private void OnPossibleChildNodeClicked(DataPortNodeModel parentNode, DataPortChildNodeModel childNode)
@@ -322,7 +322,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
     [LoggerMessage(Level = LogLevel.Error, Message = "Failed to reassign builder with cluster id:{ClusterId} v{Version}.")]
     public static partial void ReassignBuilderFailed(ILogger logger, Exception ex, Guid ClusterId, Version Version);
 
-    private async Task RefreshPossibleDataPortsAsync()
+    private async Task RefreshPossibleDataPorts()
     {
         _addDataPortContextMenuItems = RulesetProvider
             .GetRulesetIdentifiers(DataPortTreeAdapter.DataPortCategory)

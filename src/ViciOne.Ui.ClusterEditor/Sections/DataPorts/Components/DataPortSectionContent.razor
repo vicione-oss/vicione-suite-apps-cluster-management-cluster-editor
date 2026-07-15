@@ -10,7 +10,7 @@
 <SectionLayout>
     <ActionButtons>
         <SectionActionButton IconCssClass="@_plusIconCssClass"
-                             OnClick="@OnAddDataPortClickedAsync"
+                             OnClick="@OnAddDataPortClicked"
                              Title="@Localization.DataPortSection.NewDataPort" />
     </ActionButtons>
 
@@ -58,10 +58,10 @@
     </Body>
 
     <Footer>
-        <DialogFooterButton OnClick="@OnDeleteNodeConfirmAsync"
+        <DialogFooterButton OnClick="@OnDeleteNodeConfirm"
                             Text="@CommonVocabulary.Yes" />
 
-        <DialogFooterButton OnClick="@OnDeleteNodeCancelAsync"
+        <DialogFooterButton OnClick="@OnDeleteNodeCancel"
                             Text="@CommonVocabulary.No" />
     </Footer>
 </Dialog>

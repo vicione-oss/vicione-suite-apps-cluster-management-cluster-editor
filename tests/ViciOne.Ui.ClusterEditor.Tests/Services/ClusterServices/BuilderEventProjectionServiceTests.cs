@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Reflection;
 using AwesomeAssertions;
 using Blazor.Diagrams.Core.Models;
+using Microsoft.Extensions.Logging.Abstractions;
 using NSubstitute;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
@@ -23,7 +24,7 @@ public sealed class BuilderEventProjectionServiceTests : IDisposable
     private readonly List<BlockNodeLink> _createdLinks = [];
     private readonly List<BlockNodeLink> _linkRemovals = [];
     private readonly List<string> _propertyChanges = [];
-    private readonly DatastoreState _state = new();
+    private readonly DatastoreState _state = new(NullLogger<DatastoreState>.Instance);
     private readonly BuilderEventProjectionService _sut;
 
     public BuilderEventProjectionServiceTests()

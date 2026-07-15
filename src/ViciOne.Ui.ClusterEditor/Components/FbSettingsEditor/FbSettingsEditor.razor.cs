@@ -49,7 +49,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        FbSettingsEditorRequest.FbSettingsEditorRequested -= OnFbSettingsEditorRequestedAsync;
+        FbSettingsEditorRequest.FbSettingsEditorRequested -= OnFbSettingsEditorRequested;
         FullscreenService.FullscreenStateChanged -= OnFullscreenStateChanged;
 
         _refObject?.Dispose();
@@ -145,7 +145,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
         }
     }
 
-    private async Task OnCloseAsync()
+    private async Task OnClose()
     {
         if (_refDialog is null)
             return;
@@ -156,18 +156,18 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
     private static void OnCustomizeEditModel(GridCustomizeEditModelEventArgs e)
         => e.EditModel = ((IGrouping<string, FbSetting>)e.DataItem).First();
 
-    private async void OnDialogClosingAsync()
+    private async Task OnDialogClosing()
     {
         if (_jsModule is not null)
             await _jsModule.InvokeVoidAsync("removeEscEventListener");
 
         if (_isFullscreen)
-            await FullscreenService.SetFullscreenAsync(false);
+            await FullscreenService.SetFullscreen(false);
 
         _searchText = string.Empty;
     }
 
-    private async Task OnDialogOkAsync()
+    private async Task OnDialogOk()
     {
         foreach (var setting in
             from settingGroup in _settings
@@ -181,7 +181,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
             await _refDialog.CloseAsync();
     }
 
-    private async void OnDialogShowingAsync()
+    private async Task OnDialogShowing()
     {
         _refObject ??= DotNetObjectReference.Create(this);
 
@@ -190,24 +190,24 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
     }
 
     [JSInvokable]
-    public async Task OnEscCapturedAsync()
+    public async Task OnEscCaptured()
     {
         if (_isEditmodeActive && _refGrid is not null)
             await _refGrid.CancelEditAsync();
     }
 
-    private async Task OnFbSettingsEditorRequestedAsync()
-        => await ShowAsync();
+    private async Task OnFbSettingsEditorRequested()
+        => await Show();
 
-    private async Task OnFullscreenButtonClickedAsync()
-        => await ToggleFullscreenAsync();
+    private async Task OnFullscreenButtonClicked()
+        => await ToggleFullscreen();
 
-    private void OnFullscreenStateChanged(bool isFullscreen)
+    private async Task OnFullscreenStateChanged(bool isFullscreen)
     {
         _isFullscreen = isFullscreen;
         if (!_isEditmodeActive)
             _closeOnEscape = !isFullscreen;
-        InvokeAsync(StateHasChanged);
+        await InvokeAsync(StateHasChanged);
     }
 
     private void OnGridEditCancelling(GridEditCancelingEventArgs e)
@@ -246,7 +246,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
 
     protected override void OnInitialized()
     {
-        FbSettingsEditorRequest.FbSettingsEditorRequested += OnFbSettingsEditorRequestedAsync;
+        FbSettingsEditorRequest.FbSettingsEditorRequested += OnFbSettingsEditorRequested;
         FullscreenService.FullscreenStateChanged += OnFullscreenStateChanged;
     }
 
@@ -259,7 +259,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
             e.Value = GetCellValue(e.FieldName, (IGrouping<string, FbSetting>)e.DataItem)?.ToString() ?? string.Empty;
     }
 
-    private async Task OnValueBindingSetAsync(
+    private async Task OnValueBindingSet(
         string fbName,
         IGrouping<string, FbSetting> settingGroup,
         object? value)
@@ -294,7 +294,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
             _initialEditValues[setting.FbName] = setting.Value;
     }
 
-    private async Task ShowAsync()
+    private async Task Show()
     {
         var fbCount = SelectionManager.SelectedFBs.Count;
 
@@ -308,12 +308,12 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
             await _refDialog.ShowAsync();
     }
 
-    private async Task ToggleFullscreenAsync()
+    private async Task ToggleFullscreen()
     {
         if (_refDialog is not null)
         {
             _isFullscreen = !_isFullscreen;
-            await FullscreenService.SetFullscreenAsync(_isFullscreen);
+            await FullscreenService.SetFullscreen(_isFullscreen);
             _closeOnEscape = !_isFullscreen;
             await InvokeAsync(StateHasChanged);
         }

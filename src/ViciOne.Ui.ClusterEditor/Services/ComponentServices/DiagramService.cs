@@ -1,5 +1,7 @@
 ﻿using System;
 using Blazor.Diagrams.Core;
+using Microsoft.Extensions.Logging;
+using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.ComponentStates;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
@@ -11,15 +13,17 @@ public sealed class DiagramService : IDisposable
 {
     private readonly IDatastore _datastore;
     private readonly DiagramEventService _diagramEventService;
+    private readonly ILogger<DiagramService> _logger;
 
     public Diagram Diagram { get; set; } = default!;
     public DiagramState DiagramState { get; } = new();
     public BlockNodeLink? DraggingLink { get; set; }
 
-    public DiagramService(IDatastore datastore, DiagramEventService diagramEventService)
+    public DiagramService(IDatastore datastore, DiagramEventService diagramEventService, ILogger<DiagramService> logger)
     {
         _datastore = datastore;
         _diagramEventService = diagramEventService;
+        _logger = logger;
 
         _datastore.ConnectorLinkRemoved += OnConnectorLinkRemoved;
     }
@@ -144,7 +148,7 @@ public sealed class DiagramService : IDisposable
             return;
 
         DiagramState.IsNodeAlignmentBorderVisible = isVisible;
-        _diagramEventService.InvokeNodeAlignmentBorderVisibilityChanged(isVisible);
+        AsyncGuard.SafeFireAndForget(() => _diagramEventService.InvokeNodeAlignmentBorderVisibilityChanged(isVisible), _logger);
     }
 
     public void SetZoom(double newZoom)

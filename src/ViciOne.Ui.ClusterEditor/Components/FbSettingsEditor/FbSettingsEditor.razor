@@ -15,8 +15,8 @@
         HeaderText="@($"{LocalTechnicalTerms.FunctionBlock} - {CommonVocabulary.SettingPlural}")"
         Height="@(_isFullscreen ? DialogSizes.FullscreenHeight : DialogSizes.LargeHeight)"
         PreventBrowserContextMenu="@ContextMenuSettings.UseCustomMenu"
-        OnClosing="@OnDialogClosingAsync"
-        OnShowing="@OnDialogShowingAsync"
+        OnClosing="@OnDialogClosing"
+        OnShowing="@OnDialogShowing"
         Width="@(_isFullscreen ? DialogSizes.FullscreenWidth : DialogSizes.LargeWidth)">
 
     <HeaderSlot>
@@ -44,7 +44,7 @@
 
                 <ToolbarButton Active="@_isFullscreen"
                                IconName="@MonochromeIconName.FullSizeLight"
-                               OnClick="@OnFullscreenButtonClickedAsync"
+                               OnClick="@OnFullscreenButtonClicked"
                                Text="@TechnicalTerms.Fullscreen"
                                TextVisibility="@TextVisibility.MenuOnly" />
             </ToolbarGroup>
@@ -141,7 +141,7 @@
                                              @onpointerdown:stopPropagation>
 
                                             <UniversalInput @bind-Value:get="@GetCellValue(fbName, dataItem)"
-                                                            @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
+                                                            @bind-Value:set="@((e) => OnValueBindingSet(fbName, dataItem, e))"
                                                             ValueType="@setting.SettingType" />
                                         </div>
 
@@ -210,7 +210,7 @@
                                                  @onpointerdown:stopPropagation>
 
                                                 <UniversalInput @bind-Value:get="@setting.Value"
-                                                                @bind-Value:set="@((e) => OnValueBindingSetAsync(fbName, dataItem, e))"
+                                                                @bind-Value:set="@((e) => OnValueBindingSet(fbName, dataItem, e))"
                                                                 ValueType="@setting.SettingType" />
                                             </div>
 
@@ -242,10 +242,10 @@
     </Body>
 
     <Footer>
-        <DialogFooterButton OnClick="@OnDialogOkAsync"
+        <DialogFooterButton OnClick="@OnDialogOk"
                             Text="@CommonVocabulary.Ok" />
 
-        <DialogFooterButton OnClick="@OnCloseAsync"
+        <DialogFooterButton OnClick="@OnClose"
                             Text="@CommonVocabulary.Cancel" />
     </Footer>
 </Dialog>

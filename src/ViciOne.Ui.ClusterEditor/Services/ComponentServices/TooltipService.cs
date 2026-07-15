@@ -76,8 +76,11 @@ public sealed class TooltipService : IDisposable
         return -1;
     }
 
-    private void OnDiagramContainerLoaded(Container _)
-        => Reset();
+    private Task OnDiagramContainerLoaded(Container _)
+    {
+        Reset();
+        return Task.CompletedTask;
+    }
 
     private void OnDiagramContainerRemoved(Container _)
         => Reset();
