@@ -24,6 +24,8 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Debugging.Components;
 
 public sealed partial class DebugSectionContent : ComponentBase
 {
+    private const int MaxConsecutiveFailures = 20;
+
     private bool _debugPopupVisible;
     private readonly string _generateAllFbsText = CompositeFormats.GenerateSomething($"{CommonVocabulary.All} {TechnicalTerms.FunctionBlockPlural}");
     private int _generateBlocksAmount = 25;
@@ -71,58 +73,77 @@ public sealed partial class DebugSectionContent : ComponentBase
     }
 
     [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
-    private bool GenerateDataPortLink()
+    private void GenerateDataPortLinks(int amount)
     {
+        var dataPortEditor = Datastore.Builder.Editors.DataPortTreeNode;
         var cache = Datastore.Builder.Cache;
+
         var dataPortTreeNodes = cache.DataPortTreeNodes.Where(n => n.ValueType is not null).ToList();
-        if (dataPortTreeNodes.Count == 0)
-            return false;
-        var dataPortTreeNode = dataPortTreeNodes[_rnd.Next(dataPortTreeNodes.Count)];
+        var candidateConnectors = cache.Connectors.Where(c => c.Type != ConnectorType.Setting).ToList();
+        if (dataPortTreeNodes.Count == 0 || candidateConnectors.Count == 0)
+            return;
 
-        var validConnectors = cache.Connectors
-            .Where(c => c.Type != ConnectorType.Setting)
-            .Where(c => Datastore.Builder.Editors.DataPortTreeNode.CanAssignConnector(dataPortTreeNode, c))
-            .ToList();
+        var created = 0;
+        var consecutiveFailures = 0;
+        while (created < amount && consecutiveFailures < MaxConsecutiveFailures)
+        {
+            var dataPortTreeNode = dataPortTreeNodes[_rnd.Next(dataPortTreeNodes.Count)];
 
-        if (validConnectors.Count == 0)
-            return false;
-        var connector = validConnectors[_rnd.Next(validConnectors.Count)];
+            var validConnectors = candidateConnectors
+                .Where(c => dataPortEditor.CanAssignConnector(dataPortTreeNode, c))
+                .ToList();
+            if (validConnectors.Count == 0)
+            {
+                consecutiveFailures++;
+                continue;
+            }
 
-        Datastore.Builder.Editors.DataPortTreeNode.AssignConnector(dataPortTreeNode, connector);
+            var connector = validConnectors[_rnd.Next(validConnectors.Count)];
+            dataPortEditor.AssignConnector(dataPortTreeNode, connector);
 
-        return true;
+            consecutiveFailures = 0;
+            created++;
+        }
     }
 
     [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
-    private bool GenerateHiddenLink()
+    private void GenerateHiddenLinks(int amount)
     {
         var connectorEditor = Datastore.Builder.Editors.Connector;
         var allConnectors = Datastore.Builder.Cache.Connectors.Where(c => c.Type != ConnectorType.Setting).ToList();
 
         var outputConnectors = allConnectors.OfType<IConnectorOutput>().ToList();
-        if (outputConnectors.Count == 0)
-            return false;
-        var sourceConnector = outputConnectors[_rnd.Next(outputConnectors.Count)];
-
         var inputConnectors = allConnectors.OfType<IConnectorInput>().ToList();
-        if (inputConnectors.Count == 0)
-            return false;
+        if (outputConnectors.Count == 0 || inputConnectors.Count == 0)
+            return;
 
-        var validDestinationConnectors = inputConnectors
-            .Where(c => connectorEditor.CanCreateLink(sourceConnector, c, false))
-            .ToList();
-        if (validDestinationConnectors.Count == 0)
-            return false;
-        var destinationConnector = validDestinationConnectors[_rnd.Next(validDestinationConnectors.Count)];
+        var created = 0;
+        var consecutiveFailures = 0;
+        while (created < amount && consecutiveFailures < MaxConsecutiveFailures)
+        {
+            var sourceConnector = outputConnectors[_rnd.Next(outputConnectors.Count)];
 
-        connectorEditor.SetPublished(_rnd.NextDouble() < 0.5 ? sourceConnector : destinationConnector, true);
-        var link = connectorEditor.AddLink(sourceConnector, destinationConnector, false);
+            var validDestinationConnectors = inputConnectors
+                .Where(c => connectorEditor.CanCreateLink(sourceConnector, c, false))
+                .ToList();
+            if (validDestinationConnectors.Count == 0)
+            {
+                consecutiveFailures++;
+                continue;
+            }
 
-        return true;
+            var destinationConnector = validDestinationConnectors[_rnd.Next(validDestinationConnectors.Count)];
+
+            connectorEditor.SetPublished(_rnd.NextDouble() < 0.5 ? sourceConnector : destinationConnector, true);
+            connectorEditor.AddLink(sourceConnector, destinationConnector, false);
+
+            consecutiveFailures = 0;
+            created++;
+        }
     }
 
     [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
-    private bool GenerateVisibleLink()
+    private void GenerateVisibleLinks(int amount)
     {
         var connectorEditor = Datastore.Builder.Editors.Connector;
         var visibleBlocks = Datastore.ActiveContainer.FunctionBlocks;
@@ -130,24 +151,36 @@ public sealed partial class DebugSectionContent : ComponentBase
 
         var outputConnectors = visibleBlocks.SelectMany(b => b.Outputs)
             .Union(visibleContainers.SelectMany(c => c.GetConnectors().OfType<IConnectorOutput>())).ToList();
-        if (outputConnectors.Count == 0)
-            return false;
-        var sourceConnector = outputConnectors[_rnd.Next(outputConnectors.Count)];
-
         var inputConnectors = visibleBlocks.SelectMany(b => b.Inputs)
             .Union(visibleContainers.SelectMany(c => c.GetConnectors().OfType<IConnectorInput>())).ToList();
-        var validDestinationConnectors = inputConnectors.Where(c => connectorEditor.CanCreateLink(sourceConnector, c, true)).ToList();
+        if (outputConnectors.Count == 0 || inputConnectors.Count == 0)
+            return;
 
-        if (validDestinationConnectors.Count == 0)
-            return false;
-        var destinationConnector = validDestinationConnectors[_rnd.Next(validDestinationConnectors.Count)];
+        var created = 0;
+        var consecutiveFailures = 0;
+        while (created < amount && consecutiveFailures < MaxConsecutiveFailures)
+        {
+            var sourceConnector = outputConnectors[_rnd.Next(outputConnectors.Count)];
 
-        var link = connectorEditor.AddLink(sourceConnector, destinationConnector);
-        var nodeLink = LinkMapper.CreateLink(Datastore, link);
-        Datastore.DataflowDiagramMapping.Add(link, nodeLink);
-        DiagramService.Diagram.Links.Add(nodeLink);
+            var validDestinationConnectors = inputConnectors
+                .Where(c => connectorEditor.CanCreateLink(sourceConnector, c, true))
+                .ToList();
+            if (validDestinationConnectors.Count == 0)
+            {
+                consecutiveFailures++;
+                continue;
+            }
 
-        return true;
+            var destinationConnector = validDestinationConnectors[_rnd.Next(validDestinationConnectors.Count)];
+
+            var link = connectorEditor.AddLink(sourceConnector, destinationConnector);
+            var nodeLink = LinkMapper.CreateLink(Datastore, link);
+            Datastore.DataflowDiagramMapping.Add(link, nodeLink);
+            DiagramService.Diagram.Links.Add(nodeLink);
+
+            consecutiveFailures = 0;
+            created++;
+        }
     }
 
     private async Task OnGenerateAllLibraryBlocksClickAsync()
@@ -168,34 +201,22 @@ public sealed partial class DebugSectionContent : ComponentBase
         if (_generateLinksAmount < 1)
             return;
 
-        var targetAmount = _generateLinksAmount;
-        var currentAmount = 0;
-        var availableTries = 20;
+        ClusterBuilderEventBuffer.StartBatchOpertation();
 
-        while (currentAmount < targetAmount && availableTries > 0)
+        switch (type)
         {
-            switch (type)
-            {
-                case GenerateLinksType.Visible:
-                    if (GenerateVisibleLink())
-                        currentAmount++;
-                    else
-                        availableTries--;
-                    break;
-                case GenerateLinksType.Hidden:
-                    if (GenerateHiddenLink())
-                        currentAmount++;
-                    else
-                        availableTries--;
-                    break;
-                case GenerateLinksType.DataPort:
-                    if (GenerateDataPortLink())
-                        currentAmount++;
-                    else
-                        availableTries--;
-                    break;
-            }
+            case GenerateLinksType.Visible:
+                GenerateVisibleLinks(_generateLinksAmount);
+                break;
+            case GenerateLinksType.Hidden:
+                GenerateHiddenLinks(_generateLinksAmount);
+                break;
+            case GenerateLinksType.DataPort:
+                GenerateDataPortLinks(_generateLinksAmount);
+                break;
         }
+
+        ClusterBuilderEventBuffer.EndBatchOperation();
     }
 
     private void OnGridModeChanged(GridMode item)
