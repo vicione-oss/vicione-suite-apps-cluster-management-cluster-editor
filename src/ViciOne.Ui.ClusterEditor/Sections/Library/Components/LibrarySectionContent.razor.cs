@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
+using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Models;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Services;
@@ -22,6 +24,7 @@ public sealed partial class LibrarySectionContent : ComponentBase, IDisposable
 
     [Inject] private IClusterEditorManagementInternal DataManagementService { get; set; } = default!;
     [Inject] private ILibraryService LibraryService { get; set; } = default!;
+    [Inject] private ILogger<LibrarySectionContent> Logger { get; set; } = default!;
 
     public void Dispose()
     {
@@ -70,7 +73,7 @@ public sealed partial class LibrarySectionContent : ComponentBase, IDisposable
     }
 
     private void OnTreeDblClick(LibraryTreeNode tNode)
-        => LibraryService.RequestFunctionBlockCreation(tNode.LibraryEntry.UniqueId);
+        => AsyncGuard.SafeFireAndForget(() => LibraryService.RequestFunctionBlockCreation(tNode.LibraryEntry.UniqueId), Logger);
 
     private void OnTreeDragStarted(IEnumerable<ITreeNode> treeNodes)
     {

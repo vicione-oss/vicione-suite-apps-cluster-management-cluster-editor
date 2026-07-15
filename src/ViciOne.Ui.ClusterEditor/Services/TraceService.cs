@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
@@ -65,8 +66,11 @@ public sealed class TraceService(ClusterBuilderEventBuffer clusterBuilderEventBu
         _lastTraceOptions = null;
     }
 
-    private void OnContainerLoaded(Container _)
-        => ClearTrace();
+    private Task OnContainerLoaded(Container _)
+    {
+        ClearTrace();
+        return Task.CompletedTask;
+    }
 
     private void Refresh(IEnumerable<Link> links)
     {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Models;
@@ -90,16 +91,18 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
         Builder.Helper.Preload();
     }
 
-    private void OnContainerLoaded(Container container)
+    private Task OnContainerLoaded(Container container)
     {
         if (container is not ChildContainer childContainer)
-            return;
+            return Task.CompletedTask;
 
         _containerMap.TryAdd(childContainer, new ContainerStructureTreeNode()
         {
             ChildContainer = childContainer,
             Name = childContainer.Name,
         });
+
+        return Task.CompletedTask;
     }
 
     private void OnContainerPropertiesChanged(IEnumerable<(object? sender, System.ComponentModel.PropertyChangedEventArgs e)> changedProperties)

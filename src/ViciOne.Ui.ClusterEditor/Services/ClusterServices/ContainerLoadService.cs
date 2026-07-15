@@ -61,7 +61,7 @@ internal sealed partial class ContainerLoadService(
         state.SetBuilder(builder);
         clusterBuilderEventBuffer.SetBuilder(builder);
 
-        state.InvokeBuilderChanged();
+        await state.InvokeBuilderChanged();
 
         var currentDataflow = state.Builder.Cluster.Dataflows[0];
 
@@ -193,10 +193,10 @@ internal sealed partial class ContainerLoadService(
         builderEvents.Attach();
         diagramService.DiagramState.SuppressEvents = false;
 
-        diagramEventService.InvokeContainerLoaded(state.ActiveContainer);
+        await diagramEventService.InvokeContainerLoaded(state.ActiveContainer);
 
         if (force)
-            state.InvokeForcedRefreshRequested();
+            await state.InvokeForcedRefreshRequested();
     }
 
     public void SaveViewport(DiagramService diagramService)

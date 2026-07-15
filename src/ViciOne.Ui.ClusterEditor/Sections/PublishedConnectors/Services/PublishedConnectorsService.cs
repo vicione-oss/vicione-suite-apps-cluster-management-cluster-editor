@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Geometry;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
@@ -127,8 +128,11 @@ internal sealed class PublishedConnectorsService : IDisposable
         DraggingPublishedConnectorPositionChanged?.Invoke(position, targetBlockNodeConnector is not null);
     }
 
-    private void OnClusterBuilderChanged()
-        => UpdatePublishedConnectorEntries();
+    private Task OnClusterBuilderChanged()
+    {
+        UpdatePublishedConnectorEntries();
+        return Task.CompletedTask;
+    }
 
     private void OnClusterStateChanged<T>(IEnumerable<T> _)
         => UpdatePublishedConnectorEntries();

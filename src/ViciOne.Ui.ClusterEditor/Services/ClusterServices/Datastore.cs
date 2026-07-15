@@ -42,7 +42,7 @@ internal sealed class Datastore : IDatastore
         remove => _state.ActiveDataflowChanged -= value;
     }
 
-    public event Action? BuilderChanged
+    public event Func<Task>? BuilderChanged
     {
         add => _state.BuilderChanged += value;
         remove => _state.BuilderChanged -= value;
@@ -60,7 +60,7 @@ internal sealed class Datastore : IDatastore
         remove => _state.ContainerPropertyChanged -= value;
     }
 
-    public event Action? ForcedRefreshRequested
+    public event Func<Task>? ForcedRefreshRequested
     {
         add => _state.ForcedRefreshRequested += value;
         remove => _state.ForcedRefreshRequested -= value;

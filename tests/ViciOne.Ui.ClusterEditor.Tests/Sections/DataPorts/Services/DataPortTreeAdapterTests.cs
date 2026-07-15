@@ -38,11 +38,11 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         _mockContextMenuRequest = Substitute.For<IContextMenuRequest<DataPortAddChildNodeContextMenuContext>>();
         _eventBuffer = new();
         _datastore = Substitute.For<IDatastore>();
-        _diagramService = new(_datastore, new())
+        _diagramService = new(_datastore, new(Substitute.For<ILogger<DiagramEventService>>()), Substitute.For<ILogger<DiagramService>>())
         {
             Diagram = new BlazorDiagram()
         };
-        _dragService = new(new(), _diagramService, new());
+        _dragService = new(new(Substitute.For<ILogger<DiagramEventService>>()), _diagramService, new());
         _mockRulesetProvider = Substitute.For<IRulesetProvider>();
         _mockLogger = Substitute.For<ILogger<DataPortTreeAdapter>>();
         _mockDataManagementService = Substitute.For<IClusterEditorManagementInternal>();

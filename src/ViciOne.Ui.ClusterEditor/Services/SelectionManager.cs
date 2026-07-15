@@ -5,14 +5,16 @@ using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.Models.Base;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
-public sealed class SelectionManager(DiagramService diagramService, IJSRuntime jsRuntime) : IDisposable
+public sealed class SelectionManager(DiagramService diagramService, IJSRuntime jsRuntime, ILogger<SelectionManager> logger) : IDisposable
 {
     private List<BlockNode>? _selectedBlockNodesCache;
     private readonly List<ConnectorMarker> _selectedConnectorMarker = [];
@@ -51,7 +53,7 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
        .. SelectedFBs, .. SelectedLabels, .. SelectedLinks, .. SelectedConnectorMarker];
 
     public event Action<IEnumerable<BlockNodeConnector>>? ConnectorSelectionChanged;
-    public event Action<SelectableModel>? DiagramSelectionChanged;
+    public event Func<SelectableModel, Task>? DiagramSelectionChanged;
 
     public void AttachDiagramEvents()
     {
@@ -269,8 +271,8 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
     private void InvokeConnectorSelectionChanged()
         => ConnectorSelectionChanged?.Invoke(_selectedConnectors);
 
-    private void InvokeDiagramSelectionChanged(SelectableModel selectableModel)
-        => DiagramSelectionChanged?.Invoke(selectableModel);
+    private Task InvokeDiagramSelectionChanged(SelectableModel selectableModel)
+        => DiagramSelectionChanged.InvokeEventAsync(selectableModel, logger, nameof(DiagramSelectionChanged));
 
     public bool IsSelected(IDiagramModel model)
         => model switch
@@ -291,13 +293,13 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
     private void OnDiagramNodesRemoved(NodeModel nodeModel)
     {
         InvalidateSelectionCache();
-        InvokeDiagramSelectionChanged(nodeModel);
+        AsyncGuard.SafeFireAndForget(() => InvokeDiagramSelectionChanged(nodeModel), logger);
     }
 
     private void OnDiagramSelectionChanged(SelectableModel selectableModel)
     {
         InvalidateSelectionCache();
-        InvokeDiagramSelectionChanged(selectableModel);
+        AsyncGuard.SafeFireAndForget(() => InvokeDiagramSelectionChanged(selectableModel), logger);
     }
 
     private void RefreshNodes(IEnumerable<BlockNode> nodesToUpdate)
@@ -380,10 +382,10 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
         }
     }
 
-    public async Task SelectInRectangleAsync(SelectionMode mode, Rectangle rect)
+    public async Task SelectInRectangle(SelectionMode mode, Rectangle rect)
     {
         if (mode.HasFlag(SelectionMode.FunctionBlockConnector))
-            throw new NotImplementedException($"{nameof(SelectInRectangleAsync)} is not implemented for {nameof(SelectionMode.FunctionBlockConnector)}.");
+            throw new NotImplementedException($"{nameof(SelectInRectangle)} is not implemented for {nameof(SelectionMode.FunctionBlockConnector)}.");
 
         var selectContainers = mode.HasFlag(SelectionMode.Container);
         var selectFBs = mode.HasFlag(SelectionMode.FunctionBlock);
@@ -414,7 +416,7 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
         }
 
         if (mode.HasFlag(SelectionMode.FunctionBlockLink))
-            await SelectInRectangleFunctionBlockLinkAsync(rect);
+            await SelectInRectangleFunctionBlockLink(rect);
 
         if (mode.HasFlag(SelectionMode.ConnectorMarker))
             SelectInRectangleConnectorMarker(rect);
@@ -462,7 +464,7 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
         RefreshNodes(nodesToUpdate);
     }
 
-    private async Task SelectInRectangleFunctionBlockLinkAsync(Rectangle rect)
+    private async Task SelectInRectangleFunctionBlockLink(Rectangle rect)
     {
         var linkIds = await jsRuntime.InvokeAsync<IEnumerable<string>>("ViciOne.Diagram.Link.getIdsInRectangle", new
         {

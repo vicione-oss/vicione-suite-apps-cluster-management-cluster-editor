@@ -12,6 +12,7 @@ using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.Models.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
@@ -74,13 +75,14 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
     [Inject] private ILibraryService LibraryService { get; set; } = default!;
     [Inject] private LinkDestinationDialogService LinkDestinationDialogService { get; set; } = default!;
+    [Inject] private ILogger<NodeEditor> Logger { get; set; } = default!;
     [Inject] private IPropertyGridController<DataflowToolbarPropertyGridContext> PropertyGridController { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
 
-    private async Task ContainerPointerUpAsync()
+    private async Task ContainerPointerUp()
     {
         DiagramEventService.RequestEdgeDraggingVisibilityChange(false);
-        InputEventService.PointerMove -= OnContainerPointerMoveAsync;
+        InputEventService.PointerMove -= OnContainerPointerMove;
 
         if (_draggingStartPoint is null)
             return;
@@ -103,7 +105,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
                 | SelectionMode.FunctionBlockLink
                 | SelectionMode.ConnectorMarker;
 
-            await SelectionManager.SelectInRectangleAsync(mode, _draggingRectangle);
+            await SelectionManager.SelectInRectangle(mode, _draggingRectangle);
         }
 
         _draggingRectangle = null;
@@ -168,7 +170,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         _diagram.Links.Removed -= OnDiagramLinksRemoved;
         _diagram.PointerDown -= OnDiagramPointerDown;
         _diagram.PointerMove -= OnDiagramPointerMove;
-        _diagram.PointerUp -= OnDiagramPointerUpAsync;
+        _diagram.PointerUp -= OnDiagramPointerUp;
         _diagram.Nodes.Added -= OnDiagramNodesAdded;
         _diagram.Nodes.Removed -= OnDiagramNodesRemoved;
         _diagram.ZoomChanged -= OnDiagramZoomChanged;
@@ -176,25 +178,25 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         _labelEditor?.LabelEditorClosed -= OnLabelEditorClosed;
 
         DiagramEventService.ContainerLoaded -= OnContainerLoaded;
-        DiagramEventService.DiagramFocusRequested -= OnDiagramFocusRequestedAsync;
+        DiagramEventService.DiagramFocusRequested -= OnDiagramFocusRequested;
         DiagramEventService.DiagramPointerLeave -= OnDiagramPointerLeave;
-        DiagramEventService.EdgeDraggingPointerMove -= OnExternalPointerMoveAsync;
-        DiagramEventService.EdgeDraggingPointerUp -= OnExternalPointerUpAsync;
+        DiagramEventService.EdgeDraggingPointerMove -= OnExternalPointerMove;
+        DiagramEventService.EdgeDraggingPointerUp -= OnExternalPointerUp;
         DiagramEventService.ContextMenuAllowed = () => true;
-        DiagramEventService.GridModeChangeRequested -= OnGridModeChangeRequestedAsync;
-        DiagramEventService.NodeAlignmentBorderVisibilityChanged -= OnNodeAlignmentBorderVisibilityChangedAsync;
+        DiagramEventService.GridModeChangeRequested -= OnGridModeChangeRequested;
+        DiagramEventService.NodeAlignmentBorderVisibilityChanged -= OnNodeAlignmentBorderVisibilityChanged;
         DiagramEventService.PanBehaviorChangeRequested -= OnPanBehaviorChangeRequested;
         DiagramEventService.SimplifiedViewChangeRequested -= OnSimplifiedViewChangeRequested;
         DiagramEventService.ZoomChanged -= OnDiagramStateZoomChanged;
         DiagramEventService.ZoomToFitRequested -= OnZoomToFitRequested;
 
         InputEventService.KeyDown -= OnKeyDown;
-        InputEventService.PointerUp -= OnExternalPointerUpAsync;
-        InputEventService.PointerMove -= OnContainerPointerMoveAsync;
+        InputEventService.PointerUp -= OnExternalPointerUp;
+        InputEventService.PointerMove -= OnContainerPointerMove;
 
         LibraryService.DragStarted -= OnLibraryDragStarted;
         LibraryService.DragEnded -= OnLibraryDragEnded;
-        LibraryService.FunctionBlockCreationRequested -= OnFunctionBlockCreationRequestedAsync;
+        LibraryService.FunctionBlockCreationRequested -= OnFunctionBlockCreationRequested;
 
         LinkDestinationDialogService.LinksToDeleteSelected -= OnDetailDialogServiceLinksToDeleteSelected;
 
@@ -292,7 +294,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         _diagram.Links.Removed += OnDiagramLinksRemoved;
         _diagram.PointerDown += OnDiagramPointerDown;
         _diagram.PointerMove += OnDiagramPointerMove;
-        _diagram.PointerUp += OnDiagramPointerUpAsync;
+        _diagram.PointerUp += OnDiagramPointerUp;
         _diagram.Nodes.Added += OnDiagramNodesAdded;
         _diagram.Nodes.Removed += OnDiagramNodesRemoved;
         _diagram.ZoomChanged += OnDiagramZoomChanged;
@@ -440,7 +442,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         LibraryService.DraggingEntries = null;
     }
 
-    private void OnContainerLoaded(Container container)
+    private Task OnContainerLoaded(Container container)
     {
         // If the container had saved values for all of ViewportX & ViewportY & Zoom
         // then we set these values in Datastore.LoadContainerSafely after clearing the Diagram
@@ -472,6 +474,8 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
                 node.Refresh();
             }
         }
+
+        return Task.CompletedTask;
     }
 
     private void OnContainerPointerDown(PointerEventArgs e)
@@ -486,14 +490,20 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
 
         _hasPointerDownShiftKey = e.ShiftKey;
         _draggingStartPoint = _diagram.GetRelativeMousePoint(e.ClientX, e.ClientY);
-        InputEventService.PointerMove += OnContainerPointerMoveAsync;
+        InputEventService.PointerMove += OnContainerPointerMove;
         _contextMenuAllowed = false;
         DiagramEventService.RequestEdgeDraggingVisibilityChange(true);
     }
 
-    private async void OnContainerPointerMoveAsync(PointerEventArgs e)
+    private void OnContainerPointerMove(PointerEventArgs e)
+        => AsyncGuard.SafeFireAndForget(() => OnContainerPointerMoveCore(e), Logger);
+
+    private async Task OnContainerPointerMoveCore(PointerEventArgs e)
     {
         if (_draggingStartPoint is null)
+            return;
+
+        if (_diagram is null)
             return;
 
         if (e.Buttons != LeftMouseButton)
@@ -501,12 +511,12 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
             _draggingRectangle = null;
             _draggingViewRectangle = null;
             _draggingStartPoint = null;
-            InputEventService.PointerMove -= OnContainerPointerMoveAsync;
+            InputEventService.PointerMove -= OnContainerPointerMove;
             await InvokeAsync(StateHasChanged);
             return;
         }
 
-        var relativePoint = _diagram!.GetRelativeMousePoint(e.ClientX, e.ClientY);
+        var relativePoint = _diagram.GetRelativeMousePoint(e.ClientX, e.ClientY);
         _draggingRectangle = new(
             Math.Min(_draggingStartPoint.X, relativePoint.X),
             Math.Min(_draggingStartPoint.Y, relativePoint.Y),
@@ -536,7 +546,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
             SelectionManager.DeselectAll(SelectionMode.ConnectorMarker);
     }
 
-    private async Task OnDiagramFocusRequestedAsync()
+    private async Task OnDiagramFocusRequested()
         => await JSRuntime.InvokeVoidAsync("ViciOne.Element.focusByClass", "diagram-canvas");
 
     private void OnDiagramLinksAdded(BaseLinkModel link)
@@ -640,10 +650,13 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         }
     }
 
-    private async void OnDiagramPointerUpAsync(Model? _1, global::Blazor.Diagrams.Core.Events.PointerEventArgs _2)
+    private void OnDiagramPointerUp(Model? _1, global::Blazor.Diagrams.Core.Events.PointerEventArgs _2)
+        => AsyncGuard.SafeFireAndForget(OnDiagramPointerUpCore, Logger);
+
+    private async Task OnDiagramPointerUpCore()
     {
         _contextMenuAllowed = true;
-        await ContainerPointerUpAsync();
+        await ContainerPointerUp();
 
         // Dies hier ist notwendig, da es keine Möglichkeit gibt herauszufinden, ob ein aktuell gezogener
         // Link entgültig an einen Konnektor angeknüpft oder ob er nur temporär durch Snapping an
@@ -654,10 +667,10 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         _diagramPointerMoveFirstMove = true;
     }
 
-    private void OnDiagramSelectionChanged(SelectableModel model)
+    private Task OnDiagramSelectionChanged(SelectableModel model)
     {
         if (DiagramService.DiagramState.SuppressEvents)
-            return;
+            return Task.CompletedTask;
 
         if (DiagramService.DiagramState.NewlyCreatedLabel is not null &&
             model == DiagramService.DiagramState.NewlyCreatedLabel &&
@@ -674,6 +687,8 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
             SelectionManager.DeselectAll(SelectionMode.FunctionBlockConnector | SelectionMode.ConnectorMarker);
 
         UpdatePropertyGrid();
+
+        return Task.CompletedTask;
     }
 
     private void OnDiagramStateZoomChanged(double newZoom)
@@ -717,56 +732,68 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
     private void OnDiagramZoomChanged()
         => DiagramService.SetZoom(_diagram!.Zoom);
 
-    private async void OnExternalPointerMoveAsync(PointerEventArgs e)
+    private void OnExternalPointerMove(PointerEventArgs e)
+        => AsyncGuard.SafeFireAndForget(() => OnExternalPointerMoveCore(e), Logger);
+
+    private async Task OnExternalPointerMoveCore(PointerEventArgs e)
     {
-        OnContainerPointerMoveAsync(e);
+        await OnContainerPointerMoveCore(e);
         await InvokeAsync(StateHasChanged);
     }
 
-    private async void OnExternalPointerUpAsync(PointerEventArgs _)
+    private void OnExternalPointerUp(PointerEventArgs _)
+        => AsyncGuard.SafeFireAndForget(OnExternalPointerUpCore, Logger);
+
+    private async Task OnExternalPointerUpCore()
     {
+        if (_diagram is null)
+            return;
+
         _contextMenuAllowed = true;
-        await ContainerPointerUpAsync();
-        _diagram!.Refresh();
+        await ContainerPointerUp();
+        _diagram.Refresh();
         await InvokeAsync(StateHasChanged);
     }
 
-    private async void OnFunctionBlockCreationRequestedAsync(Guid designId)
+    private async Task OnFunctionBlockCreationRequested(Guid designId)
     {
-        var center = _diagram!.GetViewport().Center;
+        if (_diagram is null)
+            return;
+
+        var center = _diagram.GetViewport().Center;
         var fbPosition = new Point(
             center.X - (BlockNodeLayout.Width / 2),
             center.Y - (BlockNodeLayout.DefaultNameHeight + BlockNodeLayout.SettingsRowHeight + (BlockNodeLayout.SystemConnectorRows * BlockNodeLayout.RowHeight)));
         var newNode = await Datastore.AddFunctionBlock(DiagramService, designId, fbPosition);
 
-        _diagram!.Nodes.Add(newNode);
+        _diagram.Nodes.Add(newNode);
         SelectionManager.SetSelection(newNode);
     }
 
-    private async Task OnGridModeChangeRequestedAsync(GridMode gridMode)
+    private async Task OnGridModeChangeRequested(GridMode gridMode)
         => await InvokeAsync(StateHasChanged);
 
     protected override void OnInitialized()
     {
         DiagramEventService.ContainerLoaded += OnContainerLoaded;
         DiagramEventService.ContextMenuAllowed = ContextMenuAllowed;
-        DiagramEventService.DiagramFocusRequested += OnDiagramFocusRequestedAsync;
+        DiagramEventService.DiagramFocusRequested += OnDiagramFocusRequested;
         DiagramEventService.DiagramPointerLeave += OnDiagramPointerLeave;
-        DiagramEventService.GridModeChangeRequested += OnGridModeChangeRequestedAsync;
-        DiagramEventService.EdgeDraggingPointerMove += OnExternalPointerMoveAsync;
-        DiagramEventService.EdgeDraggingPointerUp += OnExternalPointerUpAsync;
-        DiagramEventService.NodeAlignmentBorderVisibilityChanged += OnNodeAlignmentBorderVisibilityChangedAsync;
+        DiagramEventService.GridModeChangeRequested += OnGridModeChangeRequested;
+        DiagramEventService.EdgeDraggingPointerMove += OnExternalPointerMove;
+        DiagramEventService.EdgeDraggingPointerUp += OnExternalPointerUp;
+        DiagramEventService.NodeAlignmentBorderVisibilityChanged += OnNodeAlignmentBorderVisibilityChanged;
         DiagramEventService.PanBehaviorChangeRequested += OnPanBehaviorChangeRequested;
         DiagramEventService.SimplifiedViewChangeRequested += OnSimplifiedViewChangeRequested;
         DiagramEventService.ZoomChanged += OnDiagramStateZoomChanged;
         DiagramEventService.ZoomToFitRequested += OnZoomToFitRequested;
 
         InputEventService.KeyDown += OnKeyDown;
-        InputEventService.PointerUp += OnExternalPointerUpAsync;
+        InputEventService.PointerUp += OnExternalPointerUp;
 
         LibraryService.DragEnded += OnLibraryDragEnded;
         LibraryService.DragStarted += OnLibraryDragStarted;
-        LibraryService.FunctionBlockCreationRequested += OnFunctionBlockCreationRequestedAsync;
+        LibraryService.FunctionBlockCreationRequested += OnFunctionBlockCreationRequested;
 
         SelectionManager.DiagramSelectionChanged += OnDiagramSelectionChanged;
 
@@ -837,7 +864,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         }
     }
 
-    private async void OnNodeAlignmentBorderVisibilityChangedAsync(bool isVisible)
+    private async Task OnNodeAlignmentBorderVisibilityChanged(bool isVisible)
     {
         _isNodeAlignmentBorderVisible = isVisible;
         await InvokeAsync(StateHasChanged);
@@ -911,7 +938,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
             );
         });
 
-    private async Task ShowContextMenuAsync(MouseEventArgs e)
+    private async Task ShowContextMenu(MouseEventArgs e)
     {
         if (ContextMenuAllowed())
             await ContextMenuRequest.SendAsync(new() { ItemFilter = SelectionManager.GetContextMenuItemFilterForSelection(), MouseEventArgs = e });

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Threading.Tasks;
 using Blazor.Diagrams.Core;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models.Base;
@@ -155,8 +156,11 @@ internal sealed class VODragMovablesBehavior : Behavior
         }
     }
 
-    private void OnContainerLoaded(Cluster.Model.Container _)
-        => Reset();
+    private Task OnContainerLoaded(Cluster.Model.Container _)
+    {
+        Reset();
+        return Task.CompletedTask;
+    }
 
     private void OnDiagramPanChanged()
     {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
@@ -102,7 +103,7 @@ internal sealed class StatisticService : IDisposable
     private void InvokeStatisticChanged()
         => StatisticChanged?.Invoke(GetStatistic());
 
-    private void OnBuilderChanged()
+    private Task OnBuilderChanged()
     {
         _clusterBuilder = _datastore.Builder;
 
@@ -127,6 +128,7 @@ internal sealed class StatisticService : IDisposable
         _clusterBuilderEventBuffer.TreeNodesRemoved += OnClusterStateChanged;
 
         InvokeStatisticChanged();
+        return Task.CompletedTask;
     }
 
     private void OnClusterStateChanged<T>(IEnumerable<T> _)

@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Model;
@@ -54,7 +55,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
 
     public List<ITreeNode> ValidInboundDropTargets { get; } = [];
 
-    public event Action<ITreeNode>? DataPortWithLinksDoubleClicked;
+    public event Func<ITreeNode, Task>? DataPortWithLinksDoubleClicked;
 
     public DataPortTreeAdapter(
         IContextMenuRequest<DataPortAddChildNodeContextMenuContext> addChildNodeContextMenuRequest,
@@ -249,7 +250,7 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter, IDisposable
                 return;
 
             if (_datastore.Builder.Cache.DataPortTreeNodeIds.TryGetValue(dpNode.Id.Value, out var treeNode) && treeNode.Links.Any())
-                DataPortWithLinksDoubleClicked?.Invoke(node);
+                DataPortWithLinksDoubleClicked?.InvokeEventAsync(node, _logger, nameof(DataPortWithLinksDoubleClicked));
             else
                 Builder.Expansion.ChangeExpansion(node, !((DataPortNodeModel)node).Expanded);
         };

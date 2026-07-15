@@ -1,13 +1,23 @@
 ﻿using Blazor.Diagrams;
+using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Bunit;
 using DevExpress.Blazor.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
+using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
+using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.Blazor.Components.Resizing.Services;
+using ViciOne.Ui.ClusterEditor.Components;
+using ViciOne.Ui.ClusterEditor.Components.ContainerEditor;
+using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Extensions;
+using ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor;
+using ViciOne.Ui.ClusterEditor.Components.ToolbarDataflow.Models;
 using ViciOne.Ui.ClusterEditor.Extensions;
+using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Services;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
@@ -53,6 +63,9 @@ internal static class TestContextExtensions
 
         return ctx;
     }
+
+    public static FakeLogger<T> GetFakeLogger<T>(this TestContext ctx)
+        => (FakeLogger<T>)ctx.Services.GetRequiredService<ILogger<T>>();
 
     public static TestContext SetupBoundsService(this TestContext ctx)
     {
@@ -173,6 +186,31 @@ internal static class TestContextExtensions
         ctx.SetupDatastore();
 
         ctx.Services.TryAddScoped<LinkDestinationDialogService>();
+
+        return ctx;
+    }
+
+    public static TestContext SetupNodeEditor(this TestContext ctx)
+    {
+        ctx.SetupDatastore();
+        ctx.SetupDevExpressBlazor();
+        ctx.SetupDragService();
+        ctx.SetupConnectorService();
+        ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuRequest<NodeEditorContextMenuContext>>());
+        ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
+        ctx.SetupLibraryService();
+        ctx.SetupResizeObserver();
+        ctx.SetupConnectorSelectionDialogService();
+        ctx.SetupLinkDestinationDialogService();
+        ctx.Services.TryAddScoped(_ => Substitute.For<IContainerEditorRequest>());
+        ctx.Services.TryAddScoped(_ => Substitute.For<IFbSettingsEditorRequest>());
+        ctx.Services.TryAddScoped<FullscreenService>();
+        ctx.Services.TryAddScoped<TooltipService>();
+        ctx.Services.AddContainerEditor();
+        ctx.Services.TryAddScoped(_ => Substitute.For<IPropertyGridController<DataflowToolbarPropertyGridContext>>());
+        ctx.Services.TryAddSingleton<ILogger<NodeEditor>>(new FakeLogger<NodeEditor>());
+
+        ctx.JSInterop.Setup<Rectangle>("ZBlazorDiagrams.getBoundingClientRect", _ => true);
 
         return ctx;
     }

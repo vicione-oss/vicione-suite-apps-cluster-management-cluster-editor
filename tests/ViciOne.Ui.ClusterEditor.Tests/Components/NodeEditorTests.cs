@@ -1,5 +1,8 @@
-﻿using Blazor.Diagrams.Core.Geometry;
+﻿using AwesomeAssertions;
+using Blazor.Diagrams.Core.Geometry;
 using Bunit;
+using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
@@ -48,5 +51,35 @@ public class NodeEditorTests
 
         // Assert
         Assert.NotNull(component);
+    }
+
+    [Fact]
+    public void EdgeDraggingPointerUp_AfterDispose_RoutesThroughGuard_AndNeverThrows()
+    {
+        using var ctx = new Bunit.TestContext();
+        ctx.SetupNodeEditor();
+        var diagramEvents = ctx.Services.GetRequiredService<DiagramEventService>();
+        var cut = ctx.RenderComponent<NodeEditor>();
+
+        cut.Instance.Dispose();
+
+        var act = () => diagramEvents.InvokeEdgeDraggingPointerUp(new PointerEventArgs());
+
+        act.Should().NotThrow();
+    }
+
+    [Fact]
+    public void EdgeDraggingPointerMove_AfterDispose_RoutesThroughGuard_AndNeverThrows()
+    {
+        using var ctx = new Bunit.TestContext();
+        ctx.SetupNodeEditor();
+        var diagramEvents = ctx.Services.GetRequiredService<DiagramEventService>();
+        var cut = ctx.RenderComponent<NodeEditor>();
+
+        cut.Instance.Dispose();
+
+        var act = () => diagramEvents.InvokeEdgeDraggingPointerMove(new PointerEventArgs());
+
+        act.Should().NotThrow();
     }
 }

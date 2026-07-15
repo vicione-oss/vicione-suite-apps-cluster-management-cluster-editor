@@ -17,10 +17,10 @@ namespace ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 public interface IDatastore : IDatastoreState, IAsyncDisposable
 {
     event Action? ActiveDataflowChanged;
-    event Action? BuilderChanged;
+    event Func<Task>? BuilderChanged;
     event Action<BlockNodeLink>? ConnectorLinkRemoved;
     event Action<ChildContainer, string>? ContainerPropertyChanged;
-    event Action? ForcedRefreshRequested;
+    event Func<Task>? ForcedRefreshRequested;
     event Action<string>? PropertyChanged;
 
     Task<ChildContainerNode> AddChildContainer(DiagramService diagramService, Point position, CancellationToken cancellationToken = default, params IContainerChild[] children);

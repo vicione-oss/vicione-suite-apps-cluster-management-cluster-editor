@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Blazor.Diagrams.Core;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Blazor.Diagrams.Core.Models.Base;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Constants;
 using ViciOne.Ui.ClusterEditor.Extensions;
@@ -42,6 +44,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
 
     [Inject] private DiagramEventService DiagramEventService { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
+    [Inject] private ILogger<Minimap> Logger { get; set; } = default!;
 
     [Parameter] public double WidthPercentage { get; set; } = 0.25;
 
@@ -137,8 +140,11 @@ public sealed partial class Minimap : ComponentBase, IDisposable
     private void InitializeRenderTimer()
         => _renderTimer = new(TimeSpan.FromMilliseconds(40));
 
-    private void OnContainerLoaded(Container container)
-        => RecalculateNodeBounds();
+    private Task OnContainerLoaded(Container container)
+    {
+        RecalculateNodeBounds();
+        return Task.CompletedTask;
+    }
 
     private void OnContainerPointerEnter()
         => DiagramEventService.InvokeDiagramPointerLeave();
@@ -388,7 +394,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         _refreshNeeded = true;
     }
 
-    private async void RunRenderTimerAsync()
+    private async Task RunRenderTimer()
     {
         if (_renderTimer is null)
             return;
@@ -488,7 +494,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         node.CssStyles = _cssStylesBuilder.ToString();
     }
 
-    private async void SetVisibility(bool isVisible)
+    private void SetVisibility(bool isVisible)
     {
         if (_isVisible == isVisible)
             return;
@@ -501,7 +507,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
             SubscribeEvents();
             RefreshInternal();
             InitializeRenderTimer();
-            RunRenderTimerAsync(); // Fire-and-forget
+            AsyncGuard.SafeFireAndForget(RunRenderTimer, Logger);
         }
         else
         {
@@ -510,7 +516,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
             _renderTimer?.Dispose();
             _renderTimer = null;
             _shouldRender = true;
-            await InvokeAsync(StateHasChanged);
+            AsyncGuard.SafeFireAndForget(() => InvokeAsync(StateHasChanged), Logger);
         }
     }
 
