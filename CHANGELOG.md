@@ -22,6 +22,7 @@
 - Optimized `BlockComponent` rendering
 - Improved sample app `DesignLoader` to be more resilient against package download errors
 - Refactored "async void" to "async Task" where needed
+- Fixed potential exception in marker selection
 
 ### Removed
 

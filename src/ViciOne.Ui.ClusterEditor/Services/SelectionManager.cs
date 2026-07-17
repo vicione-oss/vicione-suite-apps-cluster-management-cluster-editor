@@ -203,7 +203,7 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
 
         if (marker.Links.Count > 0)
         {
-            foreach (var selectedMarker in _selectedConnectorMarker)
+            foreach (var selectedMarker in _selectedConnectorMarker.ToArray())
             {
                 if (selectedMarker.Links.Count > 0)
                     SetMarkerSelection(false, selectedMarker, nodesToUpdate);
