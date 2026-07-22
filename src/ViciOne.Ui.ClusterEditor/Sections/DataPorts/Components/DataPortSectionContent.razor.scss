@@ -13,14 +13,13 @@
     ::deep .tree-editor-container {
         @include sections.action-button-container-styles();
         @include sections.node-with-icon-styles();
-
         --vo-ui-tree-editor-color-drop-area-valid: transparent;
         --vo-ui-tree-editor-color-drop-area-invalid: transparent;
-
         overflow-x: hidden;
 
         .tree-node {
             position: inherit;
+            grid-template-columns: min-content auto;
 
             &.highlighted {
                 border: 1px solid colors.$accent;
@@ -29,6 +28,16 @@
                 &:hover {
                     border-color: colors.$font;
                 }
+            }
+
+            .node-drop-zone-container{
+                bottom: unset;
+                height: 28px;
+                left: unset;
+                position: absolute;
+                right: unset;
+                top: unset;
+                width: 100%;
             }
         }
 

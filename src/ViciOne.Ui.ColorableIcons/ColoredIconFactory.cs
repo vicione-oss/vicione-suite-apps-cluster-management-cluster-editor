@@ -12,17 +12,17 @@ public static class ColoredIconFactory
         return icon.SetSize(size).SetColor(htmlColor);
     }
 
-    public static string GetDataPortIcon(string htmlColor, DataPortDirection dataPortDirection, bool hasInputLink = false, bool hasOutputLink = false, int? size = default)
+    public static string GetDataPortIcon(string htmlColor, DataPortDirection dataPortDirection, bool isConnectedToOutputConnectors = false, bool isConnectedToInputConnectors = false, int? size = default)
     {
         var body = IconParts.DataPortIconBody.SetSize(size);
 
         var iconPath = dataPortDirection switch
         {
-            DataPortDirection.In => hasInputLink ? IconParts.DataPortIconFilled : IconParts.DataPortIconEmpty,
-            DataPortDirection.Out => hasOutputLink ? IconParts.DataPortIconFilled : IconParts.DataPortIconEmpty,
-            DataPortDirection.InOut => hasInputLink
-                ? hasOutputLink ? IconParts.DataPortIconFilled : IconParts.DataPortIconInputFilled
-                : hasOutputLink ? IconParts.DataPortIconOutputFilled : IconParts.DataPortIconEmpty,
+            DataPortDirection.In => isConnectedToInputConnectors ? IconParts.DataPortIconFilled : IconParts.DataPortIconEmpty,
+            DataPortDirection.Out => isConnectedToOutputConnectors ? IconParts.DataPortIconFilled : IconParts.DataPortIconEmpty,
+            DataPortDirection.InOut => isConnectedToInputConnectors
+                ? isConnectedToOutputConnectors ? IconParts.DataPortIconFilled : IconParts.DataPortIconInputFilled
+                : isConnectedToOutputConnectors ? IconParts.DataPortIconOutputFilled : IconParts.DataPortIconEmpty,
             _ => throw new NotSupportedException("Unsupported DataPort direction.")
         };
 

@@ -112,48 +112,54 @@ internal sealed partial class DataPortTreeAdapter : TreeAdapter
 
         void DeleteAction()
         {
+
             _isDeletionInProgress = true;
 
-            // root node (eg. MQTT DataPort)
-            if (e.Node is DataPortRootNodeModel rootNode)
+            try
             {
-                _dataPorts.Remove(rootNode);
-
-                // whole data port container node gets removed so we need to remove all contained data port
-                foreach (var rootChild in rootNode.Children)
+                // root node (eg. MQTT DataPort)
+                if (e.Node is DataPortRootNodeModel rootNode)
                 {
-                    var nodeId = rootChild.Id.Value;
-                    var dataPort = _datastore.Builder.Cache.DataPorts.First(k => k.Id == nodeId);
+                    _dataPorts.Remove(rootNode);
 
-                    _datastore.Builder.Editors.Dataflow.RemoveDataPort(dataPort, true);
+                    // whole data port container node gets removed so we need to remove all contained data port
+                    foreach (var rootChild in rootNode.Children)
+                    {
+                        var nodeId = rootChild.Id.Value;
+                        var dataPort = _datastore.Builder.Cache.DataPorts.First(k => k.Id == nodeId);
+
+                        _datastore.Builder.Editors.Dataflow.RemoveDataPort(dataPort, true);
+                    }
+
+                    // The root node for e.g. Mqtt was removed so it's dependency is not needed anymore
+                    _datastore.Builder.RemoveUnusedSystemDataPortDependency(_rulesetProvider);
+
+                    Builder.Notifications.NotifyRootNodesChanged();
                 }
 
-                // The root node for e.g. Mqtt was removed so it's dependency is not needed anymore
-                _datastore.Builder.RemoveUnusedSystemDataPortDependency(_rulesetProvider);
-
-                Builder.Notifications.NotifyRootNodesChanged();
-            }
-
-            // we listen to the builder delete events of DataPorts and nodes to react on builder
-            // changes done outside
-            if (e.Node is DataPortChildNodeModel childNode)
-            {
-                var childNodeId = childNode.Id.Value;
-
-                // child of child node
-                if (GetParent(childNode) is DataPortChildNodeModel parentNode)
+                // we listen to the builder delete events of DataPorts and nodes to react on builder
+                // changes done outside
+                if (e.Node is DataPortChildNodeModel childNode)
                 {
-                    var cachedNode = _datastore.Builder.Cache.DataPortTreeNodes.First(k => k.Id == childNodeId);
-                    _datastore.Builder.Editors.DataPort.RemoveTreeNode(cachedNode);
-                    return;
+                    var childNodeId = childNode.Id.Value;
+
+                    // child of child node
+                    if (GetParent(childNode) is DataPortChildNodeModel parentNode)
+                    {
+                        var cachedNode = _datastore.Builder.Cache.DataPortTreeNodes.First(k => k.Id == childNodeId);
+                        _datastore.Builder.Editors.DataPort.RemoveTreeNode(cachedNode);
+                        return;
+                    }
+
+                    // child of root node (for MQTT e.g. MQTT Broker -> DataPort)
+                    var cachedDataPort = _datastore.Builder.Cache.DataPorts.First(k => k.Id == childNodeId);
+                    _datastore.Builder.Editors.Dataflow.RemoveDataPort(cachedDataPort, true);
                 }
-
-                // child of root node (for MQTT e.g. MQTT Broker -> DataPort)
-                var cachedDataPort = _datastore.Builder.Cache.DataPorts.First(k => k.Id == childNodeId);
-                _datastore.Builder.Editors.Dataflow.RemoveDataPort(cachedDataPort, true);
             }
-
-            _isDeletionInProgress = false;
+            finally
+            {
+                _isDeletionInProgress = false;
+            }
         }
 
         if (OnDeleteNodeUserConfirmationRequest is null)

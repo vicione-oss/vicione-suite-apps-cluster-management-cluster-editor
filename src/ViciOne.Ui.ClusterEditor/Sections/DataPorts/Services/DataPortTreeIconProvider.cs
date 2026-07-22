@@ -31,10 +31,10 @@ internal sealed class DataPortTreeIconProvider() : IDataPortTreeIconProvider
 
             var dataPortDirection = childNode.GetRootSuccessor().GetSystemProperty<DataPortDirection>()?.TypedValue ?? DataPortDirection.InOut;
 
-            var hasInputLinks = clusterCache.DataPortTreeNodeIds[childNode.Id.Value].IncomingLinks.Count != 0;
-            var hasOutputLinks = clusterCache.DataPortTreeNodeIds[childNode.Id.Value].OutgoingLinks.Count != 0;
+            var isConnectedToOuputConnectors = clusterCache.DataPortTreeNodeIds[childNode.Id.Value].IncomingLinks.Count != 0;
+            var isConnectedToInputConnectors = clusterCache.DataPortTreeNodeIds[childNode.Id.Value].OutgoingLinks.Count != 0;
 
-            var icon = ColoredIconFactory.GetDataPortIcon(color, dataPortDirection, hasInputLinks, hasOutputLinks, size);
+            var icon = ColoredIconFactory.GetDataPortIcon(color, dataPortDirection, isConnectedToOuputConnectors, isConnectedToInputConnectors, size);
             if (!string.IsNullOrEmpty(icon))
                 return new SvgIcon(icon) { UseIncludedColors = true };
         }
