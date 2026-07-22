@@ -1,7 +1,3 @@
-@use "icons/monochrome-icons" with (
-    $svg-base-url: "../icons/monochrome-icons"
-);
-
 @use "design/popup/variables" as popup;
 
 // Popup overrides indicating discrepancies between Suite and Cluster Editor

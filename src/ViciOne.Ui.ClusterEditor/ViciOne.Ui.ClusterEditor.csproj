@@ -23,13 +23,6 @@
       <ExcludeAssets>runtime</ExcludeAssets>
     </PackageReference>
     <PackageReference Include="ViciOne.Ui.Localization" />
-    <PackageReference Include="ViciOne.Ui.MonochromeIcons.Assets">
-      <!-- avoids include of CSS isolation bundle -->
-      <PrivateAssets>all</PrivateAssets>
-      <!-- don't depend on assembly at runtime -->
-      <ExcludeAssets>runtime</ExcludeAssets>
-      <IncludeAssets>compile; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="ViciOne.Ui.MonochromeIcons.Components" />
     <PackageReference Include="ViciOne.Ui.Shared.Dx" />
     <PackageReference Include="ViciOne.Ui.TreeEditor" />
@@ -330,103 +323,6 @@
     <Content Update="sasscompiler.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Pack="False" />
     <Content Update="package*.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Pack="False" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="wwwroot\icons\" />
-  </ItemGroup>
-
-  <Target Name="ConfigureMonochromeIcons" BeforeTargets="BeforeMonochromeIconTargets">
-    <ItemGroup>
-      <MonochromeIcon Include="add-text-labels-solid" Size="16" />
-      <MonochromeIcon Include="align-bottom" Size="16;24" />
-      <MonochromeIcon Include="align-left" Size="16;24" />
-      <MonochromeIcon Include="align-right" Size="16;24" />
-      <MonochromeIcon Include="align-top" Size="16;24" />
-      <MonochromeIcon Include="align-top-by-lowest-element" Size="16;24" />
-      <MonochromeIcon Include="all-predecessors" Size="24" />
-      <MonochromeIcon Include="all-successors" Size="24" />
-      <MonochromeIcon Include="arrow-navigation-light-left" Size="24" />
-      <MonochromeIcon Include="arrow-navigation-light-right" Size="24" />
-      <MonochromeIcon Include="attached" Size="24" />
-      <MonochromeIcon Include="bug-light" Size="32" />
-      <MonochromeIcon Include="check" Size="16" />
-      <MonochromeIcon Include="clear" Size="24" />
-      <MonochromeIcon Include="cluster-streams" Size="32" />
-      <MonochromeIcon Include="collapse-all" Size="24" />
-      <MonochromeIcon Include="column-chooser-menu" Size="24" />
-      <MonochromeIcon Include="connector-add-to-container" Size="16" />
-      <MonochromeIcon Include="connector-cancel-publication" Size="16" />
-      <MonochromeIcon Include="connector-dragging-connector-in" Size="32" />
-      <MonochromeIcon Include="connector-dragging-connector-out" Size="32" />
-      <MonochromeIcon Include="connector-publish" Size="16" />
-      <MonochromeIcon Include="connector-remove-from-container" Size="16" />
-      <MonochromeIcon Include="container-add" Size="16" />
-      <MonochromeIcon Include="container-dissolve-solid" Size="16" />
-      <MonochromeIcon Include="dataflow-solid" Size="24" />
-      <MonochromeIcon Include="data-switch" Size="32" />
-      <MonochromeIcon Include="delete" Size="16" />
-      <MonochromeIcon Include="edit" Size="16" />
-      <MonochromeIcon Include="expand-all" Size="24" />
-      <MonochromeIcon Include="expander-light-down" Size="24" />
-      <MonochromeIcon Include="expander-light-left" Size="24" />
-      <MonochromeIcon Include="expander-light-right" Size="16;24" />
-      <MonochromeIcon Include="expander-light-top" Size="24" />
-      <MonochromeIcon Include="export" Size="24" />
-      <MonochromeIcon Include="filter-solid" Size="18" />
-      <MonochromeIcon Include="full-size-light" Size="24" />
-      <MonochromeIcon Include="gear-solid" Size="16" />
-      <MonochromeIcon Include="group-by-category" Size="24" />
-      <MonochromeIcon Include="hamburger-menu" Size="24" />
-      <MonochromeIcon Include="import" Size="24" />
-      <MonochromeIcon Include="info-outlined" Size="24" />
-      <MonochromeIcon Include="invert" Size="24" />
-      <MonochromeIcon Include="library" Size="32" />
-      <MonochromeIcon Include="lock-text-labels-solid" Size="16" />
-      <MonochromeIcon Include="minimap-light" Size="24" />
-      <MonochromeIcon Include="minus-slim" Size="16;24" />
-      <MonochromeIcon Include="move-to-new-container" Size="16" />
-      <MonochromeIcon Include="new" Size="24" />
-      <MonochromeIcon Include="new-in-wizard" Size="24" />
-      <MonochromeIcon Include="open" Size="16" />
-      <MonochromeIcon Include="open-in-new-window" Size="16" />
-      <MonochromeIcon Include="plus-slim" Size="16;24" />
-      <MonochromeIcon Include="predecessor" Size="24" />
-      <MonochromeIcon Include="properties" Size="32" />
-      <MonochromeIcon Include="published-connector-dragging" Size="32" />
-      <MonochromeIcon Include="published-connector-full" Size="32" />
-      <MonochromeIcon Include="reload" Size="16" />
-      <MonochromeIcon Include="save-outline" Size="24" />
-      <MonochromeIcon Include="search-and-tools" Size="32" />
-      <MonochromeIcon Include="select-all" Size="24" />
-      <MonochromeIcon Include="select-all-blocks" Size="16" />
-      <MonochromeIcon Include="select-connectors-input" Size="16;24" />
-      <MonochromeIcon Include="select-connectors-input-all" Size="16;24" />
-      <MonochromeIcon Include="select-connectors-input-and-output" Size="16;24" />
-      <MonochromeIcon Include="select-connectors-input-and-output-all" Size="16;24" />
-      <MonochromeIcon Include="select-connectors-output" Size="16;24" />
-      <MonochromeIcon Include="select-connectors-output-all" Size="16;24" />
-      <MonochromeIcon Include="selected" Size="24" />
-      <MonochromeIcon Include="server-light" Size="24" />
-      <MonochromeIcon Include="server-network-light" Size="24" />
-      <MonochromeIcon Include="several-to-back" Size="16;24" />
-      <MonochromeIcon Include="several-to-front" Size="16;24" />
-      <MonochromeIcon Include="sort-children" Size="16" />
-      <MonochromeIcon Include="sort-uncheck-all" Size="24" />
-      <MonochromeIcon Include="successor" Size="24" />
-      <MonochromeIcon Include="template-badge" Size="24" />
-      <MonochromeIcon Include="template-management" Size="24" />
-      <MonochromeIcon Include="test-tube-solid" Size="32" />
-      <MonochromeIcon Include="topology-application-light" Size="24" />
-      <MonochromeIcon Include="topology-engine-light" Size="24" />
-      <MonochromeIcon Include="topology-folder-network-light" Size="24" />
-      <MonochromeIcon Include="zoom-100" Size="24" />
-      <MonochromeIcon Include="zoom-to-fit" Size="24" />
-    </ItemGroup>
-
-    <PropertyGroup>
-      <MonochromeIconSvgOutputFolder>$(MSBuildProjectDirectory)/wwwroot/icons/monochrome-icons</MonochromeIconSvgOutputFolder>
-      <MonochromeIconScssOutputFolder>$(MSBuildProjectDirectory)/Styles/icons/monochrome-icons</MonochromeIconScssOutputFolder>
-    </PropertyGroup>
-  </Target>
 
   <Target Name="ConfigureDesignTargets" BeforeTargets="BeforeDesignTargets">
     <PropertyGroup>
