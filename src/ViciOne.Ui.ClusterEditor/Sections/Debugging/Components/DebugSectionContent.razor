@@ -6,6 +6,7 @@
 @using ViciOne.Ui.Blazor.Components.SectionRail.Components
 @using ViciOne.Ui.Blazor.Components.SpinEdit
 @using ViciOne.Ui.Blazor.Components.Switch
+@using ViciOne.Ui.Blazor.Components.TextBox
 @using ViciOne.Ui.Localization.Resources
 @using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
 @using TechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
@@ -73,7 +74,7 @@
                                   Minimum="0">
                         </SpinEdit>
 
-                        <DxTextBox @bind-Text="_generateBlocksName"></DxTextBox>
+                        <TextBox @bind-Value="_generateBlocksName" />
 
                         <Button OnClick="@OnGenerateBlocksClickAsync"
                                 Size="@ButtonSize.Small"
