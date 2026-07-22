@@ -45,6 +45,7 @@ public interface IDatastore : IDatastoreState, IAsyncDisposable
     void Remove(LabelNode labelNode);
     void RemoveDataflow(Dataflow dataflow);
     void RemoveMapping(BlockNodeConnector blockNodeConnector);
+    void RequestForcedRefresh();
     void SaveViewport(DiagramService diagramService);
     void SetDataflowName(Dataflow dataflow, string newName);
 }

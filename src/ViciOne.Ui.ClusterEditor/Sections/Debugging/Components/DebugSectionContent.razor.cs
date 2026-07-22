@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
+using ViciOne.TreeBuilder.NodeTypes;
+using ViciOne.TreeBuilder.Rules;
 using ViciOne.Ui.Blazor.Components.ComboBox;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.ClusterEditor.Extensions;
@@ -14,6 +16,8 @@ using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
+using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
+using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
@@ -24,6 +28,7 @@ using TechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.Technical
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Debugging.Components;
 
+[SuppressMessage("Maintainability", "CA1506:Avoid excessive class coupling", Justification = "Debug")]
 public sealed partial class DebugSectionContent : ComponentBase
 {
     private const int MaxConsecutiveFailures = 20;
@@ -34,6 +39,7 @@ public sealed partial class DebugSectionContent : ComponentBase
     private readonly string _generateAllFbsText = CompositeFormats.GenerateSomething($"{CommonVocabulary.All} {TechnicalTerms.FunctionBlockPlural}");
     private int _generateBlocksAmount = 25;
     private string _generateBlocksName = "TwoWaySelector";
+    private int _generateDataPointsAmount = 1;
     private int _generateLinksAmount = 1;
     private readonly List<ComboBoxItem<GridMode, string>> _gridModeComboBoxItems = [..
         Enum.GetValues<GridMode>()
@@ -50,8 +56,28 @@ public sealed partial class DebugSectionContent : ComponentBase
     [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
+    [Inject] private IRulesetProvider RulesetProvider { get; set; } = default!;
 
-    private async Task GenerateBlocksAsync(IEnumerable<Guid> uniqueIds, int amount)
+    [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
+    private List<NodeReference>? FindPathToDataPoint(NodeReference[] candidates, IReadOnlyDictionary<string, NodeType> nodeTypes)
+    {
+        foreach (var candidate in candidates.OrderBy(_ => _rnd.Next()))
+        {
+            if (!nodeTypes.TryGetValue(candidate.Id, out var nodeType))
+                continue;
+
+            if (nodeType.IsDataPoint())
+                return [candidate];
+
+            var childPath = FindPathToDataPoint(nodeType.ChildNodes, nodeTypes);
+            if (childPath is not null)
+                return [candidate, .. childPath];
+        }
+
+        return null;
+    }
+
+    private async Task GenerateBlocks(IEnumerable<Guid> uniqueIds, int amount)
     {
         ClusterBuilderEventBuffer.StartBatchOpertation();
 
@@ -74,6 +100,64 @@ public sealed partial class DebugSectionContent : ComponentBase
         DiagramService.Diagram.Nodes.Add(blockNodes);
 
         ClusterBuilderEventBuffer.EndBatchOperation();
+    }
+
+    [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
+    private bool GenerateDataPoint()
+    {
+        var builder = Datastore.Builder;
+
+        var rulesetIds = RulesetProvider.GetRulesetIdentifiers(DataPortTreeAdapter.DataPortCategory).ToList();
+        if (rulesetIds.Count == 0)
+            return false;
+
+        var ruleset = RulesetProvider.GetRuleset(rulesetIds[_rnd.Next(rulesetIds.Count)]);
+        if (ruleset?.Root is null)
+            return false;
+
+        var nodeTypes = ruleset.NodeTypes.ToDictionary(n => n.Id);
+
+        // Pick a random DataPort type that can reach a leaf DataPoint and build the path of tree nodes leading to it.
+        List<NodeReference>? treeNodePath = null;
+        NodeType? dataPortNodeType = null;
+        foreach (var dataPortRef in ruleset.Root.ChildNodes.OrderBy(_ => _rnd.Next()))
+        {
+            if (!nodeTypes.TryGetValue(dataPortRef.Id, out var candidate))
+                continue;
+
+            treeNodePath = FindPathToDataPoint(candidate.ChildNodes, nodeTypes);
+            if (treeNodePath is not null)
+            {
+                dataPortNodeType = candidate;
+                break;
+            }
+        }
+
+        if (dataPortNodeType is null || treeNodePath is null)
+            return false;
+
+        builder.EnsureSystemDataPortDependencyExists(RulesetProvider);
+
+        var dataPort = builder.Editors.Dataflow.AddDataPort(
+            Datastore.ActiveDataflow,
+            dataPortNodeType.Id,
+            dataPortNodeType.Name,
+            PickDirection(dataPortNodeType),
+            ruleset.Root.Id);
+
+        DataPortTreeNode? current = null;
+        foreach (var nodeRef in treeNodePath)
+        {
+            var nodeType = nodeTypes[nodeRef.Id];
+            var valueType = nodeType.IsDataPoint() ? PickRandomValueType(nodeType, ruleset) : null;
+            var transferMode = PickTransferMode(nodeType);
+
+            current = current is null
+                ? builder.Editors.DataPort.AddTreeNode(nodeType.Id, dataPort, nodeType.Name, valueType, transferMode)
+                : builder.Editors.DataPortTreeNode.AddTreeNode(nodeType.Id, current, nodeType.Name, valueType, transferMode);
+        }
+
+        return true;
     }
 
     [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
@@ -188,7 +272,7 @@ public sealed partial class DebugSectionContent : ComponentBase
     }
 
     private async Task OnGenerateAllLibraryBlocksClickAsync()
-        => await GenerateBlocksAsync(Datastore.Builder.GetFunctionBlockDesigns().Select(d => d.Id), 1);
+        => await GenerateBlocks(Datastore.Builder.GetFunctionBlockDesigns().Select(d => d.Id), 1);
 
     private async Task OnGenerateBlocksClickAsync()
     {
@@ -197,7 +281,32 @@ public sealed partial class DebugSectionContent : ComponentBase
         if (design is null)
             return;
 
-        await GenerateBlocksAsync([design.Id], _generateBlocksAmount);
+        await GenerateBlocks([design.Id], _generateBlocksAmount);
+    }
+
+    private void OnGenerateDataPointsClick()
+    {
+        if (_generateDataPointsAmount < 1)
+            return;
+
+        var targetAmount = _generateDataPointsAmount;
+        var currentAmount = 0;
+        var availableTries = targetAmount + 20;
+
+        ClusterBuilderEventBuffer.StartBatchOpertation();
+
+        while (currentAmount < targetAmount && availableTries > 0)
+        {
+            if (GenerateDataPoint())
+                currentAmount++;
+            else
+                availableTries--;
+        }
+
+        ClusterBuilderEventBuffer.EndBatchOperation();
+
+        if (currentAmount > 0)
+            Datastore.RequestForcedRefresh();
     }
 
     private void OnGenerateLinksClick(GenerateLinksType type)
@@ -240,6 +349,43 @@ public sealed partial class DebugSectionContent : ComponentBase
 
     private void OnUseSimplifiedViewChanged(bool useSimplyfiedView)
         => DiagramService.RequestSimplifiedViewChange(useSimplyfiedView);
+
+    [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
+    private DataPortDirection PickDirection(NodeType dataPortNodeType)
+    {
+        var hasInbound = dataPortNodeType.TransferDirections.Contains(DataPortTransferDirection.Inbound);
+        var hasOutbound = dataPortNodeType.TransferDirections.Contains(DataPortTransferDirection.Outbound);
+
+        if (hasInbound && hasOutbound)
+            return (DataPortDirection)_rnd.Next(3);
+        if (hasInbound)
+            return DataPortDirection.In;
+        return DataPortDirection.Out;
+    }
+
+    [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
+    private Type? PickRandomValueType(NodeType leafNodeType, Ruleset ruleset)
+    {
+        var runtimeTypes = leafNodeType.DataTypes
+            .Select(name => ruleset.DataTypes.FirstOrDefault(d => d.Name == name)?.RuntimeType)
+            .Where(type => type is not null)
+            .ToList();
+
+        return runtimeTypes.Count == 0 ? null : runtimeTypes[_rnd.Next(runtimeTypes.Count)];
+    }
+
+    [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
+    private Cluster.Model.DataPortTransferMode PickTransferMode(NodeType nodeType)
+    {
+        if (nodeType is DataPortTreeNodeType treeNodeType && treeNodeType.TransferModes.Length > 0)
+        {
+            var mode = treeNodeType.TransferModes[_rnd.Next(treeNodeType.TransferModes.Length)];
+            if (Enum.TryParse<Cluster.Model.DataPortTransferMode>(mode.ToString(), out var parsed))
+                return parsed;
+        }
+
+        return Cluster.Model.DataPortTransferMode.None;
+    }
 
     private enum GenerateLinksType
     {
