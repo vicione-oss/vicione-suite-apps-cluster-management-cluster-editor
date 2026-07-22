@@ -112,6 +112,24 @@
                 </div>
 
                 <div class="section-header">
+                    @string.Format(CultureInfo.CurrentCulture, UserActions.GenerateSomething, TechnicalTerms.DataPortPlural)
+                </div>
+                <div class="section">
+                    <div style="display: flex;">
+                        <SpinEdit @bind-Value="@_generateDataPointsAmount"
+                                  CssClass="ce-spin-edit"
+                                  Interval="1"
+                                  Maximum="@int.MaxValue"
+                                  Minimum="0">
+                        </SpinEdit>
+
+                        <Button OnClick="@OnGenerateDataPointsClick"
+                                Size="@ButtonSize.Small"
+                                Text="@CommonVocabulary.Generate" />
+                    </div>
+                </div>
+
+                <div class="section-header">
                     Debug console
 
                     <Button IconCssClass="@s_openInNewWindow"

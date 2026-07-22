@@ -160,6 +160,9 @@ internal sealed class Datastore : IDatastore
     public void RemoveMapping(BlockNodeConnector blockNodeConnector)
         => _editService.RemoveMapping(blockNodeConnector);
 
+    public void RequestForcedRefresh()
+        => _state.InvokeForcedRefreshRequested();
+
     public void SaveViewport(DiagramService diagramService)
         => _loadService.SaveViewport(diagramService);
 
