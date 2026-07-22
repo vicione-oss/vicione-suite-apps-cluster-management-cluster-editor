@@ -32,6 +32,7 @@
 
 - `Microsoft` packages, update to version `10.0.9`
 - `ViciOne.Ui.Blazor.Components` package, updated to version `5.17.1`
+- `ViciOne.Ui.Design` package, added in version `2.2.0`
 
 ## 1.2.0 - 2026-06-17
 

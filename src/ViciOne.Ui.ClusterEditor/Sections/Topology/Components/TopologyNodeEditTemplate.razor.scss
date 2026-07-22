@@ -18,9 +18,7 @@ $property-container-row-height: 38px;
     padding-left: $property-container-expansion-placeholder-width + $property-container-property-name-width + $property-container-property-value-padding-left;
 
     ::deep .action-button {
-        font-size: 12px;
         grid-area: buttons;
-        line-height: 1.4em;
 
         &:not(:last-of-type) {
             margin-right: 8px;

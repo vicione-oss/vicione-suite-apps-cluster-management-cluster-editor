@@ -18,6 +18,8 @@ using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.Localization.Resources;
+using ViciOne.Ui.MonochromeIcons.Core.Enums;
+using ViciOne.Ui.MonochromeIcons.Core.Extensions;
 using TechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Debugging.Components;
@@ -25,6 +27,8 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Debugging.Components;
 public sealed partial class DebugSectionContent : ComponentBase
 {
     private const int MaxConsecutiveFailures = 20;
+
+    private static readonly string s_openInNewWindow = MonochromeIconName.OpenInNewWindow.GetCssClasses(MonochromeIconSize.Small).ToSpaceSeparated();
 
     private bool _debugPopupVisible;
     private readonly string _generateAllFbsText = CompositeFormats.GenerateSomething($"{CommonVocabulary.All} {TechnicalTerms.FunctionBlockPlural}");

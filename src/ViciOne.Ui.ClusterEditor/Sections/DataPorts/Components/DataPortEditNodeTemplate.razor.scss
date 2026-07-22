@@ -16,8 +16,6 @@ $property-group-row-height: 38px;
 
     ::deep .action-button {
         grid-area: buttons;
-        font-size: 12px;
-        line-height: 1.4em;
 
         &:not(:last-of-type) {
             margin-right: 8px;

@@ -1,12 +1,14 @@
 ﻿@using System.Globalization
+@using ViciOne.Ui.Blazor.Components.Button
+@using ViciOne.Ui.Blazor.Components.Button.Enums
 @using ViciOne.Ui.Blazor.Components.ComboBox
 @using ViciOne.Ui.Blazor.Components.Popup.Components
 @using ViciOne.Ui.Blazor.Components.SectionRail.Components
 @using ViciOne.Ui.Blazor.Components.SpinEdit
 @using ViciOne.Ui.Blazor.Components.Switch
 @using ViciOne.Ui.Localization.Resources
-@using CommonVocabulary=ViciOne.Ui.Localization.Resources.CommonVocabulary
-@using TechnicalTerms=ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+@using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using TechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
 
 @{
     #if DEBUG
@@ -70,12 +72,17 @@
                                   Maximum="@int.MaxValue"
                                   Minimum="0">
                         </SpinEdit>
+
                         <DxTextBox @bind-Text="_generateBlocksName"></DxTextBox>
-                        <button @onclick="OnGenerateBlocksClickAsync"
-                                class="btn btn-sm btn-outline-secondary">@CommonVocabulary.Generate</button>
+
+                        <Button OnClick="@OnGenerateBlocksClickAsync"
+                                Size="@ButtonSize.Small"
+                                Text="@CommonVocabulary.Generate" />
                     </div>
-                    <button @onclick="OnGenerateAllLibraryBlocksClickAsync"
-                            class="btn btn-sm btn-outline-secondary">@_generateAllFbsText</button>
+
+                    <Button OnClick="@OnGenerateAllLibraryBlocksClickAsync"
+                            Size="@ButtonSize.Small"
+                            Text="@_generateAllFbsText" />
                 </div>
 
                 <div class="section-header">
@@ -89,25 +96,28 @@
                                   Maximum="@int.MaxValue"
                                   Minimum="0">
                         </SpinEdit>
-                        <button @onclick="@(() => OnGenerateLinksClick(GenerateLinksType.Visible))"
-                                class="btn btn-sm btn-outline-secondary">@CommonVocabulary.Visible</button>
-                        <button @onclick="@(() => OnGenerateLinksClick(GenerateLinksType.Hidden))"
-                                class="btn btn-sm btn-outline-secondary">@CommonVocabulary.Hidden</button>
-                        <button @onclick="@(() => OnGenerateLinksClick(GenerateLinksType.DataPort))"
-                                class="btn btn-sm btn-outline-secondary">@TechnicalTerms.DataPort</button>
+
+                        <Button OnClick="@(() => OnGenerateLinksClick(GenerateLinksType.Visible))"
+                                Size="@ButtonSize.Small"
+                                Text="@CommonVocabulary.Visible" />
+
+                        <Button OnClick="@(() => OnGenerateLinksClick(GenerateLinksType.Hidden))"
+                                Size="@ButtonSize.Small"
+                                Text="@CommonVocabulary.Hidden" />
+
+                        <Button OnClick="@(() => OnGenerateLinksClick(GenerateLinksType.DataPort))"
+                                Size="@ButtonSize.Small"
+                                Text="@TechnicalTerms.DataPort" />
                     </div>
                 </div>
 
                 <div class="section-header">
                     Debug console
 
-                    <div @onclick="@OnShowDebugConsoleButtonClick"
-                         class="options-button-base"
-                         title="Pop out console">
-
-                        <MonochromeIcon Name="@MonochromeIconName.OpenInNewWindow"
-                                        Size="@MonochromeIconSize.Small" />
-                    </div>
+                    <Button IconCssClass="@s_openInNewWindow"
+                            OnClick="OnShowDebugConsoleButtonClick"
+                            Size="@ButtonSize.Small"
+                            Title="Pop out console" />
                 </div>
                 <div class="section dbg">
                     @if (!_debugPopupVisible)
