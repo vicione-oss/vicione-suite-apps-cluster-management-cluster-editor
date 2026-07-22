@@ -30,11 +30,11 @@
     {
         "Name": "ViciOne.Time",
         "Version": "1.0.0"
-    },    
+    },
     {
         "Name": "ViciOne.Driver.IoTCore",
         "Version": "2.0.0"
-    },            
+    },
     {
         "Name": "ifm.Anna.FunctionBlocks",
         "Version": "1.0.0"
@@ -64,39 +64,55 @@
         "Version": "1.0.0"
     },
     {
+        "Name": "ViciOne.Suite.DataPort.Anna",
+        "Version": "1.0.0"
+    },
+    {
+        "Name": "ViciOne.Suite.DataPort.Aws.Iot",
+        "Version": "0.32.0"
+    },
+    {
+        "Name": "ViciOne.Suite.DataPort.Azure.EventGrid.Topic",
+        "Version": "0.32.0"
+    },
+    {
+        "Name": "ViciOne.Suite.DataPort.Azure.IotHub",
+        "Version": "0.32.0"
+    },
+    {
         "Name": "ViciOne.Suite.DataPort.Http.Client",
-        "Version": "0.30.0"
+        "Version": "0.32.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.InfluxDb",
-        "Version": "0.30.0"
-    },
-    {
-        "Name": "ViciOne.Suite.DataPort.MySql",
-        "Version": "0.30.0"
+        "Version": "0.32.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.Mqtt",
-        "Version": "0.30.0"
+        "Version": "0.32.0"
+    },
+    {
+        "Name": "ViciOne.Suite.DataPort.MySql",
+        "Version": "0.32.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.OpcUa.Client",
-        "Version": "0.30.0"
+        "Version": "0.32.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.OpcUa.Server",
-        "Version": "0.30.0"
+        "Version": "0.32.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.PostgreSql",
-        "Version": "0.30.0"
+        "Version": "0.32.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.Sqlite",
-        "Version": "0.30.0"
+        "Version": "0.32.0"
     },
     {
         "Name": "ViciOne.Suite.DataPort.SqlServer",
-        "Version": "0.30.0"
+        "Version": "0.32.0"
     }
 ]
