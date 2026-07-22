@@ -1,5 +1,6 @@
-﻿@using ViciOne.Ui.Blazor.Components.PropertyGrid.Components
-@using ViciOne.Ui.Shared.Dx.Components
+﻿@using ViciOne.Ui.Blazor.Components.Button
+@using ViciOne.Ui.Blazor.Components.Button.Enums
+@using ViciOne.Ui.Blazor.Components.PropertyGrid.Components
 @using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
 
 @inherits NodeTemplateBase
@@ -14,16 +15,12 @@
         <Button CssClass="action-button"
                 Enabled="@(!_anyErrors)"
                 OnClick="@OnConfirmClicked"
-                Size="ButtonSize.Small">
-
-            @CommonVocabulary.Save
-        </Button>
+                Size="ButtonSize.Small"
+                Text="@CommonVocabulary.Save" />
 
         <Button CssClass="action-button"
                 OnClick="@OnCancelClicked"
-                Size="ButtonSize.Small">
-
-            @CommonVocabulary.Cancel
-        </Button>
+                Size="ButtonSize.Small"
+                Text="@CommonVocabulary.Cancel" />
     </div>
 }
