@@ -455,9 +455,5 @@ src/**/wwwroot/fonts/*
 src/**/wwwroot/scripts/*
 src/**/*.razor.css
 
-# Files unpacked by target 'ConfigureMonochromeIcons'
-src/ViciOne.Ui.ClusterEditor/wwwroot/icons/monochrome-icons
-src/ViciOne.Ui.ClusterEditor/Styles/icons/monochrome-icons
-
 # Files unpacked by target 'ConfigureDesignTargets'
 src/ViciOne.Ui.ClusterEditor/Styles/design
