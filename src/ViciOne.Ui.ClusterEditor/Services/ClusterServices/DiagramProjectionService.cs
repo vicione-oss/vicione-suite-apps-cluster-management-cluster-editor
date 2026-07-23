@@ -146,4 +146,29 @@ internal sealed class DiagramProjectionService
             }
         }
     }
+
+    public async Task UpdateNameFieldHeights(IReadOnlyList<(BlockNode Node, string Name)> nodes, CancellationToken cancellationToken)
+    {
+        if (nodes.Count == 0)
+            return;
+
+        var names = new List<string>(nodes.Count);
+        foreach (var (_, name) in nodes)
+            names.Add(name);
+
+        var measuredHeights = await _jsRuntime.MeasureNameFieldHeights(names, cancellationToken);
+        if (measuredHeights is null || measuredHeights.Length < nodes.Count)
+            return;
+
+        for (var i = 0; i < nodes.Count; i++)
+        {
+            var node = nodes[i].Node;
+            if (node.NameFieldHeight == measuredHeights[i])
+                continue;
+
+            node.NameFieldHeight = measuredHeights[i];
+            node.UpdateSize();
+            node.RefreshAll();
+        }
+    }
 }

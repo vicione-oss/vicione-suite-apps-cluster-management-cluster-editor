@@ -27,6 +27,7 @@
 - Fixed a bug that prevented dragged connectors to be dropped to DataPoints
 - Fixed a bug that a deletion-is-ongoing flag was never reset which resulted in DataPoint icons not getting updated
 - Replaced `DxTextBox` with `ViciOne.Ui.Blazor.Components.TextBox`
+- Fixed connector position on multiline blocks
 
 ### Removed
 

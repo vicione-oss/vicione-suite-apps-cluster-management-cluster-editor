@@ -5,11 +5,13 @@ using System.Reflection;
 using AwesomeAssertions;
 using Blazor.Diagrams.Core.Models;
 using Microsoft.Extensions.Logging.Abstractions;
+using Microsoft.JSInterop;
 using NSubstitute;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
+using ViciOne.Ui.Shared.Dx.Services;
 using Xunit;
 using FunctionBlock = ViciOne.Cluster.Model.FunctionBlock;
 using Link = ViciOne.Cluster.Model.Link;
@@ -29,7 +31,12 @@ public sealed class BuilderEventProjectionServiceTests : IDisposable
 
     public BuilderEventProjectionServiceTests()
     {
-        _sut = new BuilderEventProjectionService(_buffer, _state);
+        var diagramProjectionService = new DiagramProjectionService(
+            new ComparerService([], NullLogger<ComparerService>.Instance),
+            _state,
+            Substitute.For<IJSRuntime>());
+
+        _sut = new BuilderEventProjectionService(_buffer, _state, diagramProjectionService);
         _sut.Attach();
 
         _state.PropertyChanged += _propertyChanges.Add;
