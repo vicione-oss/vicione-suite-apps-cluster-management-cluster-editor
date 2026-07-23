@@ -156,6 +156,100 @@ public sealed class DiagramProjectionServiceTests : IAsyncLifetime
         _state.DataflowDiagramMapping.GetNodes().Should().BeEmpty();
     }
 
+    // --- UpdateNameFieldHeights --------------------------------------------------------------
+
+    [Fact]
+    public async Task UpdateNameFieldHeights_WhenMeasuredHeightChanges_ResizesFunctionBlockNode_AndShiftsPorts()
+    {
+        // Arrange - project the node, then simulate a stale (pre-change) name height so the
+        // re-measure produces a different value and must reposition the ports.
+        var fb = AddUnmappedFunctionBlock(0, 0);
+        var nodes = await _sut.AddFunctionBlocksToMapping([fb], _diagramService, Ct);
+        var node = nodes[0];
+
+        const int StaleHeight = 200;
+        node.NameFieldHeight = StaleHeight;
+        node.UpdateSize();
+
+        var port = node.ConnectorsToList().First();
+        var baselinePortY = port.Position.Y;
+        var baselineHeight = node.Size!.Height;
+
+        // Act
+        await _sut.UpdateNameFieldHeights([(node, fb.Name)], Ct);
+
+        // Assert - height is re-measured and both the node size and port positions shift by the delta.
+        var delta = s_measuredHeights[0] - StaleHeight;
+        node.NameFieldHeight.Should().Be(s_measuredHeights[0]);
+        node.Size!.Height.Should().Be(baselineHeight + delta);
+        port.Position.Y.Should().Be(baselinePortY + delta);
+    }
+
+    [Fact]
+    public async Task UpdateNameFieldHeights_WhenMeasuredHeightChanges_ResizesChildContainerNode()
+    {
+        // Arrange
+        var childContainer = AddUnmappedChildContainer(10, 10);
+        var nodes = await _sut.AddChildContainersToMapping([childContainer], _diagramService, Ct);
+        var node = nodes[0];
+
+        const int StaleHeight = 200;
+        node.NameFieldHeight = StaleHeight;
+        node.UpdateSize();
+        var baselineHeight = node.Size!.Height;
+
+        // Act
+        await _sut.UpdateNameFieldHeights([(node, childContainer.Name)], Ct);
+
+        // Assert
+        var delta = s_measuredHeights[0] - StaleHeight;
+        node.NameFieldHeight.Should().Be(s_measuredHeights[0]);
+        node.Size!.Height.Should().Be(baselineHeight + delta);
+    }
+
+    [Fact]
+    public async Task UpdateNameFieldHeights_WhenContainerHasConnectors_RepositionsContainerPorts()
+    {
+        // Arrange - a boundary-crossing link from an inner function block surfaces a container
+        // connector (port) on the child container.
+        var inside = AddUnmappedFunctionBlock(0, 0);
+        var outside = AddUnmappedFunctionBlock(200, 0);
+        _builder.Editors.Connector.AddLink(inside.SystemOutputs.First(), outside.SystemInputs.First());
+        var childContainer = AddUnmappedChildContainer(100, 100, inside);
+
+        var nodes = await _sut.AddChildContainersToMapping([childContainer], _diagramService, Ct);
+        var node = nodes[0];
+
+        var connectors = node.ConnectorsToList();
+        connectors.Should().NotBeEmpty();
+        var port = connectors[0];
+
+        const int StaleHeight = 200;
+        node.NameFieldHeight = StaleHeight;
+        node.UpdateSize();
+        var baselinePortY = port.Position.Y;
+        var baselineHeight = node.Size!.Height;
+
+        // Act
+        await _sut.UpdateNameFieldHeights([(node, childContainer.Name)], Ct);
+
+        // Assert - the container port shifts by the same delta as the re-measured name height.
+        var delta = s_measuredHeights[0] - StaleHeight;
+        node.NameFieldHeight.Should().Be(s_measuredHeights[0]);
+        node.Size!.Height.Should().Be(baselineHeight + delta);
+        port.Position.Y.Should().Be(baselinePortY + delta);
+    }
+
+    [Fact]
+    public async Task UpdateNameFieldHeights_WhenListEmpty_DoesNothing()
+    {
+        // Act
+        var act = () => _sut.UpdateNameFieldHeights([], Ct);
+
+        // Assert
+        await act.Should().NotThrowAsync();
+    }
+
     // --- AddLabelsToMapping -----------------------------------------------------------------------
 
     [Fact]

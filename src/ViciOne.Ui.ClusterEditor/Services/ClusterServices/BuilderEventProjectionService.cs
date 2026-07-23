@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
@@ -17,7 +18,7 @@ namespace ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 /// notifications. Behavior services detach these handlers around their own diagram
 /// mutations to avoid feedback loops.
 /// </summary>
-internal sealed class BuilderEventProjectionService(ClusterBuilderEventBuffer clusterBuilderEventBuffer, DatastoreState state) : IDisposable
+internal sealed class BuilderEventProjectionService(ClusterBuilderEventBuffer clusterBuilderEventBuffer, DatastoreState state, DiagramProjectionService diagramProjectionService) : IDisposable
 {
     private bool _disposed;
 
@@ -122,6 +123,8 @@ internal sealed class BuilderEventProjectionService(ClusterBuilderEventBuffer cl
 
     private void OnContainerPropertiesChanged(IEnumerable<(object? sender, PropertyChangedEventArgs e)> changedContainerProperties)
     {
+        List<(BlockNode Node, string Name)>? nameChanges = null;
+
         foreach (var (sender, e) in changedContainerProperties)
         {
             if (sender is not ChildContainer childContainer
@@ -134,7 +137,13 @@ internal sealed class BuilderEventProjectionService(ClusterBuilderEventBuffer cl
             ChildContainerMapper.PropertyChanged(childContainer, childContainerNode, state, e.PropertyName);
             state.InvokePropertyChanged(e.PropertyName);
             state.InvokeContainerPropertyChanged(childContainer, e.PropertyName);
+
+            if (e.PropertyName == nameof(ChildContainer.Name))
+                (nameChanges ??= []).Add((childContainerNode, childContainer.Name));
         }
+
+        if (nameChanges is not null)
+            _ = diagramProjectionService.UpdateNameFieldHeights(nameChanges, CancellationToken.None);
     }
 
     private void OnFunctionBlockEnginesChanged(IEnumerable<FunctionBlock> functionBlocks)
@@ -158,6 +167,8 @@ internal sealed class BuilderEventProjectionService(ClusterBuilderEventBuffer cl
 
     private void OnFunctionBlockPropertiesChanged(IEnumerable<(object? sender, PropertyChangedEventArgs e)> changedFunctionBlockProperties)
     {
+        List<(BlockNode Node, string Name)>? nameChanges = null;
+
         foreach (var (sender, e) in changedFunctionBlockProperties)
         {
             if (sender is not FunctionBlock functionBlock
@@ -170,7 +181,13 @@ internal sealed class BuilderEventProjectionService(ClusterBuilderEventBuffer cl
 
             FunctionBlockMapper.PropertyChanged(state, functionBlock, functionBlockNode, e.PropertyName);
             state.InvokePropertyChanged(e.PropertyName);
+
+            if (e.PropertyName == nameof(FunctionBlock.Name))
+                (nameChanges ??= []).Add((functionBlockNode, functionBlock.Name));
         }
+
+        if (nameChanges is not null)
+            _ = diagramProjectionService.UpdateNameFieldHeights(nameChanges, CancellationToken.None);
     }
 
     private void OnLabelPropertiesChanged(IEnumerable<(object? sender, PropertyChangedEventArgs e)> changedLabelProperties)
