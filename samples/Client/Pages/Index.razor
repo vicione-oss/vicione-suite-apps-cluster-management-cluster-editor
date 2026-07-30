@@ -1,5 +1,7 @@
 ﻿@page "/"
 
+@using ViciOne.Ui.Blazor.Components.LoadingSpinner.Components
+@using ViciOne.Ui.Blazor.Components.LoadingSpinner.Models
 @using ViciOne.Ui.Blazor.Components.Popup.Components
 
 <ClusterEditor>
@@ -8,9 +10,8 @@
     </ExternalDebugContent>
 </ClusterEditor>
 
-<DxLoadingPanel ApplyBackgroundShading="true"
-                PositionTarget="body"
-                Visible="@_loaderVisible"/>
+<LoadingSpinner Visible="@_loaderVisible"
+                Messages="@_messages" />
 
 <Popup @bind-Visible="_errorVisible"
        Width="500px">

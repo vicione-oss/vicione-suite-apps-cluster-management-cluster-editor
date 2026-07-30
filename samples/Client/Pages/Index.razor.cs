@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -8,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Shared.Designs;
 using Shared.Services;
+using ViciOne.Ui.Blazor.Components.LoadingSpinner.Models;
 using ViciOne.Ui.ClusterEditor.Services;
 
 namespace BlazorWasm.Client.Pages;
@@ -22,6 +24,7 @@ public sealed partial class Index : ComponentBase, IDisposable
     private string _messageToastText = string.Empty;
     private string _messageToastTitle = string.Empty;
     private bool _messageToastVisible;
+    private IEnumerable<TimedMessage> _messages = [new TimedMessage() { DisplayDuration = -1, Message = Localization.Index.LoadingDependencies }];
 
     [Inject] private IClusterEditorManagement? DataManagementService { get; set; }
     [Inject] private IndexService IndexService { get; set; } = default!;
