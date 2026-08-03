@@ -1,4 +1,9 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using AwesomeAssertions;
+using Bunit;
+using Microsoft.Extensions.DependencyInjection;
+using NSubstitute;
+using ViciOne.Ui.Blazor.Components.Resizing.Services;
+using ViciOne.Ui.Blazor.Components.Toolbar.Components;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarMain;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
@@ -13,14 +18,18 @@ public class ZoomDisplayTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
-        ctx.Services.TryAddScoped<DiagramEventService>();
+        ctx.Services.AddScoped<DiagramEventService>();
         ctx.SetupDiagramService();
 
+        ctx.Services.AddScoped(_ => Substitute.For<IResizeObserver>());
+        ctx.JSInterop.Mode = JSRuntimeMode.Loose;
+
         // Act
-        var component = ctx.RenderComponent<ZoomDisplay>();
+        var toolbar = ctx.RenderComponent<Toolbar>(b => b
+            .AddChildContent<ZoomDisplay>());
 
         // Assert
-        Assert.NotNull(component);
+        toolbar.Should().NotBeNull();
+        toolbar.HasComponent<ZoomDisplay>().Should().BeTrue();
     }
 }

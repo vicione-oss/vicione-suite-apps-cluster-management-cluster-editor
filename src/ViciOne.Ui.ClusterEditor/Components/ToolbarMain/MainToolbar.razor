@@ -40,11 +40,7 @@
                        TextVisibility="TextVisibility.MenuOnly"
                        Tooltip="@UserActions.AlignRight"/>
     
-        <ToolbarGroup>
-            <ToolbarContent>
-                <ZoomDisplay Enabled="@DiagramService.DiagramState.IsInitialized"/>
-            </ToolbarContent>
-        </ToolbarGroup>
+        <ZoomDisplay Enabled="@DiagramService.DiagramState.IsInitialized"/>
 
         <ToolbarGroup>
             <ToolbarButton Active="@_isFullscreen"

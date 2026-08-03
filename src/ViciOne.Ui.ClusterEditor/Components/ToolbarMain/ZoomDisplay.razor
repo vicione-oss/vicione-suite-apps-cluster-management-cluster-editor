@@ -1,23 +1,29 @@
 ﻿@using ViciOne.Ui.Blazor.Components.ComboBox
+@using ViciOne.Ui.Blazor.Components.Toolbar.Components
+@using ViciOne.Ui.Blazor.Components.Toolbar.Enums
 
-<div class="zoom-display-container">
-    <div @onclick="@(() => ChangeZoomValue(false))"
-         class="btn btn-zoom @(Enabled ? string.Empty : "disabled")"
-         title="@Localization.ZoomDisplay.ZoomOut">
+<ToolbarGroup>
+    <ToolbarButton Enabled="@Enabled"
+                   IconName="@MonochromeIconName.MinusSlim"
+                   OnClick="@(() => ChangeZoomValue(false))"
+                   Text="@Localization.ZoomDisplay.ZoomOut"
+                   TextVisibility="TextVisibility.MenuOnly"
+                   Tooltip="@Localization.ZoomDisplay.ZoomOut" />
 
-        <MonochromeIcon Name="MonochromeIconName.MinusSlim"
-                        Size="MonochromeIconSize.SmallMedium" />
-    </div>
+    <ToolbarContent>
+        <div class="zoom-selection-container">
+            <ComboBox @bind-Value="ZoomText"
+                      AllowUserInput="true"
+                      CssClass="zoom-selection"
+                      Enabled="Enabled"
+                      Items="_zoomValues" />
+        </div>
+    </ToolbarContent>
 
-    <ComboBox @bind-Value="ZoomText"
-              AllowUserInput="true"
-              Items="_zoomValues"
-              Enabled="Enabled" />
-
-    <div @onclick="@(() => ChangeZoomValue(true))"
-         class="btn btn-zoom @(Enabled ? string.Empty : "disabled")"
-         title="@Localization.ZoomDisplay.ZoomIn">
-
-        <MonochromeIcon Name="MonochromeIconName.PlusSlim" Size="MonochromeIconSize.SmallMedium" />
-    </div>
-</div>
+    <ToolbarButton Enabled="@Enabled"
+                   IconName="@MonochromeIconName.PlusSlim"
+                   OnClick="@(() => ChangeZoomValue(true))"
+                   Text="@Localization.ZoomDisplay.ZoomIn"
+                   TextVisibility="TextVisibility.MenuOnly"
+                   Tooltip="@Localization.ZoomDisplay.ZoomIn" />
+</ToolbarGroup>
