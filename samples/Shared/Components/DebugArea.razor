@@ -1,4 +1,6 @@
 ﻿@using Shared.Services
+@using ViciOne.Ui.Blazor.Components.Button
+@using ViciOne.Ui.Blazor.Components.Button.Enums
 
 @if (IndexService.DisplayDebugArea)
 {
@@ -7,10 +9,9 @@
         <LoadSaveArea />
 
         <div class="debug-bottom">
-            <button @onclick="@(IndexService.OnCloseRequested)"
-                    class="btn btn-sm btn-outline-secondary">
-                Close Debug
-            </button>
+            <Button OnClick="@IndexService.OnCloseRequested"
+                    Size="ButtonSize.Small"
+                    Text="Close Debug" />
         </div>
     </div>
 }

@@ -1,25 +1,8 @@
-@use "./../../Styles/design/colors";
+.zoom-selection-container {
+    display: contents;
 
-.zoom-display-container {
-    display: grid;
-    grid-column-gap: 8px;
-    grid-template-columns: min-content 100px min-content;
-
-    .btn-zoom {
-        display: inline-flex;
-        padding: 4px;
-
-        ::deep > svg {
-            height: 24px;
-            width: 24px;
-
-            path, polygon {
-                fill: colors.$font;
-            }
-        }
-    }
-
-    ::deep .combo-box {
+    ::deep .zoom-selection {
         height: 32px;
+        width: 100px;
     }
 }
