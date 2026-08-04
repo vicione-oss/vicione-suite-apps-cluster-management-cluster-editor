@@ -28,6 +28,7 @@
 - Fixed a bug that a deletion-is-ongoing flag was never reset which resulted in DataPoint icons not getting updated
 - Replaced `DxTextBox` with `ViciOne.Ui.Blazor.Components.TextBox`
 - Fixed connector position on multiline blocks
+- Replaced `ComboBox` with `DxComboBox` in `UniversalInput`
 
 ### Removed
 
@@ -35,10 +36,10 @@
 
 ### Updated external references
 
-- `Microsoft` packages, update to version `10.0.9`
-- `ViciOne.Ui.Blazor.Components` package, updated to version `5.18.0`
+- `Microsoft` packages, update to version `10.0.10`
+- `ViciOne.Ui.Blazor.Components` package, updated to version `5.19.0`
 - `ViciOne.Ui.Design` package, added in version `2.2.0`
-- `ViciOne.Ui.MonochromeIcons.Components` package, update version to `4.14.0`
+- `ViciOne.Ui.MonochromeIcons.Components` package, update version to `4.15.0`
 
 ## 1.2.0 - 2026-06-17
 

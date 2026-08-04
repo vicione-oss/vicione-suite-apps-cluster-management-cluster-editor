@@ -25,31 +25,16 @@
 
     case EditorType.Enum:
         {
-            var comboBoxItemType = typeof(ComboBoxItem<,>).MakeGenericType(ValueType, typeof(string));
-            var comboBoxValueType = ValueType;
-
-            var controlType = typeof(ComboBox<,>).MakeGenericType(comboBoxItemType, comboBoxValueType);
-
-            var valueChangedCallback = CreateAssignmentCallback(comboBoxValueType);
-            var valueExpression = GetValueExpression(Value, comboBoxValueType);
+            var controlType = GetDxComboBoxType();
 
             __builder.OpenComponent(0, controlType);
-            __builder.AddAttribute(1, nameof(ComboBox<,>.Value), Value);
-            __builder.AddAttribute(2, nameof(ComboBox<,>.ValueChanged), valueChangedCallback);
-
-            var items = GetComboBoxItems(ValueType);
-            var textSelector = GetComboBoxItemTextSelector(ValueType);
-            var valueSelector = GetComboBoxItemValueSelector(ValueType);
-
-            __builder.AddAttribute(3, nameof(ComboBox<,>.Items), items);
-            __builder.AddAttribute(4, nameof(ComboBox<,>.TextSelector), textSelector);
-            __builder.AddAttribute(5, nameof(ComboBox<,>.ValueSelector), valueSelector);
-            __builder.AddAttribute(6, nameof(ComboBox<,>.ValueExpression), valueExpression);
-
-            var noOptionSelected = Value is null && !ValueType.IsNullable();
-            __builder.AddAttribute(7, nameof(ComboBox<,>.NoOptionSelected), noOptionSelected);
-
-            __builder.SetAdditionalProperties(8, _propertyBag, controlType);
+            __builder.AddAttribute(1, nameof(DxComboBox<,>.Value), Value);
+            __builder.AddAttribute(2, nameof(DxComboBox<,>.ValueChanged), CreateAssignmentCallback(ValueType));
+            __builder.AddAttribute(3, nameof(DxComboBox<,>.Data), _enumComboBoxItems);
+            __builder.AddAttribute(4, nameof(DxComboBox<,>.TextFieldName), nameof(ComboBoxItem<,>.Text));
+            __builder.AddAttribute(5, nameof(DxComboBox<,>.ValueFieldName), nameof(ComboBoxItem<,>.Value));
+            __builder.AddAttribute(6, nameof(DxComboBox<,>.ValueExpression), GetValueExpression(Value, ValueType));
+            __builder.SetAdditionalProperties(7, _propertyBag, controlType);
             __builder.CloseComponent();
         }
         break;
