@@ -4,5 +4,9 @@
     ::deep .zoom-selection {
         height: 32px;
         width: 100px;
+
+        input {
+            height: 32px;
+        }
     }
 }
