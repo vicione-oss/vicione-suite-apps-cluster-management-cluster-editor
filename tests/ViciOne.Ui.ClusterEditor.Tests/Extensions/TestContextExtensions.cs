@@ -119,9 +119,16 @@ internal static class TestContextExtensions
         ctx.Services.AddDataPortAddChildNodeContextMenu();
         ctx.SetupClusterEditorManagement();
         ctx.SetupDatastore();
-        ctx.Services.TryAddScoped<IDataPortTreeIconProvider, DataPortTreeIconProvider>();
 
         ctx.Services.TryAddScoped<DataPortTreeAdapter>();
+        ctx.Services.TryAddScoped<DataPortTreeBuilderRegistry>();
+        ctx.Services.TryAddScoped<DataPortIconResolver>();
+        ctx.Services.TryAddScoped<DataPortTreeState>();
+        ctx.Services.TryAddScoped<DataPortEditingCoordinator>();
+        ctx.Services.TryAddScoped<DataPortTreeMutator>();
+        ctx.Services.TryAddScoped<DataPortNodeActionProvider>();
+        ctx.Services.TryAddScoped<DataPortDragCoordinator>();
+        ctx.Services.TryAddScoped<DataPortClusterEventSynchronizer>();
 
         return ctx;
     }

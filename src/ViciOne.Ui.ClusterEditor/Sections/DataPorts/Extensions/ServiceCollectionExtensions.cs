@@ -43,6 +43,14 @@ internal static class ServiceCollectionExtensions
         services.AddDataPortContextMenu();
         services.AddDataPortAddChildNodeContextMenu();
         services.AddScoped<DataPortTreeAdapter>();
+        services.AddScoped<DataPortTreeState>();
+        services.AddScoped<DataPortTreeBuilderRegistry>();
+        services.AddScoped<DataPortIconResolver>();
+        services.AddScoped<DataPortEditingCoordinator>();
+        services.AddScoped<DataPortTreeMutator>();
+        services.AddScoped<DataPortNodeActionProvider>();
+        services.AddScoped<DataPortDragCoordinator>();
+        services.AddScoped<DataPortClusterEventSynchronizer>();
 
         return services;
     }

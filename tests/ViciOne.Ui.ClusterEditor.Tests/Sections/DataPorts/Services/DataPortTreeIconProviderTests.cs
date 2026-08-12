@@ -14,14 +14,10 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Sections.DataPorts.Services;
 public sealed class DataPortTreeIconProviderTests
 {
     private readonly IClusterCache _clusterCache;
-    private readonly DataPortTreeIconProvider _dataPortTreeIconProvider;
     private readonly DataPortTreeNode _dataPortTreeNode = new();
 
     public DataPortTreeIconProviderTests()
-    {
-        _clusterCache = Substitute.For<IClusterCache>();
-        _dataPortTreeIconProvider = new DataPortTreeIconProvider();
-    }
+        => _clusterCache = Substitute.For<IClusterCache>();
 
     [Fact]
     public void GetDataPointIcon_WhenChildNodeIsNotDataPoint_ReturnsNull()
@@ -30,7 +26,7 @@ public sealed class DataPortTreeIconProviderTests
         var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(isDataPoint: false);
 
         // Act
-        var result = _dataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
+        var result = DataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
 
         // Assert
         Assert.Null(result);
@@ -46,7 +42,7 @@ public sealed class DataPortTreeIconProviderTests
         var expectedColor = ConnectorColor.Get(dataType);
 
         // Act
-        var result = _dataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
+        var result = DataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
 
         // Assert
         Assert.NotNull(result);
@@ -63,7 +59,7 @@ public sealed class DataPortTreeIconProviderTests
         var expectedColor = ConnectorColor.Get(typeof(object));
 
         // Act
-        var result = _dataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
+        var result = DataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
 
         // Assert
         Assert.NotNull(result);
@@ -79,7 +75,7 @@ public sealed class DataPortTreeIconProviderTests
         _clusterCache.DataPortTreeNodeIds[childNode.Id.Value].Returns(_dataPortTreeNode);
 
         // Act
-        var result = _dataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
+        var result = DataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
 
         // Assert
         Assert.Null(result);
@@ -95,7 +91,7 @@ public sealed class DataPortTreeIconProviderTests
         var expectedColor = DataPortColors.Disabled;
 
         // Act
-        var result = _dataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
+        var result = DataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
 
         // Assert
         Assert.NotNull(result);
@@ -114,7 +110,7 @@ public sealed class DataPortTreeIconProviderTests
         _clusterCache.DataPortTreeNodeIds[childNode.Id.Value].Returns(_dataPortTreeNode);
 
         // Act
-        var result = _dataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
+        var result = DataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
 
         // Assert
         Assert.NotNull(result);
@@ -139,12 +135,25 @@ public sealed class DataPortTreeIconProviderTests
         _clusterCache.DataPortTreeNodeIds[childNode.Id.Value].Returns(_dataPortTreeNode);
 
         // Act
-        var result = _dataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
+        var result = DataPortTreeIconProvider.GetDataPointIcon(childNode, 24, _clusterCache);
 
         // Assert
         Assert.NotNull(result);
         Assert.IsType<SvgIcon>(result);
         Assert.Contains(IconParts.DataPortArrowInPath, ((SvgIcon)result!).MarkupString, StringComparison.InvariantCulture);
         Assert.Contains(IconParts.DataPortArrowOutPath, ((SvgIcon)result!).MarkupString, StringComparison.InvariantCulture);
+    }
+
+    [Fact]
+    public void GetSvgIcon_DelegatesToTreeBuilder()
+    {
+        // Arrange
+        var treeBuilder = new TreeBuilder.TreeBuilder(Resources.TestResources.MqttRuleset);
+
+        // Act
+        var result = DataPortTreeIconProvider.GetSvgIcon(treeBuilder, "non-existent-icon");
+
+        // Assert - delegates to the tree builder; an unknown icon simply returns null.
+        Assert.Null(result);
     }
 }
