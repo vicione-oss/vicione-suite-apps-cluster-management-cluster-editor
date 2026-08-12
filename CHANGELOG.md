@@ -30,6 +30,7 @@
 - Fixed connector position on multiline blocks
 - Replaced `ComboBox` with `DxComboBox` in `UniversalInput`
 - Refactored `DataPortTreeAdapter` into multiple services to avoid excessive class coupling and improve maintainability
+- Fixed potential marker tooltip exception when deleting a DataPort
 
 ### Removed
 

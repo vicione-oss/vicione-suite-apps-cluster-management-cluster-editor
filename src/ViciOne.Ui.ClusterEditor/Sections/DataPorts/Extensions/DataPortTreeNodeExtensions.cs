@@ -59,6 +59,9 @@ internal static class DataPortTreeNodeExtensions
         IHasDataPortTreeNodes hasTreeNodes = dataPortTreeNode;
         do
         {
+            if (!datastore.Builder.Cache.DataPortTreeNodeIds.ContainsKey(((DataPortTreeNode)hasTreeNodes).Id))
+                break;
+
             hasTreeNodes = datastore.Builder.Cache.GetDataPortTreeNodeParent((DataPortTreeNode)hasTreeNodes);
             pathParts.Add(GetName(hasTreeNodes));
         }
