@@ -15,7 +15,7 @@ To run end to end tests locally, an initial setup is required as described here 
 
 Execute the following commands before build in solution root:
 
-- Run `npm i`
+- Run `npm ci`
 - Run `npm run build`
 
 ### Package API Credentials
