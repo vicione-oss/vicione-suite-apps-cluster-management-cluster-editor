@@ -23,6 +23,9 @@ internal static class BuilderFactory
         dependencyResolver
             .ResolveFunctionBlockDesignDependency(s_fbDesignId)
             .Returns(new ClusterDependency { Name = "TestDependency", Version = "1.0.0" });
+        dependencyResolver
+            .ResolveDataPortDesignDependency(Arg.Any<string>())
+            .Returns(new ClusterDependency { Name = "DataPortDependency", Version = "1.0.0" });
 
         var cluster = new ClusterBuilder(dependencyResolver);
         cluster.AddDemoElements();

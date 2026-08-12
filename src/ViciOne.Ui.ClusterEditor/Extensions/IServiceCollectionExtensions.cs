@@ -18,7 +18,6 @@ using ViciOne.Ui.ClusterEditor.Models.ComponentStates.ContextMenu.Specialized;
 using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
-using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.ClusterEditor.Sections.Debugging.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Information.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Extensions;
@@ -54,7 +53,6 @@ public static class IServiceCollectionExtensions
         services.AddScoped<DragService>();
         services.AddScoped<ConnectorSelectionDialogService>();
         services.AddScoped<ConnectorService>();
-        services.AddScoped<IDataPortTreeIconProvider, DataPortTreeIconProvider>();
         services.AddDatastore();
         services.AddScoped<DiagramEventService>();
         services.AddScoped<DiagramService>();

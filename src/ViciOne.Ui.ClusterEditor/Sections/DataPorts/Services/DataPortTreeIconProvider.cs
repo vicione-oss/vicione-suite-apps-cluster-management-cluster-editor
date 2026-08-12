@@ -9,9 +9,9 @@ using ViciOne.Ui.TreeEditor.Builder.Interface.Icons;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 
-internal sealed class DataPortTreeIconProvider() : IDataPortTreeIconProvider
+internal static class DataPortTreeIconProvider
 {
-    public IIcon? GetDataPointIcon(DataPortChildNodeModel childNode, int size, IClusterCache clusterCache)
+    internal static IIcon? GetDataPointIcon(DataPortChildNodeModel childNode, int size, IClusterCache clusterCache)
     {
         if (!childNode.IsDataPoint)
             return null;
@@ -42,6 +42,6 @@ internal sealed class DataPortTreeIconProvider() : IDataPortTreeIconProvider
         return null;
     }
 
-    public string? GetSvgIcon(TreeBuilder.TreeBuilder treeBuilder, string iconName)
+    internal static string? GetSvgIcon(TreeBuilder.TreeBuilder treeBuilder, string iconName)
         => treeBuilder.GetSvgIcon(iconName);
 }

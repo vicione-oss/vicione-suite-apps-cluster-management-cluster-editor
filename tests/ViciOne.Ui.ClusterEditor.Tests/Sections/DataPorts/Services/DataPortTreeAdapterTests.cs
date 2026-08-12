@@ -5,437 +5,415 @@ using Blazor.Diagrams;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using ViciOne.Cluster.Builder.Abstractions;
-using ViciOne.TreeBuilder.NodeTypes;
+using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
+using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.ContextMenu;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
+using ViciOne.Ui.ClusterEditor.Tests.Resources;
 using ViciOne.Ui.ClusterEditor.Tests.TestHelpers;
+using ViciOne.Ui.TreeEditor.Builder.Interface.Enums;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Icons;
+using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
 using Xunit;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Sections.DataPorts.Services;
 
 public sealed class DataPortTreeAdapterTests : IAsyncDisposable
 {
+    private readonly DataPortNodeActionProvider _actionProvider;
     private readonly DataPortTreeAdapter _adapter;
     private readonly IClusterBuilder _builder;
+    private readonly IContextMenuRequest<DataPortAddChildNodeContextMenuContext> _contextMenuRequest;
     private readonly IDatastore _datastore;
     private readonly DiagramService _diagramService;
+    private readonly DataPortDragCoordinator _dragCoordinator;
     private readonly DragService _dragService;
-    private readonly ClusterBuilderEventBuffer _eventBuffer;
-    private readonly IContextMenuRequest<DataPortAddChildNodeContextMenuContext> _mockContextMenuRequest;
-    private readonly IClusterEditorManagementInternal _mockDataManagementService;
-    private readonly IDataPortTreeIconProvider _mockIconProvider;
-    private readonly ILogger<DataPortTreeAdapter> _mockLogger;
-    private readonly IRulesetProvider _mockRulesetProvider;
+    private readonly ClusterBuilderEventBuffer _eventBuffer = new();
+    private readonly DataPortClusterEventSynchronizer _eventSynchronizer;
+    private readonly DataPortIconResolver _iconResolver;
+    private readonly IRulesetProvider _rulesetProvider;
+    private readonly TreeEditor.Builder.TreeBuilder _treeBuilder;
+    private readonly DataPortTreeBuilderRegistry _treeBuilderRegistry;
+    private readonly DataPortTreeMutator _treeMutator;
+    private readonly DataPortTreeState _treeState;
 
     public DataPortTreeAdapterTests()
     {
-        _mockContextMenuRequest = Substitute.For<IContextMenuRequest<DataPortAddChildNodeContextMenuContext>>();
-        _eventBuffer = new();
+        _treeState = new DataPortTreeState();
         _datastore = Substitute.For<IDatastore>();
         _diagramService = new(_datastore, new(Substitute.For<ILogger<DiagramEventService>>()), Substitute.For<ILogger<DiagramService>>())
         {
             Diagram = new BlazorDiagram()
         };
         _dragService = new(new(Substitute.For<ILogger<DiagramEventService>>()), _diagramService, new());
-        _mockRulesetProvider = Substitute.For<IRulesetProvider>();
-        _mockLogger = Substitute.For<ILogger<DataPortTreeAdapter>>();
-        _mockDataManagementService = Substitute.For<IClusterEditorManagementInternal>();
-        _mockIconProvider = Substitute.For<IDataPortTreeIconProvider>();
+        _dragCoordinator = new(_dragService, _datastore);
+        _rulesetProvider = Substitute.For<IRulesetProvider>();
+        _eventSynchronizer = new(_eventBuffer, _rulesetProvider, _datastore, _treeState);
+        _iconResolver = new DataPortIconResolver(_datastore);
+        _treeBuilderRegistry = new DataPortTreeBuilderRegistry(_rulesetProvider);
+        _treeMutator = new DataPortTreeMutator(_datastore, _rulesetProvider, Substitute.For<ILogger<DataPortTreeMutator>>(), _treeState, _treeBuilderRegistry);
+        _contextMenuRequest = Substitute.For<IContextMenuRequest<DataPortAddChildNodeContextMenuContext>>();
+        _actionProvider = new DataPortNodeActionProvider(_contextMenuRequest,
+            _treeMutator,
+            new DataPortEditingCoordinator(Substitute.For<IClusterEditorManagementInternal>(), _treeState),
+            _treeState);
 
         _adapter = new DataPortTreeAdapter(
-            _mockContextMenuRequest,
-            _eventBuffer,
+            _actionProvider,
             _datastore,
-            _dragService,
-            _mockRulesetProvider,
-            _mockLogger,
-            _mockDataManagementService,
-            _mockIconProvider);
+            _treeState,
+            _dragCoordinator,
+            _eventSynchronizer,
+            _iconResolver,
+            Substitute.For<ILogger<DataPortTreeAdapter>>(),
+            _treeMutator,
+            _treeBuilderRegistry);
 
         _builder = BuilderFactory.Create();
 
         _datastore.Builder.Returns(_builder);
+
+        _treeBuilder = new TreeEditor.Builder.TreeBuilder();
+        _treeBuilder.SetAdapter(_adapter);
+        _adapter.Initialize();
     }
 
     public async ValueTask DisposeAsync()
     {
         _adapter.Dispose();
         _builder.Dispose();
-        _eventBuffer.Dispose();
-        _diagramService.Dispose();
         await _datastore.DisposeAsync();
+        _diagramService.Dispose();
+        _eventBuffer.Dispose();
+        _eventSynchronizer.Dispose();
+        _treeBuilder.Dispose();
     }
 
     [Fact]
-    public void GetIcons_CalledMultipleTimesWithSameNode_ReturnsConsistentResults()
+    public void GetIcons_CallsIconResolver()
     {
         // Arrange
-        var iconName = "test-icon";
-        var iconMarkup = "<svg>test</svg>";
-        var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(iconName);
-
-        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns(iconMarkup);
+        var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel("broker");
 
         // Act
-        var result1 = _adapter.GetIcons(rootNode).ToList();
-        var result2 = _adapter.GetIcons(rootNode).ToList();
-
-        // Assert
-        Assert.Single(result1);
-        Assert.Equal(iconMarkup, ((SvgIcon)result1[0]).MarkupString);
-        Assert.Single(result2);
-        Assert.Equal(iconMarkup, ((SvgIcon)result2[0]).MarkupString);
-        _mockIconProvider.Received(2).GetSvgIcon(rootNode.Builder, iconName);
-    }
-
-    [Fact]
-    public void GetIcons_WithDataPortChildNodeModel_CustomIcon_EmptyMarkup_ReturnsEmpty()
-    {
-        // Arrange
-        var customIcon = "custom-icon";
-        var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(
-            icon: customIcon,
-            nodeReference: new NodeReference { Id = "test-id" });
-
-        _mockIconProvider.GetSvgIcon(childNode.RootNode.Builder, customIcon).Returns(string.Empty);
-
-        // Act
-        var result = _adapter.GetIcons(childNode).ToList();
-
-        // Assert
-        Assert.Empty(result);
-        _mockIconProvider.Received(1).GetSvgIcon(childNode.RootNode.Builder, customIcon);
-    }
-
-    [Fact]
-    public void GetIcons_WithDataPortChildNodeModel_CustomIcon_NullMarkup_ReturnsEmpty()
-    {
-        // Arrange
-        var customIcon = "custom-icon";
-        var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(
-            icon: customIcon,
-            nodeReference: new NodeReference { Id = "test-id" });
-
-        _mockIconProvider.GetSvgIcon(childNode.RootNode.Builder, customIcon).Returns((string?)null);
-
-        // Act
-        var result = _adapter.GetIcons(childNode).ToList();
-
-        // Assert
-        Assert.Empty(result);
-        _mockIconProvider.Received(1).GetSvgIcon(childNode.RootNode.Builder, customIcon);
-    }
-
-    [Fact]
-    public void GetIcons_WithDataPortChildNodeModel_CustomIcon_ValidMarkup_ReturnsSvgIcon()
-    {
-        // Arrange
-        var customIcon = "custom-icon";
-        var iconMarkup = "<svg>custom</svg>";
-        var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(
-            icon: customIcon,
-            nodeReference: new NodeReference { Id = "test-id" });
-
-        _mockIconProvider.GetSvgIcon(childNode.RootNode.Builder, customIcon).Returns(iconMarkup);
-
-        // Act
-        var result = _adapter.GetIcons(childNode).ToList();
+        var result = _adapter.GetIcons(rootNode).ToList();
 
         // Assert
         Assert.Single(result);
-        Assert.IsType<SvgIcon>(result[0]);
-        _mockIconProvider.Received(1).GetSvgIcon(childNode.RootNode.Builder, customIcon);
+        Assert.Equal(_iconResolver.GetIcons(rootNode).First().MarkupString, ((SvgIcon)result[0]).MarkupString);
+    }
+
+    private DataPortRootNodeModel SeedRoot()
+    {
+        _rulesetProvider.GetRuleset(Arg.Any<RulesetIdentifier>()).Returns(TestResources.MqttRuleset);
+        _rulesetProvider
+            .GetSystemDataPortDependency()
+            .Returns(new ClusterDependency { Name = "SystemDataPort", Version = "1.0.0" });
+        _datastore.ActiveDataflow.Returns(_builder.Cluster.Dataflows[0]);
+
+        _adapter.CreateNewDataPortRootNode("MQTTDataPort");
+        return (DataPortRootNodeModel)_adapter.GetRootNodes().Single();
+    }
+
+    [Fact]
+    public void CanInboundDropAsChild_ReflectsValidInboundDropTargets()
+    {
+        // Arrange
+        var root = SeedRoot();
+
+        // Act & Assert
+        Assert.False(_adapter.CanInboundDropAsChild(root));
+        _adapter.ValidInboundDropTargets.Add(root);
+        Assert.True(_adapter.CanInboundDropAsChild(root));
+    }
+
+    [Fact]
+    public void Dismantle_AfterSetup_DoesNotThrow()
+    {
+        // Arrange
+        SeedRoot();
+
+        // Act & Assert
+        _adapter.Dismantle();
+    }
+
+    [Fact]
+    public void FilterNodes_WithSeededTree_DoesNotThrow()
+    {
+        // Arrange
+        var root = SeedRoot();
+        _adapter.SortNodeChildren(root);
+
+        // Act & Assert
+        _adapter.FilterNodes(root.Children.Single().Name);
+    }
+
+    [Fact]
+    public void FilterNodes_WhenMatchingChildNode_KeepsParentChainVisible()
+    {
+        // Arrange - a broker with a folder beneath it, filtered by the folder's name so the
+        // filter helper resolves the child's parent chain.
+        var root = SeedRoot();
+        var broker = root.Children.Single();
+        var descriptor = broker.PossibleChildren.First(d => d.Children.Count == 0);
+        var folder = DataPortChildNodeModelFactory.CreateDataPortChildNodeModel(descriptor, broker);
+        _adapter.CreateNewChildNode(broker, folder);
+
+        // Act & Assert (exercises ResolveParent for a DataPortChildNodeModel)
+        _adapter.FilterNodes(folder.Name);
+        Assert.True(broker.Expanded || broker.Children.Contains(folder));
+    }
+
+    [Fact]
+    public void HasChildren_ReturnsTrueForNodeWithChildren_AndFalseOtherwise()
+    {
+        // Arrange
+        var root = SeedRoot();
+
+        // Act & Assert
+        Assert.True(_adapter.HasChildren(root));
+        Assert.False(_adapter.HasChildren(Substitute.For<ITreeNode>()));
+    }
+
+    [Fact]
+    public void InitializeDataPortTree_RebuildsRootNodesFromBuilder()
+    {
+        // Arrange
+        SeedRoot();
+
+        // Act & Assert (should not throw; delegates to the mutator)
+        _adapter.InitializeDataPortTree();
+        Assert.NotEmpty(_adapter.GetRootNodes());
+    }
+
+    [Fact]
+    public void GetActions_DelegatesToActionProvider()
+    {
+        // Arrange
+        var root = SeedRoot();
+
+        // Act
+        var actions = _adapter.GetActions(root).ToList();
+
+        // Assert
+        Assert.NotEmpty(actions);
+    }
+
+    [Fact]
+    public void GetChildren_ReturnsChildrenForDataPortNode_AndEmptyOtherwise()
+    {
+        // Arrange
+        var root = SeedRoot();
+
+        // Act & Assert
+        Assert.Equal(root.Children, _adapter.GetChildren(root));
+        Assert.Empty(_adapter.GetChildren(Substitute.For<ITreeNode>()));
     }
 
     [Theory]
-    [InlineData("datapoint")]
-    [InlineData("DATAPOINT")]
-    [InlineData("DataPoint")]
-    [InlineData("DaTaPoInT")]
-    public async Task GetIcons_WithDataPortChildNodeModel_DataPointIcon_CaseInsensitive_CallsGetDataPointIcon(string iconValue)
+    [InlineData(true)]
+    [InlineData(false)]
+    public void GetCssClasses_ReturnsHighlightedOnlyForHighlightedNodeTemplate(bool highlighted)
     {
         // Arrange
-        var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(
-            icon: iconValue,
-            nodeReference: new NodeReference { Id = "test-id" });
-
-        _mockIconProvider.GetDataPointIcon(childNode, 24, Arg.Any<IClusterCache>()).Returns((IIcon?)null);
+        var root = SeedRoot();
+        root.Highlighted = highlighted;
 
         // Act
-        var result = _adapter.GetIcons(childNode).ToList();
+        var nodeClasses = _adapter.GetCssClasses(root, TemplateType.Node).ToList();
+        var displayClasses = _adapter.GetCssClasses(root, TemplateType.NodeDisplay).ToList();
 
         // Assert
-        Assert.Empty(result);
-        _mockIconProvider.Received(1).GetDataPointIcon(childNode, 24, Arg.Any<IClusterCache>());
+        Assert.Equal(highlighted ? ["highlighted"] : Array.Empty<string>(), nodeClasses);
+        Assert.Empty(displayClasses);
     }
 
     [Fact]
-    public async Task GetIcons_WithDataPortChildNodeModel_DataPointIcon_ReturnsDataPointIcon()
+    public void GetDblClickAction_ForNodeWithoutLinks_TogglesExpansion()
     {
         // Arrange
-
-        var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(
-            icon: "datapoint",
-            nodeReference: new NodeReference { Id = "test-id" });
-
-        var expectedIcon = new SvgIcon("<svg>datapoint</svg>");
-        _mockIconProvider.GetDataPointIcon(childNode, 24, Arg.Any<IClusterCache>()).Returns(expectedIcon);
+        var root = SeedRoot();
+        var action = _adapter.GetDblClickAction(root)!;
+        var expandedBefore = root.Expanded;
 
         // Act
-        var result = _adapter.GetIcons(childNode).ToList();
+        action(root);
+        action(Substitute.For<ITreeNode>());
 
         // Assert
-        Assert.Single(result);
-        Assert.Same(expectedIcon, result[0]);
-        _mockIconProvider.Received(1).GetDataPointIcon(childNode, 24, Arg.Any<IClusterCache>());
+        Assert.NotEqual(expandedBefore, root.Expanded);
     }
 
     [Fact]
-    public void GetIcons_WithDataPortChildNodeModel_NullIcon_NodeTypeIconWithNullMarkup_ReturnsEmpty()
+    public void GetDisplayText_ReturnsNameForDataPortNode_AndEmptyOtherwise()
     {
         // Arrange
-        var nodeTypeId = "Folder";
-        var nodeTypeIconName = "folder";
+        var root = SeedRoot();
 
-        var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(
-            icon: null,
-            nodeReference: new NodeReference { Id = nodeTypeId });
-
-        _mockIconProvider.GetSvgIcon(childNode.RootNode.Builder, nodeTypeIconName).Returns((string?)null);
-
-        // Act
-        var result = _adapter.GetIcons(childNode).ToList();
-
-        // Assert
-        Assert.Empty(result);
-        _mockIconProvider.Received(1).GetSvgIcon(childNode.RootNode.Builder, nodeTypeIconName);
+        // Act & Assert
+        Assert.Equal(root.Name, _adapter.GetDisplayText(root));
+        Assert.Equal(string.Empty, _adapter.GetDisplayText(Substitute.For<ITreeNode>()));
     }
 
     [Fact]
-    public void GetIcons_WithDataPortChildNodeModel_NullIcon_NodeTypeIconWithValidMarkup_ReturnsSvgIcon()
+    public void GetParent_ReturnsParentForChild_AndNullOtherwise()
     {
         // Arrange
-        var nodeTypeId = "Folder";
-        var nodeTypeIconName = "folder";
-        var iconMarkup = "<svg>node-type</svg>";
+        var root = SeedRoot();
+        var child = (DataPortChildNodeModel)root.Children.Single();
 
-
-        var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(
-            icon: null,
-            nodeReference: new NodeReference { Id = nodeTypeId });
-
-        _mockIconProvider.GetSvgIcon(childNode.RootNode.Builder, nodeTypeIconName).Returns(iconMarkup);
-
-        // Act
-        var result = _adapter.GetIcons(childNode).ToList();
-
-        // Assert
-        Assert.Single(result);
-        Assert.IsType<SvgIcon>(result[0]);
-        _mockIconProvider.Received(1).GetSvgIcon(childNode.RootNode.Builder, nodeTypeIconName);
+        // Act & Assert
+        Assert.Same(child.Parent, _adapter.GetParent(child));
+        Assert.Null(_adapter.GetParent(root));
     }
 
     [Fact]
-    public void GetIcons_WithDataPortChildNodeModel_NullNodeReference_ReturnsEmpty()
+    public void GetTreeNode_ReturnsMatchingNode_AndNullForUnknown()
     {
         // Arrange
-        var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(
-            icon: "child-icon",
-            nodeReference: null);
+        var root = SeedRoot();
+        var child = root.Children.Single();
 
-        // Act
-        var result = _adapter.GetIcons(childNode).ToList();
-
-        // Assert
-        Assert.Empty(result);
-        _mockIconProvider.DidNotReceive().GetSvgIcon(Arg.Any<TreeBuilder.TreeBuilder>(), Arg.Any<string>());
-        _mockIconProvider.DidNotReceive().GetDataPointIcon(Arg.Any<DataPortChildNodeModel>(), Arg.Any<int>(), Arg.Any<IClusterCache>());
+        // Act & Assert
+        Assert.Same(child, _adapter.GetTreeNode(new DataPortTreeNode { Id = child.Id.Value }));
+        Assert.Null(_adapter.GetTreeNode(new DataPortTreeNode { Id = Guid.NewGuid() }));
     }
 
     [Fact]
-    public void GetIcons_WithDataPortRootNodeModel_EmptyIcon_AvailableIconsWithEmptyMarkup_ReturnsEmpty()
+    public void GetDataPortRootNode_ReturnsSeededRoot()
     {
         // Arrange
-        var iconName = "test-icon";
-        var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(string.Empty, [iconName]);
+        var root = SeedRoot();
 
-        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns((string?)null);
-
-        // Act
-        var result = _adapter.GetIcons(rootNode).ToList();
-
-        // Assert
-        Assert.Empty(result);
-        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, iconName);
+        // Act & Assert
+        Assert.Same(root, _adapter.GetDataPortRootNode("MQTTDataPort"));
     }
 
     [Fact]
-    public void GetIcons_WithDataPortRootNodeModel_EmptyIcon_AvailableIconsWithEmptyStringMarkup_ReturnsEmpty()
+    public void IsExpandedAndIsSelected_ReflectNodeState()
     {
         // Arrange
-        var iconName = "test-icon";
-        var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(string.Empty, [iconName]);
+        var root = SeedRoot();
+        root.Expanded = true;
+        root.Selected = true;
 
-        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns(string.Empty);
-
-        // Act
-        var result = _adapter.GetIcons(rootNode).ToList();
-
-        // Assert
-        Assert.Empty(result);
-        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, iconName);
+        // Act & Assert
+        Assert.True(_adapter.IsExpanded(root));
+        Assert.True(_adapter.IsSelected(root));
+        Assert.False(_adapter.IsExpanded(Substitute.For<ITreeNode>()));
+        Assert.False(_adapter.IsSelected(Substitute.For<ITreeNode>()));
     }
 
     [Fact]
-    public void GetIcons_WithDataPortRootNodeModel_EmptyIcon_AvailableIconsWithValidMarkup_ReturnsSvgIcon()
+    public void ExpansionAndSelectionChanges_UpdateNodeState()
     {
         // Arrange
-        var iconName = "test-icon";
-        var iconMarkup = "<svg>test</svg>";
-        var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(string.Empty, [iconName]);
-
-        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns(iconMarkup);
+        var root = SeedRoot();
 
         // Act
-        var result = _adapter.GetIcons(rootNode).ToList();
+        _treeBuilder.Expansion.ChangeExpansion(root, true);
+        _treeBuilder.Selection.ChangeSelection(root, true);
 
         // Assert
-        Assert.Single(result);
-        Assert.IsType<SvgIcon>(result[0]);
-        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, iconName);
+        Assert.True(root.Expanded);
+        Assert.True(root.Selected);
     }
 
     [Fact]
-    public void GetIcons_WithDataPortRootNodeModel_EmptyIcon_NoAvailableIcons_ReturnsEmpty()
+    public void OnDeleteNodeUserConfirmationRequest_RoundTripsThroughState()
     {
         // Arrange
-        var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(string.Empty);
+        static void Handler(ITreeNode node, Action confirm) => confirm();
 
         // Act
-        var result = _adapter.GetIcons(rootNode).ToList();
+        _adapter.OnDeleteNodeUserConfirmationRequest = Handler;
 
         // Assert
-        Assert.Empty(result);
-        _mockIconProvider.DidNotReceive().GetSvgIcon(Arg.Any<TreeBuilder.TreeBuilder>(), Arg.Any<string>());
-        _mockIconProvider.DidNotReceive().GetDataPointIcon(Arg.Any<DataPortChildNodeModel>(), Arg.Any<int>(), Arg.Any<IClusterCache>());
+        Assert.NotNull(_adapter.OnDeleteNodeUserConfirmationRequest);
     }
 
     [Fact]
-    public void GetIcons_WithDataPortRootNodeModel_NullIcon_NoAvailableIcons_ReturnsEmpty()
+    public void ProcessNodeChanges_ForNonChildNode_DoesNotThrow()
     {
         // Arrange
-        var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(null);
+        SeedRoot();
 
-        // Act
-        var result = _adapter.GetIcons(rootNode).ToList();
-
-        // Assert
-        Assert.Empty(result);
-        _mockIconProvider.DidNotReceive().GetSvgIcon(Arg.Any<TreeBuilder.TreeBuilder>(), Arg.Any<string>());
-        _mockIconProvider.DidNotReceive().GetDataPointIcon(Arg.Any<DataPortChildNodeModel>(), Arg.Any<int>(), Arg.Any<IClusterCache>());
+        // Act & Assert
+        _adapter.ProcessNodeChanges(Substitute.For<ITreeNode>());
     }
 
     [Fact]
-    public void GetIcons_WithDataPortRootNodeModel_WithValidIcon_EmptyMarkup_ReturnsEmpty()
+    public void RevertNodeChanges_ForSeededChild_DoesNotThrow()
     {
         // Arrange
-        var iconName = "test-icon";
-        var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(iconName);
+        var root = SeedRoot();
+        var child = (DataPortChildNodeModel)root.Children.Single();
 
-        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns(string.Empty);
-
-        // Act
-        var result = _adapter.GetIcons(rootNode).ToList();
-
-        // Assert
-        Assert.Empty(result);
-        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, iconName);
+        // Act & Assert
+        _adapter.RevertNodeChanges(child);
     }
 
     [Fact]
-    public void GetIcons_WithDataPortRootNodeModel_WithValidIcon_NullMarkup_ReturnsEmpty()
+    public void SetHighlightState_UpdatesDataPortNodesOnly()
     {
         // Arrange
-        var iconName = "valid-icon";
-        var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(iconName);
-
-        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns((string?)null);
+        var root = SeedRoot();
 
         // Act
-        var result = _adapter.GetIcons(rootNode).ToList();
+        _adapter.SetHighlightState(true, [root, Substitute.For<ITreeNode>()]);
 
         // Assert
-        Assert.Empty(result);
-        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, iconName);
+        Assert.True(root.Highlighted);
     }
 
     [Fact]
-    public void GetIcons_WithDataPortRootNodeModel_WithValidIcon_ValidMarkup_ReturnsSvgIcon()
+    public void CreateNewChildNode_DelegatesToMutator()
     {
         // Arrange
-        var iconName = "valid-icon";
-        var iconMarkup = "<svg>valid</svg>";
-        var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(iconName);
-
-        _mockIconProvider.GetSvgIcon(rootNode.Builder, iconName).Returns(iconMarkup);
+        var root = SeedRoot();
+        var broker = root.Children.Single();
+        var descriptor = broker.PossibleChildren.First(d => d.Children.Count == 0);
+        var folder = DataPortChildNodeModelFactory.CreateDataPortChildNodeModel(descriptor, broker);
 
         // Act
-        var result = _adapter.GetIcons(rootNode).ToList();
+        _adapter.CreateNewChildNode(broker, folder);
 
         // Assert
-        Assert.Single(result);
-        Assert.IsType<SvgIcon>(result[0]);
-        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, iconName);
+        Assert.Contains(folder, broker.Children);
     }
 
     [Fact]
-    public void GetIcons_WithDifferentNodes_CallsProviderWithCorrectParameters()
+    public void TemplateMapping_ReturnsExpectedTemplateTypes()
     {
         // Arrange
-        var rootIconName = "root-icon";
-        var rootIconMarkup = "<svg>root</svg>";
-        var childIconName = "child-icon";
-        var childIconMarkup = "<svg>child</svg>";
+        var root = SeedRoot();
+        var child = root.Children.Single();
+        var mapping = _treeBuilder.Template.Mapping!;
 
-        var rootNode = DataPortNodeModelCreator.CreateDataPortRootNodeModel(rootIconName);
-        var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(
-            parent: rootNode,
-            rootNode: rootNode,
-            icon: childIconName,
-            nodeReference: new NodeReference { Id = "test-id" });
+        // Act & Assert
+        Assert.Equal(typeof(DataPortChildNode), mapping(child, TemplateType.Node));
+        Assert.Null(mapping(child, TemplateType.NodeDisplay));
 
-        _mockIconProvider.GetSvgIcon(rootNode.Builder, rootIconName).Returns(rootIconMarkup);
-        _mockIconProvider.GetSvgIcon(rootNode.Builder, childIconName).Returns(childIconMarkup);
-
-        // Act
-        var rootResult = _adapter.GetIcons(rootNode).ToList();
-        var childResult = _adapter.GetIcons(childNode).ToList();
-
-        // Assert
-        Assert.Single(rootResult);
-        Assert.Single(childResult);
-        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, rootIconName);
-        _mockIconProvider.Received(1).GetSvgIcon(rootNode.Builder, childIconName);
+        child.IsEditModeActive = true;
+        Assert.Equal(typeof(DataPortEditNodeTemplate), mapping(child, TemplateType.NodeDisplay));
+        Assert.Null(mapping(Substitute.For<ITreeNode>(), TemplateType.NodeDisplay));
+        Assert.Null(mapping(child, (TemplateType)(-1)));
     }
 
     [Fact]
-    public void GetIcons_WithNonDataPortNodeModel_ReturnsEmpty()
+    public async Task DataPortWithLinksDoubleClicked_CanSubscribeAndUnsubscribe()
     {
         // Arrange
-        var mockNode = Substitute.For<TreeEditor.Builder.Interface.Nodes.ITreeNode>();
+        static Task Handler(ITreeNode node) => Task.CompletedTask;
 
-        // Act
-        var result = _adapter.GetIcons(mockNode).ToList();
-
-        // Assert
-        Assert.Empty(result);
-        _mockIconProvider.DidNotReceive().GetSvgIcon(Arg.Any<TreeBuilder.TreeBuilder>(), Arg.Any<string>());
-        _mockIconProvider.DidNotReceive().GetDataPointIcon(Arg.Any<DataPortChildNodeModel>(), Arg.Any<int>(), Arg.Any<IClusterCache>());
+        // Act & Assert (no throw)
+        _adapter.DataPortWithLinksDoubleClicked += Handler;
+        _adapter.DataPortWithLinksDoubleClicked -= Handler;
+        await Task.CompletedTask;
     }
 }

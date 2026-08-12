@@ -29,6 +29,7 @@
 - Replaced `DxTextBox` with `ViciOne.Ui.Blazor.Components.TextBox`
 - Fixed connector position on multiline blocks
 - Replaced `ComboBox` with `DxComboBox` in `UniversalInput`
+- Refactored `DataPortTreeAdapter` into multiple services to avoid excessive class coupling and improve maintainability
 
 ### Removed
 

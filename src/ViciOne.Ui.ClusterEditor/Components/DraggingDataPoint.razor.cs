@@ -15,7 +15,6 @@ public sealed partial class DraggingDataPoint : ComponentBase, IDisposable
     private Point? _position;
     private bool _visible;
 
-    [Inject] private IDataPortTreeIconProvider DataPortTreeIconProvider { get; set; } = default!;
     [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DragService DragService { get; set; } = default!;
 
