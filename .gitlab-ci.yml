@@ -194,17 +194,6 @@ Publish arm64:
   - ssh-keyscan -T 250 $HOST_IP >> ~/.ssh/known_hosts
   - *patch_version
 
-.deploy_cluster_editor: &deploy_cluster_editor
-  - mkdir -p "${DIRECTORY}"
-  - ABSOLUTE_DIRECTORY=$(realpath "${DIRECTORY}")
-  - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "sudo pkill -9 -f ${BINARY}" || true
-  - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "sudo mkdir -p ${INSTALL_DIRECTORY} && sudo chown -R ${PUBLISH_USER}:${PUBLISH_USER} ${INSTALL_DIRECTORY}"
-  - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "sudo touch ${LOGFILE} && sudo chown ${PUBLISH_USER}:${PUBLISH_USER} ${LOGFILE}"
-  - rsync -e 'ssh -q  -o "ConnectTimeout=10"' -rz --inplace --stats --delete "${ABSOLUTE_DIRECTORY}"/ ${PUBLISH_USER}@${HOST_IP}:${INSTALL_DIRECTORY}
-  - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "sudo setcap 'cap_net_bind_service=+ep' ${INSTALL_DIRECTORY}/${BINARY}"
-  - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "echo \"cd ${INSTALL_DIRECTORY} ;  nohup ./${BINARY} --urls http://0.0.0.0:80 &> ${LOGFILE} &\" > ${INSTALL_DIRECTORY}/run.sh"
-  - ssh -q  -o "ConnectTimeout=10" ${PUBLISH_USER}@${HOST_IP} "chmod +x ${INSTALL_DIRECTORY}/run.sh ; ${INSTALL_DIRECTORY}/run.sh"
-
 .deploy_cluster_editor_systemd: &deploy_cluster_editor_systemd
   - mkdir -p "${DIRECTORY}"
   - ABSOLUTE_DIRECTORY=$(realpath "${DIRECTORY}")
@@ -224,7 +213,7 @@ Publish arm64:
   before_script:
     - *prepare_deploy
   script:
-    - *deploy_cluster_editor
+    - *deploy_cluster_editor_systemd
   rules: *rules_deploy
   needs:
     - 'Publish arm64'
@@ -236,9 +225,8 @@ Deploy EC10:
   variables:
     DIRECTORY: 'artifacts/publish'
     HOST_IP: '10.100.17.71'
-    INSTALL_DIRECTORY: '/opt/dfe'
+    INSTALL_DIRECTORY: '/opt/cluster-editor'
     BINARY: "Server"
-    LOGFILE: '/var/log/vo-cluster-editor.log'
   environment:
     name: 'ec-701.tdl.vicione.dev'
     url: 'https://ec-701.tdl.vicione.dev/'
@@ -250,8 +238,6 @@ Deploy EC20:
     HOST_IP: '10.100.13.75'
     INSTALL_DIRECTORY: '/opt/cluster-editor'
     BINARY: "Server"
-  script:
-    - *deploy_cluster_editor_systemd
   environment:
     name: 'ec-305.tdl.vicione.dev'
     url: 'https://ec-305.tdl.vicione.dev/'
