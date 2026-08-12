@@ -20,11 +20,11 @@ public sealed partial class Index : ComponentBase, IDisposable
     private Task? _designLoadingTask = Task.CompletedTask;
     private bool _errorVisible;
     private bool _loaderVisible = true;
+    private readonly IEnumerable<TimedMessage> _messages = [new TimedMessage() { DisplayDuration = -1, Message = Localization.Index.LoadingDependencies }];
     private Action _messageToastCallback = () => { };
     private string _messageToastText = string.Empty;
     private string _messageToastTitle = string.Empty;
     private bool _messageToastVisible;
-    private IEnumerable<TimedMessage> _messages = [new TimedMessage() { DisplayDuration = -1, Message = Localization.Index.LoadingDependencies }];
 
     [Inject] private IClusterEditorManagement? DataManagementService { get; set; }
     [Inject] private IndexService IndexService { get; set; } = default!;
