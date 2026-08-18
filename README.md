@@ -51,13 +51,12 @@ dotnet user-secrets set "ArtifactRepository:Sources:2:Password" "<password>"
 
 ### Hardware
 
-| Name                | Notes                                         |
-|---------------------|-----------------------------------------------|
-| Demo ec10 1         |                                               |
-| Demo ec20 1         |                                               |
-| Demo raspi 1        | Only usable for the `master` branch           |
+| Name   | URL                                |
+|--------|------------------------------------|
+| EC10   | ec-701.tdl.vicione.dev             |
+| EC20   | ec-305.tdl.vicione.dev             |
 
-The Cluster Editor log file can be found in `/var/log/vo-cluster-editor.log`.
+The Cluster Editor log file can be accessed via `systemctl status cluster-editor.service`.
 
 ## Special debug option in release mode
 
