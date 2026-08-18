@@ -159,8 +159,6 @@ dotnet test                                       # all tests
 dotnet test tests/ViciOne.Ui.ClusterEditor.Tests  # single project
 ```
 
-In Visual Studio, prefer Test Explorer over the CLI for iterating on tests.
-
 ## Git & merge request conventions
 
 - **Branch naming:** When possible, use the gitlab issue number as prefix, otherwise
