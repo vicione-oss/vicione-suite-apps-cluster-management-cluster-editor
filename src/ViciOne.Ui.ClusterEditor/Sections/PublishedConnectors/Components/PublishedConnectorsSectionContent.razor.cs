@@ -11,10 +11,10 @@ using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.Comparer;
 using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
-using ViciOne.Ui.ClusterEditor.Resources;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ColorableIcons;
+using ViciOne.Ui.MonochromeIcons.Core.Enums;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Components;
 
@@ -52,8 +52,8 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
     {
         _inputFilterButton = new FilterButton()
         {
-            Icon = (MarkupString)SvgIcons.published_connectors_section_filter_inputs,
             IsDisabled = DataAvailable,
+            MonochromeIconName = MonochromeIconName.ConnectorInput,
             OnFilterClickedFn = OnFilterInputs,
             Title = Localization.PublishedConnectorsSection.FilterInputs,
         };
@@ -61,8 +61,8 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
 
         _outputFilterButton = new FilterButton()
         {
-            Icon = (MarkupString)SvgIcons.published_connectors_section_filter_outputs,
             IsDisabled = DataAvailable,
+            MonochromeIconName = MonochromeIconName.ConnectorOutput,
             OnFilterClickedFn = OnFilterOutputs,
             Title = Localization.PublishedConnectorsSection.FilterOutputs,
         };

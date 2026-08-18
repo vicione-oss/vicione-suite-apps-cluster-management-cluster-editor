@@ -54,19 +54,6 @@
         cursor: default;
         color: colors.$background-dark-hover;
         pointer-events: none;
-
-        ::deep svg path {
-            fill: colors.$background-dark-hover;
-        }
-    }
-
-    ::deep svg {
-        height: 24px;
-        width: 24px;
-
-        path {
-            fill: editor.$editor-foreground;
-        }
     }
 }
 
