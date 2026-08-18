@@ -1,6 +1,13 @@
 # Changelog
 
-## 1.3.0 - Unreleased
+## 1.4.0 - Unreleased
+
+### Changed
+
+- Refactored `DataPortTreeAdapter` into multiple services to avoid excessive class coupling and improve maintainability
+- Fixed potential marker tooltip exception when deleting a DataPort
+
+## 1.3.0 - 2026-08-05
 
 ### Added
 
@@ -29,8 +36,6 @@
 - Replaced `DxTextBox` with `ViciOne.Ui.Blazor.Components.TextBox`
 - Fixed connector position on multiline blocks
 - Replaced `ComboBox` with `DxComboBox` in `UniversalInput`
-- Refactored `DataPortTreeAdapter` into multiple services to avoid excessive class coupling and improve maintainability
-- Fixed potential marker tooltip exception when deleting a DataPort
 
 ### Removed
 
