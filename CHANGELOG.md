@@ -6,6 +6,11 @@
 
 - Refactored `DataPortTreeAdapter` into multiple services to avoid excessive class coupling and improve maintainability
 - Fixed potential marker tooltip exception when deleting a DataPort
+- Exchanged svg filter icons with monochrome icons in `PublishedConnectorsSection`
+
+### Updated external references
+
+- `ViciOne.Ui.MonochromeIcons` package, update version to `4.16.0`
 
 ## 1.3.0 - 2026-08-05
 

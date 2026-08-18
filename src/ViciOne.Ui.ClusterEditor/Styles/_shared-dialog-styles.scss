@@ -33,12 +33,6 @@
                 > .icon {
                     align-items: center;
                     display: grid;
-
-                    svg {
-                        cursor: unset;
-                        height: 24px;
-                        width: 24px;
-                    }
                 }
 
                 > .value {
@@ -109,14 +103,6 @@
 
     &.adaptive-hidden {
         padding-right: 8px;
-    }
-
-    .searchbar-icon {
-        > svg {
-            path, polygon {
-                fill: editor.$editor-foreground;
-            }
-        }
     }
 }
 

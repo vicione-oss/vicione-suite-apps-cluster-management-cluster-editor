@@ -1,20 +1,9 @@
 .action-button-content {
     display: contents;
-
-    ::deep {
-        svg, .icon {
-            height: 16px;
-            width: 16px;
-        }
-    }
 }
 
 .icon-content {
     display: contents;
-
-    ::deep .icon svg path {
-        fill: revert-layer;
-    }
 }
 
 .node-text {
@@ -32,5 +21,3 @@
         white-space: nowrap;
     }
 }
-
-

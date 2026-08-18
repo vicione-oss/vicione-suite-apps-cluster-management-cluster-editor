@@ -77,27 +77,5 @@ namespace ViciOne.Ui.ClusterEditor.Resources {
                 return ResourceManager.GetString("dataflow_structure-block_jump-to", resourceCulture);
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot; &gt;
-        ///    &lt;g id=&quot;dark/icon/32x32/standard/connector-input&quot; stroke=&quot;none&quot; stroke-width=&quot;1&quot; fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;&gt;
-        ///        &lt;path d=&quot;M27,4 L27,28 L13,28 L13,23.2 L15.3333333,23.2 L15.3333333,25.6 L24.6666667,25.6 L24.6666667,6.4 L15.3333333,6.4 L15.3333333,8.8 L13,8.8 L13,4 L27,4 Z M10.9849057,10 L17,15.8990856 L16.898,16 L17,16.1009144 L10.9849057,22 L9.18037737,20.2302743 L12.219,17.251 L3,17.2513858 L3,14.7486157 L12.219,14.748 L9.18037737, [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string published_connectors_section_filter_inputs {
-            get {
-                return ResourceManager.GetString("published-connectors-section_filter-inputs", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &lt;svg xmlns=&quot;http://www.w3.org/2000/svg&quot; viewBox=&quot;0 0 32 32&quot; &gt;
-        ///    &lt;g id=&quot;dark/icon/32x32/standard/connector-output&quot; stroke=&quot;none&quot; stroke-width=&quot;1&quot; fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;&gt;
-        ///        &lt;path d=&quot;M19,4 L19,8.8 L16.6666667,8.8 L16.6666667,6.4 L7.33333333,6.4 L7.33333333,25.6 L16.6666667,25.6 L16.6666667,23.2 L19,23.2 L19,28 L5,28 L5,4 L19,4 Z M21.9849057,10 L28,15.8990856 L27.898,16 L28,16.1009144 L21.9849057,22 L20.1803774,20.2302743 L23.219,17.251 L14,17.2513858 L14,14.7486157 L23.219,14.748 L20.1803774 [rest of string was truncated]&quot;;.
-        /// </summary>
-        internal static string published_connectors_section_filter_outputs {
-            get {
-                return ResourceManager.GetString("published-connectors-section_filter-outputs", resourceCulture);
-            }
-        }
     }
 }

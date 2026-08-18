@@ -12,24 +12,11 @@
 
     &.active {
         color: colors.$accent;
-
-        ::deep svg path {
-            fill: colors.$accent;
-        }
     }
 
     &.disabled {
         cursor: default;
         color: colors.$background-dark-hover;
-
-        ::deep svg path {
-            fill: colors.$background-dark-hover;
-        }
-    }
-
-    ::deep svg {
-        height: 24px;
-        width: 24px;
     }
 }
 

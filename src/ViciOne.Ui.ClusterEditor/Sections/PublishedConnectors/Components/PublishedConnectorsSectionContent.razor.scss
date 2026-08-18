@@ -17,12 +17,6 @@
         > .icon {
             align-items: center;
             display: grid;
-
-            ::deep svg {
-                cursor: unset;
-                height: 24px;
-                width: 24px;
-            }
         }
 
         > .value {
