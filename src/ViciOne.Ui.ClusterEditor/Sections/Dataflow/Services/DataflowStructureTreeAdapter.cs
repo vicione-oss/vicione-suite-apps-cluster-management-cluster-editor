@@ -411,6 +411,9 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
 
     private void UpdateDataflowActiveState()
     {
+        if (Builder is null)
+            return;
+
         if (_dataflowMap.TryGetValue(_datastore.ActiveDataflow, out var treeNode) && !treeNode.Active)
         {
             foreach (var dataflow in _dataflowMap.Values.Where(d => d.Active).ToArray())

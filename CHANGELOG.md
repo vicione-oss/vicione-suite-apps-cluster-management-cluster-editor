@@ -7,6 +7,7 @@
 - Refactored `DataPortTreeAdapter` into multiple services to avoid excessive class coupling and improve maintainability
 - Fixed potential marker tooltip exception when deleting a DataPort
 - Exchanged svg filter icons with monochrome icons in `PublishedConnectorsSection`
+- Fixed potential exception during application load with non-default language settings
 
 ### Updated external references
 
