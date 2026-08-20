@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
@@ -9,6 +10,7 @@ namespace ViciOne.Ui.ClusterEditor.Components;
 
 public sealed partial class LabelEditor : ComponentBase, IAsyncDisposable
 {
+    private readonly CancellationTokenSource _cts = new();
     private string _editorVisibility = "visible";
     private IJSObjectReference? _jsModule;
     private Dialog? _refDialog;
@@ -20,26 +22,31 @@ public sealed partial class LabelEditor : ComponentBase, IAsyncDisposable
 
     public async ValueTask DisposeAsync()
     {
-        if (_jsModule is not null)
+        await _cts.CancelAsync();
+        _cts.Dispose();
+
+        try
         {
-            try
-            {
+            if (_jsModule is not null)
                 await _jsModule.DisposeAsync();
-                _jsModule = null;
-            }
-            catch (JSDisconnectedException)
-            {
-                // JSDisconnectedException is trapped during module disposal
-                // in case Blazor's SignalR circuit is lost.
-            }
         }
+        catch (JSDisconnectedException) { }
+        catch (OperationCanceledException) { }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/ViciOne.Ui.ClusterEditor/Components/LabelEditor.razor.js");
+            try
+            {
+                _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>(
+                    "import",
+                    _cts.Token,
+                    "./_content/ViciOne.Ui.ClusterEditor/Components/LabelEditor.razor.js");
+            }
+            catch (OperationCanceledException) { }
+            catch (JSDisconnectedException) { }
         }
     }
 
