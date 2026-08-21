@@ -12,7 +12,8 @@ namespace ViciOne.Ui.ClusterEditor.Models;
 public sealed class DataGridConnectorWrapper(IConnector connector,
     ConnectorDesign connectorDesign,
     FunctionBlockDesign functionBlockDesign,
-    ConnectorMarkerType destinationMarker = ConnectorMarkerType.None) : IDragable
+    ConnectorMarkerType destinationMarker = ConnectorMarkerType.None,
+    Func<string?>? dataflowNameProvider = null) : IDragable
 {
     public IConnector Connector { get; } = connector;
     public string ConnectorName => Connector.Name;
@@ -50,6 +51,12 @@ public sealed class DataGridConnectorWrapper(IConnector connector,
             foreach (var c in containers)
                 parts.Add(c.Name);
             parts.Reverse();
+
+            // The topmost container is the dataflow root, whose internal name ('Root') is meaningless to the user.
+            var dataflowName = dataflowNameProvider?.Invoke();
+            if (parts.Count > 0 && !string.IsNullOrEmpty(dataflowName))
+                parts[0] = dataflowName;
+
             return string.Join('.', parts);
         }
     }

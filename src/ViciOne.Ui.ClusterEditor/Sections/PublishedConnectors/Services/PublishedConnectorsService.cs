@@ -41,6 +41,7 @@ internal sealed class PublishedConnectorsService : IDisposable
         _clusterBuilderEventBuffer.ConnectorPropertiesChanged += OnConnectorPropertiesChanged;
         _clusterBuilderEventBuffer.ContainersChanged += OnClusterStateChanged;
         _clusterBuilderEventBuffer.ContainerPropertiesChanged += OnClusterStateChanged;
+        _clusterBuilderEventBuffer.DataflowPropertiesChanged += OnClusterStateChanged;
         _clusterBuilderEventBuffer.FunctionBlockPropertiesChanged += OnFunctionBlockPropertiesChanged;
         _clusterBuilderEventBuffer.FunctionBlocksRemoved += OnClusterStateChanged;
 
@@ -98,6 +99,7 @@ internal sealed class PublishedConnectorsService : IDisposable
         _clusterBuilderEventBuffer.ConnectorPropertiesChanged -= OnConnectorPropertiesChanged;
         _clusterBuilderEventBuffer.ContainersChanged -= OnClusterStateChanged;
         _clusterBuilderEventBuffer.ContainerPropertiesChanged -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.DataflowPropertiesChanged -= OnClusterStateChanged;
         _clusterBuilderEventBuffer.FunctionBlockPropertiesChanged -= OnFunctionBlockPropertiesChanged;
         _clusterBuilderEventBuffer.FunctionBlocksRemoved -= OnClusterStateChanged;
 
@@ -281,7 +283,8 @@ internal sealed class PublishedConnectorsService : IDisposable
                 _publishedConnectorWrappers.Add(new DataGridConnectorWrapper(
                     pc,
                     _datastore.Builder.ResolveConnectorDesign(pc),
-                    _datastore.Builder.ResolveFunctionBlockDesign(pc.FunctionBlock.DesignId)
+                    _datastore.Builder.ResolveFunctionBlockDesign(pc.FunctionBlock.DesignId),
+                    dataflowNameProvider: () => _datastore.Builder.Cache.GetDataflow(pc.FunctionBlock)?.Name
                 ));
             }
         }
