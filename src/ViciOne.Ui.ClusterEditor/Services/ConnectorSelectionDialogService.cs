@@ -35,7 +35,8 @@ public sealed class ConnectorSelectionDialogService(IDatastore datastore, Select
             result.Add(new DataGridConnectorWrapper(
                 c,
                 datastore.Builder.ResolveConnectorDesign(c.GetUnderlyingConnector()),
-                datastore.Builder.ResolveFunctionBlockDesign(c.FunctionBlock.DesignId)));
+                datastore.Builder.ResolveFunctionBlockDesign(c.FunctionBlock.DesignId),
+                dataflowNameProvider: () => datastore.Builder.Cache.GetDataflow(c.FunctionBlock)?.Name));
         }
 
         Connectors = result;
