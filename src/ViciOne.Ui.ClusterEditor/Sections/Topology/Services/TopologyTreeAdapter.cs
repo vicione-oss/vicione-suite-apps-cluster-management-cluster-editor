@@ -6,6 +6,7 @@ using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Helpers;
+using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Sections.Localization;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Components;
@@ -20,6 +21,7 @@ using ViciOne.Ui.TreeEditor.Builder.Interface.Icons;
 using ViciOne.Ui.TreeEditor.Builder.Interface.NodeActions;
 using ViciOne.Ui.TreeEditor.Builder.Interface.NodeActions.Arguments;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
+using TechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Topology.Services;
 
@@ -225,7 +227,7 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
                 yield return new NodeButton()
                 {
                     Action = AddTopologyNode,
-                    Description = "Add child",
+                    Description = GetNodeActionAddDescription(model),
                     EnabledFunc = (_) => true,
                     Icon = new TreeEditorMonochromeIcon(MonochromeIconName.PlusSlim, MonochromeIconSize.Small),
                 };
@@ -234,7 +236,7 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
             yield return new NodeButton()
             {
                 Action = EditTopologyNode,
-                Description = "Edit",
+                Description = CompositeFormats.EditSomething(TechnicalTerms.Node),
                 EnabledFunc = (node) => !((TopologyTreeViewModel)node).IsEditModeActive,
                 Icon = new TreeEditorMonochromeIcon(MonochromeIconName.Edit, MonochromeIconSize.Small),
             };
@@ -242,7 +244,7 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
             yield return new NodeButton()
             {
                 Action = DeleteTopologyNode,
-                Description = "Delete",
+                Description = CompositeFormats.DeleteSomething(TechnicalTerms.Node),
                 EnabledFunc = (_) => true,
                 Icon = new TreeEditorMonochromeIcon(MonochromeIconName.Delete, MonochromeIconSize.Small),
             };
@@ -256,6 +258,16 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
 
         return model.Children;
     }
+
+    private static string GetChildTypeName(object dataItem)
+        => dataItem switch
+        {
+            ClusterNodeGroup => TechnicalTerms.ClusterNode,
+            ClusterNode => TechnicalTerms.ClusterApplication,
+            ClusterApplication => TechnicalTerms.EngineHost,
+            EngineHost => TechnicalTerms.Engine,
+            _ => throw new InvalidOperationException($"Unknown topology data item type {dataItem.GetType()}"),
+        };
 
     public override string GetDisplayText(ITreeNode node)
     {
@@ -281,6 +293,9 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
             Cluster.Model.Engine => MonochromeIconName.TopologyEngineLight,
             _ => throw new InvalidOperationException($"Unknown topology data item type {dataItem.GetType()}"),
         };
+
+    private static string GetNodeActionAddDescription(TopologyTreeViewModel model)
+        => CompositeFormats.Format(SharedSectionText.NodeActionAdd, GetChildTypeName(model.DataItem));
 
     public override ITreeNode? GetParent(ITreeNode node)
     {

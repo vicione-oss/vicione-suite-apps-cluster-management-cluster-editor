@@ -1,9 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Globalization;
-using System.Text;
 using Microsoft.AspNetCore.Components.Web;
+using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Models;
@@ -12,8 +11,6 @@ namespace ViciOne.Ui.ClusterEditor.Helpers;
 
 internal static class TooltipPublishMarkerData
 {
-    private static readonly CompositeFormat s_compositeMoreLinks = CompositeFormat.Parse(Localization.TooltipData.MoreLinks);
-
     private static List<List<string>?> GetPublishMarkerTooltipContent(BlockNodeConnector connector)
     {
         var content = new List<List<string>?>();
@@ -107,7 +104,7 @@ internal static class TooltipPublishMarkerData
 
         if (showSameLevelMoreMessage)
         {
-            content.Add([string.Format(CultureInfo.InvariantCulture, s_compositeMoreLinks, sameLevelOverflow)]);
+            content.Add([CompositeFormats.Format(Localization.TooltipData.MoreLinks, sameLevelOverflow)]);
         }
 
         if (showDivider)
@@ -122,7 +119,7 @@ internal static class TooltipPublishMarkerData
 
         if (showOtherLevelMoreMessage)
         {
-            content.Add([string.Format(CultureInfo.InvariantCulture, s_compositeMoreLinks, otherLevelOverflow)]);
+            content.Add([CompositeFormats.Format(Localization.TooltipData.MoreLinks, otherLevelOverflow)]);
         }
 
         return content;

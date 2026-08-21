@@ -124,7 +124,7 @@
     <value>Soll der Datenfluss '{0}' gelöscht werden?</value>
   </data>
   <data name="DataflowAddedWhileFilteredInfo" xml:space="preserve">
-    <value>Ein Dataflow wurde hinzugefügt während ein Filter aktiv ist. (insgesamt {0})</value>
+    <value>Ein Datenfluss wurde hinzugefügt während ein Filter aktiv ist. (insgesamt {0})</value>
   </data>
   <data name="DeleteDataflowHeader" xml:space="preserve">
     <value>Datenfluss löschen</value>

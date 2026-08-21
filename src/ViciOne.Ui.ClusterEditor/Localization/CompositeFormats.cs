@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System.Collections.Concurrent;
+using System.Globalization;
 using System.Text;
 using ViciOne.Ui.Localization.Resources;
 
@@ -6,32 +7,38 @@ namespace ViciOne.Ui.ClusterEditor.Localization;
 
 internal static class CompositeFormats
 {
-    private static readonly CompositeFormat s_collapseSomething = CompositeFormat.Parse(UserActions.CollapseSomething);
-    private static readonly CompositeFormat s_deleteSomething = CompositeFormat.Parse(UserActions.DeleteSomething);
-    private static readonly CompositeFormat s_editSomething = CompositeFormat.Parse(UserActions.EditSomething);
-    private static readonly CompositeFormat s_expandSomething = CompositeFormat.Parse(UserActions.ExpandSomething);
-    private static readonly CompositeFormat s_generateSomething = CompositeFormat.Parse(UserActions.GenerateSomething);
-    private static readonly CompositeFormat s_loadSomething = CompositeFormat.Parse(UserActions.LoadSomething);
-    private static readonly CompositeFormat s_selectSomething = CompositeFormat.Parse(UserActions.SelectSomething);
+    private static readonly ConcurrentDictionary<(string Culture, string Format), CompositeFormat> s_formatCache = new();
 
     public static string CollapseSomething(string something)
-        => string.Format(CultureInfo.CurrentCulture, s_collapseSomething, something);
+        => Format(UserActions.CollapseSomething, something);
 
     public static string DeleteSomething(string something)
-        => string.Format(CultureInfo.CurrentCulture, s_deleteSomething, something);
+        => Format(UserActions.DeleteSomething, something);
 
     public static string EditSomething(string something)
-        => string.Format(CultureInfo.CurrentCulture, s_editSomething, something);
+        => Format(UserActions.EditSomething, something);
 
     public static string ExpandSomething(string something)
-        => string.Format(CultureInfo.CurrentCulture, s_expandSomething, something);
+        => Format(UserActions.ExpandSomething, something);
+
+    /// <summary>
+    /// Formats a localized composite format string, caching the parsed <see cref="CompositeFormat"/>
+    /// per UI culture so that a culture switch is picked up correctly.
+    /// </summary>
+    public static string Format(string localizedFormat, object? something)
+        => string.Format(CultureInfo.CurrentCulture, GetFormat(localizedFormat), something);
 
     public static string GenerateSomething(string something)
-        => string.Format(CultureInfo.CurrentCulture, s_generateSomething, something);
+        => Format(UserActions.GenerateSomething, something);
+
+    private static CompositeFormat GetFormat(string localizedFormat)
+        => s_formatCache.GetOrAdd(
+            (CultureInfo.CurrentUICulture.Name, localizedFormat),
+            static key => CompositeFormat.Parse(key.Format));
 
     public static string LoadSomething(string something)
-        => string.Format(CultureInfo.CurrentCulture, s_loadSomething, something);
+        => Format(UserActions.LoadSomething, something);
 
     public static string SelectSomething(string something)
-        => string.Format(CultureInfo.CurrentCulture, s_selectSomething, something);
+        => Format(UserActions.SelectSomething, something);
 }
