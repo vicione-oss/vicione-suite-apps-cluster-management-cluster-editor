@@ -17,6 +17,7 @@
 - The "Path" column in the Link Destination dialog now displays the Dataflow name instead of "Root"
 - Fixed localization for FunctionBlock marker tooltips
 - Fixed localization in DataPort section button tooltips
+- Breadcrumb now displays the current Dataflow name instead of "Root" as it's first entry
 
 ### Updated external references
 

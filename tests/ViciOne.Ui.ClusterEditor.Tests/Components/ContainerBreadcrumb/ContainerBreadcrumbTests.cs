@@ -33,7 +33,7 @@ public sealed class ContainerBreadcrumbTests : IDisposable
     public void Dispose()
         => Ctx.Dispose();
 
-    private async Task Init(Container current)
+    private async Task<Dataflow> Init(Container current)
     {
         Ctx.ComponentFactories.AddStub<Breadcrumb>();
         Ctx.SetupDatastore();
@@ -54,10 +54,13 @@ public sealed class ContainerBreadcrumbTests : IDisposable
         }
 
         using var builder = BuilderFactory.Create();
-        builder.Cluster.Dataflows.First().Root = root;
+        var dataflow = builder.Cluster.Dataflows.First();
+        dataflow.Root = root;
 
         await datastore.Load(builder, diagramService, CancellationToken.None);
         await datastore.LoadContainer(current, diagramService);
+
+        return dataflow;
     }
 
     [Fact]
@@ -66,7 +69,7 @@ public sealed class ContainerBreadcrumbTests : IDisposable
         // Arrange
         var root = Create<Container>("root");
 
-        await Init(root);
+        var dataflow = await Init(root);
 
         // Act
         var component = Ctx.RenderComponent<ClusterEditor.Components.ContainerBreadcrumb.ContainerBreadcrumb>();
@@ -75,7 +78,7 @@ public sealed class ContainerBreadcrumbTests : IDisposable
         var currentBreadcrumbItem = breadcrumbStub.Instance.Parameters.Get(p => p.CurrentItem);
 
         // Assert
-        Assert.Equal(currentBreadcrumbItem.Name, root.Name);
+        Assert.Equal(currentBreadcrumbItem.Name, dataflow.Name);
     }
 
     [Fact]
@@ -86,9 +89,9 @@ public sealed class ContainerBreadcrumbTests : IDisposable
         var current = Create<ChildContainer>("current", [child]);
         var sibling = Create<ChildContainer>("sibling");
         var parent = Create<ChildContainer>("parent", [current, sibling]);
-        var root = Create<Container>("root", [parent]);
+        Create<Container>("root", [parent]);
 
-        await Init(current);
+        var dataflow = await Init(current);
 
         // Act
         var component = Ctx.RenderComponent<ClusterEditor.Components.ContainerBreadcrumb.ContainerBreadcrumb>();
@@ -99,6 +102,6 @@ public sealed class ContainerBreadcrumbTests : IDisposable
         // Assert
         Assert.Equal(currentBreadcrumbItem.Name, current.Name);
         Assert.Equal(currentBreadcrumbItem.Parent!.Name, parent.Name);
-        Assert.Equal(currentBreadcrumbItem.Parent!.Parent!.Name, root.Name);
+        Assert.Equal(currentBreadcrumbItem.Parent!.Parent!.Name, dataflow.Name);
     }
 }

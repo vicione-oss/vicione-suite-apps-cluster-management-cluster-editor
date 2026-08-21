@@ -16,6 +16,8 @@ namespace ViciOne.Ui.ClusterEditor.Components.ContainerBreadcrumb;
 
 public sealed partial class ContainerBreadcrumb : ComponentBase, IDisposable
 {
+    private const string FallbackRootName = "Root";
+
     private Container? _bufferedContainer;
     private BreadcrumbContainerItem? _currentItem;
 
@@ -32,15 +34,31 @@ public sealed partial class ContainerBreadcrumb : ComponentBase, IDisposable
         ClusterBuilderEventBuffer.ContainersAdded -= OnContainersAdded;
         ClusterBuilderEventBuffer.ContainersRemoved -= OnContainersRemoved;
         ClusterBuilderEventBuffer.ContainerPropertiesChanged -= OnContainerPropertiesChanged;
+        ClusterBuilderEventBuffer.DataflowPropertiesChanged -= OnDataflowPropertiesChanged;
 
+        Datastore.ActiveDataflowChanged -= OnActiveDataflowChanged;
         DiagramEventService.ContainerLoaded -= OnContainerLoaded;
     }
 
     private Container GetCurrentContainer()
         => _bufferedContainer ??= Datastore.ActiveContainer;
 
+    private string GetRootName()
+    {
+        var name = Datastore.ActiveDataflow?.Name;
+
+        return string.IsNullOrWhiteSpace(name) ? FallbackRootName : name;
+    }
+
     private Task HandleClick(BreadcrumbItem item)
         => Datastore.LoadContainer(((BreadcrumbContainerItem)item).Container, DiagramService);
+
+    private async void OnActiveDataflowChanged()
+    {
+        _shouldRecalcCurrentItem = true;
+
+        await Refresh();
+    }
 
     private async Task OnContainerLoaded(Container container)
     {
@@ -102,14 +120,32 @@ public sealed partial class ContainerBreadcrumb : ComponentBase, IDisposable
         await Refresh();
     }
 
+    private async void OnDataflowPropertiesChanged(IEnumerable<(object? sender, System.ComponentModel.PropertyChangedEventArgs e)> changedProperties)
+    {
+        var shouldRefresh = false;
+        foreach (var (sender, e) in changedProperties)
+        {
+            if (sender is Dataflow dataflow && dataflow == Datastore.ActiveDataflow && e.PropertyName == nameof(Dataflow.Name))
+            {
+                _shouldRecalcCurrentItem = true;
+                shouldRefresh = true;
+            }
+        }
+
+        if (shouldRefresh)
+            await Refresh();
+    }
+
     protected override void OnInitialized()
     {
-        _currentItem = GetCurrentContainer().ToBreadcrumbContainerItem();
+        _currentItem = GetCurrentContainer().ToBreadcrumbContainerItem(GetRootName());
 
         ClusterBuilderEventBuffer.ContainersAdded += OnContainersAdded;
         ClusterBuilderEventBuffer.ContainersRemoved += OnContainersRemoved;
         ClusterBuilderEventBuffer.ContainerPropertiesChanged += OnContainerPropertiesChanged;
+        ClusterBuilderEventBuffer.DataflowPropertiesChanged += OnDataflowPropertiesChanged;
 
+        Datastore.ActiveDataflowChanged += OnActiveDataflowChanged;
         DiagramEventService.ContainerLoaded += OnContainerLoaded;
     }
 
@@ -117,7 +153,7 @@ public sealed partial class ContainerBreadcrumb : ComponentBase, IDisposable
     {
         if (_shouldRecalcCurrentItem)
         {
-            _currentItem = GetCurrentContainer().ToBreadcrumbContainerItem();
+            _currentItem = GetCurrentContainer().ToBreadcrumbContainerItem(GetRootName());
             _shouldRecalcCurrentItem = false;
         }
 

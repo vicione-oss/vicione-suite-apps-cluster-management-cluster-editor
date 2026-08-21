@@ -18,7 +18,7 @@ internal static class ContainerExtensions
         }
     }
 
-    internal static BreadcrumbContainerItem ToBreadcrumbContainerItem(this Container currentContainer)
+    internal static BreadcrumbContainerItem ToBreadcrumbContainerItem(this Container currentContainer, string? rootName = null)
     {
         var selectedItem = new BreadcrumbContainerItem { Container = currentContainer, Name = currentContainer.Name };
         var currentItem = selectedItem;
@@ -39,6 +39,10 @@ internal static class ContainerExtensions
             currentContainer = parentContainer;
             currentItem = parentItem;
         }
+
+        // the last visited item is the root container, which is displayed with the name of its dataflow
+        if (!string.IsNullOrWhiteSpace(rootName))
+            currentItem.Name = rootName;
 
         return selectedItem;
     }
