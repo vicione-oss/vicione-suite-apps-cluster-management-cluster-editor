@@ -2,6 +2,11 @@
 
 ## 1.4.0 - Unreleased
 
+### Added
+
+- Context depended tooltips for the "Add" button in the Topology section
+- Localization for button tooltips in the Topology section
+
 ### Changed
 
 - Refactored `DataPortTreeAdapter` into multiple services to avoid excessive class coupling and improve maintainability
@@ -10,6 +15,8 @@
 - Fixed potential exception during application load with non-default language settings
 - The "Path" column in the Published Connectors section now displays the Dataflow name instead of "Root"
 - The "Path" column in the Link Destination dialog now displays the Dataflow name instead of "Root"
+- Fixed localization for FunctionBlock marker tooltips
+- Fixed localization in DataPort section button tooltips
 
 ### Updated external references
 

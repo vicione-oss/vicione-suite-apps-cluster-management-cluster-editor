@@ -1,13 +1,12 @@
 ﻿using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
-using System.Text;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components.Localization;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.ContextMenu;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
+using ViciOne.Ui.ClusterEditor.Sections.Localization;
 using ViciOne.Ui.MonochromeIcons.Core.Enums;
 using ViciOne.Ui.TreeEditor.Builder.Interface.NodeActions;
 using ViciOne.Ui.TreeEditor.Builder.Interface.NodeActions.Arguments;
@@ -22,8 +21,6 @@ internal sealed class DataPortNodeActionProvider(
     DataPortEditingCoordinator editingCoordinator,
     DataPortTreeState state)
 {
-    private static readonly CompositeFormat s_compositeNodeActionAdd = CompositeFormat.Parse(DataPortSection.NodeActionAdd);
-
     private async void AddNewNodeAsync(NodeButton _, VisibleActionArguments e)
     {
         if (e.Node is not DataPortNodeModel dpNode)
@@ -105,8 +102,8 @@ internal sealed class DataPortNodeActionProvider(
 
     private static string GetNodeActionAddDescription(DataPortNodeModel dataPortNode)
         => dataPortNode.PossibleChildren.Count == 1
-            ? string.Format(CultureInfo.InvariantCulture, s_compositeNodeActionAdd, dataPortNode.PossibleChildren[0].Name)
-            : string.Format(CultureInfo.InvariantCulture, s_compositeNodeActionAdd, DataPortSection.NewChild);
+            ? CompositeFormats.Format(SharedSectionText.NodeActionAdd, dataPortNode.PossibleChildren[0].Name)
+            : CompositeFormats.Format(SharedSectionText.NodeActionAdd, DataPortSection.NewChild);
 
     private void SortChildNodes(NodeButton _, VisibleActionArguments e)
     {

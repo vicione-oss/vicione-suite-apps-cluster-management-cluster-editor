@@ -61,6 +61,15 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Add {0}.
+        /// </summary>
+        internal static string NodeActionAdd {
+            get {
+                return ResourceManager.GetString("NodeActionAdd", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Another Node has unsaved changes. Click here to view that node..
         /// </summary>
         internal static string UnsavedNodeChanges {

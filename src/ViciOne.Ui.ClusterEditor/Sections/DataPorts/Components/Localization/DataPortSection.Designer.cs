@@ -96,16 +96,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components.Localization {
                 return ResourceManager.GetString("NewDataPort", resourceCulture);
             }
         }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Add {0}.
-        /// </summary>
-        internal static string NodeActionAdd {
-            get {
-                return ResourceManager.GetString("NodeActionAdd", resourceCulture);
-            }
-        }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Sort children.
         /// </summary>

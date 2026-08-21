@@ -88,6 +88,33 @@ namespace ViciOne.Ui.ClusterEditor.Localization.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cluster Application.
+        /// </summary>
+        internal static string ClusterApplication {
+            get {
+                return ResourceManager.GetString("ClusterApplication", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cluster Node.
+        /// </summary>
+        internal static string ClusterNode {
+            get {
+                return ResourceManager.GetString("ClusterNode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cluster Node Group.
+        /// </summary>
+        internal static string ClusterNodeGroup {
+            get {
+                return ResourceManager.GetString("ClusterNodeGroup", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Connector.
         /// </summary>
         internal static string Connector {
@@ -183,6 +210,15 @@ namespace ViciOne.Ui.ClusterEditor.Localization.Resources {
         internal static string Engine {
             get {
                 return ResourceManager.GetString("Engine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Engine Host.
+        /// </summary>
+        internal static string EngineHost {
+            get {
+                return ResourceManager.GetString("EngineHost", resourceCulture);
             }
         }
         

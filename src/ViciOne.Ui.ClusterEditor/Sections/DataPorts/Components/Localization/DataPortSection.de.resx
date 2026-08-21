@@ -123,10 +123,6 @@
   <data name="NewChild" xml:space="preserve">
     <value>Neuen Kindknoten</value>
   </data>
-  <data name="NodeActionAdd" xml:space="preserve">
-    <value>{0} hinzufügen</value>
-    <comment>{0} Name des Elements, welches hinzugefügt werden soll</comment>
-  </data>
   <data name="NodeActionSortChildren" xml:space="preserve">
     <value>Knoten sortieren</value>
   </data>

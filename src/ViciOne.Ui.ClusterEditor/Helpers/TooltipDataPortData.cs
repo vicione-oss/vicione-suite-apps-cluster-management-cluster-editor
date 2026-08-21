@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Globalization;
-using System.Text;
 using Microsoft.AspNetCore.Components.Web;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Extensions;
+using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.Comparer;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
@@ -17,8 +16,6 @@ namespace ViciOne.Ui.ClusterEditor.Helpers;
 
 internal static class TooltipDataPortData
 {
-    private static readonly CompositeFormat s_compositeMoreLinks = CompositeFormat.Parse(Localization.TooltipData.MoreLinks);
-
     private static List<List<string>?> GetDataPortMarkerTooltipContent(IDatastore datastore, BlockNodeConnector connector)
     {
         var content = new List<List<string>?>();
@@ -46,7 +43,7 @@ internal static class TooltipDataPortData
             content.Add([dataPortPaths[i]]);
 
         if (overflow > 0)
-            content.Add([string.Format(CultureInfo.InvariantCulture, s_compositeMoreLinks, overflow)]);
+            content.Add([CompositeFormats.Format(Localization.TooltipData.MoreLinks, overflow)]);
 
         return content;
     }
@@ -162,7 +159,7 @@ internal static class TooltipDataPortData
             content.Add([sourceConnectors[i].GetPath()]);
 
         if (showSourceConnectorsMoreMessage)
-            content.Add([string.Format(CultureInfo.InvariantCulture, s_compositeMoreLinks, sourceConnectorsOverflow)]);
+            content.Add([CompositeFormats.Format(Localization.TooltipData.MoreLinks, sourceConnectorsOverflow)]);
 
         if (showDivider)
         {
@@ -180,7 +177,7 @@ internal static class TooltipDataPortData
             content.Add([destinationConnectors[i].GetPath()]);
 
         if (showDestinationConnectorsMoreMessage)
-            content.Add([string.Format(CultureInfo.InvariantCulture, s_compositeMoreLinks, destinationConnectorsOverflow)]);
+            content.Add([CompositeFormats.Format(Localization.TooltipData.MoreLinks, destinationConnectorsOverflow)]);
 
         return content;
     }

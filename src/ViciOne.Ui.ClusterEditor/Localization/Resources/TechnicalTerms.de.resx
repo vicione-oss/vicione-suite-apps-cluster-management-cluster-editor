@@ -222,4 +222,16 @@
   <data name="IncludingSystemConnectors" xml:space="preserve">
     <value>inklusive Systemkonnektoren</value>
   </data>
+  <data name="ClusterNodeGroup" xml:space="preserve">
+    <value>Cluster Knotengruppe</value>
+  </data>
+  <data name="ClusterNode" xml:space="preserve">
+    <value>Cluster Knoten</value>
+  </data>
+  <data name="ClusterApplication" xml:space="preserve">
+    <value>Cluster Anwendung</value>
+  </data>
+  <data name="EngineHost" xml:space="preserve">
+    <value>Engine Host</value>
+  </data>
 </root>

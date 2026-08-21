@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="NodeActionAdd" xml:space="preserve">
+    <value>{0} hinzufügen</value>
+    <comment>{0} Name of element to add</comment>
+  </data>
   <data name="UnsavedNodeChanges" xml:space="preserve">
     <value>Es gibt ungespeicherte Änderungen an einem anderen Knoten. Hier klicken um geänderten Knoten anzuzeigen.</value>
   </data>

@@ -123,10 +123,6 @@
   <data name="NewChild" xml:space="preserve">
     <value>new child</value>
   </data>
-  <data name="NodeActionAdd" xml:space="preserve">
-    <value>Add {0}</value>
-    <comment>{0} Name of element to add</comment>
-  </data>
   <data name="NodeActionSortChildren" xml:space="preserve">
     <value>Sort children</value>
   </data>
