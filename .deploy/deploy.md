@@ -2,7 +2,7 @@
 
 ## SSH Keys
 
-The ssh key `deploy_ed25519` in this repository are meant to be used for accessing deployment devices. The public key `deploy_ed25519.pub` needs to be available to the target systems ssh configuration.
+The ssh key `deploy_ssh_prv` in this repositories CI secrets is meant to be used for accessing deployment devices. The public key `deploy_ssh_pub` needs to be available to the target systems ssh configuration.
 
 ## SSH User
 
