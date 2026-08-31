@@ -10,6 +10,8 @@
             <div class="tooltip-header">
                 @_info.Header
             </div>
+
+            <div class="separator" />
         }
 
         @if (_info.Type == TooltipInfoType.Line)
@@ -39,7 +41,7 @@
                 {
                     if (line is null)
                     {
-                        <div class="separator" />
+                        <div class="space" />
                     }
                     else
                     {

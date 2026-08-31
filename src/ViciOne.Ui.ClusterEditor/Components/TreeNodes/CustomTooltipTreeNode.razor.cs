@@ -1,20 +1,20 @@
 ﻿using System;
+using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using ViciOne.Ui.ClusterEditor.Helpers;
-using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
+using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Services;
-using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Enums;
 using ViciOne.Ui.TreeEditor.Templates;
 using ViciOne.Ui.TreeEditor.Templates.Fragments.Node;
 
-namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components;
+namespace ViciOne.Ui.ClusterEditor.Components.TreeNodes;
 
-public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
+public partial class CustomTooltipTreeNode : NodeTemplate, IAsyncDisposable
 {
     private ActionButtonParameters? _actionButtonContainerParameters;
     private DropAreaParameters? _dropAreaParameters;
@@ -25,7 +25,6 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
     private bool _tooltipVisible;
 
     [Inject] private BoundsService BoundsService { get; set; } = default!;
-    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private TooltipService TooltipService { get; set; } = default!;
 
     protected override void Calculate()
@@ -62,6 +61,9 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
         oldCts?.Cancel();
         oldCts?.Dispose();
     }
+
+    protected virtual async Task<TooltipInfo> GetTooltipInfo(MouseEventArgs e, Rectangle parentBounds)
+        => TooltipSimpleData.GetSimpleTooltipInfo(e, Node.DisplayText, parentBounds);
 
     private async void OnDragAndDropStateChangedAsync()
     {
@@ -167,9 +169,8 @@ public sealed partial class DataPortChildNode : NodeTemplate, IAsyncDisposable
                 if (_lastPointerMoveEvents is not null)
                 {
                     _tooltipVisible = true;
-                    TooltipService.StartTooltip(_tooltipKey, TooltipDataPortData.GetDataPortTooltipInfo(Datastore, _lastPointerMoveEvents, (DataPortNodeModel)Node.TreeNode, await BoundsService.GetWindowBoundsAsync().ConfigureAwait(false)));
+                    TooltipService.StartTooltip(_tooltipKey, await GetTooltipInfo(_lastPointerMoveEvents, await BoundsService.GetWindowBoundsAsync().ConfigureAwait(false)));
                 }
-                return;
             }
         }
         finally

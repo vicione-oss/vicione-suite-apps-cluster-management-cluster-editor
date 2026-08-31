@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using ViciOne.Ui.ClusterEditor.Components.TreeNodes;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Models;
 using ViciOne.Ui.TreeEditor.Builder.Interface;
+using ViciOne.Ui.TreeEditor.Builder.Interface.Enums;
 using ViciOne.Ui.TreeEditor.Builder.Interface.NodeIdentifier;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
 
@@ -62,6 +64,13 @@ internal sealed class LibraryTreeAdapter : TreeAdapter
 
     public override IEnumerable<ITreeNode> GetRootNodes()
         => _nodes;
+
+    private static Type? GetTemplateMapping(ITreeNode node, TemplateType templateType)
+        => templateType switch
+        {
+            TemplateType.Node => typeof(CustomTooltipTreeNode),
+            _ => null
+        };
 
     public override bool HasChildren(ITreeNode node)
     {
@@ -142,5 +151,8 @@ internal sealed class LibraryTreeAdapter : TreeAdapter
 
         Builder.DragAndDrop.EnableOutbound = true;
         Builder.Guidelines.Show = true;
+
+        Builder.Template.Mapping = GetTemplateMapping;
+
     }
 }

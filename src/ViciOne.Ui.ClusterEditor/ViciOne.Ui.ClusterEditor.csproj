@@ -330,6 +330,7 @@
       <ColorsScssOutputFolder>$(MSBuildProjectDirectory)/Styles/design/colors</ColorsScssOutputFolder>
       <PopupScssOutputFolder>$(MSBuildProjectDirectory)/Styles/design/popup</PopupScssOutputFolder>
       <ScrollbarScssOutputFolder>$(MSBuildProjectDirectory)/Styles/design/scrollbar</ScrollbarScssOutputFolder>
+      <TooltipScssOutputFolder>$(MSBuildProjectDirectory)/Styles/design/tooltip</TooltipScssOutputFolder>
       <TypographyScssOutputFolder>$(MSBuildProjectDirectory)/Styles/design/typography</TypographyScssOutputFolder>
     </PropertyGroup>
   </Target>
