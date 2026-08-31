@@ -17,7 +17,6 @@ public class PropertySectionContentTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
         ctx.SetupDatastore();
         ctx.SetupSelectionManager();
         ctx.SetupResizeObserver();

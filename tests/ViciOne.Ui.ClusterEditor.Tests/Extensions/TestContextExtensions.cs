@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
+using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.Blazor.Components.Resizing.Services;
 using ViciOne.Ui.ClusterEditor.Components;
@@ -84,6 +85,9 @@ internal static class TestContextExtensions
 
         return ctx;
     }
+
+    public static TestContext SetupComboBox(this TestContext ctx)
+        => ctx.SetupDropDown();
 
     public static TestContext SetupConnectorSelectionDialogService(this TestContext ctx)
     {
@@ -181,6 +185,41 @@ internal static class TestContextExtensions
         return ctx;
     }
 
+    public static TestContext SetupDropDown(this TestContext ctx)
+    {
+        var dropDownModule = ctx.JSInterop.SetupModule("./_content/ViciOne.Ui.Blazor.Components/drop-down/drop-down.js");
+        var dropDownInstance = dropDownModule.SetupModule("attach", _ => true);
+        dropDownInstance.SetupVoid("attachInputElement", _ => true);
+        dropDownInstance.SetupVoid("reserveWidth");
+        dropDownInstance.SetupVoid("setMinimumWidth");
+
+        return ctx;
+    }
+
+    public static TestContext SetupFbSettingsEditor(this TestContext ctx)
+    {
+        ctx.SetupDatastore();
+        ctx.SetupSelectionManager();
+        ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
+        ctx.Services.TryAddScoped(_ => Substitute.For<IFbSettingsEditorRequest>());
+        ctx.Services.TryAddScoped<FullscreenService>();
+        ctx.Services.AddDialog();
+
+        ctx.JSInterop.SetupModule("./_content/ViciOne.Ui.ClusterEditor/Components/FbSettingsEditor/FbSettingsEditor.razor.js");
+
+        return ctx;
+    }
+
+    public static TestContext SetupLabelEditor(this TestContext ctx)
+    {
+        ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
+        ctx.Services.AddDialog();
+
+        ctx.JSInterop.SetupModule("./_content/ViciOne.Ui.ClusterEditor/Components/LabelEditor.razor.js");
+
+        return ctx;
+    }
+
     public static TestContext SetupLibraryService(this TestContext ctx)
     {
         ctx.Services.TryAddScoped<ILibraryService, LibraryService>();
@@ -199,8 +238,9 @@ internal static class TestContextExtensions
 
     public static TestContext SetupNodeEditor(this TestContext ctx)
     {
+        ctx.SetupLabelEditor();
+        ctx.SetupFbSettingsEditor();
         ctx.SetupDatastore();
-        ctx.SetupDevExpressBlazor();
         ctx.SetupDragService();
         ctx.SetupConnectorService();
         ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuRequest<NodeEditorContextMenuContext>>());

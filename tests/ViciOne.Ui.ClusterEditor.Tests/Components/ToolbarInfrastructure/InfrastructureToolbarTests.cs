@@ -13,7 +13,6 @@ public class InfrastructureToolbarTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
         ctx.SetupTreeEditorJs();
         ctx.Services.AddExpandableMenu();
         ctx.Services.AddDialog();

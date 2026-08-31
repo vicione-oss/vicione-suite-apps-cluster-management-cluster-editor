@@ -12,7 +12,6 @@ public class DataflowSectionTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
         ctx.SetupTreeEditorJs();
         ctx.SetupDatastore();
         ctx.SetupDiagramService();

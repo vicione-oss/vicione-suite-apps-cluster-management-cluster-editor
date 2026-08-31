@@ -16,7 +16,6 @@ public class PublishedConnectorsSectionContextMenuTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
         ctx.Services.AddPublishedConnectorsSectionContextMenu();
         ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
         ctx.Services.TryAddScoped<DiagramEventService>();

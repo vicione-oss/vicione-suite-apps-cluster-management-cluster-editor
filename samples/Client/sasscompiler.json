@@ -1,0 +1,6 @@
+﻿{
+    "Source": "Styles/site",
+    "Output": "wwwroot/css",
+    "Arguments": "--style=compressed --no-source-map",
+    "ScopedCssFolders": [ "Pages", "Layout", "Components" ]
+}

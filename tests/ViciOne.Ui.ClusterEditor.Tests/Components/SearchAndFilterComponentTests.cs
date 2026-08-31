@@ -1,5 +1,4 @@
 ﻿using ViciOne.Ui.ClusterEditor.Components;
-using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Components;
@@ -11,7 +10,6 @@ public class SearchAndFilterComponentTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
 
         // Act
         var component = ctx.RenderComponent<SearchAndFilterComponent>();

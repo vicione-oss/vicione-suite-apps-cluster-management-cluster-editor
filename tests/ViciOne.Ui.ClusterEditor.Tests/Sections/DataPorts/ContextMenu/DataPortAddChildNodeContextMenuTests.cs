@@ -2,7 +2,6 @@
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.ContextMenu;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
-using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Sections.DataPorts.ContextMenu;
@@ -14,7 +13,6 @@ public class DataPortAddChildNodeContextMenuTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
         ctx.Services.AddDataPortAddChildNodeContextMenu();
         ctx.Services.TryAddScoped<DiagramEventService>();
 

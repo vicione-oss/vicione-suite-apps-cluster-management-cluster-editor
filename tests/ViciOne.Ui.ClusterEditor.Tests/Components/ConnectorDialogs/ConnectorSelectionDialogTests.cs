@@ -15,7 +15,6 @@ public class ConnectorSelectionDialogTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
         ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
         ctx.Services.AddDialog();
         ctx.SetupConnectorSelectionDialogService();

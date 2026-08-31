@@ -1,8 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
-using NSubstitute;
-using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
-using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
-using ViciOne.Ui.ClusterEditor.Components;
+﻿using ViciOne.Ui.ClusterEditor.Components;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
 
@@ -15,9 +11,7 @@ public class LabelEditorTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
-        ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
-        ctx.Services.AddDialog();
+        ctx.SetupLabelEditor();
 
         // Act
         var component = ctx.RenderComponent<LabelEditor>();
