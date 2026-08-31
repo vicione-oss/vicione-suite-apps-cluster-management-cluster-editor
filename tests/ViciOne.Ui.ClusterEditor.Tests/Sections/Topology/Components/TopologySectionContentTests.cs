@@ -14,7 +14,6 @@ public class TopologySectionContentTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
         ctx.SetupTreeEditorJs();
         ctx.SetupClusterEditorManagement();
         ctx.Services.TryAddScoped<TopologyTreeAdapter>();

@@ -13,7 +13,6 @@ public class SearchAndToolsSectionContentTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
         ctx.SetupDiagramService();
         ctx.Services.TryAddScoped<LabelOrderService>();
         ctx.SetupSelectionManager();

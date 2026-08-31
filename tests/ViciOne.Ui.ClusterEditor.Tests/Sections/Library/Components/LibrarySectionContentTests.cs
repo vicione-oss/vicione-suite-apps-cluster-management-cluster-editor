@@ -13,7 +13,6 @@ public class LibrarySectionContentTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
         ctx.SetupTreeEditorJs();
         ctx.SetupClusterEditorManagement();
         ctx.SetupResizeObserver();

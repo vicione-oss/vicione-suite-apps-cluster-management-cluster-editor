@@ -18,7 +18,6 @@ public class NodeEditorContextMenuTests
         // Arrange
         using var ctx = new Bunit.TestContext();
         ctx.SetupDatastore();
-        ctx.SetupDevExpressBlazor();
         ctx.SetupConnectorSelectionDialogService();
         ctx.Services.AddNodeEditorContextMenu();
         ctx.Services.TryAddScoped(_ => Substitute.For<IContainerEditorRequest>());

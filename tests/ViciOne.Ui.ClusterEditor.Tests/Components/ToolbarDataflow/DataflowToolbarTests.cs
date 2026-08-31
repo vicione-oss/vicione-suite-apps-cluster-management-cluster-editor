@@ -1,13 +1,17 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using Bunit;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 using ViciOne.Ui.Blazor.Components.SectionRail.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarDataflow;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarDataflow.Extensions;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
+
 #if DEBUG
 using ViciOne.Ui.ClusterEditor.Sections.Debugging.Services;
 #endif
+
+using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Components;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Services;
@@ -25,7 +29,7 @@ public class DataflowToolbarTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
+        ctx.ComponentFactories.AddStub<PublishedConnectorsSectionContent>(); // Added to avoid DxGrid dependency
         ctx.SetupTreeEditorJs();
         ctx.Services.AddSectionRail<DataflowToolbarSection>();
         ctx.Services.TryAddScoped<NumericPropertyDescriptorBuilderProvider>();
@@ -46,9 +50,13 @@ public class DataflowToolbarTests
         ctx.Services.AddPublishedConnectorsSectionContextMenu();
         ctx.Services.TryAddScoped<PublishedConnectorsService>();
         ctx.SetupResizeObserver();
+        ctx.SetupDropDown();
+
 #if DEBUG
         ctx.Services.TryAddScoped<DebugService>();
 #endif
+        ctx.SetupComboBox();
+
         ctx.CreateDiagramInstance();
 
         // Act

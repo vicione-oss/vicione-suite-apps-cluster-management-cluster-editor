@@ -15,7 +15,6 @@ public class LinkDestinationDialogTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
         ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
         ctx.Services.AddDialog();
         ctx.SetupLinkDestinationDialogService();

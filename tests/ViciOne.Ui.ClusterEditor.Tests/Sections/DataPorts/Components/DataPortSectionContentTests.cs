@@ -17,7 +17,6 @@ public class DataPortSectionContentTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
         ctx.SetupTreeEditorJs();
         ctx.SetupDragService();
         ctx.Services.AddDataPortContextMenu();

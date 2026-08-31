@@ -18,7 +18,6 @@ public class ContainerEditorTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.SetupDevExpressBlazor();
         ctx.Services.TryAddScoped(_ => Substitute.For<IContainerEditorRequest>());
         ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
         ctx.Services.AddDialog();

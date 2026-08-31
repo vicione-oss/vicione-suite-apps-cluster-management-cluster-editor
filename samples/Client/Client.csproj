@@ -9,6 +9,10 @@
     <PackageReference Include="AspNetCore.SassCompiler" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" />
+    <PackageReference Include="ViciOne.Ui.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -29,5 +33,11 @@
       <LastGenOutput>Index.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+
+  <Target Name="ConfigureDesignTargets" BeforeTargets="BeforeDesignTargets">
+    <PropertyGroup>
+      <BaselineScssOutputFolder>$(MSBuildProjectDirectory)/Styles/design/baseline</BaselineScssOutputFolder>
+    </PropertyGroup>
+  </Target>
 
 </Project>
