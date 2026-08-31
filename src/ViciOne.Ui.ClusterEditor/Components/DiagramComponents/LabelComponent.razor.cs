@@ -157,7 +157,7 @@ public sealed partial class LabelComponent : ComponentBase
         DiagramEventService.EdgeDraggingPointerUp += OnEdgeDraggingPointerUp;
     }
 
-    private void StartTextEdit()
+    private Task StartTextEdit()
         => Node!.ProcessTextEditStarted();
 
     private void StopResizing()
