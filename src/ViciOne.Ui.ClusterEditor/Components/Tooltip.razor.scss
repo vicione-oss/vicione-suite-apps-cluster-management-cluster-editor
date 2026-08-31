@@ -1,14 +1,18 @@
 @use "./../Styles/colors" as editor;
 @use "./../Styles/design/colors";
+@use "./../Styles/design/tooltip";
 
 .tooltip-container {
-    background-color: colors.$background-dark;
-    border-radius: 5px;
-    box-shadow: 0 3px 5px 0 colors.$background-darker;
-    color: colors.$font;
-    font-size: 11px;
+    @include tooltip.separator-styles();
+
+    background-color: tooltip.$background-color;
+    border-radius: tooltip.$border-radius;
+    box-shadow: tooltip.$box-shadow;
+    color: tooltip.$content-text-color;
+    font-size: tooltip.$font-size;
     left: var(--tooltip-position-left);
-    line-height: 14px;
+    letter-spacing: tooltip.$letter-spacing;
+    line-height: tooltip.$line-height;
     min-width: 20px;
     pointer-events: none;
     position: fixed;
@@ -21,13 +25,12 @@
 }
 
 .tooltip-header {
-    border-bottom: 1px solid colors.$border;
-    color: colors.$font-light;
+    align-items: center;
+    color: tooltip.$header-text-color;
     display: flex;
-    font-size: 11px;
     justify-content: center;
-    line-height: 12px;
-    padding: 6px;
+    height: 24px;
+    padding: 0px 8px;
     white-space: nowrap;
 }
 
@@ -40,7 +43,6 @@
         grid-template-rows: min-content;
 
         .separator {
-            border-top: 1px solid colors.$border;
             margin: 4px 0;
         }
 
@@ -59,12 +61,12 @@
         grid-template-columns: max-content max-content;
 
         .label {
+            color: colors.$font;
             grid-column: 1;
             margin-left: auto;
-            opacity: 0.5;
         }
 
-        .separator {
+        .space {
             grid-column: 1 / span 2;
             line-height: 9px;
 
@@ -74,6 +76,7 @@
         }
 
         .value {
+            color: colors.$font-light;
             display: block;
             display: -webkit-box;
             grid-column: 2;

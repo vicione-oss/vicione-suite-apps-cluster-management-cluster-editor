@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
+using ViciOne.Ui.ClusterEditor.Components.TreeNodes;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Localization;
@@ -13,6 +14,7 @@ using ViciOne.Ui.ClusterEditor.Models.Comparer;
 using ViciOne.Ui.ClusterEditor.Resources;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Components;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Models;
+using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
@@ -243,17 +245,6 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
             _ => string.Empty
         };
 
-    private static Type? GetNodeTemplate(ITreeNode node, TemplateType templateType)
-    {
-        if (node is DataflowStructureTreeNode dataflowNode && templateType == TemplateType.NodeDisplay)
-        {
-            if (dataflowNode.Editing)
-                return typeof(StructureTreeDataflowEditNode);
-        }
-
-        return null;
-    }
-
     public override ITreeNode? GetParent(ITreeNode node)
     {
         if (node is ContainerStructureTreeNode containerNode)
@@ -280,6 +271,18 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
         => _dataflowMap
             .Select(dstn => dstn.Value)
             .OrderBy(n => n.Name, AlphaNumericComparer<string>.Default);
+
+    private static Type? GetTemplateMapping(ITreeNode node, TemplateType templateType)
+        => templateType switch
+        {
+            TemplateType.NodeDisplay => node switch
+            {
+                DataPortNodeModel dataPortNode => dataPortNode.IsEditModeActive ? typeof(StructureTreeDataflowEditNode) : null,
+                _ => null
+            },
+            TemplateType.Node => typeof(CustomTooltipTreeNode),
+            _ => null
+        };
 
     public override bool HasChildren(ITreeNode node)
         => node switch
@@ -390,7 +393,7 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
         Builder.Selection.SelectionChanged += OnSelectionChanged;
 
         Builder.Guidelines.Show = true;
-        Builder.Template.Mapping = GetNodeTemplate;
+        Builder.Template.Mapping = GetTemplateMapping;
     }
 
     private void StartEditDataflow(DataflowStructureTreeNode dataflowNode)

@@ -4,10 +4,12 @@ using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Builder;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
+using ViciOne.Ui.ClusterEditor.Components.TreeNodes;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
+using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.Localization;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Components;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Extensions;
@@ -309,15 +311,16 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
         => _clusterNodeGroups;
 
     private static Type? GetTemplateMapping(ITreeNode node, TemplateType templateType)
-    {
-        if (templateType == TemplateType.NodeDisplay)
+        => templateType switch
         {
-            if (node is TopologyTreeViewModel topologyNode && topologyNode.IsEditModeActive)
-                return typeof(TopologyNodeEditTemplate);
-        }
-
-        return null;
-    }
+            TemplateType.NodeDisplay => node switch
+            {
+                DataPortNodeModel dataPortNode => dataPortNode.IsEditModeActive ? typeof(TopologyNodeEditTemplate) : null,
+                _ => null
+            },
+            TemplateType.Node => typeof(CustomTooltipTreeNode),
+            _ => null
+        };
 
     public override bool HasChildren(ITreeNode node)
     {

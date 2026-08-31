@@ -18,10 +18,12 @@
 - Fixed localization for FunctionBlock marker tooltips
 - Fixed localization in DataPort section button tooltips
 - Breadcrumb now displays the current Dataflow name instead of "Root" as it's first entry
+- Changed tooltip to use design from `ViciOne.Ui.Design`
 
 ### Updated external references
 
 - `ViciOne.Ui.MonochromeIcons` package, update version to `4.16.0`
+- `ViciOne.Ui.Design` package, added in version `2.5.0`
 
 ## 1.3.0 - 2026-08-05
 
