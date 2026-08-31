@@ -34,7 +34,6 @@ public sealed class DiagramEventService(ILogger<DiagramEventService> logger)
     public event Action<bool>? MinimapVisibilityChangeRequested;
     public event Func<bool, Task>? NodeAlignmentBorderVisibilityChanged;
     public event Action<bool>? PanBehaviorChangeRequested;
-    public event Action<bool>? SimplifiedViewChangeRequested;
     public event Action<double>? ZoomChanged;
     public event Action? ZoomToFitRequested;
 
@@ -117,9 +116,6 @@ public sealed class DiagramEventService(ILogger<DiagramEventService> logger)
 
     public void RequestPanBehaviorChange(bool useGimpPanBehavior)
         => PanBehaviorChangeRequested?.Invoke(useGimpPanBehavior);
-
-    public void RequestSimplifiedViewChange(bool simplifiedView)
-        => SimplifiedViewChangeRequested?.Invoke(simplifiedView);
 
     public void RequestZoomToFit()
         => ZoomToFitRequested?.Invoke();

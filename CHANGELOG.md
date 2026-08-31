@@ -19,6 +19,7 @@
 - Fixed localization in DataPort section button tooltips
 - Breadcrumb now displays the current Dataflow name instead of "Root" as it's first entry
 - Changed tooltip to use design from `ViciOne.Ui.Design`
+- Refactored `NodeEditor` component into multiple services to avoid excessive class coupling and improve maintainability
 
 ### Updated external references
 

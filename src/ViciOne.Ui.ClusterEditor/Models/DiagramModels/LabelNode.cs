@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Models;
+using ViciOne.Ui.ClusterEditor.Extensions;
 
 namespace ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 
@@ -13,10 +15,10 @@ public sealed class LabelNode : SvgNodeModel, IDiagramModel
     public new bool Visible { get; set; } = true;
     internal int Width { get; set; }
 
-    internal event Action<LabelNode>? EditModeStarted;
+    internal event Func<LabelNode, Task>? EditModeStarted;
 
     internal LabelNode(Point point) : base(point) { }
 
-    internal void ProcessTextEditStarted()
-        => EditModeStarted?.Invoke(this);
+    internal Task ProcessTextEditStarted()
+        => EditModeStarted.InvokeEventAsync(this);
 }

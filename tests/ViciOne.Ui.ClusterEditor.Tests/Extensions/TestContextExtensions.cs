@@ -16,6 +16,7 @@ using ViciOne.Ui.ClusterEditor.Components;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor;
+using ViciOne.Ui.ClusterEditor.Components.NodeEditorServices;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarDataflow.Models;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
@@ -256,6 +257,13 @@ internal static class TestContextExtensions
         ctx.Services.AddContainerEditor();
         ctx.Services.TryAddScoped(_ => Substitute.For<IPropertyGridController<DataflowToolbarPropertyGridContext>>());
         ctx.Services.TryAddSingleton<ILogger<NodeEditor>>(new FakeLogger<NodeEditor>());
+        ctx.Services.TryAddScoped<NodeEditorBehaviorController>();
+        ctx.Services.TryAddScoped<DiagramPointerInteractionController>();
+        ctx.Services.TryAddScoped<DiagramModelSyncController>();
+        ctx.Services.TryAddScoped<LibraryGhostDragController>();
+        ctx.Services.TryAddScoped<ConnectorMarkerDeletionController>();
+        ctx.Services.TryAddScoped<LabelEditingController>();
+        ctx.Services.TryAddScoped<NodeEditorJsInterop>();
 
         ctx.JSInterop.Setup<Rectangle>("ZBlazorDiagrams.getBoundingClientRect", _ => true);
 

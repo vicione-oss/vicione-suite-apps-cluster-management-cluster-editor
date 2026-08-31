@@ -95,7 +95,9 @@ public sealed class DiagramService : IDisposable
             return;
 
         DiagramState.SimplifiedView = simplifiedView;
-        _diagramEventService.RequestSimplifiedViewChange(simplifiedView);
+
+        foreach (var node in Diagram.Nodes)
+            node.Refresh();
     }
 
     public void SetDraggingLink(BlockNodeLink? link)
