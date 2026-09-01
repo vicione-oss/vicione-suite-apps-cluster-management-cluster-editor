@@ -451,6 +451,7 @@ $RECYCLE.BIN/
 ## Generated & copied files
 ##
 samples/Client/wwwroot/css/site.css
+samples/Shared/**/*.razor.css
 src/**/wwwroot/css/cluster-editor.css
 src/**/wwwroot/fonts/*
 src/**/wwwroot/scripts/*
@@ -458,4 +459,5 @@ src/**/*.razor.css
 
 # Files unpacked by target 'ConfigureDesignTargets'
 samples/Client/Styles/design
+samples/Shared/Styles
 src/ViciOne.Ui.ClusterEditor/Styles/design
