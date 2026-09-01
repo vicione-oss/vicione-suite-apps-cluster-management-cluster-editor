@@ -1,0 +1,43 @@
+@use "./../Styles/design/colors";
+
+.top-bar {
+    background-color: colors.$background-darker;
+    border-bottom: 2px solid colors.$accent;
+    height: 48px;
+    padding-left: 18px;
+    display: grid;
+    grid-auto-columns: max-content auto min-content;
+    align-items: center;
+
+    .title {
+        cursor: default;
+        color: colors.$font-light;
+        font-size: 24px;
+        letter-spacing: .5px;
+        font-weight: 400;
+
+        .text-accent {
+            color: colors.$accent;
+        }
+    }
+
+    .buttons-container {
+        display: grid;
+        grid-template-columns: repeat(3, 48px);
+        grid-column-start: 3;
+        height: 100%;
+
+        button {
+            background-color: colors.$background-darker;
+            border: none;
+            color: colors.$font;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            &:hover {
+                background-color: colors.$background-darker-hover;
+            }
+        }
+    }
+}

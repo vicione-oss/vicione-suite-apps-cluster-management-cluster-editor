@@ -1,0 +1,6 @@
+.main-layout-content {
+    display: grid;
+    grid-template-rows: 48px calc(100% - 48px);
+    height: 100%;
+    overflow: hidden;
+}

@@ -6,16 +6,28 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNetCore.SassCompiler" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" />
     <PackageReference Include="Semver" />
     <PackageReference Include="System.IO.Abstractions" />
     <PackageReference Include="System.Reflection.MetadataLoadContext" />
     <PackageReference Include="ViciOne.Core.Dataflow.DataModel.Generation" />
     <PackageReference Include="ViciOne.Suite.System.DataPort" />
+    <PackageReference Include="ViciOne.Ui.Design" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\ViciOne.Ui.ClusterEditor\ViciOne.Ui.ClusterEditor.csproj" />
   </ItemGroup>
 
+  <!-- Prevent Microsoft.NET.Sdk.Razor from copying unnecessary file -->
+  <ItemGroup>
+    <Content Update="sasscompiler.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Pack="False" />
+  </ItemGroup>
+
+  <Target Name="ConfigureDesignTargets" BeforeTargets="BeforeDesignTargets">
+    <PropertyGroup>
+      <ColorsScssOutputFolder>$(MSBuildProjectDirectory)/Styles/design/colors</ColorsScssOutputFolder>
+    </PropertyGroup>
+  </Target>
 </Project>

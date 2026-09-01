@@ -3,11 +3,15 @@
 @using ViciOne.Ui.Blazor.Components.LoadingSpinner.Components
 @using ViciOne.Ui.Blazor.Components.Popup.Components
 
-<ClusterEditor>
-    <ExternalDebugContent>
-        <DebugArea />
-    </ExternalDebugContent>
-</ClusterEditor>
+<div class="main-layout-content">
+    <TopBar />
+
+    <ClusterEditor>
+        <ExternalDebugContent>
+            <DebugArea />
+        </ExternalDebugContent>
+    </ClusterEditor>
+</div>
 
 <LoadingSpinner Visible="@_loaderVisible"
                 Messages="@_messages" />
