@@ -61,7 +61,7 @@
     visibility: collapse;
     z-index: 100;
 
-    .visible {
+    &.visible {
         visibility: visible;
     }
 }
