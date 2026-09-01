@@ -1,0 +1,14 @@
+﻿@if (!string.IsNullOrEmpty(Text) && !string.IsNullOrEmpty(SearchText) && Text.Contains(SearchText, StringComparison.CurrentCultureIgnoreCase))
+{
+    var highlightedString = Text;
+    var startIndex = highlightedString.IndexOf(SearchText, StringComparison.CurrentCultureIgnoreCase);
+    var replaceText = highlightedString.Substring(startIndex, SearchText.Length);
+    highlightedString = highlightedString
+        .Remove(startIndex, SearchText.Length)
+        .Insert(startIndex, "<span class='highlightedText'>" + replaceText + "</span>");
+    <span class="searchHighlighter">@((MarkupString)highlightedString)</span>
+}
+else
+{
+    <span>@Text</span>
+}

@@ -1,0 +1,9 @@
+﻿$text-highlight-color: rgb(33, 37, 41);
+$text-highlight-background: rgb(255, 255, 0);
+
+.searchHighlighter {
+    ::deep .highlightedText {
+        color: $text-highlight-color;
+        background-color: $text-highlight-background;
+    }
+}

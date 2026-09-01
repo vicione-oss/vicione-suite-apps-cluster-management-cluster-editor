@@ -20,6 +20,7 @@
 - Breadcrumb now displays the current Dataflow name instead of "Root" as it's first entry
 - Changed tooltip to use design from `ViciOne.Ui.Design`
 - Refactored `NodeEditor` component into multiple services to avoid excessive class coupling and improve maintainability
+- Moved `ViciOne.Ui.Shared.Dx.Components.SearchHighlighter` to `ViciOne.Ui.ClusterEditor.Components.SearchHighlighter`
 
 ### Updated external references
 
