@@ -80,17 +80,9 @@ internal sealed class NodeEditorBehaviorController(
         diagramEventService.DiagramPointerLeave += OnDiagramPointerLeave;
 
         if (diagramService.DiagramState.UsesGimpPanBehavior is null)
-        {
-#if DEBUG
-            diagramService.RequestPanBehaviorChange(true);
-#else
             diagramService.RequestPanBehaviorChange(false);
-#endif
-        }
         else
-        {
             diagramService.RequestPanBehaviorChange(diagramService.DiagramState.UsesGimpPanBehavior.GetValueOrDefault());
-        }
 
         _initialized = true;
     }

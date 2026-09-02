@@ -15,52 +15,6 @@
     #if DEBUG
     {
         <SectionLayout>
-            <Tools>
-                <div class="settings">
-                    <div class="heading">
-                        @CommonVocabulary.SettingPlural
-                    </div>
-
-                    <div class="label">
-                        @Localization.DebugSection.UseClusterEditorContextMenu
-                    </div>
-                    <Switch @bind-Value="ContextMenuSettings.UseCustomMenu" />
-
-                    <div class="label">
-                        @Localization.DebugSection.GridMode
-                    </div>
-                    <ComboBox Items="@_gridModeComboBoxItems"
-                              TextSelector="@(item => item.Text)"
-                              Value="@DiagramService.DiagramState.GridMode"
-                              ValueSelector="@(item => item.Value)"
-                              ValueChanged="@((GridMode item) => OnGridModeChanged(item))" />
-
-                    <div class="label">
-                        @Localization.DebugSection.UseGimpPanBehavior
-                    </div>
-                    <Switch Value="@DiagramService.DiagramState.UsesGimpPanBehavior.GetValueOrDefault()"
-                            ValueChanged="@OnUseGimpPanBehaviorChanged" />
-
-                    <div class="label">
-                        @Localization.DebugSection.UseSimplifiedView
-                    </div>
-                    <Switch Value="@DiagramService.DiagramState.SimplifiedView"
-                            ValueChanged="@OnUseSimplifiedViewChanged" />
-
-                    <div class="label">
-                        @Localization.DebugSection.NodeAlignmentBorderVisible
-                    </div>
-                    <Switch Value="@DiagramService.DiagramState.IsNodeAlignmentBorderEnabled"
-                            ValueChanged="@OnNodeAlignmentBorderVisibleChanged" />
-
-                    <div class="label">
-                        @Localization.DebugSection.UseMinimapColoring
-                    </div>
-                    <Switch Value="@DiagramService.DiagramState.UseNodeColoringOnMinimap"
-                            ValueChanged="@OnUseMinimapNodeColorsChanged" />
-                </div>
-            </Tools>
-
             <Content>
                 <div class="section-header">
                     @string.Format(CultureInfo.CurrentCulture, UserActions.GenerateSomething, TechnicalTerms.FunctionBlockPlural)

@@ -126,11 +126,6 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>DataPortNodeValidationMessages.resx</DependentUpon>
     </Compile>
-    <Compile Update="Sections\Debugging\Components\Localization\DebugSection.Designer.cs">
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
-      <DependentUpon>DebugSection.resx</DependentUpon>
-    </Compile>
     <Compile Update="Sections\Information\Components\Localization\InformationSection.Designer.cs">
       <DependentUpon>InformationSection.resx</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -251,10 +246,6 @@
     <EmbeddedResource Update="Sections\DataPorts\Validators\Localization\DataPortNodeValidationMessages.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>DataPortNodeValidationMessages.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Sections\Debugging\Components\Localization\DebugSection.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>DebugSection.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="Sections\Information\Components\Localization\InformationSection.resx">
       <LastGenOutput>InformationSection.Designer.cs</LastGenOutput>

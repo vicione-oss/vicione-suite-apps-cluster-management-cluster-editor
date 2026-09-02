@@ -117,20 +117,32 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UseClusterEditorContextMenu" xml:space="preserve">
-    <value>ClusterEditor Kontextmenü</value>
+  <data name="GridMode" xml:space="preserve">
+    <value>Grid-Modus</value>
+  </data>
+  <data name="GridModeLine" xml:space="preserve">
+    <value>Linien</value>
+    <comment>Don't remove! Indirectly used in GridModeExtensions.ToLocalizedString()!</comment>
+  </data>
+  <data name="GridModeNone" xml:space="preserve">
+    <value>Kein Grid</value>
+    <comment>Don't remove! Indirectly used in GridModeExtensions.ToLocalizedString()!</comment>
+  </data>
+  <data name="GridModePoint" xml:space="preserve">
+    <value>Punkte</value>
+    <comment>Don't remove! Indirectly used in GridModeExtensions.ToLocalizedString()!</comment>
   </data>
   <data name="NodeAlignmentBorderVisible" xml:space="preserve">
     <value>Ausrichtungslinien für Blöcke</value>
   </data>
-  <data name="GridMode" xml:space="preserve">
-    <value>Grid-Modus</value>
-  </data>
-  <data name="UseMinimapColoring" xml:space="preserve">
-    <value>Minimap Farben</value>
+  <data name="ShowDefaultContextMenu" xml:space="preserve">
+    <value>Standardkontextmenü anzeigen</value>
   </data>
   <data name="UseGimpPanBehavior" xml:space="preserve">
     <value>Gimp-Bewegungsmuster</value>
+  </data>
+  <data name="UseMinimapColoring" xml:space="preserve">
+    <value>Minimap Farben</value>
   </data>
   <data name="UseSimplifiedView" xml:space="preserve">
     <value>Vereinfachte Ansicht</value>

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace ViciOne.Ui.ClusterEditor.Sections.Debugging.Components.Localization {
+namespace Shared.Settings.Components.Localization {
     using System;
     
     
@@ -19,17 +19,17 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Debugging.Components.Localization {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class DebugSection {
+    internal class SettingsDialog {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal DebugSection() {
+        internal SettingsDialog() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Debugging.Components.Localization {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("ViciOne.Ui.ClusterEditor.Sections.Debugging.Components.Localization.DebugSection", typeof(DebugSection).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Shared.Settings.Components.Localization.SettingsDialog", typeof(SettingsDialog).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -70,6 +70,33 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Debugging.Components.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Lines.
+        /// </summary>
+        internal static string GridModeLine {
+            get {
+                return ResourceManager.GetString("GridModeLine", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No Grid.
+        /// </summary>
+        internal static string GridModeNone {
+            get {
+                return ResourceManager.GetString("GridModeNone", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Points.
+        /// </summary>
+        internal static string GridModePoint {
+            get {
+                return ResourceManager.GetString("GridModePoint", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Node alignment border.
         /// </summary>
         internal static string NodeAlignmentBorderVisible {
@@ -79,11 +106,11 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Debugging.Components.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ClusterEditor context menu.
+        ///   Looks up a localized string similar to Show default context menu.
         /// </summary>
-        internal static string UseClusterEditorContextMenu {
+        internal static string ShowDefaultContextMenu {
             get {
-                return ResourceManager.GetString("UseClusterEditorContextMenu", resourceCulture);
+                return ResourceManager.GetString("ShowDefaultContextMenu", resourceCulture);
             }
         }
         

@@ -20,6 +20,21 @@
     <ProjectReference Include="..\..\src\ViciOne.Ui.ClusterEditor\ViciOne.Ui.ClusterEditor.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Update="Settings\Components\Localization\SettingsDialog.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SettingsDialog.resx</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Settings\Components\Localization\SettingsDialog.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>SettingsDialog.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+
   <!-- Prevent Microsoft.NET.Sdk.Razor from copying unnecessary file -->
   <ItemGroup>
     <Content Update="sasscompiler.json" CopyToOutputDirectory="Never" CopyToPublishDirectory="Never" Pack="False" />

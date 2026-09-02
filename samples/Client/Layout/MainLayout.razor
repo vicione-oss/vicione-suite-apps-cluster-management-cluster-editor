@@ -3,7 +3,8 @@
 
 @inherits LayoutComponentBase
 
-<main>
+<main @oncontextmenu:preventDefault="@(!SettingsService.ShowDefaultContextMenu)"
+      @oncontextmenu:stopPropagation>
     @Body
 
     <PopupRoot />

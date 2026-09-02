@@ -117,20 +117,32 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UseClusterEditorContextMenu" xml:space="preserve">
-    <value>ClusterEditor context menu</value>
+  <data name="GridMode" xml:space="preserve">
+    <value>Grid mode</value>
+  </data>
+  <data name="GridModeLine" xml:space="preserve">
+    <value>Lines</value>
+    <comment>Don't remove! Indirectly used in GridModeExtensions.ToLocalizedString()!</comment>
+  </data>
+  <data name="GridModeNone" xml:space="preserve">
+    <value>No Grid</value>
+    <comment>Don't remove! Indirectly used in GridModeExtensions.ToLocalizedString()!</comment>
+  </data>
+  <data name="GridModePoint" xml:space="preserve">
+    <value>Points</value>
+    <comment>Don't remove! Indirectly used in GridModeExtensions.ToLocalizedString()!</comment>
   </data>
   <data name="NodeAlignmentBorderVisible" xml:space="preserve">
     <value>Node alignment border</value>
   </data>
-  <data name="GridMode" xml:space="preserve">
-    <value>Grid mode</value>
-  </data>
-  <data name="UseMinimapColoring" xml:space="preserve">
-    <value>Minimap coloring</value>
+  <data name="ShowDefaultContextMenu" xml:space="preserve">
+    <value>Show default context menu</value>
   </data>
   <data name="UseGimpPanBehavior" xml:space="preserve">
     <value>Gimp pan behavior</value>
+  </data>
+  <data name="UseMinimapColoring" xml:space="preserve">
+    <value>Minimap coloring</value>
   </data>
   <data name="UseSimplifiedView" xml:space="preserve">
     <value>Simplified view</value>

@@ -9,12 +9,9 @@ using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
 using ViciOne.TreeBuilder.NodeTypes;
 using ViciOne.TreeBuilder.Rules;
-using ViciOne.Ui.Blazor.Components.ComboBox;
-using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
-using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
@@ -41,19 +38,9 @@ public sealed partial class DebugSectionContent : ComponentBase
     private string _generateBlocksName = "TwoWaySelector";
     private int _generateDataPointsAmount = 1;
     private int _generateLinksAmount = 1;
-    private readonly List<ComboBoxItem<GridMode, string>> _gridModeComboBoxItems = [..
-        Enum.GetValues<GridMode>()
-            .Select(gridMode
-                => new ComboBoxItem<GridMode, string>
-                {
-                    Text = gridMode.ToString(),
-                    Value = gridMode,
-                })
-    ];
     private readonly Random _rnd = new();
 
     [Inject] private ClusterBuilderEventBuffer ClusterBuilderEventBuffer { get; set; } = default!;
-    [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
     [Inject] private IRulesetProvider RulesetProvider { get; set; } = default!;
@@ -332,23 +319,8 @@ public sealed partial class DebugSectionContent : ComponentBase
         ClusterBuilderEventBuffer.EndBatchOperation();
     }
 
-    private void OnGridModeChanged(GridMode item)
-        => DiagramService.RequestGridModeChange(item);
-
-    private void OnNodeAlignmentBorderVisibleChanged(bool nodeAlignmentBorderVisible)
-        => DiagramService.SetNodeAlignmentBorderActive(nodeAlignmentBorderVisible);
-
     private void OnShowDebugConsoleButtonClick()
         => _debugPopupVisible = true;
-
-    private void OnUseGimpPanBehaviorChanged(bool useGimpPanBehavior)
-        => DiagramService.RequestPanBehaviorChange(useGimpPanBehavior);
-
-    private void OnUseMinimapNodeColorsChanged(bool useMinimapNodeColors)
-        => DiagramService.SetMinimapNodeColoring(useMinimapNodeColors);
-
-    private void OnUseSimplifiedViewChanged(bool useSimplyfiedView)
-        => DiagramService.RequestSimplifiedViewChange(useSimplyfiedView);
 
     [SuppressMessage("Security", "CA5394:Do not use insecure randomness", Justification = "This is only debug data")]
     private DataPortDirection PickDirection(NodeType dataPortNodeType)
