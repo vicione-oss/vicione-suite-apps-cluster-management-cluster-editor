@@ -22,6 +22,7 @@
 - Refactored `NodeEditor` component into multiple services to avoid excessive class coupling and improve maintainability
 - Moved `ViciOne.Ui.Shared.Dx.Components.SearchHighlighter` to `ViciOne.Ui.ClusterEditor.Components.SearchHighlighter`
 - Improved the connector drop zone when dragging from DataPorts to match the drop zone when creating links 
+- Fixed a crash while panning or zooming a diagram with many blocks, caused by minimap state being updated from a background thread
 
 ### Updated external references
 

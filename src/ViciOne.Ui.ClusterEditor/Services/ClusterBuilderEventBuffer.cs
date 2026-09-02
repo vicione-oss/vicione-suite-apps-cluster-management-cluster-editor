@@ -93,7 +93,12 @@ public sealed partial class ClusterBuilderEventBuffer : IDisposable
                 if (cts is null)
                     return;
 
-                await Task.Delay(300, cts.Token).ConfigureAwait(ConfigureAwaitOptions.SuppressThrowing);
+                // ContinueOnCapturedContext keeps the flush on the caller's synchronization context
+                // (the Blazor renderer's dispatcher). Without it the buffered events - and every
+                // diagram/UI model update projected from them - would run on a thread pool thread,
+                // racing with user input handled on the dispatcher.
+                await Task.Delay(300, cts.Token)
+                    .ConfigureAwait(ConfigureAwaitOptions.ContinueOnCapturedContext | ConfigureAwaitOptions.SuppressThrowing);
 
                 if (_disposed)
                     return;

@@ -1,7 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Globalization;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Blazor.Diagrams.Core;
@@ -25,12 +24,11 @@ public sealed partial class Minimap : ComponentBase, IDisposable
     private const string BorderStyleTransparent = "dashed";
 
     private Size _containerSize = Size.Zero;
-    private readonly StringBuilder _cssStylesBuilder = new();
     private bool _fullRefreshNeeded;
     private bool _isVisible;
     private bool _movingViewport;
     private Point _movingViewportLastPoint = Point.Zero;
-    private readonly Dictionary<string, MinimapNode> _nodesById = [];
+    private readonly ConcurrentDictionary<string, MinimapNode> _nodesById = [];
     private Rectangle _referenceRect = Rectangle.Zero;
     private double _referenceScale = 0.8;
     private int _refreshCounter;
@@ -175,7 +173,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
 
     private void OnMinimapColoringChanged()
     {
-        foreach (var minimapNode in _nodesById.Values)
+        foreach (var (_, minimapNode) in _nodesById)
         {
             SetColors(minimapNode.NodeModel, minimapNode);
             SetCssStyles(minimapNode);
@@ -228,7 +226,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
 
         RecalculateReferences();
 
-        foreach (var minimapNode in _nodesById.Values)
+        foreach (var (_, minimapNode) in _nodesById)
         {
             SetBounds(minimapNode.NodeModel, minimapNode);
             SetCssStyles(minimapNode);
@@ -267,7 +265,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
             {
                 if (minimapNode is not null)
                 {
-                    _nodesById.Remove(minimapNode.Id);
+                    _nodesById.TryRemove(minimapNode.Id, out _);
                     minimapNode = null;
                     RefreshInternal();
                 }
@@ -297,7 +295,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         node.Changed -= OnNodeChanged;
         node.Moving -= OnNodeMoving;
 
-        _nodesById.Remove(node.Id);
+        _nodesById.TryRemove(node.Id, out _);
 
         RefreshInternal();
     }
@@ -343,7 +341,7 @@ public sealed partial class Minimap : ComponentBase, IDisposable
     private void RecalculateNodeBounds()
     {
         RecalculateReferences();
-        foreach (var minimapNode in _nodesById.Values)
+        foreach (var (_, minimapNode) in _nodesById)
         {
             SetBounds(minimapNode.NodeModel, minimapNode);
             SetCssStyles(minimapNode);
@@ -471,27 +469,16 @@ public sealed partial class Minimap : ComponentBase, IDisposable
         }
     }
 
-    private void SetCssStyles(MinimapNode node)
+    // The style string is built into a local buffer on purpose: node updates can reach this
+    // component from a background thread (buffered builder events, JS interop continuations),
+    // and a shared StringBuilder field would be corrupted by concurrent writes.
+    private static void SetCssStyles(MinimapNode node)
     {
-        _cssStylesBuilder.Clear();
-        _cssStylesBuilder
-            .Append("--node-background-color: ").Append(node.BackgroundColor).Append(';')
-            .Append("--node-border-color: ").Append(node.BorderColor).Append(';')
-            .Append("--node-border-style: ").Append(node.BorderStyle).Append(';')
-            .Append(CultureInfo.InvariantCulture, $"--node-height: {node.Bounds.Height}px;")
-            .Append(CultureInfo.InvariantCulture, $"--node-pos-x: {node.Bounds.Left}px;")
-            .Append(CultureInfo.InvariantCulture, $"--node-pos-y: {node.Bounds.Top}px;")
-            .Append(CultureInfo.InvariantCulture, $"--node-width: {node.Bounds.Width}px;")
-            .Append("--node-z-index: ");
+        var zIndex = node.ZIndex == 0 ? "auto" : node.ZIndex.ToString(CultureInfo.InvariantCulture);
 
-        if (node.ZIndex == 0)
-            _cssStylesBuilder.Append("auto");
-        else
-            _cssStylesBuilder.Append(node.ZIndex);
-
-        _cssStylesBuilder.Append(';');
-
-        node.CssStyles = _cssStylesBuilder.ToString();
+        node.CssStyles = string.Create(
+            CultureInfo.InvariantCulture,
+            $"--node-background-color: {node.BackgroundColor};--node-border-color: {node.BorderColor};--node-border-style: {node.BorderStyle};--node-height: {node.Bounds.Height}px;--node-pos-x: {node.Bounds.Left}px;--node-pos-y: {node.Bounds.Top}px;--node-width: {node.Bounds.Width}px;--node-z-index: {zIndex};");
     }
 
     private void SetVisibility(bool isVisible)
