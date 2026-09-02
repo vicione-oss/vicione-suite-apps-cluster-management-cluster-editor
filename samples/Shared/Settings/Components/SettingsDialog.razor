@@ -1,0 +1,77 @@
+﻿@using Shared.Settings.Services
+@using ViciOne.Ui.Blazor.Components.Dialog.Components
+@using ViciOne.Ui.Blazor.Components.Switch
+@using ViciOne.Ui.Localization.Resources
+
+<Dialog @bind-Visible:get="DialogService.Visible"
+        @bind-Visible:set="DialogService.SetVisibility"
+        @ref="_refDialog"
+        HeaderText="@CommonVocabulary.SettingPlural"
+        Height="505px"
+        PreventBrowserContextMenu="true"
+        OnShowing="@OnDialogShowing"
+        Width="150px">
+
+    <Body>
+        <div class="settings-container">
+
+            <div class="heading">
+                @CommonVocabulary.General
+            </div>
+
+            <div class="label">
+                @CommonVocabulary.Language
+            </div>
+
+            <ComboBox @bind-Value="_settings.CurrentCultureName"
+                      Items="@Services.SettingsService.SupportedCultureNames"
+                      TextSelector="@(item => item)"
+                      ValueSelector="@(item => item)" />
+
+            <div class="label">
+                @Localization.SettingsDialog.ShowDefaultContextMenu
+            </div>
+            <Switch @bind-Value="_settings.ShowDefaultContextMenu" />
+
+            <div class="heading">
+                Cluster Editor
+            </div>
+
+            <div class="label">
+                @Localization.SettingsDialog.GridMode
+            </div>
+            <ComboBox @bind-Value="_settings.GridMode"
+                      Items="@SettingsDialogService.GridModeComboBoxItems"
+                      TextSelector="@(item => item.Text)"
+                      ValueSelector="@(item => item.Value)" />
+
+            <div class="label">
+                @Localization.SettingsDialog.UseGimpPanBehavior
+            </div>
+            <Switch @bind-Value="@_settings.PanBehavior" />
+
+            <div class="label">
+                @Localization.SettingsDialog.UseSimplifiedView
+            </div>
+            <Switch @bind-Value="@_settings.SimplifiedView" />
+
+            <div class="label">
+                @Localization.SettingsDialog.NodeAlignmentBorderVisible
+            </div>
+            <Switch @bind-Value="@_settings.NodeAlignmentBorder" />
+
+            <div class="label">
+                @Localization.SettingsDialog.UseMinimapColoring
+            </div>
+            <Switch @bind-Value="@_settings.MinimapNodeColoring" />
+        </div>
+    </Body>
+
+    <Footer>
+        <DialogFooterButton OnClick="@OnDialogSave"
+                            Text="@CommonVocabulary.Save" />
+
+        <DialogFooterButton OnClick="@OnDialogCancel"
+                            Text="@CommonVocabulary.Cancel" />
+    </Footer>
+</Dialog>

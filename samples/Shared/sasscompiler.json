@@ -1,4 +1,4 @@
 ﻿{
     "Arguments": "--no-source-map --style=compressed --silence-deprecation=import --silence-deprecation=global-builtin",
-    "ScopedCssFolders": [ "Components" ]
+    "ScopedCssFolders": [ "Components", "Settings" ]
 }
