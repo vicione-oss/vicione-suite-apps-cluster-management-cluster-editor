@@ -12,5 +12,6 @@ public sealed class ConnectorMarker(BlockNodeConnector connector) : IDiagramMode
     public bool Selected { get; set; }
     public IEnumerable<PublishedConnectorTooltipEntry> TooltipEntries { get; set; } = [];
     public bool Traced { get; set; }
+    public ConnectorMarkerType Type { get; init; }
     public bool Visible { get; set; }
 }

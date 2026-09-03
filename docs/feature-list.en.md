@@ -263,7 +263,10 @@ The elements that can be dragged / added to the canvas visualising a dataflow.
 - shows if published connectors are connected to the connector and how many
 - [LMB] select the clicked published connector flag (also works with selection rectangle and [CTRL+LMB] for multi select)
 - [DBLCLK] invokes an action base on the mount of published connectors connected
-    - 0 = nothing
+    - 0 = opens the [published connectors](#published-connectors) section, expands only the groups containing the matching entry, scrolls it into view and selects it
+        - groups that do not contain the entry keep their current expanded / collapsed state
+        - if a filter or the search hides the entry it is only selected, so it shows up already selected once the filter is cleared (no scrolling in that case)
+        - on a container the marker resolves to the published connector of the function block inside it, because publishing always applies to the underlying connector
     - 1 = jumps to the original published connector that is attached
     - \> 1 = opens the management dialog
 - [DEL] detaches the published connector from the local connectors base on the amount attached

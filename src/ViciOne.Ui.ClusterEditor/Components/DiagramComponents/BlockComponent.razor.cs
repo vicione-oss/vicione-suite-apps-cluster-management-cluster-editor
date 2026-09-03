@@ -20,6 +20,7 @@ using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
+using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
@@ -56,6 +57,7 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     [Inject] private LinkDestinationDialogService LinkDestinationDialogService { get; set; } = default!;
     [Inject] private IContextMenuRequest<NodeEditorContextMenuContext> NodeEditorContextMenuRequest { get; set; } = default!;
     [Inject] private IPropertyGridController<DataflowToolbarPropertyGridContext> PropertyGridController { get; set; } = default!;
+    [Inject] private PublishedConnectorsService PublishedConnectorsService { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
     [Inject] private ToolbarService ToolbarService { get; set; } = default!;
     [Inject] private TooltipService TooltipService { get; set; } = default!;
@@ -398,7 +400,14 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     private async Task OnMarkerDoubleClickAsync(ConnectorMarker connectorMarker)
     {
         if (connectorMarker.Links.Count == 0)
+        {
+            // A marker without links is only rendered for a connector that is published but
+            // not linked yet; jump to its entry in the Published Connectors section instead.
+            if (connectorMarker.Type == ConnectorMarkerType.Published)
+                ShowAndSelectPublishedConnector(connectorMarker.Connector);
+
             return;
+        }
 
         if (connectorMarker.Links.Count == 1)
         {
@@ -525,6 +534,17 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
 
         ToolbarService.RequestDataflowToolbarSection(DataflowToolbarSection.DataPorts);
         treeNode.ScrollToNode(DataPortTreeAdapter.Builder);
+    }
+
+    private void ShowAndSelectPublishedConnector(BlockNodeConnector blockNodeConnector)
+    {
+        // Publishing always applies to the underlying connector, so a marker on a container maps
+        // to the connector of the function block inside it. For a function block connector this
+        // resolves to the connector itself.
+        var connector = Datastore.DataflowDiagramMapping.GetModel(blockNodeConnector).GetUnderlyingConnector();
+
+        ToolbarService.RequestDataflowToolbarSection(DataflowToolbarSection.Connectors);
+        PublishedConnectorsService.RequestPublishedConnectorSelection(connector);
     }
 
     private void ShowLinkDestinationDetailDialog(ConnectorMarker connectorMarker)

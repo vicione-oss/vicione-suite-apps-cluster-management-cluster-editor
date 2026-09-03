@@ -28,6 +28,7 @@ internal sealed class PublishedConnectorsService : IDisposable
     public event Action? DraggingEnded;
     public event Action<Point?, bool>? DraggingPublishedConnectorPositionChanged;
     public event Action? PublishedConnectorsChanged;
+    public event Action<IConnector>? PublishedConnectorSelectionRequested;
 
     public PublishedConnectorsService(
         ClusterBuilderEventBuffer clusterBuilderEventBuffer,
@@ -232,6 +233,9 @@ internal sealed class PublishedConnectorsService : IDisposable
         foreach (var publishedConnector in publishedConnectorsWrappers)
             _datastore.Builder.Editors.Connector.SetPublished((Connector)publishedConnector.Connector, false);
     }
+
+    public void RequestPublishedConnectorSelection(IConnector connector)
+        => PublishedConnectorSelectionRequested?.Invoke(connector);
 
     public void StartPublishedConnectorDragging(IEnumerable<DataGridConnectorWrapper> connectorWrappersToDrag)
     {
