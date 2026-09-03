@@ -247,6 +247,7 @@ internal static class TestContextExtensions
         ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
         ctx.SetupLibraryService();
         ctx.SetupResizeObserver();
+        ctx.SetupPublishedConnectorsService();
         ctx.SetupConnectorSelectionDialogService();
         ctx.SetupLinkDestinationDialogService();
         ctx.Services.TryAddScoped(_ => Substitute.For<IContainerEditorRequest>());

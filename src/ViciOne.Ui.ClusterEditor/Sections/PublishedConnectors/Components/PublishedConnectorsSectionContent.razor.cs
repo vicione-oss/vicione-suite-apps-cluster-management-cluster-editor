@@ -7,6 +7,7 @@ using DevExpress.Data.Filtering;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
+using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.Comparer;
@@ -28,6 +29,7 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
     private FilterButton _inputFilterButton = new();
     private int _lastRowIndex;
     private FilterButton _outputFilterButton = new();
+    private DataGridConnectorWrapper? _pendingSelection;
     private string? _searchText;
 
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
@@ -39,10 +41,82 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
 
     private bool DataAvailable => PublishedConnectorsService.PublishedConnectorWrappers.Any();
 
+    // Runs after the render that expanded the section. The section is kept in the DOM while
+    // inactive but collapsed to zero height, so scrolling the virtualized grid only works
+    // once it is actually visible.
+    private async Task ApplyPendingSelectionAsync()
+    {
+        if (_pendingSelection is null || _gridRef is null)
+            return;
+
+        var target = _pendingSelection;
+        _pendingSelection = null;
+
+        _gridRef.ClearSelection();
+        _gridRef.SelectDataItem(target, true);
+
+        // An active filter or search can hide the row entirely. The selection above still sticks
+        // to the data item, so clearing the filter reveals it as selected; there is nothing to
+        // scroll to in the meantime.
+        if (ExpandGroupRowsTo(target))
+            await _gridRef.MakeDataItemVisibleAsync(target);
+    }
+
     public void Dispose()
     {
         PublishedConnectorsService.DraggingEnded -= OnDraggingEnded;
+        PublishedConnectorsService.PublishedConnectorSelectionRequested -= OnPublishedConnectorSelectionRequested;
         PublishedConnectorsService.PublishedConnectorsChanged -= OnPublishedConnectorsChangedAsync;
+    }
+
+    // Expands only the group rows that contain the target, so a jump from the diagram leaves
+    // groups the user deliberately collapsed alone. Returns false when the row cannot be
+    // reached at all, which means an active filter or search text excludes it.
+    private bool ExpandGroupRowsTo(DataGridConnectorWrapper target)
+    {
+        var groupedFieldNames = GetGroupedFieldNames();
+
+        for (var rowIndex = 0; rowIndex < _gridRef!.GetVisibleRowCount(); rowIndex++)
+        {
+            if (!_gridRef.IsGroupRow(rowIndex))
+            {
+                if (ReferenceEquals(_gridRef.GetDataItem(rowIndex), target))
+                    return true;
+
+                continue;
+            }
+
+            var level = _gridRef.GetRowLevel(rowIndex);
+            if (level >= groupedFieldNames.Count)
+                continue;
+
+            var fieldName = groupedFieldNames[level];
+            if (!Equals(_gridRef.GetRowValue(rowIndex, fieldName), _gridRef.GetDataItemValue(target, fieldName)))
+                continue;
+
+            if (!_gridRef.IsGroupRowExpanded(rowIndex))
+                _gridRef.ExpandGroupRow(rowIndex, false);
+        }
+
+        return false;
+    }
+
+    private List<string> GetGroupedFieldNames()
+    {
+        var groupedColumns = new List<IGridDataColumn>();
+        foreach (var column in _gridRef!.GetDataColumns())
+        {
+            if (column.GroupIndex >= 0)
+                groupedColumns.Add(column);
+        }
+
+        groupedColumns.Sort((first, second) => first.GroupIndex.CompareTo(second.GroupIndex));
+
+        var fieldNames = new List<string>(groupedColumns.Count);
+        foreach (var column in groupedColumns)
+            fieldNames.Add(column.FieldName);
+
+        return fieldNames;
     }
 
     private MarkupString GetIconMarkup(DataGridConnectorWrapper connectorWrapper)
@@ -69,10 +143,12 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
         _filterButtons.Add(_outputFilterButton);
     }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         SetGroupingButtonsState();
         SetFilterButtonsState();
+
+        await ApplyPendingSelectionAsync();
     }
 
     private void OnCollapseAllGroups()
@@ -189,6 +265,7 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
     protected override void OnInitialized()
     {
         PublishedConnectorsService.DraggingEnded += OnDraggingEnded;
+        PublishedConnectorsService.PublishedConnectorSelectionRequested += OnPublishedConnectorSelectionRequested;
         PublishedConnectorsService.PublishedConnectorsChanged += OnPublishedConnectorsChangedAsync;
 
         InitFilterButtons();
@@ -207,6 +284,21 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
         {
             RefreshPublishedConnectorsFailed(Logger, ex);
         }
+    }
+
+    private void OnPublishedConnectorSelectionRequested(IConnector connector)
+    {
+        foreach (var wrapper in PublishedConnectorsService.PublishedConnectorWrappers)
+        {
+            if (wrapper.Connector.Id != connector.Id)
+                continue;
+
+            _pendingSelection = wrapper;
+            break;
+        }
+
+        if (_pendingSelection is not null)
+            InvokeAsync(StateHasChanged);
     }
 
     private async Task OnRowContextMenuAsync(MouseEventArgs e, int rowIndex)

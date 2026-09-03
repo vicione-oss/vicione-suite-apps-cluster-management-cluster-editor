@@ -74,7 +74,7 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
         _diagramService = diagramService;
 
         Connector = connector;
-        DataPortConnectorMarker = new(this);
+        DataPortConnectorMarker = new(this) { Type = ConnectorMarkerType.DataPort };
         IsInput = isInput;
 
         node.AddPort(this);
@@ -84,7 +84,7 @@ public sealed class BlockNodeConnector : PortModel, IDiagramModel, IDisposable, 
             Locked = true;
 
         Node = node;
-        PublishedConnectorMarker = new(this);
+        PublishedConnectorMarker = new(this) { Type = ConnectorMarkerType.Published };
 
         UpdateConnectorMarker();
     }
