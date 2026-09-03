@@ -122,7 +122,9 @@
     {
         if (!connector.Visible) { return; }
 
-        <div class="input-connector-container"
+        <div @ondrop="@((_) => OnDrop(connector))"
+             class="input-connector-container"
+             ondragover="@(connector.IsValidDropTarget ? "event.preventDefault();" : string.Empty)"
              style="@connector.ConnectorContainerStyle">
 
             <div @oncontextmenu="@(async (e) => await OnConnectorContextMenuRequestedAsync(e, connector))"
@@ -130,11 +132,9 @@
                  @oncontextmenu:stopPropagation
                  @ondblclick="@(async (e) => await OnConnectorDblClickAsync(e, connector))"
                  @ondblclick:stopPropagation
-                 @ondrop="@((_) => OnDrop(connector))"
                  @onpointerenter="@((e) => OnPortContainerPointerEnter(e, connector))"
                  @onpointerleave="@OnPortContainerPointerLeave"
                  class="input-port-container"
-                 ondragover="@(connector.IsValidDropTarget ? "event.preventDefault();" : string.Empty)"
                  style="@connector.PortStyle">
 
                 <PortRenderer @key="connector" Port="@connector">
@@ -230,7 +230,9 @@
     {
         if (!connector.Visible) { return; }
 
-        <div class="output-connector-container"
+        <div @ondrop="@((_) => OnDrop(connector))"
+             class="output-connector-container"
+             ondragover="@(connector.IsValidDropTarget ? "event.preventDefault();" : string.Empty)"
              style="@connector.ConnectorContainerStyle">
 
             <div class="output-text @(connector.HasChangedProperties ? "non-default-properties" : string.Empty)"
@@ -244,11 +246,9 @@
                  @oncontextmenu:stopPropagation
                  @ondblclick="@(async (e) => await OnConnectorDblClickAsync(e, connector))"
                  @ondblclick:stopPropagation
-                 @ondrop="@((_) => OnDrop(connector))"
                  @onpointerenter="@((e) => OnPortContainerPointerEnter(e, connector))"
                  @onpointerleave="@OnPortContainerPointerLeave"
                  class="output-port-container"
-                 ondragover="@(connector.IsValidDropTarget ? "event.preventDefault();" : string.Empty)"
                  style="@connector.PortStyle">
 
                 <PortRenderer @key="connector" Port="@connector">

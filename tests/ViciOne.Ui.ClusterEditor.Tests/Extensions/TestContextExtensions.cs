@@ -38,7 +38,7 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Extensions;
 
 internal static class TestContextExtensions
 {
-    public static BlockNodeConnector CreateBlockNodeConnector(this TestContext ctx)
+    public static BlockNodeConnector CreateBlockNodeConnector(this TestContext ctx, BlockNode? node = null, bool isInput = true)
     {
         var connector = Substitute.For<Cluster.Model.IConnector>();
         connector.Links.Returns([]);
@@ -46,9 +46,8 @@ internal static class TestContextExtensions
         var comparer = ctx.Services.GetRequiredService<ComparerService>();
         var datastore = ctx.Services.GetRequiredService<IDatastore>();
         var diagramService = ctx.Services.GetRequiredService<DiagramService>();
-        var node = new FunctionBlockNode();
 
-        return new BlockNodeConnector(comparer, connector, datastore, diagramService, node, true);
+        return new BlockNodeConnector(comparer, connector, datastore, diagramService, node ?? new FunctionBlockNode(), isInput);
     }
 
     public static BlockNodeLink CreateBlockNodeLink(this TestContext _)
