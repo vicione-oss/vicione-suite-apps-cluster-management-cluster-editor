@@ -21,6 +21,7 @@
 - Changed tooltip to use design from `ViciOne.Ui.Design`
 - Refactored `NodeEditor` component into multiple services to avoid excessive class coupling and improve maintainability
 - Moved `ViciOne.Ui.Shared.Dx.Components.SearchHighlighter` to `ViciOne.Ui.ClusterEditor.Components.SearchHighlighter`
+- Improved the connector drop zone when dragging from DataPorts to match the drop zone when creating links 
 
 ### Updated external references
 
