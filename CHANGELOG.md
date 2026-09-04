@@ -7,6 +7,7 @@
 - Context depended tooltips for the "Add" button in the Topology section
 - Localization for button tooltips in the Topology section
 - Double click on a published connector marker without links now opens the Published Connectors section and selects the matching entry
+- CLAUDE.md file that references AGENTS.md files
 
 ### Changed
 
