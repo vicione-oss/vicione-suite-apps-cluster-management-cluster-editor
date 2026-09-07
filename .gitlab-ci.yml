@@ -85,23 +85,17 @@ stages:
   - publish
   - deploy
 
-Version:
-  stage: .pre
-  script:
-    - if [[ -f "VERSION" ]]; then VERSION=$(head -n 1 VERSION); fi
-    - if [[ ! -z "${CI_COMMIT_TAG}" ]]; then VERSION=$(echo $CI_COMMIT_TAG | sed 's/v//g'); fi
-    - if [[ -z "${VERSION}" ]]; then VERSION='0.1.0'; fi
-    - if [[ -z "${CI_COMMIT_TAG}" ]]; then VERSION="${VERSION}-ci${CI_PIPELINE_ID}"; fi
-    - 'echo "Version=${VERSION}" >> version.env'
-    - 'echo "PackageVersion=${VERSION}" >> version.env'
-    - cat version.env
-  artifacts:
-    reports:
-      dotenv: version.env
-  rules: *rules
-
 ### CI Components ###
 include:
+  ### Version calculation
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/version/version-calc@v1.2.0
+  ### Renovate configuration validation
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/renovate/configuration-validation@v1.0.1
+    inputs:
+      rules: *rules
+      tags:
+        - ${RUNNER_TAG}
+  ### Restore
   - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-restore@2.2
     inputs:
       image: ${IMAGE_NAME}

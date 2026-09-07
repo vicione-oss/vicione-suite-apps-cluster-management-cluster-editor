@@ -19,6 +19,7 @@
     <File Path="NuGet.Config" />
     <File Path="package.json" />
     <File Path="README.md" />
+    <File Path="renovate.json" />
     <File Path="testconfig.json" />
     <File Path="VERSION" />
   </Folder>
