@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -9,9 +10,10 @@ using ViciOne.Ui.ClusterEditor.Sections.Library.Models;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Library.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class LibraryService(ILogger<LibraryService> logger) : ILibraryService
 {
-    public IEnumerable<LibraryEntry>? DraggingEntries { get; set; } = null!;
+    public IEnumerable<LibraryEntry>? DraggingEntries { get; set; }
     public IEnumerable<LibraryEntry> LibraryEntries { get; private set; } = [];
 
     public event Action? DragEnded;

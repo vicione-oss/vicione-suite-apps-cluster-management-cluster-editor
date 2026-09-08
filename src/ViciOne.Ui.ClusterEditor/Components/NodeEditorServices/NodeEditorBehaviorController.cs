@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Behaviors;
 using Microsoft.JSInterop;
@@ -9,6 +10,7 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Components.NodeEditorServices;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class NodeEditorBehaviorController(
     IDatastore datastore,
     ClusterBuilderEventBuffer clusterBuilderEventBuffer,

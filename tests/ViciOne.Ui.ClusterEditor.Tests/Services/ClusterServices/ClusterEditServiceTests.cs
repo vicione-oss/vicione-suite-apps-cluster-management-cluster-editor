@@ -124,7 +124,7 @@ public sealed class ClusterEditServiceTests : IAsyncLifetime
         // Assert
         var functionBlock = _state.DataflowDiagramMapping.GetModel(node);
         functionBlock.Engine.Should().NotBeNull();
-        functionBlock.Engine!.Name.Should().Be(expectedEngine.Name);
+        functionBlock.Engine.Name.Should().Be(expectedEngine.Name);
     }
 
     [Fact]

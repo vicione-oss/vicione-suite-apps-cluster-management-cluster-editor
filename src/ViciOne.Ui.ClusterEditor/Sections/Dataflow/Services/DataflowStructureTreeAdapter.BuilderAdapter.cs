@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using ViciOne.Cluster.Builder.Abstractions;
@@ -10,6 +11,7 @@ using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Dataflow.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed partial class DataflowStructureTreeAdapter : IDisposable
 {
     public void Dispose()

@@ -47,7 +47,7 @@ public sealed class DataPortTreeIconProviderTests
         // Assert
         Assert.NotNull(result);
         Assert.IsType<SvgIcon>(result);
-        Assert.Contains(expectedColor, ((SvgIcon)result!).MarkupString, StringComparison.InvariantCulture);
+        Assert.Contains(expectedColor, ((SvgIcon)result).MarkupString, StringComparison.InvariantCulture);
     }
 
     [Fact]
@@ -64,7 +64,7 @@ public sealed class DataPortTreeIconProviderTests
         // Assert
         Assert.NotNull(result);
         Assert.IsType<SvgIcon>(result);
-        Assert.Contains(expectedColor, ((SvgIcon)result!).MarkupString, StringComparison.InvariantCulture);
+        Assert.Contains(expectedColor, ((SvgIcon)result).MarkupString, StringComparison.InvariantCulture);
     }
 
     [Fact]
@@ -96,7 +96,7 @@ public sealed class DataPortTreeIconProviderTests
         // Assert
         Assert.NotNull(result);
         Assert.IsType<SvgIcon>(result);
-        Assert.Contains(expectedColor, ((SvgIcon)result!).MarkupString, StringComparison.InvariantCulture);
+        Assert.Contains(expectedColor, ((SvgIcon)result).MarkupString, StringComparison.InvariantCulture);
     }
 
     [Theory]
@@ -117,14 +117,14 @@ public sealed class DataPortTreeIconProviderTests
         Assert.IsType<SvgIcon>(result);
 
         if (sholdHaveInputArrow)
-            Assert.Contains(IconParts.DataPortArrowInPath, ((SvgIcon)result!).MarkupString, StringComparison.InvariantCulture);
+            Assert.Contains(IconParts.DataPortArrowInPath, ((SvgIcon)result).MarkupString, StringComparison.InvariantCulture);
         else
-            Assert.DoesNotContain(IconParts.DataPortArrowInPath, ((SvgIcon)result!).MarkupString, StringComparison.InvariantCulture);
+            Assert.DoesNotContain(IconParts.DataPortArrowInPath, ((SvgIcon)result).MarkupString, StringComparison.InvariantCulture);
 
         if (shouldHaveOutputArrow)
-            Assert.Contains(IconParts.DataPortArrowOutPath, ((SvgIcon)result!).MarkupString, StringComparison.InvariantCulture);
+            Assert.Contains(IconParts.DataPortArrowOutPath, ((SvgIcon)result).MarkupString, StringComparison.InvariantCulture);
         else
-            Assert.DoesNotContain(IconParts.DataPortArrowOutPath, ((SvgIcon)result!).MarkupString, StringComparison.InvariantCulture);
+            Assert.DoesNotContain(IconParts.DataPortArrowOutPath, ((SvgIcon)result).MarkupString, StringComparison.InvariantCulture);
     }
 
     [Fact]
@@ -140,8 +140,8 @@ public sealed class DataPortTreeIconProviderTests
         // Assert
         Assert.NotNull(result);
         Assert.IsType<SvgIcon>(result);
-        Assert.Contains(IconParts.DataPortArrowInPath, ((SvgIcon)result!).MarkupString, StringComparison.InvariantCulture);
-        Assert.Contains(IconParts.DataPortArrowOutPath, ((SvgIcon)result!).MarkupString, StringComparison.InvariantCulture);
+        Assert.Contains(IconParts.DataPortArrowInPath, ((SvgIcon)result).MarkupString, StringComparison.InvariantCulture);
+        Assert.Contains(IconParts.DataPortArrowOutPath, ((SvgIcon)result).MarkupString, StringComparison.InvariantCulture);
     }
 
     [Fact]

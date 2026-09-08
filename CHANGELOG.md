@@ -27,6 +27,7 @@
 - Improved the connector drop zone when dragging from DataPorts to match the drop zone when creating links 
 - Fixed a crash while panning or zooming a diagram with many blocks, caused by minimap state being updated from a background thread
 - Refactored default context menu handling in components to enable default context menu handling by host app
+- Updated `.editorconfig` to newest version
 
 ### Updated external references
 

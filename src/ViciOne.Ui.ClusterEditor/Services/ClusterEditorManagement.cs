@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,7 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class ClusterEditorManagement(IDatastore datastore, DiagramService diagramService, ILibraryService libraryService, ILogger<ClusterEditorManagement> logger) : IClusterEditorManagementInternal
 {
     private readonly IDatastore _datastore = datastore;

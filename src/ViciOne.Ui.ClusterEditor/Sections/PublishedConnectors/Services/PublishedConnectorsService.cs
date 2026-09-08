@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Geometry;
 using ViciOne.Cluster.Builder.Extensions;
@@ -13,6 +14,7 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class PublishedConnectorsService : IDisposable
 {
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;

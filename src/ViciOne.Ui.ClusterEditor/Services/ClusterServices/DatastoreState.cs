@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Builder.Abstractions;
@@ -15,6 +16,7 @@ namespace ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 /// notifications. Behavior services mutate this state and raise events through
 /// it; read-only collaborators consume it via <see cref="IDatastoreState"/>.
 /// </summary>
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class DatastoreState(ILogger<DatastoreState> logger) : IDatastoreState
 {
     private IClusterBuilder? _builder;

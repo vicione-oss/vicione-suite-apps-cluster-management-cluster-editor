@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.ClusterEditor.Localization;
@@ -15,6 +16,7 @@ using TechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.Technical
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class DataPortNodeActionProvider(
     IContextMenuRequest<DataPortAddChildNodeContextMenuContext> addChildNodeContextMenuRequest,
     DataPortTreeMutator mutator,

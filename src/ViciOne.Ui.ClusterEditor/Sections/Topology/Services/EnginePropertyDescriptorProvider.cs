@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models;
@@ -11,6 +12,7 @@ using Engine_ = ViciOne.Cluster.Model.Engine;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class EnginePropertyDescriptorProvider : IPropertyDescriptorProvider<TopologyNodeEditContext, Engine_>
 {
     private readonly Lazy<SelectableValue<EngineType>[]> _engineTypeSelectableValues =

@@ -244,7 +244,7 @@ public sealed class ContainerRestructureServiceTests : IAsyncLifetime
         _state.DataflowDiagramMapping.TryGetDiagramModel(innerFb, out var newInnerNode).Should().BeTrue();
 
         newLinkNode.Should().NotBeSameAs(originalLinkNode);
-        newLinkNode!.SourceNode.Should().BeSameAs(outerNode);
+        newLinkNode.SourceNode.Should().BeSameAs(outerNode);
         newLinkNode.TargetNode.Should().BeSameAs(newInnerNode);
     }
 

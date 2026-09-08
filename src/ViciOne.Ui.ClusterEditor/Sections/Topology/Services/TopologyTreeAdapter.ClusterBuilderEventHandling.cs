@@ -7,6 +7,7 @@ using ViciOne.Ui.ClusterEditor.Sections.Topology.Models;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Topology.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed partial class TopologyTreeAdapter
 {
     private void OnApplicationsAdded(IEnumerable<(ClusterNode Parent, ClusterApplication Application)> enumerable)

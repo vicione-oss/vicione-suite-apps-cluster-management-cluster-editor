@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,6 +16,7 @@ namespace ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 /// child containers, labels, links and dataflows). Detaches the builder-event
 /// projection around its own diagram changes to avoid duplicate processing.
 /// </summary>
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class ClusterEditService(
     BuilderEventProjectionService builderEvents,
     DiagramEventService diagramEventService,

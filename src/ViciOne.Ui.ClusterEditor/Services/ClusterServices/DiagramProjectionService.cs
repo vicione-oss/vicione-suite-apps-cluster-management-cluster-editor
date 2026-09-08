@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
@@ -20,6 +21,7 @@ namespace ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 /// Also enumerates the links visible within the active container. This is the single
 /// seam reused by load, edit and restructure operations.
 /// </summary>
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class DiagramProjectionService
 {
     private readonly ComparerService _comparerService;

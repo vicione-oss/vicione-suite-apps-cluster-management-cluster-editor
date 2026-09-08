@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using ViciOne.Cluster.Builder.Abstractions;
@@ -15,6 +16,7 @@ using ViciOne.Ui.ClusterEditor.Services;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     DataPortChildNodePropertyValueStore propertyValueStore, NumericPropertyDescriptorBuilderProvider numericPropertyDescriptorBuilderProvider)
         : IPropertyDescriptorProvider<DataPortChildNodeEditContext, DataPortChildNodeModel>

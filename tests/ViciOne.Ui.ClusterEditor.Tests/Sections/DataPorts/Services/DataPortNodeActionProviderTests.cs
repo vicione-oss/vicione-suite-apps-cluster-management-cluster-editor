@@ -146,7 +146,7 @@ public sealed class DataPortNodeActionProviderTests
         var addButton = InvokableButton(_provider.GetActions(root).First());
 
         // Act
-        addButton.Action!(addButton, new VisibleActionArguments { Builder = _builder, Node = root });
+        addButton.Action(addButton, new VisibleActionArguments { Builder = _builder, Node = root });
 
         // Assert
         _builder.Notifications.Received().NotifyNodeChanged(root, ChangedNodeDetail.Actions);
@@ -194,7 +194,7 @@ public sealed class DataPortNodeActionProviderTests
         var addButton = InvokableButton(_provider.GetActions(root).First());
 
         // Act
-        addButton.Action!(addButton, new VisibleActionArguments { Builder = _builder, Node = Substitute.For<ITreeNode>() });
+        addButton.Action(addButton, new VisibleActionArguments { Builder = _builder, Node = Substitute.For<ITreeNode>() });
 
         // Assert
         _builder.Notifications.DidNotReceiveWithAnyArgs().NotifyNodeChanged(root, ChangedNodeDetail.Actions);
@@ -210,7 +210,7 @@ public sealed class DataPortNodeActionProviderTests
         var editButton = InvokableButton(_provider.GetActions(child).ElementAt(1));
 
         // Act
-        editButton.Action!(editButton, new VisibleActionArguments { Builder = _builder, Node = child });
+        editButton.Action(editButton, new VisibleActionArguments { Builder = _builder, Node = child });
         await System.Threading.Tasks.Task.Yield();
 
         // Assert
@@ -227,7 +227,7 @@ public sealed class DataPortNodeActionProviderTests
         var editButton = InvokableButton(_provider.GetActions(child).ElementAt(1));
 
         // Act
-        editButton.Action!(editButton, new VisibleActionArguments { Builder = _builder, Node = Substitute.For<ITreeNode>() });
+        editButton.Action(editButton, new VisibleActionArguments { Builder = _builder, Node = Substitute.For<ITreeNode>() });
 
         // Assert
         Assert.Null(_state.EditingTreeNode);
@@ -244,7 +244,7 @@ public sealed class DataPortNodeActionProviderTests
         var sortButton = InvokableButton(_provider.GetActions(root).ElementAt(1));
 
         // Act
-        sortButton.Action!(sortButton, new VisibleActionArguments { Builder = _builder, Node = root });
+        sortButton.Action(sortButton, new VisibleActionArguments { Builder = _builder, Node = root });
 
         // Assert
         _builder.Notifications.Received().NotifyChildrenChanged(root);
@@ -278,6 +278,6 @@ public sealed class DataPortNodeActionProviderTests
         var actions = _provider.GetActions(root).OfType<NodeButton>().ToList();
 
         // Act & Assert - invoke every EnabledFunc to cover the predicate lambdas.
-        Assert.All(actions, button => button.EnabledFunc!(root));
+        Assert.All(actions, button => button.EnabledFunc(root));
     }
 }

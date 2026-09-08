@@ -9,7 +9,7 @@ public record FbSetting
     private readonly object? _originalValue;
 
     public string FbName
-        => _functionBlock!.Name;
+        => _functionBlock.Name;
 
     public bool IsModified => !Equals(_originalValue, Value);
 

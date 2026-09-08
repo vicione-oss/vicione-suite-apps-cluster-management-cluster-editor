@@ -101,7 +101,7 @@ public sealed partial class LabelComponent : ComponentBase
         ArgumentNullException.ThrowIfNull(Diagram, nameof(Diagram));
         ArgumentNullException.ThrowIfNull(Node, nameof(Node));
 
-        _labelModel = Datastore.DataflowDiagramMapping.GetModel(Node!);
+        _labelModel = Datastore.DataflowDiagramMapping.GetModel(Node);
 
         _markdigPipeline = new MarkdownPipelineBuilder()
             .UseAdvancedExtensions()

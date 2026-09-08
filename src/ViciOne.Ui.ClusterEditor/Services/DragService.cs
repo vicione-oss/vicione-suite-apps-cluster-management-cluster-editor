@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models.Base;
 using Microsoft.AspNetCore.Components.Web;
@@ -10,6 +11,7 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class DragService(
     DiagramEventService diagramEventService,
     DiagramService diagramService,

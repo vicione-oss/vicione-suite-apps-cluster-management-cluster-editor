@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -17,6 +18,7 @@ using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class DataPortTreeAdapter(
     DataPortNodeActionProvider actionProvider,
     IDatastore datastore,

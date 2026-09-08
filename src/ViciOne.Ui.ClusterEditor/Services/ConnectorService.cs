@@ -61,7 +61,7 @@ public sealed class ConnectorService(IDatastore datastore, DiagramService diagra
         await datastore.LoadContainer(containerToLoad, diagramService);
         BlockNode node = datastore.DataflowDiagramMapping.GetDiagramModel(targetFunctionBlock);
 
-        if (!diagramService.Diagram!.IsNodeInViewport(node))
-            diagramService.Diagram!.PanToNode(node);
+        if (!diagramService.Diagram.IsNodeInViewport(node))
+            diagramService.Diagram.PanToNode(node);
     }
 }

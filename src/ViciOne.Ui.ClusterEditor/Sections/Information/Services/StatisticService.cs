@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Builder.Extensions;
@@ -10,6 +11,7 @@ using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Information.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class StatisticService : IDisposable
 {
     private IClusterBuilder? _clusterBuilder;

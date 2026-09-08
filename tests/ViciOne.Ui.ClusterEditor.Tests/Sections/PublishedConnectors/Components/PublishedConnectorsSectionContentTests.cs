@@ -161,8 +161,8 @@ public class PublishedConnectorsSectionContentTests
 
         var component = ctx.RenderComponent<PublishedConnectorsSectionContent>();
 
-        builder.Editors.Connector.SetPublished((Connector)output, true);
-        builder.Editors.Connector.SetPublished((Connector)input, true);
+        builder.Editors.Connector.SetPublished(output, true);
+        builder.Editors.Connector.SetPublished(input, true);
 
         component.WaitForState(() => service.PublishedConnectorWrappers.Count() == 2);
 

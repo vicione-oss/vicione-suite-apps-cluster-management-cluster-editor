@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
@@ -16,6 +17,7 @@ namespace ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 /// visible connector model behind a diagram port. Depends only on the read-only
 /// <see cref="IDatastoreState"/>.
 /// </summary>
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class LinkQueryService(IDatastoreState state)
 {
     private Dictionary<FunctionBlock, List<Link>> BuildLinksByFbIndex(ConnectionDirection direction)

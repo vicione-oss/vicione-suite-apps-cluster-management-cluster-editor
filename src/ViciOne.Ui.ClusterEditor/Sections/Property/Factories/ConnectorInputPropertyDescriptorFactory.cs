@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Builder.Extensions;
@@ -14,6 +15,7 @@ using PropertyGridConstants = ViciOne.Ui.Blazor.Components.PropertyGrid.Constant
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Property.Factories;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class ConnectorInputPropertyDescriptorFactory(IDatastore datastore,
     NumericPropertyDescriptorBuilderProvider numericPropertyDescriptorBuilderProvider,
     IEnumerable<INumericValueTypeDescriptor> numericValueTypeDescriptors)

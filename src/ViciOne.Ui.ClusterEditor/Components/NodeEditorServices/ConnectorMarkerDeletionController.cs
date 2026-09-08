@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.AspNetCore.Components.Web;
 using ViciOne.Cluster.Model;
@@ -10,6 +11,7 @@ using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 
 namespace ViciOne.Ui.ClusterEditor.Components.NodeEditorServices;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class ConnectorMarkerDeletionController(
     SelectionManager selectionManager,
     IDatastore datastore,
