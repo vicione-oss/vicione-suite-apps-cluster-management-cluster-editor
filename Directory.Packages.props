@@ -1,6 +1,6 @@
 <Project>
   <PropertyGroup>
-    <DotNetVersion>10.0.10</DotNetVersion>
+    <DotNetVersion>10.0.11</DotNetVersion>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
     <ViciOneClusterBuilderVersion>1.0.0</ViciOneClusterBuilderVersion>
     <ViciOneUiMonochromeIconsVersion>4.16.0</ViciOneUiMonochromeIconsVersion>
