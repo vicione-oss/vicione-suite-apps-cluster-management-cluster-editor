@@ -29,6 +29,7 @@
 
 ### Updated external references
 
+- `Microsoft` packages, update to version `10.0.11`
 - `ViciOne.Ui.MonochromeIcons` package, update version to `4.16.0`
 - `ViciOne.Ui.Design` package, added in version `2.5.0`
 
