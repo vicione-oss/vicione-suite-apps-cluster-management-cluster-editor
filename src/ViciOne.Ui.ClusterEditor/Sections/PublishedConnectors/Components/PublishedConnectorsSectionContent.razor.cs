@@ -34,7 +34,6 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
 
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
     [Inject] private IContextMenuRequest<PublishedConnectorsSectionContextMenuContext> ContextMenuRequest { get; set; } = default!;
-    [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private ILogger<PublishedConnectorsSectionContent> Logger { get; set; } = default!;
     [Inject] private PublishedConnectorsService PublishedConnectorsService { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
@@ -181,7 +180,6 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
         if (args.ElementType == GridElementType.DataRow)
         {
             args.Attributes.Add("oncontextmenu", async (MouseEventArgs e) => await OnRowContextMenuAsync(e, args.VisibleIndex));
-            args.Attributes.Add("oncontextmenu:preventDefault", ContextMenuSettings.UseCustomMenu);
             args.Attributes.Add("oncontextmenu:stopPropagation", true);
             args.Attributes.Add("onpointerdown", (MouseEventArgs e) => OnRowPointerDown(e, args.VisibleIndex));
             args.Attributes.Add("onpointerup", (MouseEventArgs e) => OnRowPointerUp(e, args.VisibleIndex));

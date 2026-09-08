@@ -1,7 +1,6 @@
 ﻿@if (_isVisible)
 {
-    <div @oncontextmenu:preventDefault
-         @oncontextmenu:stopPropagation
+    <div @oncontextmenu:stopPropagation
          @onpointerdown:stopPropagation
          @onpointerenter="@OnContainerPointerEnter"
          class="minimap-container"

@@ -8,7 +8,6 @@
         @ref="_refDialog"
         HeaderText="@CommonVocabulary.SettingPlural"
         Height="505px"
-        PreventBrowserContextMenu="true"
         OnShowing="@OnDialogShowing"
         Width="150px">
 
@@ -31,7 +30,8 @@
             <div class="label">
                 @Localization.SettingsDialog.ShowDefaultContextMenu
             </div>
-            <Switch @bind-Value="_settings.ShowDefaultContextMenu" />
+            <Switch @bind-Value:get="_settings.ShowDefaultContextMenu"
+                    @bind-Value:set="OnShowDefaultContextMenuChanged" />
 
             <div class="heading">
                 Cluster Editor

@@ -9,7 +9,7 @@
 
         <div @onclick:stopPropagation
              @oncontextmenu="@ShowContextMenu"
-             @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+             @oncontextmenu:preventDefault
              @oncontextmenu:stopPropagation
              @onpointerdown="@DiagramPointerInteractionController.OnContainerPointerDown"
              @onpointerdown:stopPropagation

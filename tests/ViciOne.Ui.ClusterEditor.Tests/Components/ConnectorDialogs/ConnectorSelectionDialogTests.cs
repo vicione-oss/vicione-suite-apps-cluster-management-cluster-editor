@@ -1,7 +1,4 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
-using NSubstitute;
-using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
-using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
+﻿using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ConnectorDialogs;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
@@ -15,7 +12,6 @@ public class ConnectorSelectionDialogTests
     {
         // Arrange
         using var ctx = new Bunit.TestContext();
-        ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
         ctx.Services.AddDialog();
         ctx.SetupConnectorSelectionDialogService();
         ctx.SetupConnectorService();

@@ -14,7 +14,6 @@
         @ref="@_refDialog"
         HeaderText="@($"{LocalTechnicalTerms.FunctionBlock} - {CommonVocabulary.SettingPlural}")"
         Height="@(_isFullscreen ? DialogSizes.FullscreenHeight : DialogSizes.LargeHeight)"
-        PreventBrowserContextMenu="@ContextMenuSettings.UseCustomMenu"
         OnClosing="@OnDialogClosing"
         OnShowing="@OnDialogShowing"
         Width="@(_isFullscreen ? DialogSizes.FullscreenWidth : DialogSizes.LargeWidth)">

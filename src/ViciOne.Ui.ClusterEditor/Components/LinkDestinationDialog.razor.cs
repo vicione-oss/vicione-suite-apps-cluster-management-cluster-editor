@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using DevExpress.Blazor;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Cluster.Model;
-using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.Blazor.Components.Dialog.Components;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
@@ -31,7 +30,6 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
     private bool _showDataPorts;
 
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
-    [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private LinkDestinationDialogService DialogService { get; set; } = default!;
 
     public void Dispose()

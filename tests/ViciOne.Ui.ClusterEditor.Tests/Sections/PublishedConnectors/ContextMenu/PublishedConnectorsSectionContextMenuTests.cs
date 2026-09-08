@@ -1,6 +1,4 @@
 ﻿using Microsoft.Extensions.DependencyInjection.Extensions;
-using NSubstitute;
-using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.ContextMenu;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Extensions;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
@@ -17,7 +15,6 @@ public class PublishedConnectorsSectionContextMenuTests
         // Arrange
         using var ctx = new Bunit.TestContext();
         ctx.Services.AddPublishedConnectorsSectionContextMenu();
-        ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
         ctx.Services.TryAddScoped<DiagramEventService>();
         ctx.SetupPublishedConnectorsService();
         ctx.SetupDragService();

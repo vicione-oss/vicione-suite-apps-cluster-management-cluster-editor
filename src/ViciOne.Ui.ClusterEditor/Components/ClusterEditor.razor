@@ -5,8 +5,6 @@
 @using ViciOne.Ui.ClusterEditor.Components.ContextMenu.Specialized
 
 <div class="cluster-editor"
-     @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
-     @oncontextmenu:stopPropagation
      @onclick="@InputEventService.InvokeClicked"
      @onpointerdown="@InputEventService.InvokePointerDown"
      @onpointerleave="@InputEventService.InvokePointerLeave"

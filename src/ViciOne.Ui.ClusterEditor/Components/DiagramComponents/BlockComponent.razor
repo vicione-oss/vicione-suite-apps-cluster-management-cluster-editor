@@ -1,7 +1,7 @@
 ﻿@if (!Node!.Visible) { return; }
 
 <div @oncontextmenu="OnContextMenuAsync"
-     @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+     @oncontextmenu:preventDefault
      @oncontextmenu:stopPropagation
      @ondblclick="OnDoubleClickAsync"
      @onpointerdown="@OnBlockContainerPointerDown"
@@ -128,7 +128,7 @@
              style="@connector.ConnectorContainerStyle">
 
             <div @oncontextmenu="@(async (e) => await OnConnectorContextMenuRequestedAsync(e, connector))"
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:preventDefault
                  @oncontextmenu:stopPropagation
                  @ondblclick="@(async (e) => await OnConnectorDblClickAsync(e, connector))"
                  @ondblclick:stopPropagation
@@ -175,7 +175,6 @@
 
             <div @onclick="@((e) => OnMarkerClick(e.CtrlKey, connector.PublishedConnectorMarker))"
                  @onclick:stopPropagation
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
                  @oncontextmenu:stopPropagation
                  @ondblclick="@(async () => await OnMarkerDoubleClickAsync(connector.PublishedConnectorMarker))"
                  @ondblclick:stopPropagation
@@ -195,7 +194,6 @@
         {
             <div @onclick="@((e) => OnMarkerClick(e.CtrlKey, connector.DataPortConnectorMarker))"
                  @onclick:stopPropagation
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
                  @oncontextmenu:stopPropagation
                  @ondblclick="@(async () => await OnMarkerDoubleClickAsync(connector.DataPortConnectorMarker))"
                  @ondblclick:stopPropagation
@@ -212,7 +210,6 @@
         {
             <div @ondblclick="@(() => OnContainerMarkerDblClick(connector))"
                  @ondblclick:stopPropagation
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
                  @oncontextmenu:stopPropagation
                  @onpointerenter="@((e) => OnParentContainerMarkerPointerEnter(e, connector))"
                  @onpointerleave="@OnParentContainerMarkerPointerLeave"
@@ -242,7 +239,7 @@
             </div>
 
             <div @oncontextmenu="@(async (e) => await OnConnectorContextMenuRequestedAsync(e, connector))"
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+                 @oncontextmenu:preventDefault
                  @oncontextmenu:stopPropagation
                  @ondblclick="@(async (e) => await OnConnectorDblClickAsync(e, connector))"
                  @ondblclick:stopPropagation
@@ -275,7 +272,6 @@
         {
             <div @ondblclick="@(() => OnContainerMarkerDblClick(connector))"
                  @ondblclick:stopPropagation
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
                  @oncontextmenu:stopPropagation
                  @onpointerenter="@((e) => OnParentContainerMarkerPointerEnter(e, connector))"
                  @onpointerleave="@OnParentContainerMarkerPointerLeave"
@@ -290,7 +286,6 @@
         {
             <div @onclick="(args) => OnMarkerClick(args.CtrlKey, connector.DataPortConnectorMarker)"
                  @onclick:stopPropagation
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
                  @oncontextmenu:stopPropagation
                  @ondblclick="async (_) => await OnMarkerDoubleClickAsync(connector.DataPortConnectorMarker)"
                  @ondblclick:stopPropagation
@@ -309,7 +304,6 @@
 
             <div @onclick="(args) => OnMarkerClick(args.CtrlKey, connector.PublishedConnectorMarker)"
                  @onclick:stopPropagation
-                 @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
                  @oncontextmenu:stopPropagation
                  @ondblclick="async (_) => await OnMarkerDoubleClickAsync(connector.PublishedConnectorMarker)"
                  @ondblclick:stopPropagation
