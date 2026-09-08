@@ -27,7 +27,6 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
     [Inject] private NodeEditorBehaviorController BehaviorController { get; set; } = default!;
     [Inject] private ConnectorMarkerDeletionController ConnectorMarkerDeletionController { get; set; } = default!;
     [Inject] private IContextMenuRequest<NodeEditorContextMenuContext> ContextMenuRequest { get; set; } = default!;
-    [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private DiagramEventService DiagramEventService { get; set; } = default!;
     [Inject] private DiagramModelSyncController DiagramModelSyncController { get; set; } = default!;
     [Inject] private DiagramPointerInteractionController DiagramPointerInteractionController { get; set; } = default!;

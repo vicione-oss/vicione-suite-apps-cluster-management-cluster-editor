@@ -11,7 +11,6 @@ using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
-using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.Blazor.Components.Dialog.Components;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.ClusterEditor.Behaviors;
@@ -69,7 +68,6 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     [Inject] private ComparerService ComparerService { get; set; } = default!;
     [Inject] private IPropertyGridController<ContainerEditorPropertyGridContext> ContainerEditorPropertyGridController { get; set; } = default!;
     [Inject] private IContainerEditorRequest ContainerEditorRequest { get; set; } = default!;
-    [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private ILogger<DiagramEventService> DiagramEventServiceLogger { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;

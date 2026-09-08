@@ -2,7 +2,7 @@
 
 <foreignObject width="@Node.Width" height="@Node.Height">
     <div @oncontextmenu="@OnContainerContextMenuAsync"
-         @oncontextmenu:preventDefault="@ContextMenuSettings.UseCustomMenu"
+         @oncontextmenu:preventDefault
          @oncontextmenu:stopPropagation
          @ondblclick="@StartTextEdit"
          class="label-container markup-content-container"

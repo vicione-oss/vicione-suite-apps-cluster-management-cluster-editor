@@ -3,7 +3,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
-using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.Blazor.Components.Dialog.Components;
 
 namespace ViciOne.Ui.ClusterEditor.Components;
@@ -15,7 +14,6 @@ public sealed partial class LabelEditor : ComponentBase, IAsyncDisposable
     private IJSObjectReference? _jsModule;
     private Dialog? _refDialog;
 
-    [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
 
     internal event Action<string>? LabelEditorClosed;

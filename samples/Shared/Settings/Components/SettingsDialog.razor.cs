@@ -27,8 +27,11 @@ public sealed partial class SettingsDialog : IDisposable
         _refDialog = null;
     }
 
-    private Task OnDialogCancel()
-        => CloseDialog();
+    private async Task OnDialogCancel()
+    {
+        await SettingsService.RestoreLastSavedShowDefaultContextMenu();
+        await CloseDialog();
+    }
 
     private async Task OnDialogSave()
     {
@@ -54,4 +57,10 @@ public sealed partial class SettingsDialog : IDisposable
 
     protected override void OnInitialized()
         => DialogService.VisibilityChanged += OnDialogServiceVisibilityChangedAsync;
+
+    private async Task OnShowDefaultContextMenuChanged(bool showDefaultContextMenu)
+    {
+        _settings.ShowDefaultContextMenu = showDefaultContextMenu;
+        await SettingsService.SetShowDefaultContextMenu(showDefaultContextMenu);
+    }
 }

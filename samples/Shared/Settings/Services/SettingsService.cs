@@ -1,41 +1,27 @@
 ﻿using System.Globalization;
 using System.Text.Json;
 using Microsoft.AspNetCore.Components;
-using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using Shared.Settings.Extensions;
 using ViciOne.Ui.ClusterEditor.Services;
 
 namespace Shared.Settings.Services;
 
-public sealed partial class SettingsService(IJSRuntime jsRuntime, NavigationManager navigationManager, ISettingsService settingsService, ILogger<SettingsService> logger)
+public sealed class SettingsService(IJSRuntime jsRuntime, NavigationManager navigationManager, ISettingsService settingsService)
 {
     internal Models.Settings CurrentSettings { get; private set; } = new();
-    public bool ShowDefaultContextMenu => CurrentSettings.ShowDefaultContextMenu;
     internal static IEnumerable<string> SupportedCultureNames => [new("en-US"), new("de-DE")];
 
-    public event Func<Task>? RefreshNeeded;
-
-    private async Task InvokeRefreshNeeded()
+    private async Task InvokeVoidJsInterop(string identifier, params object?[] args)
     {
-        if (RefreshNeeded is null)
-            return;
-
-        var tasks = RefreshNeeded.GetInvocationList()
-            .Cast<Func<Task>>()
-            .Select(async handler =>
-            {
-                try
-                {
-                    await handler();
-                }
-                catch (Exception ex)
-                {
-                    LogEventHandlerException(logger, ex, $"{nameof(SettingsService)}.{nameof(RefreshNeeded)}");
-                }
-            });
-
-        await Task.WhenAll(tasks);
+        try
+        {
+            await jsRuntime.InvokeVoidAsync(identifier, args);
+        }
+        catch (Exception ex) when (ex is JSDisconnectedException or ObjectDisposedException or TaskCanceledException)
+        {
+            // Circuit already gone, JSRuntime already disposed or task already canceled
+        }
     }
 
     public async Task Load()
@@ -67,13 +53,13 @@ public sealed partial class SettingsService(IJSRuntime jsRuntime, NavigationMana
         settingsService.SetSimplifiedView(CurrentSettings.SimplifiedView);
     }
 
-    [LoggerMessage(Level = LogLevel.Error, Message = "Exception in {FnName} event handler.")]
-    private static partial void LogEventHandlerException(ILogger<SettingsService> logger, Exception ex, string fnName);
+    public Task RegisterContextMenuHandler()
+        => InvokeVoidJsInterop("ViciOne.ContextMenu.register", CurrentSettings.ShowDefaultContextMenu);
 
     internal async Task SaveCurrentSettings()
     {
         var serializedSettings = JsonSerializer.Serialize(CurrentSettings);
-        await jsRuntime.InvokeVoidAsync("ViciOne.Settings.setCurrentSettings", serializedSettings);
+        await InvokeVoidJsInterop("ViciOne.Settings.setCurrentSettings", serializedSettings);
     }
 
     internal async Task SetCurrentSettings(Models.Settings settings, bool doSave = true)
@@ -85,7 +71,7 @@ public sealed partial class SettingsService(IJSRuntime jsRuntime, NavigationMana
             UpdateCulture(settings.CurrentCultureName);
 
         if (settings.ShowDefaultContextMenu != CurrentSettings.ShowDefaultContextMenu)
-            await InvokeRefreshNeeded();
+            await SetShowDefaultContextMenu(settings.ShowDefaultContextMenu);
 
         if (settings.GridMode != CurrentSettings.GridMode)
             settingsService.SetGridMode(settings.GetGridMode());
@@ -108,6 +94,9 @@ public sealed partial class SettingsService(IJSRuntime jsRuntime, NavigationMana
             await SaveCurrentSettings();
     }
 
+    public Task UnregisterContextMenuHandler()
+        => InvokeVoidJsInterop("ViciOne.ContextMenu.unregister");
+
     private void UpdateCulture(string newCulture)
     {
         CultureInfo cultureInfo = new(newCulture);
@@ -115,4 +104,10 @@ public sealed partial class SettingsService(IJSRuntime jsRuntime, NavigationMana
         CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
         navigationManager.NavigateTo(navigationManager.Uri.ToString(), true);
     }
+
+    internal Task SetShowDefaultContextMenu(bool showDefaultContextMenu)
+        => InvokeVoidJsInterop("ViciOne.ContextMenu.setShowDefaultContextMenu", showDefaultContextMenu);
+
+    internal Task RestoreLastSavedShowDefaultContextMenu()
+        => InvokeVoidJsInterop("ViciOne.ContextMenu.setShowDefaultContextMenu", CurrentSettings.ShowDefaultContextMenu);
 }

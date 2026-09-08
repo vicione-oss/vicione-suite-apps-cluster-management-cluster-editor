@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
-using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor;
@@ -19,7 +18,6 @@ public class ContainerEditorTests
         // Arrange
         using var ctx = new Bunit.TestContext();
         ctx.Services.TryAddScoped(_ => Substitute.For<IContainerEditorRequest>());
-        ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
         ctx.Services.AddDialog();
         ctx.SetupDiagramService();
         ctx.Services.AddContainerEditor();

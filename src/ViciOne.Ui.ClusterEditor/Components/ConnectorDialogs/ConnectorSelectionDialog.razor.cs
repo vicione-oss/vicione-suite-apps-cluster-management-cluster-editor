@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using DevExpress.Blazor;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Cluster.Model;
-using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.Blazor.Components.Dialog.Components;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
@@ -32,7 +31,6 @@ public sealed partial class ConnectorSelectionDialog : ComponentBase, IDisposabl
     private readonly string _selectOutputConnectorsText = CompositeFormats.SelectSomething(LocalTechnicalTerms.OutputConnectorPlural);
 
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
-    [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private ConnectorSelectionDialogService DialogService { get; set; } = default!;
 
     public void Dispose()

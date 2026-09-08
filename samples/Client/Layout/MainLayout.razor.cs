@@ -7,19 +7,16 @@ using Shared.Settings.Services;
 namespace BlazorWasm.Client.Layout;
 
 [SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "Components cannot be internal")]
-public sealed partial class MainLayout : IDisposable
+public sealed partial class MainLayout : IAsyncDisposable
 {
     [Inject] private SettingsService SettingsService { get; set; } = default!;
 
-    public void Dispose()
-        => SettingsService.RefreshNeeded -= OnRefreshNeeded;
+    public async ValueTask DisposeAsync()
+        => await SettingsService.UnregisterContextMenuHandler();
 
-    protected override Task OnInitializedAsync()
+    protected override async Task OnInitializedAsync()
     {
-        SettingsService.RefreshNeeded += OnRefreshNeeded;
-        return SettingsService.Load();
+        await SettingsService.Load();
+        await SettingsService.RegisterContextMenuHandler();
     }
-
-    private Task OnRefreshNeeded()
-        => InvokeAsync(StateHasChanged);
 }

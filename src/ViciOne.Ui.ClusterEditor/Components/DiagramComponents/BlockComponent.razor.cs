@@ -47,7 +47,6 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     [Inject] private IContextMenuRequest<BlockNodeConnectorContextMenuContext> BlockNodeConnectorContextMenuRequest { get; set; } = default!;
     [Inject] private BoundsService BoundsService { get; set; } = default!;
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
-    [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private DataPortTreeAdapter DataPortTreeAdapter { get; set; } = default!;
     [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramEventService DiagramEventService { get; set; } = default!;

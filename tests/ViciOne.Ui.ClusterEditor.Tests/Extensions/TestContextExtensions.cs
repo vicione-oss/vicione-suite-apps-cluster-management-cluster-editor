@@ -200,7 +200,6 @@ internal static class TestContextExtensions
     {
         ctx.SetupDatastore();
         ctx.SetupSelectionManager();
-        ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
         ctx.Services.TryAddScoped(_ => Substitute.For<IFbSettingsEditorRequest>());
         ctx.Services.TryAddScoped<FullscreenService>();
         ctx.Services.AddDialog();
@@ -212,7 +211,6 @@ internal static class TestContextExtensions
 
     public static TestContext SetupLabelEditor(this TestContext ctx)
     {
-        ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
         ctx.Services.AddDialog();
 
         ctx.JSInterop.SetupModule("./_content/ViciOne.Ui.ClusterEditor/Components/LabelEditor.razor.js");
@@ -244,7 +242,6 @@ internal static class TestContextExtensions
         ctx.SetupDragService();
         ctx.SetupConnectorService();
         ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuRequest<NodeEditorContextMenuContext>>());
-        ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
         ctx.SetupLibraryService();
         ctx.SetupResizeObserver();
         ctx.SetupPublishedConnectorsService();
