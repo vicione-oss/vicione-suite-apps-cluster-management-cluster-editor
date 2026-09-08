@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -19,6 +20,7 @@ namespace ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 /// viewport persistence and the internal cancellation coordination that prevents
 /// overlapping <see cref="LoadContainer"/> calls from corrupting the diagram.
 /// </summary>
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed partial class ContainerLoadService(
     BuilderEventProjectionService builderEvents,
     ClusterBuilderEventBuffer clusterBuilderEventBuffer,

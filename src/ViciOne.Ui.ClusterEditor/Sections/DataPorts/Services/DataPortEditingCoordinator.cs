@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
@@ -8,6 +9,7 @@ using ViciOne.Ui.TreeEditor.Builder.Interface.Enums;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class DataPortEditingCoordinator(IClusterEditorManagementInternal dataManagementService, DataPortTreeState state)
 {
     public async Task BeginEdit(DataPortNodeModel dpNode)

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
@@ -9,6 +10,7 @@ using LocalCommonVocabulary = ViciOne.Ui.ClusterEditor.Localization.Resources.Co
 
 namespace ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class ContainerEditorChildContainerNodePropertyDescriptorProvider<TContext>()
     : IPropertyDescriptorProvider<TContext, ContainerEditorChildContainer>
 {

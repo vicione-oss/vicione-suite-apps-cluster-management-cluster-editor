@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,6 +23,7 @@ namespace ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 /// dissolving a child container back into its parent and grouping a selection into a
 /// new child container. Coordinates its own cancellation for the dissolve operation.
 /// </summary>
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class ContainerRestructureService(ClusterEditService editService, DiagramProjectionService projection, DatastoreState state) : IAsyncDisposable
 {
     private bool _disposed;

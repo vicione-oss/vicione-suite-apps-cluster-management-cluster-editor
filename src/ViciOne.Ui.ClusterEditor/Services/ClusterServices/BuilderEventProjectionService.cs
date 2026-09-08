@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
 using ViciOne.Cluster.Model;
@@ -18,6 +19,7 @@ namespace ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 /// notifications. Behavior services detach these handlers around their own diagram
 /// mutations to avoid feedback loops.
 /// </summary>
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class BuilderEventProjectionService(ClusterBuilderEventBuffer clusterBuilderEventBuffer, DatastoreState state, DiagramProjectionService diagramProjectionService) : IDisposable
 {
     private bool _disposed;
@@ -83,7 +85,7 @@ internal sealed class BuilderEventProjectionService(ClusterBuilderEventBuffer cl
             var sourceConnector = link.SourceConnector;
             if (sourceConnector is not null && mapping.TryGetDiagramModel(sourceConnector, out var diagramConnector))
             {
-                diagramConnector!.SetHasUpstreamLinks(sourceConnector.HasUpstreamLinks());
+                diagramConnector.SetHasUpstreamLinks(sourceConnector.HasUpstreamLinks());
                 diagramConnector.Parent.Refresh();
             }
 
@@ -91,12 +93,12 @@ internal sealed class BuilderEventProjectionService(ClusterBuilderEventBuffer cl
             var destinationConnector = link.DestinationConnector;
             if (destinationConnector is not null && mapping.TryGetDiagramModel(destinationConnector, out diagramConnector))
             {
-                diagramConnector!.SetHasUpstreamLinks(destinationConnector.HasUpstreamLinks());
+                diagramConnector.SetHasUpstreamLinks(destinationConnector.HasUpstreamLinks());
                 diagramConnector.Parent.Refresh();
             }
 
             if (mapping.TryGetDiagramModel(link, out var linkNode))
-                state.InvokeConnectorLinkRemoved(linkNode!);
+                state.InvokeConnectorLinkRemoved(linkNode);
         }
     }
 

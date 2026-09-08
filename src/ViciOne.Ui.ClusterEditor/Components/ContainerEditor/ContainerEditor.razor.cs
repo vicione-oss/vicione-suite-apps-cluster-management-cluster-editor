@@ -128,7 +128,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         if (_zoomActive && _diagram is not null)
         {
             _zoomActive = false;
-            _diagram!.Batch(() =>
+            _diagram.Batch(() =>
             {
                 _diagram.UpdatePan(-_diagram.Pan.X, -_diagram.Pan.Y);
                 _diagram.SetZoom(1.0);

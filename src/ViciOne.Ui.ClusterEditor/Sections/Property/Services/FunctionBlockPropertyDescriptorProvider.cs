@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
 using ViciOne.Cluster.Builder.Extensions;
@@ -14,6 +15,7 @@ using LocalTechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.Tech
 
 namespace ViciOne.Ui.ClusterEditor.Sections.Property.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class FunctionBlockPropertyDescriptorProvider<TContext>(IDatastore datastore)
     : IPropertyDescriptorProvider<TContext, FunctionBlock>
 {

@@ -45,7 +45,7 @@ public class Block
     {
         if (ChildContainer is not null)
         {
-            return ChildContainer!.GetEngines(out containsUnassignedBlocks);
+            return ChildContainer.GetEngines(out containsUnassignedBlocks);
         }
         else if (FunctionBlock is not null)
         {

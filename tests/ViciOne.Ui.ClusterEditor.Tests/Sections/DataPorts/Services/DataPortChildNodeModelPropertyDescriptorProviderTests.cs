@@ -198,7 +198,7 @@ public sealed class DataPortChildNodeModelPropertyDescriptorProviderTests
 
         var clusterDataPort = new DataPort { Id = node.Id.Value };
         var clusterBuilder = Substitute.For<IClusterBuilder>();
-        clusterBuilder.Cache.DataPortIds.TryGetValue(node.Id.Value, out Arg.Any<DataPort?>()!)
+        clusterBuilder.Cache.DataPortIds.TryGetValue(node.Id.Value, out Arg.Any<DataPort?>())
             .Returns(call =>
             {
                 call[1] = clusterDataPort;

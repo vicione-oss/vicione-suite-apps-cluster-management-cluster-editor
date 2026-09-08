@@ -3,6 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class DataPortChildNodePropertyValueStore
 {
     private readonly Dictionary<string, object?> _propertyValues = [];

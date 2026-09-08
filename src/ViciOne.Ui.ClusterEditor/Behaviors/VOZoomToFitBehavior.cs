@@ -72,7 +72,7 @@ internal sealed class VOZoomToFitBehavior : Behavior
         // Der nachstehende Code ist abgewandelt aus der Diagram.ZoomToFit Methode entnommen.
         Diagram.Batch(() =>
         {
-            var container = Diagram!.Container;
+            var container = Diagram.Container;
             if (container is null)
                 return;
 

@@ -1,8 +1,10 @@
-﻿using ViciOne.Ui.ClusterEditor.Models;
+﻿using System.Diagnostics.CodeAnalysis;
+using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal class SettingsService(DiagramService diagramService) : ISettingsService
 {
     public GridMode GetGridMode()

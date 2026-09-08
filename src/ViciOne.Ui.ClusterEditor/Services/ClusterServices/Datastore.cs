@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Geometry;
@@ -21,6 +22,7 @@ namespace ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 /// Thin facade for the cluster editor state and services that
 /// implement loading, editing, restructuring and querying of cluster elements.
 /// </summary>
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class Datastore : IDatastore
 {
     private readonly ClusterEditService _editService;

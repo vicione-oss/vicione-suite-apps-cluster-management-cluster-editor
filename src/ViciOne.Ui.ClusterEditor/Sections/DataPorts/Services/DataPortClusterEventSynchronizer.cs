@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
@@ -10,6 +11,7 @@ using ViciOne.Ui.TreeEditor.Builder.Interface.Enums;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class DataPortClusterEventSynchronizer(
     ClusterBuilderEventBuffer clusterBuilderEventBuffer,
     IRulesetProvider rulesetProvider,

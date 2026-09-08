@@ -7,12 +7,12 @@ public partial class TopBar
 {
     [Inject] private SettingsDialogService SettingsDialogService { get; set; } = default!;
 
-    private void OnDebugClicked()
+    private static void OnDebugClicked()
     {
 
     }
 
-    private void OnFileManagementClicked()
+    private static void OnFileManagementClicked()
     {
 
     }

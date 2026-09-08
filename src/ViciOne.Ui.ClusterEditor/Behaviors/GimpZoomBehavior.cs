@@ -59,7 +59,7 @@ internal sealed class GimpZoomBehavior : Behavior
         if (newZoom < 0 || newZoom == Diagram.Zoom)
             return;
 
-        var clientWidth = Diagram.Container!.Width;
+        var clientWidth = Diagram.Container.Width;
         var clientHeight = Diagram.Container.Height;
         var widthDiff = (clientWidth * newZoom) - (clientWidth * oldZoom);
         var heightDiff = (clientHeight * newZoom) - (clientHeight * oldZoom);

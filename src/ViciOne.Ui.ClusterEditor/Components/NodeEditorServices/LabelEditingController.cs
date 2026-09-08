@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
@@ -6,6 +7,7 @@ using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 
 namespace ViciOne.Ui.ClusterEditor.Components.NodeEditorServices;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class LabelEditingController(IDatastore datastore) : IDisposable
 {
     private Label? _editingLabel;

@@ -5,6 +5,7 @@ using ViciOne.Ui.ClusterEditor.Models.Comparer;
 
 namespace ViciOne.Ui.ClusterEditor.Services.ComponentServices.PropertyValueEqualityComparer;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class AlphaNumericPropertyValueEqualityComparer : IPropertyValueEqualityComparer<string>
 {
     public bool Equals(string? x, string? y)

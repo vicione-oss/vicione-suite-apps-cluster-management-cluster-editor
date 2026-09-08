@@ -1,10 +1,12 @@
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.JSInterop;
 
 namespace ViciOne.Ui.ClusterEditor.Components.NodeEditorServices;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class NodeEditorJsInterop(IJSRuntime jsRuntime)
 {
     private const string DiagramCanvasClass = "diagram-canvas";

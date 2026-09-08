@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
@@ -9,6 +10,7 @@ using ViciOne.Ui.ClusterEditor.Sections.Topology.Models;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 
+[SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
 internal sealed class ClusterNodePropertyDescriptorProvider : IPropertyDescriptorProvider<TopologyNodeEditContext, ClusterNode>
 {
     private readonly Lazy<SelectableValue<ClusterNodeType>[]> _typeSelectableValues =
