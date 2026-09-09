@@ -57,9 +57,3 @@ dotnet user-secrets set "ArtifactRepository:Sources:2:Password" "<password>"
 | EC20   | ec-305.tdl.vicione.dev             |
 
 The Cluster Editor log file can be accessed via `systemctl status cluster-editor.service`.
-
-## Special debug option in release mode
-
-To enable a special debug mode for the `FileSection` in release mode you have to put `debug` to the class
-attribute of the div with the class `file-section-container`. The buttons are only valid if the `ClusterEditor`
-is published in his own frame app. If the `ClusterEditor` is embedded in the `Suite` the buttons have no effect.

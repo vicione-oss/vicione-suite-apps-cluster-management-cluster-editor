@@ -459,5 +459,5 @@ src/**/*.razor.css
 
 # Files unpacked by target 'ConfigureDesignTargets'
 samples/Client/Styles/design
-samples/Shared/Styles
+samples/Shared/Styles/design
 src/ViciOne.Ui.ClusterEditor/Styles/design

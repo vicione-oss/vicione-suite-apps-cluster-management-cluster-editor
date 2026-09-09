@@ -1,6 +1,4 @@
-﻿@using ViciOne.Ui.Blazor.Components.Popup.Components
-@using ViciOne.Ui.Blazor.Components.EditorLayout
-@using ViciOne.Ui.ClusterEditor.Components.ConnectorDialogs
+﻿@using ViciOne.Ui.Blazor.Components.EditorLayout
 @using ViciOne.Ui.ClusterEditor.Components.ContainerBreadcrumb
 @using ViciOne.Ui.ClusterEditor.Components.ContextMenu.Specialized
 
@@ -32,13 +30,6 @@
         <Bottom>
             <ContainerBreadcrumb />
         </Bottom>
-
-        <Debug>
-            @if (ExternalDebugContent is not null)
-            {
-                @ExternalDebugContent
-            }
-        </Debug>
     </EditorLayout>
 
     <BlockNodeConnectorContextMenu />

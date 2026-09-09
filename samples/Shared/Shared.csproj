@@ -13,7 +13,10 @@
     <PackageReference Include="System.Reflection.MetadataLoadContext" />
     <PackageReference Include="ViciOne.Core.Dataflow.DataModel.Generation" />
     <PackageReference Include="ViciOne.Suite.System.DataPort" />
-    <PackageReference Include="ViciOne.Ui.Design" />
+    <PackageReference Include="ViciOne.Ui.Design">
+      <PrivateAssets>all</PrivateAssets>
+      <ExcludeAssets>runtime</ExcludeAssets>
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>
@@ -21,6 +24,16 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Localization\Resources\TechnicalTerms.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>TechnicalTerms.resx</DependentUpon>
+    </Compile>
+    <Compile Update="Persistence\Components\Localization\PersistenceDialog.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>PersistenceDialog.resx</DependentUpon>
+    </Compile>
     <Compile Update="Settings\Components\Localization\SettingsDialog.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -29,6 +42,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Localization\Resources\TechnicalTerms.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>TechnicalTerms.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Persistence\Components\Localization\PersistenceDialog.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>PersistenceDialog.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="Settings\Components\Localization\SettingsDialog.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>SettingsDialog.Designer.cs</LastGenOutput>

@@ -1,6 +1,5 @@
 ﻿using System.Drawing;
 using Microsoft.Extensions.Logging;
-using Microsoft.JSInterop;
 using Shared.ClusterSerialization;
 using Shared.Designs;
 using Shared.Extensions;
@@ -12,45 +11,30 @@ namespace Shared.Services;
 
 public sealed partial class IndexService : IAsyncDisposable
 {
-    private const int DefaultSaveSlot = 4;
-
     private readonly IClusterEditorManagement _clusterEditorManagement;
-    private CancellationTokenSource _createClusterFromJsCts = new();
-    private readonly SemaphoreSlim _createClusterFromJsCtsSemaphore = new(1);
     private IDependencyResolver _dependencyResolver = default!;
     private readonly IDesignProvider _designProvider;
     private bool _disposed;
     private CancellationTokenSource _forceContainerReloadCts = new();
     private readonly SemaphoreSlim _forceContainerReloadCtsSemaphore = new(1);
-    private readonly IJSRuntime _jsRuntime;
     private CancellationTokenSource _loadClusterCts = new();
     private readonly SemaphoreSlim _loadClusterCtsSemaphore = new(1);
     private readonly ILogger<IndexService> _logger;
 
     public IClusterBuilder Builder { get; private set; } = default!;
-    public IDesignProvider DesignLoader => _designProvider;
-    public bool DisplayDebugArea { get; private set; }
-    public Action? StateHasChanged { get; set; }
 
     public event Func<IClusterBuilder, Task>? ClusterLoaded;
-    public event Func<Task>? SaveFailed;
 
     public IndexService(
         IClusterEditorManagement clusterEditorManagement,
         IDesignProvider designProvider,
-        IJSRuntime jsRuntime,
         ILogger<IndexService> logger)
     {
         _clusterEditorManagement = clusterEditorManagement;
         _designProvider = designProvider;
-        _jsRuntime = jsRuntime;
         _logger = logger;
 
-        _clusterEditorManagement.ExportRequested += OnDataManagementExportRequested;
-        _clusterEditorManagement.ImportRequested += OnDataManagementImportRequested;
         _clusterEditorManagement.LoadFunctionBlockDesignsRequested += OnDataManagementLoadFunctionBlockDesignsRequested;
-        _clusterEditorManagement.NewRequested += OnDataManagementNewRequested;
-        _clusterEditorManagement.SaveRequested += OnDataManagementServiceSaveRequested;
     }
 
     internal async Task AddContainersAndRefresh()
@@ -94,48 +78,21 @@ public sealed partial class IndexService : IAsyncDisposable
         return new ClusterBuilder(cluster, _dependencyResolver);
     }
 
-    private async Task<IClusterBuilder?> CreateClusterFromJs()
+    private ClusterBuilder? CreateBuilderOrDefault(string? clusterJson)
     {
-        if (_disposed)
+        if (string.IsNullOrEmpty(clusterJson))
             return null;
 
         try
         {
-            await _createClusterFromJsCtsSemaphore.WaitAsync();
-            try
-            {
-                await _createClusterFromJsCts.CancelAsync();
-                _createClusterFromJsCts.Dispose();
-                _createClusterFromJsCts = new CancellationTokenSource();
-
-                if (await _jsRuntime.InvokeAsync<bool>("ViciOne.File.hasValue", _createClusterFromJsCts.Token, DefaultSaveSlot))
-                {
-                    var json = await _jsRuntime.InvokeAsync<string>("ViciOne.File.load", _createClusterFromJsCts.Token, DefaultSaveSlot);
-                    return CreateBuilder(json);
-                }
-            }
-            finally
-            {
-                _createClusterFromJsCtsSemaphore.Release();
-            }
-        }
-        catch (TaskCanceledException ex)
-        {
-            // Expected during fast reload - suppress the exception
-            LogCreateClusterCanceled(_logger, ex);
-        }
-        catch (OperationCanceledException ex)
-        {
-            // Expected if the operation was canceled - suppress the exception
-            LogCreateClusterCanceled(_logger, ex);
+            return CreateBuilder(clusterJson);
         }
         catch (Exception ex)
         {
             // Can happen if the cluster model has changed since last save
             LogCreateClusterFailed(_logger, ex);
+            return null;
         }
-
-        return null;
     }
 
     private IClusterBuilder CreateNewCluster()
@@ -146,26 +103,9 @@ public sealed partial class IndexService : IAsyncDisposable
         if (Interlocked.CompareExchange(ref _disposed, true, false))
             return;
 
-        _clusterEditorManagement.ExportRequested -= OnDataManagementExportRequested;
-        _clusterEditorManagement.ImportRequested -= OnDataManagementImportRequested;
         _clusterEditorManagement.LoadFunctionBlockDesignsRequested -= OnDataManagementLoadFunctionBlockDesignsRequested;
-        _clusterEditorManagement.NewRequested -= OnDataManagementNewRequested;
-        _clusterEditorManagement.SaveRequested -= OnDataManagementServiceSaveRequested;
 
         Builder?.Dispose();
-
-        await _createClusterFromJsCtsSemaphore.WaitAsync();
-        try
-        {
-            await _createClusterFromJsCts.CancelAsync();
-            _createClusterFromJsCts.Dispose();
-        }
-        finally
-        {
-            _createClusterFromJsCtsSemaphore.Release();
-        }
-
-        _createClusterFromJsCtsSemaphore.Dispose();
 
         await _loadClusterCtsSemaphore.WaitAsync();
         try
@@ -194,12 +134,16 @@ public sealed partial class IndexService : IAsyncDisposable
         _forceContainerReloadCtsSemaphore.Dispose();
     }
 
-    public async Task InitCluster()
+    /// <summary>
+    /// Initializes the cluster from the given JSON, or creates a new one if there is none or it cannot be read.
+    /// </summary>
+    /// <param name="clusterJson">The JSON of a previously stored cluster, or <see langword="null" />.</param>
+    public async Task InitCluster(string? clusterJson)
     {
         _dependencyResolver = _designProvider.CreateResolver();
 
 #pragma warning disable CA2000 // Dispose objects before losing scope
-        var newBuilder = await CreateClusterFromJs() ?? CreateNewCluster();
+        var newBuilder = CreateBuilderOrDefault(clusterJson) ?? CreateNewCluster();
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
         await LoadCluster(newBuilder);
@@ -223,28 +167,6 @@ public sealed partial class IndexService : IAsyncDisposable
                 catch (Exception ex)
                 {
                     LogEventHandlerException(_logger, ex, $"{nameof(IndexService)}.{nameof(ClusterLoaded)}");
-                }
-            });
-
-        await Task.WhenAll(tasks);
-    }
-
-    public async Task InvokeSaveFailed()
-    {
-        if (SaveFailed is null)
-            return;
-
-        var tasks = SaveFailed.GetInvocationList()
-            .Cast<Func<Task>>()
-            .Select(async handler =>
-            {
-                try
-                {
-                    await handler();
-                }
-                catch (Exception ex)
-                {
-                    LogEventHandlerException(_logger, ex, $"{nameof(IndexService)}.{nameof(SaveFailed)}");
                 }
             });
 
@@ -300,41 +222,10 @@ public sealed partial class IndexService : IAsyncDisposable
         _clusterEditorManagement.LoadFunctionBlockDesigns(fbDesigns);
     }
 
-    [LoggerMessage(Level = LogLevel.Information, Message = "Created a new ClusterBuilder with Id {ClusterId}.")]
-    private static partial void LogClusterCreation(ILogger logger, Guid clusterId);
-
-    [LoggerMessage(Level = LogLevel.Debug, Message = "CreateClusterFromJs canceled.")]
-    private static partial void LogCreateClusterCanceled(ILogger logger, Exception ex);
-
-    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to load cluster via JavaScript.")]
-    private static partial void LogCreateClusterFailed(ILogger logger, Exception ex);
-
-    [LoggerMessage(Level = LogLevel.Error, Message = "Exception in {FnName} event handler.")]
-    private static partial void LogEventHandlerException(ILogger logger, Exception ex, string fnName);
-
-    public void OnCloseRequested()
-    {
-        DisplayDebugArea = false;
-        StateHasChanged?.Invoke();
-    }
-
-    private async Task OnDataManagementExportRequested()
-    {
-        var json = ClusterSerializer.Serialize(Builder.Cluster);
-        await _jsRuntime.InvokeVoidAsync("ViciOne.File.download", json);
-    }
-
-    private Task OnDataManagementImportRequested()
-    {
-        DisplayDebugArea = true;
-        StateHasChanged?.Invoke();
-        return Task.CompletedTask;
-    }
-
-    private async Task OnDataManagementLoadFunctionBlockDesignsRequested()
-        => await LoadFunctionBlockDesignsIntoManagement();
-
-    private async Task OnDataManagementNewRequested()
+    /// <summary>
+    /// Replaces the current cluster with a newly created one.
+    /// </summary>
+    internal async Task LoadNewCluster()
     {
         Builder = CreateNewCluster();
         await LoadCluster(Builder);
@@ -344,14 +235,18 @@ public sealed partial class IndexService : IAsyncDisposable
         LogClusterCreation(_logger, Builder.Cluster.Id);
     }
 
-    private async Task OnDataManagementServiceSaveRequested(IClusterBuilder builder)
-    {
-        var json = ClusterSerializer.Serialize(Builder.Cluster);
-        var success = await _jsRuntime.InvokeAsync<bool>("ViciOne.File.save", DefaultSaveSlot, json);
+    [LoggerMessage(Level = LogLevel.Information, Message = "Created a new ClusterBuilder with Id {ClusterId}.")]
+    private static partial void LogClusterCreation(ILogger logger, Guid clusterId);
 
-        if (!success)
-            await InvokeSaveFailed();
-    }
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to create a cluster from the stored JSON.")]
+    private static partial void LogCreateClusterFailed(ILogger logger, Exception ex);
+
+    [LoggerMessage(Level = LogLevel.Error, Message = "Exception in {FnName} event handler.")]
+    private static partial void LogEventHandlerException(ILogger logger, Exception ex, string fnName);
+
+
+    private async Task OnDataManagementLoadFunctionBlockDesignsRequested()
+        => await LoadFunctionBlockDesignsIntoManagement();
 
     public void PrepareClusterSerialization()
         => _clusterEditorManagement.PrepareClusterSerialization();

@@ -1,22 +1,31 @@
-﻿using Microsoft.AspNetCore.Components;
-using Shared.Settings.Services;
+﻿using Shared.Persistence.Components;
+using Shared.Settings.Components;
 
 namespace Shared.Components;
 
 public partial class TopBar
 {
-    [Inject] private SettingsDialogService SettingsDialogService { get; set; } = default!;
+    private PersistenceDialog? _refPersistenceDialog;
+    private SettingsDialog? _refSettingsDialog;
 
     private static void OnDebugClicked()
     {
 
     }
 
-    private static void OnFileManagementClicked()
+    private Task OnPersistenceClicked()
     {
+        if (_refPersistenceDialog is not null)
+            return _refPersistenceDialog.ShowDialog();
 
+        return Task.CompletedTask;
     }
 
     private Task OnSettingsClicked()
-        => SettingsDialogService.SetVisibility(true);
+    {
+        if (_refSettingsDialog is not null)
+            return _refSettingsDialog.ShowDialog();
+
+        return Task.CompletedTask;
+    }
 }

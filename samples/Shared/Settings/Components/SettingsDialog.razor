@@ -1,11 +1,6 @@
 ﻿@using Shared.Settings.Services
-@using ViciOne.Ui.Blazor.Components.Dialog.Components
-@using ViciOne.Ui.Blazor.Components.Switch
-@using ViciOne.Ui.Localization.Resources
 
-<Dialog @bind-Visible:get="DialogService.Visible"
-        @bind-Visible:set="DialogService.SetVisibility"
-        @ref="_refDialog"
+<Dialog @ref="_refDialog"
         HeaderText="@CommonVocabulary.SettingPlural"
         Height="505px"
         OnShowing="@OnDialogShowing"
@@ -41,7 +36,7 @@
                 @Localization.SettingsDialog.GridMode
             </div>
             <ComboBox @bind-Value="_settings.GridMode"
-                      Items="@SettingsDialogService.GridModeComboBoxItems"
+                      Items="@GridModeComboBoxItemsFactory.GridModeComboBoxItems"
                       TextSelector="@(item => item.Text)"
                       ValueSelector="@(item => item.Value)" />
 

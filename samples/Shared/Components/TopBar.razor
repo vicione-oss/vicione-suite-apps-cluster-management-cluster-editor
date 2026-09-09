@@ -1,14 +1,16 @@
-﻿@using Shared.Settings.Components
+﻿@using Shared.Persistence.Components
+@using Shared.Settings.Components
 @using ViciOne.Ui.MonochromeIcons.Components
 @using ViciOne.Ui.MonochromeIcons.Core.Enums
+@using LocalTechnicalTerms = Shared.Localization.Resources.TechnicalTerms
 
 <div class="top-bar">
     <div class="title">Vici<span class="text-accent">O</span>ne - ClusterEditor Sample App</div>
     <div class="buttons-container">
-        <button @onclick="OnSettingsClicked" title="Settings">
+        <button @onclick="OnSettingsClicked" title="@CommonVocabulary.SettingPlural">
             <MonochromeIcon Name="MonochromeIconName.GearLight" Size="MonochromeIconSize.SmallMedium"/>
         </button>
-        <button @onclick="OnFileManagementClicked" title="Import/Export">
+        <button @onclick="OnPersistenceClicked" title="@LocalTechnicalTerms.Persistence">
             <MonochromeIcon Name="MonochromeIconName.SaveOutline" Size="MonochromeIconSize.SmallMedium" />
         </button>
         <button @onclick="OnDebugClicked" title="Debug">
@@ -17,4 +19,5 @@
     </div>
 </div>
 
-<SettingsDialog />
+<SettingsDialog @ref="_refSettingsDialog" />
+<PersistenceDialog @ref="_refPersistenceDialog" />
