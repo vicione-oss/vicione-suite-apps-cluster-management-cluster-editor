@@ -96,7 +96,7 @@ include:
       tags:
         - ${RUNNER_TAG}
   ### Restore
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-restore@2.2
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-restore@v2.7.1
     inputs:
       image: ${IMAGE_NAME}
       rules: *rules
@@ -106,7 +106,7 @@ include:
       tags:
         - ${RUNNER_TAG}
   ### Test & Build
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-build@2.2
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-build@v2.7.1
     inputs:
       image: ${IMAGE_NAME}
       rules: *rules
@@ -117,7 +117,7 @@ include:
         - echo "$Version"
       tags:
         - ${RUNNER_TAG}
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-test@2.2
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-test@v2.7.1
     inputs:
       coverage: true
       image: ${IMAGE_NAME}
@@ -130,7 +130,7 @@ include:
       tags:
         - ${RUNNER_TAG}
   ### NuGet Packages
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-pack@2.2
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-pack@v2.7.1
     inputs:
       image: ${IMAGE_NAME}
       rules: *rules
@@ -141,10 +141,11 @@ include:
         - 'echo "PackageVersion: ${PackageVersion:-notAssigned}"'
       tags:
         - ${RUNNER_TAG}
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-nuget-push@2.2
+  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-nuget-push@v2.7.1
     inputs:
       image: ${IMAGE_NAME}
-      source: "JFrogViciOne"
+      sources:
+        - "JFrogViciOne"
       filename_pattern: "./src/*"
       rules: *rules_manual
       before_script:
