@@ -2,12 +2,6 @@
 @use "./../../../Styles/mixins";
 @use "./../../../Styles/design/colors";
 
-.debug {
-    & .button-debug {
-        visibility: visible;
-    }
-}
-
 .button-base {
     border: none;
     background-color: inherit;
@@ -35,11 +29,7 @@
     }
 }
 
-.button-debug {
-    visibility: hidden;
-}
-
 .file-section-container {
     display: grid;
-    grid-template-rows: repeat(4, 40px);
+    grid-template-rows: 40px;
 }

@@ -56,6 +56,9 @@ public sealed class SettingsService(IJSRuntime jsRuntime, NavigationManager navi
     public Task RegisterContextMenuHandler()
         => InvokeVoidJsInterop("ViciOne.ContextMenu.register", CurrentSettings.ShowDefaultContextMenu);
 
+    internal Task RestoreLastSavedShowDefaultContextMenu()
+        => InvokeVoidJsInterop("ViciOne.ContextMenu.setShowDefaultContextMenu", CurrentSettings.ShowDefaultContextMenu);
+
     internal async Task SaveCurrentSettings()
     {
         var serializedSettings = JsonSerializer.Serialize(CurrentSettings);
@@ -94,6 +97,9 @@ public sealed class SettingsService(IJSRuntime jsRuntime, NavigationManager navi
             await SaveCurrentSettings();
     }
 
+    internal Task SetShowDefaultContextMenu(bool showDefaultContextMenu)
+        => InvokeVoidJsInterop("ViciOne.ContextMenu.setShowDefaultContextMenu", showDefaultContextMenu);
+
     public Task UnregisterContextMenuHandler()
         => InvokeVoidJsInterop("ViciOne.ContextMenu.unregister");
 
@@ -104,10 +110,4 @@ public sealed class SettingsService(IJSRuntime jsRuntime, NavigationManager navi
         CultureInfo.DefaultThreadCurrentUICulture = cultureInfo;
         navigationManager.NavigateTo(navigationManager.Uri.ToString(), true);
     }
-
-    internal Task SetShowDefaultContextMenu(bool showDefaultContextMenu)
-        => InvokeVoidJsInterop("ViciOne.ContextMenu.setShowDefaultContextMenu", showDefaultContextMenu);
-
-    internal Task RestoreLastSavedShowDefaultContextMenu()
-        => InvokeVoidJsInterop("ViciOne.ContextMenu.setShowDefaultContextMenu", CurrentSettings.ShowDefaultContextMenu);
 }

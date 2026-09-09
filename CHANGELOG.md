@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.4.0 - Unreleased
+## 2.0.0 - Unreleased
 
 ### Added
 
@@ -28,6 +28,7 @@
 - Fixed a crash while panning or zooming a diagram with many blocks, caused by minimap state being updated from a background thread
 - Refactored default context menu handling in components to enable default context menu handling by host app
 - Updated `.editorconfig` to newest version
+- Removed obsolete persistence code from `IClusterEditorManagement`
 
 ### Updated external references
 

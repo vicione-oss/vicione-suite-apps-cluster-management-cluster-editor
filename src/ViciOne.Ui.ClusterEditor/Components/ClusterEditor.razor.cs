@@ -24,8 +24,6 @@ public sealed partial class ClusterEditor : ComponentBase, IDisposable
     [Inject] private InputEventService InputEventService { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
 
-    [Parameter] public RenderFragment? ExternalDebugContent { get; set; }
-
     public void Dispose()
     {
         _refObject?.Dispose();

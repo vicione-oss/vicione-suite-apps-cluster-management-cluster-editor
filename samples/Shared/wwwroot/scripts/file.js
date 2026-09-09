@@ -30,17 +30,18 @@
     };
 
     /**
+     * @param {number[]} saveSlots
      * @returns {number[]}
      */
-    File.getSizes = function() {
-        const result = [];
-        for (let key of ['dataflow1', 'dataflow2', 'dataflow3']) {
+    File.getSizes = function(saveSlots) {
+        return saveSlots.map(saveSlot => {
+            const key = `dataflow${saveSlot}`;
+
             if (!localStorage[key])
-                result.push(-1);
-            else
-                result.push(Math.round(new Blob([localStorage[key]]).size / 1024));
-        }
-        return result;
+                return -1;
+
+            return Math.round(new Blob([localStorage[key]]).size / 1024);
+        });
     };
 
     /**

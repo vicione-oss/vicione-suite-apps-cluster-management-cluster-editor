@@ -7,7 +7,6 @@ public static class IServiceCollectionExtensions
 {
     public static IServiceCollection AddCultureSupport(this IServiceCollection services)
     {
-        services.AddScoped<SettingsDialogService>();
         services.AddScoped<SettingsService>();
         return services;
     }

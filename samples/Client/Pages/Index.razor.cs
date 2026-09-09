@@ -8,7 +8,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Shared.Designs;
-using Shared.Services;
+using Shared.Persistence.Services;
 using ViciOne.Ui.Blazor.Components.LoadingSpinner.Models;
 using ViciOne.Ui.ClusterEditor.Services;
 
@@ -27,12 +27,12 @@ public sealed partial class Index : ComponentBase, IDisposable
     private bool _messageToastVisible;
 
     [Inject] private IClusterEditorManagement? DataManagementService { get; set; }
-    [Inject] private IndexService IndexService { get; set; } = default!;
+    [Inject] private PersistenceService PersistenceService { get; set; } = default!;
     [Inject] private IServiceProvider ServiceProvider { get; set; } = default!;
 
     public void Dispose()
     {
-        IndexService.SaveFailed -= OnSaveFailed;
+        PersistenceService.SaveFailed -= OnSaveFailed;
 
         DataManagementService?.MessageToastRequested -= MessageToastRequested;
     }
@@ -40,7 +40,7 @@ public sealed partial class Index : ComponentBase, IDisposable
     private async Task HideLoader()
     {
         _loaderVisible = false;
-        await IndexService.InitCluster();
+        await PersistenceService.RestoreCluster();
         await InvokeAsync(StateHasChanged);
     }
 
@@ -61,7 +61,7 @@ public sealed partial class Index : ComponentBase, IDisposable
 
     protected override void OnInitialized()
     {
-        IndexService.SaveFailed += OnSaveFailed;
+        PersistenceService.SaveFailed += OnSaveFailed;
 
         if (DataManagementService is null)
             throw new TypeInitializationException(nameof(DataManagementService), null);

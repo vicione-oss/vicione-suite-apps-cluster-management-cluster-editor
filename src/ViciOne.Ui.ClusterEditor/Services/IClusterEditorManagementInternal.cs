@@ -9,10 +9,7 @@ namespace ViciOne.Ui.ClusterEditor.Services;
 /// </summary>
 internal interface IClusterEditorManagementInternal : IClusterEditorManagement
 {
-    Task RequestExport();
-    Task RequestImport();
     Task RequestLoadFbDesigns();
-    Task RequestNew();
     Task RequestSave();
     Task ShowMessageToast(LogLevel logLevel, string message, Action clickCallback);
 }

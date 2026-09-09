@@ -5,12 +5,11 @@ using ViciOne.Ui.Blazor.Components.Dialog.Components;
 
 namespace Shared.Settings.Components;
 
-public sealed partial class SettingsDialog : IDisposable
+public sealed partial class SettingsDialog
 {
     private Dialog? _refDialog;
     private Models.Settings _settings = new();
 
-    [Inject] private SettingsDialogService DialogService { get; set; } = default!;
     [Inject] private SettingsService SettingsService { get; set; } = default!;
 
     private Task CloseDialog()
@@ -19,12 +18,6 @@ public sealed partial class SettingsDialog : IDisposable
             return _refDialog.CloseAsync();
 
         return Task.CompletedTask;
-    }
-
-    public void Dispose()
-    {
-        DialogService.VisibilityChanged -= OnDialogServiceVisibilityChangedAsync;
-        _refDialog = null;
     }
 
     private async Task OnDialogCancel()
@@ -41,26 +34,20 @@ public sealed partial class SettingsDialog : IDisposable
         await CloseDialog();
     }
 
-    private async Task OnDialogServiceVisibilityChangedAsync()
-    {
-        if (_refDialog is null)
-            return;
-
-        if (DialogService.Visible)
-            await _refDialog.ShowAsync();
-        else
-            await _refDialog.CloseAsync();
-    }
-
     private void OnDialogShowing()
         => _settings = SettingsService.CurrentSettings.Clone();
-
-    protected override void OnInitialized()
-        => DialogService.VisibilityChanged += OnDialogServiceVisibilityChangedAsync;
 
     private async Task OnShowDefaultContextMenuChanged(bool showDefaultContextMenu)
     {
         _settings.ShowDefaultContextMenu = showDefaultContextMenu;
         await SettingsService.SetShowDefaultContextMenu(showDefaultContextMenu);
+    }
+
+    internal Task ShowDialog()
+    {
+        if (_refDialog is not null)
+            return _refDialog.ShowAsync();
+
+        return Task.CompletedTask;
     }
 }

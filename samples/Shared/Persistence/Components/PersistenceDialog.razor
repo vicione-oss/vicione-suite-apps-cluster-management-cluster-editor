@@ -1,0 +1,122 @@
+﻿@using ViciOne.Ui.Blazor.Components.Button
+@using ViciOne.Ui.Blazor.Components.Button.Enums
+@using LocalTechnicalTerms = Shared.Localization.Resources.TechnicalTerms
+
+<Dialog @ref="_refDialog"
+        HeaderText="@LocalTechnicalTerms.Persistence"
+        OnShowing="@OnDialogShowing"
+        Width="150px">
+
+    <Body>
+        <div class="persistence-container">
+
+            <div class="heading">
+                @CommonVocabulary.New
+            </div>
+
+            <div class="label">
+                @Localization.PersistenceDialog.Cluster
+            </div>
+
+            <div class="actions">
+                <Button OnClick="IndexService.LoadNewCluster"
+                        Size="@ButtonSize.Small"
+                        Text="@Localization.PersistenceDialog.CreateVerb" />
+            </div>
+
+            <div class="hint">
+                @Localization.PersistenceDialog.NewClusterHint
+            </div>
+
+            <div class="heading">
+                @LoadAndSaveText
+            </div>
+
+            <div class="label">
+                @Localization.PersistenceDialog.StartUp
+            </div>
+
+            <div class="actions">
+                <Button OnClick="PersistenceService.SaveStartUpCluster"
+                        Size="@ButtonSize.Small"
+                        Text="@CommonVocabulary.Save" />
+
+                <Button Enabled="@IsSaveSlotOccupied(StartUpSaveSlot)"
+                        OnClick="PersistenceService.LoadStartUpCluster"
+                        Size="@ButtonSize.Small"
+                        Text="@Localization.PersistenceDialog.LoadVerb" />
+
+                <Button OnClick="PersistenceService.ClearStartUpCluster"
+                        Size="@ButtonSize.Small"
+                        Text="@CommonVocabulary.ClearVerb" />
+
+                <span class="save-slot-size">
+                    @GetSaveSlotSizeText(StartUpSaveSlot)
+                </span>
+            </div>
+
+            <div class="hint">
+                @Localization.PersistenceDialog.StartUpSlotHint
+            </div>
+
+            <div class="spacer"></div>
+
+            @foreach (var saveSlot in SaveSlots)
+            {
+                <div class="label">
+                    @GetSaveSlotText(saveSlot)
+                </div>
+
+                <div class="actions">
+                    <Button OnClick="@(() => PersistenceService.SaveToSaveSlot(saveSlot))"
+                            Size="@ButtonSize.Small"
+                            Text="@CommonVocabulary.Save" />
+
+                    <Button Enabled="@IsSaveSlotOccupied(saveSlot)"
+                            OnClick="@(() => PersistenceService.LoadFromSaveSlot(saveSlot))"
+                            Size="@ButtonSize.Small"
+                            Text="@Localization.PersistenceDialog.LoadVerb" />
+
+                    <Button OnClick="@(() => PersistenceService.ClearSaveSlot(saveSlot))"
+                            Size="@ButtonSize.Small"
+                            Text="@CommonVocabulary.ClearVerb" />
+
+                    <span class="save-slot-size">
+                        @GetSaveSlotSizeText(saveSlot)
+                    </span>
+                </div>
+            }
+
+            <div class="heading">
+                @ImportAndExportText
+            </div>
+
+            <div class="label">
+                @Localization.PersistenceDialog.ClusterFile
+            </div>
+
+            <div class="actions">
+                <div class="file-input-container">
+                    <Button Size="@ButtonSize.Small"
+                            Text="@CommonVocabulary.ImportVerb" />
+
+                    <InputFile OnChange="@OnFileUpload"
+                               accept=".json" />
+                </div>
+
+                <Button OnClick="PersistenceService.ExportCluster"
+                        Size="@ButtonSize.Small"
+                        Text="@CommonVocabulary.ExportVerb" />
+            </div>
+
+            <div class="hint">
+                @Localization.PersistenceDialog.ImportExportHint
+            </div>
+        </div>
+    </Body>
+
+    <Footer>
+        <DialogFooterButton OnClick="@OnDialogClose"
+                            Text="@CommonVocabulary.CloseVerb" />
+    </Footer>
+</Dialog>
