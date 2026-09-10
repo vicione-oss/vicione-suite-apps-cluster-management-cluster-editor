@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using System.Threading.Tasks;
+using Bunit;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.SearchAndTools.Components;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
@@ -9,10 +11,10 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Sections.SearchAndTools.Components;
 public class SearchAndToolsSectionContentTests
 {
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupDiagramService();
         ctx.Services.TryAddScoped<LabelOrderService>();
         ctx.SetupSelectionManager();
@@ -22,7 +24,7 @@ public class SearchAndToolsSectionContentTests
         ctx.CreateDiagramInstance();
 
         // Act
-        var component = ctx.RenderComponent<SearchAndToolsSectionContent>();
+        var component = ctx.Render<SearchAndToolsSectionContent>();
 
         // Assert
         Assert.NotNull(component);

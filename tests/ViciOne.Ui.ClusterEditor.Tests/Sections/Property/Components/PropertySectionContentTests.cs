@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Threading.Tasks;
+using Bunit;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Extensions;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
@@ -13,10 +15,10 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Sections.Property.Components;
 public class PropertySectionContentTests
 {
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupDatastore();
         ctx.SetupSelectionManager();
         ctx.SetupResizeObserver();
@@ -29,7 +31,7 @@ public class PropertySectionContentTests
         var propertyGridController = ctx.Services.GetRequiredService<IPropertyGridController<object>>();
 
         // Act
-        var component = ctx.RenderComponent<PropertySectionContent<object>>(
+        var component = ctx.Render<PropertySectionContent<object>>(
             b => b.Add(p => p.PropertyGridController, propertyGridController));
 
         // Assert

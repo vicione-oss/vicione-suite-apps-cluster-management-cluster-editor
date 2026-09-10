@@ -1,4 +1,6 @@
-﻿using ViciOne.Ui.ClusterEditor.Components;
+﻿using System.Threading.Tasks;
+using Bunit;
+using ViciOne.Ui.ClusterEditor.Components;
 using Xunit;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Components;
@@ -6,13 +8,13 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Components;
 public class SelectBoxTests
 {
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
 
         // Act
-        var component = ctx.RenderComponent<SelectBox>(parameters => parameters
+        var component = ctx.Render<SelectBox>(parameters => parameters
             .Add(p => p.IsVisible, true)
             .Add(p => p.Height, 100)
             .Add(p => p.Left, 10)

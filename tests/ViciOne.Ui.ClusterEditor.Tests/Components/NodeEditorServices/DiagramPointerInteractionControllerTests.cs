@@ -1,19 +1,20 @@
-﻿using AwesomeAssertions;
+﻿using System.Threading.Tasks;
+using AwesomeAssertions;
 using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Geometry;
+using Bunit;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using ViciOne.Ui.ClusterEditor.Components.NodeEditorServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
-using TestContext = Bunit.TestContext;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Components.NodeEditorServices;
 
 public sealed class DiagramPointerInteractionControllerTests
 {
-    private static (DiagramPointerInteractionController Sut, BlazorDiagram Diagram, DiagramEventService DiagramEvents) CreateSut(TestContext ctx)
+    private static (DiagramPointerInteractionController Sut, BlazorDiagram Diagram, DiagramEventService DiagramEvents) CreateSut(BunitContext ctx)
     {
         ctx.SetupNodeEditor();
         var diagram = NodeEditorDiagramFactory.Create();
@@ -28,10 +29,10 @@ public sealed class DiagramPointerInteractionControllerTests
     }
 
     [Fact]
-    public void ContextMenuAllowed_ByDefault_IsTrue()
+    public async Task ContextMenuAllowed_ByDefault_IsTrue()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, _) = CreateSut(ctx);
         sut.Initialize(diagram, () => { });
 
@@ -40,10 +41,10 @@ public sealed class DiagramPointerInteractionControllerTests
     }
 
     [Fact]
-    public void EdgeDraggingPointerUp_AfterDispose_DoesNotThrow()
+    public async Task EdgeDraggingPointerUp_AfterDispose_DoesNotThrow()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, diagramEvents) = CreateSut(ctx);
         sut.Initialize(diagram, () => { });
         sut.Dispose();
@@ -56,10 +57,10 @@ public sealed class DiagramPointerInteractionControllerTests
     }
 
     [Fact]
-    public void Initialize_CalledTwice_TearsDownBeforeReinitializingWithoutThrowing()
+    public async Task Initialize_CalledTwice_TearsDownBeforeReinitializingWithoutThrowing()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, diagramEvents) = CreateSut(ctx);
         sut.Initialize(diagram, () => { });
 
@@ -81,10 +82,10 @@ public sealed class DiagramPointerInteractionControllerTests
     }
 
     [Fact]
-    public void OnContainerPointerDown_WhenContainerNotInitialized_IsIgnored()
+    public async Task OnContainerPointerDown_WhenContainerNotInitialized_IsIgnored()
     {
         // Arrange - a diagram whose container has not been measured yet (as during initial load).
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupNodeEditor();
         var diagram = NodeEditorDiagramFactory.Create();
         var diagramService = ctx.Services.GetRequiredService<DiagramService>();
@@ -105,10 +106,10 @@ public sealed class DiagramPointerInteractionControllerTests
     }
 
     [Fact]
-    public void OnContainerPointerDown_WithLeftButton_SuppressesContextMenuAndRequestsEdgeDraggingVisibility()
+    public async Task OnContainerPointerDown_WithLeftButton_SuppressesContextMenuAndRequestsEdgeDraggingVisibility()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, diagramEvents) = CreateSut(ctx);
         sut.Initialize(diagram, () => { });
 
@@ -124,10 +125,10 @@ public sealed class DiagramPointerInteractionControllerTests
     }
 
     [Fact]
-    public void OnContainerPointerDown_WithNonLeftButton_IsIgnored()
+    public async Task OnContainerPointerDown_WithNonLeftButton_IsIgnored()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, diagramEvents) = CreateSut(ctx);
         sut.Initialize(diagram, () => { });
 
@@ -143,10 +144,10 @@ public sealed class DiagramPointerInteractionControllerTests
     }
 
     [Fact]
-    public void ViewRectangle_BeforeAnyInteraction_IsNull()
+    public async Task ViewRectangle_BeforeAnyInteraction_IsNull()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, _, _) = CreateSut(ctx);
 
         // Assert

@@ -18,7 +18,6 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using ViciOne.Ui.ClusterEditor.Tests.TestHelpers;
 using Xunit;
-using TestContext = Bunit.TestContext;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Sections.PublishedConnectors.Components;
 
@@ -27,23 +26,23 @@ public class PublishedConnectorsSectionContentTests
     private static CancellationToken Ct => Xunit.TestContext.Current.CancellationToken;
 
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
 
         ctx.CreateDiagramInstance();
 
         // Act
-        var component = ctx.RenderComponent<PublishedConnectorsSectionContent>();
+        var component = ctx.Render<PublishedConnectorsSectionContent>();
 
         // Assert
         Assert.NotNull(component);
     }
 
-    private static TestContext CreateContext()
+    private static BunitContext CreateContext()
     {
-        var ctx = new TestContext();
+        var ctx = new BunitContext();
         ctx.SetupDevExpressBlazor();
         ctx.SetupDiagramService();
         ctx.Services.AddPublishedConnectorsSectionContextMenu();
@@ -79,7 +78,7 @@ public class PublishedConnectorsSectionContentTests
     public async Task Requested_published_connector_is_selected_in_the_grid()
     {
         // Arrange
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         using var builder = BuilderFactory.Create();
         var (component, service, grid, output, _) = await SetupPublishedConnectorsAsync(ctx, builder);
 
@@ -96,7 +95,7 @@ public class PublishedConnectorsSectionContentTests
     public async Task Requested_published_connector_stays_selected_when_a_filter_hides_it()
     {
         // Arrange
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         using var builder = BuilderFactory.Create();
         var (component, service, grid, output, _) = await SetupPublishedConnectorsAsync(ctx, builder);
 
@@ -120,7 +119,7 @@ public class PublishedConnectorsSectionContentTests
     public async Task Requesting_a_published_connector_expands_only_its_own_group()
     {
         // Arrange
-        using var ctx = CreateContext();
+        await using var ctx = CreateContext();
         using var builder = BuilderFactory.Create();
         var (component, service, grid, output, input) = await SetupPublishedConnectorsAsync(ctx, builder);
 
@@ -141,7 +140,7 @@ public class PublishedConnectorsSectionContentTests
     }
 
     private static async Task<(IRenderedComponent<PublishedConnectorsSectionContent> Component, PublishedConnectorsService Service, IGrid Grid, IConnector Output, IConnector Input)>
-        SetupPublishedConnectorsAsync(TestContext ctx, IClusterBuilder builder)
+        SetupPublishedConnectorsAsync(BunitContext ctx, IClusterBuilder builder)
     {
         ctx.CreateDiagramInstance();
 
@@ -159,7 +158,7 @@ public class PublishedConnectorsSectionContentTests
         var output = functionBlock.Outputs.First(c => c.Name == "Value");
         var input = functionBlock.Inputs.First(c => c.Name == "Increment");
 
-        var component = ctx.RenderComponent<PublishedConnectorsSectionContent>();
+        var component = ctx.Render<PublishedConnectorsSectionContent>();
 
         builder.Editors.Connector.SetPublished(output, true);
         builder.Editors.Connector.SetPublished(input, true);

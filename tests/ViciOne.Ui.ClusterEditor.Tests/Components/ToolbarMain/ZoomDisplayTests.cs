@@ -1,4 +1,5 @@
-﻿using AwesomeAssertions;
+﻿using System.Threading.Tasks;
+using AwesomeAssertions;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -14,10 +15,10 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Components.ToolbarMain;
 public class ZoomDisplayTests
 {
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.Services.AddScoped<DiagramEventService>();
         ctx.SetupDiagramService();
 
@@ -25,7 +26,7 @@ public class ZoomDisplayTests
         ctx.JSInterop.Mode = JSRuntimeMode.Loose;
 
         // Act
-        var toolbar = ctx.RenderComponent<Toolbar>(b => b
+        var toolbar = ctx.Render<Toolbar>(b => b
             .AddChildContent<ZoomDisplay>());
 
         // Assert

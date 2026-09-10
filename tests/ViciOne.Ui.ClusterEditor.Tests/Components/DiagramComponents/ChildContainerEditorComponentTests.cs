@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Threading.Tasks;
+using Bunit;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.DiagramComponents;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
@@ -11,10 +13,10 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Components.DiagramComponents;
 public class ChildContainerEditorComponentTests
 {
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupDiagramService();
         ctx.Services.TryAddScoped<TooltipService>();
         ctx.SetupBoundsService();
@@ -23,7 +25,7 @@ public class ChildContainerEditorComponentTests
         var diagram = ctx.Services.GetRequiredService<DiagramService>().Diagram;
 
         // Act
-        var component = ctx.RenderComponent<ChildContainerEditorComponent>(parameters => parameters
+        var component = ctx.Render<ChildContainerEditorComponent>(parameters => parameters
             .Add(p => p.Diagram, diagram)
             .Add(p => p.Node, new ChildContainerNode()));
 

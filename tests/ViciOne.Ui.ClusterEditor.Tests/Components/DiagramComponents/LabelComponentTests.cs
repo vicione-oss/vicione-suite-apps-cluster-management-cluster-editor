@@ -1,4 +1,6 @@
-﻿using Blazor.Diagrams.Core.Geometry;
+﻿using System.Threading.Tasks;
+using Blazor.Diagrams.Core.Geometry;
+using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using ViciOne.Ui.ClusterEditor.Components.DiagramComponents;
 using ViciOne.Ui.ClusterEditor.Extensions;
@@ -13,10 +15,10 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Components.DiagramComponents;
 public class LabelComponentTests
 {
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupDiagramService();
         ctx.Services.AddNodeEditorContextMenu();
         ctx.SetupSelectionManager();
@@ -28,7 +30,7 @@ public class LabelComponentTests
         ctx.Services.GetRequiredService<IDatastore>().DataflowDiagramMapping.Add(new(), labelNode);
 
         // Act
-        var component = ctx.RenderComponent<LabelComponent>(parameters => parameters
+        var component = ctx.Render<LabelComponent>(parameters => parameters
             .Add(p => p.Diagram, diagram)
             .Add(p => p.Node, labelNode));
 

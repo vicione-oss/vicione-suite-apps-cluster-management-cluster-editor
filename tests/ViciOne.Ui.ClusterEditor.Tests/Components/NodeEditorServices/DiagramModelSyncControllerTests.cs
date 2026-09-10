@@ -2,6 +2,7 @@
 using AwesomeAssertions;
 using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Geometry;
+using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using ViciOne.Ui.ClusterEditor.Components.NodeEditorServices;
 using ViciOne.Ui.ClusterEditor.Constants;
@@ -9,13 +10,12 @@ using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
-using TestContext = Bunit.TestContext;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Components.NodeEditorServices;
 
 public sealed class DiagramModelSyncControllerTests
 {
-    private static (DiagramModelSyncController Sut, BlazorDiagram Diagram, DiagramService DiagramService) CreateSut(TestContext ctx)
+    private static (DiagramModelSyncController Sut, BlazorDiagram Diagram, DiagramService DiagramService) CreateSut(BunitContext ctx)
     {
         ctx.SetupNodeEditor();
         var diagram = NodeEditorDiagramFactory.Create();
@@ -27,10 +27,10 @@ public sealed class DiagramModelSyncControllerTests
     }
 
     [Fact]
-    public void Dispose_AfterInitialize_StopsForwardingLabelEditModeForNewNodes()
+    public async Task Dispose_AfterInitialize_StopsForwardingLabelEditModeForNewNodes()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, _) = CreateSut(ctx);
         sut.Initialize(diagram);
 
@@ -42,17 +42,17 @@ public sealed class DiagramModelSyncControllerTests
         sut.Dispose();
         var labelNode = new LabelNode(new Point(0, 0));
         diagram.Nodes.Add(labelNode);
-        labelNode.ProcessTextEditStarted();
+        await labelNode.ProcessTextEditStarted();
 
         // Assert
         forwardCount.Should().Be(0);
     }
 
     [Fact]
-    public void LabelEditModeStarted_WhenAddedLabelNodeStartsEditing_ForwardsTheEvent()
+    public async Task LabelEditModeStarted_WhenAddedLabelNodeStartsEditing_ForwardsTheEvent()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, _) = CreateSut(ctx);
         sut.Initialize(diagram);
 
@@ -63,17 +63,17 @@ public sealed class DiagramModelSyncControllerTests
         diagram.Nodes.Add(labelNode);
 
         // Act
-        labelNode.ProcessTextEditStarted();
+        await labelNode.ProcessTextEditStarted();
 
         // Assert
         forwarded.Should().BeSameAs(labelNode);
     }
 
     [Fact]
-    public void OnDiagramStateZoomChanged_WithOutOfRangeZoom_IsIgnored()
+    public async Task OnDiagramStateZoomChanged_WithOutOfRangeZoom_IsIgnored()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, _) = CreateSut(ctx);
         diagram.SetContainer(new Rectangle(0, 0, 800, 600));
         sut.Initialize(diagram);
@@ -87,10 +87,10 @@ public sealed class DiagramModelSyncControllerTests
     }
 
     [Fact]
-    public void OnDiagramStateZoomChanged_WithValidZoom_RecentersAndAppliesZoomToDiagram()
+    public async Task OnDiagramStateZoomChanged_WithValidZoom_RecentersAndAppliesZoomToDiagram()
     {
         // Arrange - the recenter math needs a measured container.
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, diagramService) = CreateSut(ctx);
         diagram.SetContainer(new Rectangle(0, 0, 800, 600));
         sut.Initialize(diagram);
@@ -109,10 +109,10 @@ public sealed class DiagramModelSyncControllerTests
     }
 
     [Fact]
-    public void OnDiagramZoomChanged_WhenDiagramZoomChanges_SyncsZoomIntoDiagramState()
+    public async Task OnDiagramZoomChanged_WhenDiagramZoomChanges_SyncsZoomIntoDiagramState()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, diagramService) = CreateSut(ctx);
         sut.Initialize(diagram);
 

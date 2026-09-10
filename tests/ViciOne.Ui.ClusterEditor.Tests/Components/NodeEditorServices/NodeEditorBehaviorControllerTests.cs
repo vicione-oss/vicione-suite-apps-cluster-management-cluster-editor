@@ -1,6 +1,8 @@
-﻿using AwesomeAssertions;
+﻿using System.Threading.Tasks;
+using AwesomeAssertions;
 using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Geometry;
+using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using ViciOne.Ui.ClusterEditor.Behaviors;
 using ViciOne.Ui.ClusterEditor.Components.NodeEditorServices;
@@ -8,7 +10,6 @@ using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
-using TestContext = Bunit.TestContext;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Components.NodeEditorServices;
 
@@ -18,7 +19,7 @@ public sealed class NodeEditorBehaviorControllerTests
     /// Builds the controller together with a diagram whose initial pan behavior is pinned to VO
     /// (rather than the build-configuration dependent default) so tests stay deterministic.
     /// </summary>
-    private static (NodeEditorBehaviorController Sut, BlazorDiagram Diagram, DiagramService DiagramService) CreateSut(TestContext ctx)
+    private static (NodeEditorBehaviorController Sut, BlazorDiagram Diagram, DiagramService DiagramService) CreateSut(BunitContext ctx)
     {
         ctx.SetupNodeEditor();
         var diagram = NodeEditorDiagramFactory.Create();
@@ -31,10 +32,10 @@ public sealed class NodeEditorBehaviorControllerTests
     }
 
     [Fact]
-    public void Dispose_AfterInitialize_UnregistersAllBehaviors()
+    public async Task Dispose_AfterInitialize_UnregistersAllBehaviors()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, _) = CreateSut(ctx);
         sut.Initialize(diagram);
 
@@ -52,10 +53,10 @@ public sealed class NodeEditorBehaviorControllerTests
     }
 
     [Fact]
-    public void Initialize_AfterInitialize_ReRegistersBehaviorsWithoutDuplicating()
+    public async Task Initialize_AfterInitialize_ReRegistersBehaviorsWithoutDuplicating()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, _) = CreateSut(ctx);
         sut.Initialize(diagram);
         var firstSelectionBehavior = diagram.GetBehavior<VOSelectionBehavior>();
@@ -71,10 +72,10 @@ public sealed class NodeEditorBehaviorControllerTests
     }
 
     [Fact]
-    public void IsMoving_AfterInitialize_IsFalse()
+    public async Task IsMoving_AfterInitialize_IsFalse()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, _) = CreateSut(ctx);
 
         // Act
@@ -85,10 +86,10 @@ public sealed class NodeEditorBehaviorControllerTests
     }
 
     [Fact]
-    public void OnDiagramPointerLeave_AfterInitialize_IsForwardedWithoutThrowing()
+    public async Task OnDiagramPointerLeave_AfterInitialize_IsForwardedWithoutThrowing()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, _) = CreateSut(ctx);
         var diagramEvents = ctx.Services.GetRequiredService<DiagramEventService>();
         sut.Initialize(diagram);
@@ -101,10 +102,10 @@ public sealed class NodeEditorBehaviorControllerTests
     }
 
     [Fact]
-    public void RequestPanBehaviorChange_SwapsGimpAndVoPanAndZoomBehaviors()
+    public async Task RequestPanBehaviorChange_SwapsGimpAndVoPanAndZoomBehaviors()
     {
         // Arrange - initialized with VO active.
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, diagramService) = CreateSut(ctx);
         sut.Initialize(diagram);
 
@@ -128,10 +129,10 @@ public sealed class NodeEditorBehaviorControllerTests
     }
 
     [Fact]
-    public void RequestPanBehaviorChange_ToSameBehaviorRepeatedly_KeepsExistingBehaviorInstances()
+    public async Task RequestPanBehaviorChange_ToSameBehaviorRepeatedly_KeepsExistingBehaviorInstances()
     {
         // Arrange - initialized with VO active.
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, diagramService) = CreateSut(ctx);
         sut.Initialize(diagram);
         var initialVoPan = diagram.GetBehavior<VOPanBehavior>();
@@ -152,10 +153,10 @@ public sealed class NodeEditorBehaviorControllerTests
     }
 
     [Fact]
-    public void SimplifiedViewChangeRequested_AfterInitialize_RefreshesNodesWithoutThrowing()
+    public async Task SimplifiedViewChangeRequested_AfterInitialize_RefreshesNodesWithoutThrowing()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, diagram, diagramService) = CreateSut(ctx);
         sut.Initialize(diagram);
         diagram.Nodes.Add(new LabelNode(new Point(0, 0)));

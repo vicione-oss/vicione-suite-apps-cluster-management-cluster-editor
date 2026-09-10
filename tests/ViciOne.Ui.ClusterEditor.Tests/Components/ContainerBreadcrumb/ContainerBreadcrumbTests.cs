@@ -17,9 +17,9 @@ using Container = ViciOne.Cluster.Model.Container;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Components.ContainerBreadcrumb;
 
-public sealed class ContainerBreadcrumbTests : IDisposable
+public sealed class ContainerBreadcrumbTests : IAsyncDisposable
 {
-    private Bunit.TestContext Ctx { get; } = new();
+    private BunitContext Ctx { get; } = new();
 
     private static T Create<T>(string name, List<ChildContainer>? childContainers = null) where T : Container, new()
     {
@@ -30,8 +30,8 @@ public sealed class ContainerBreadcrumbTests : IDisposable
         return container;
     }
 
-    public void Dispose()
-        => Ctx.Dispose();
+    public ValueTask DisposeAsync()
+        => Ctx.DisposeAsync();
 
     private async Task<Dataflow> Init(Container current)
     {
@@ -72,7 +72,7 @@ public sealed class ContainerBreadcrumbTests : IDisposable
         var dataflow = await Init(root);
 
         // Act
-        var component = Ctx.RenderComponent<ClusterEditor.Components.ContainerBreadcrumb.ContainerBreadcrumb>();
+        var component = Ctx.Render<ClusterEditor.Components.ContainerBreadcrumb.ContainerBreadcrumb>();
 
         var breadcrumbStub = component.FindComponent<Stub<Breadcrumb>>();
         var currentBreadcrumbItem = breadcrumbStub.Instance.Parameters.Get(p => p.CurrentItem);
@@ -94,7 +94,7 @@ public sealed class ContainerBreadcrumbTests : IDisposable
         var dataflow = await Init(current);
 
         // Act
-        var component = Ctx.RenderComponent<ClusterEditor.Components.ContainerBreadcrumb.ContainerBreadcrumb>();
+        var component = Ctx.Render<ClusterEditor.Components.ContainerBreadcrumb.ContainerBreadcrumb>();
 
         var breadcrumbStub = component.FindComponent<Stub<Breadcrumb>>();
         var currentBreadcrumbItem = breadcrumbStub.Instance.Parameters.Get(p => p.CurrentItem);

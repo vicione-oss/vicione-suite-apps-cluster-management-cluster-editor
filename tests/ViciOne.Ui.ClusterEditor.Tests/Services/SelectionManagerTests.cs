@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Blazor.Diagrams.Core.Models;
+using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
@@ -10,7 +11,6 @@ using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
-using TestContext = Bunit.TestContext;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Services;
 
@@ -19,7 +19,7 @@ public class SelectionManagerTests
     [Fact]
     public async Task DiagramSelectionChanged_WhenSubscriberThrows_IsolatesAndLogs()
     {
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var logger = new FakeLogger<SelectionManager>();
         ctx.Services.AddSingleton<ILogger<SelectionManager>>(logger);
         ctx.SetupSelectionManager();

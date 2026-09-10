@@ -1,4 +1,6 @@
-﻿using AwesomeAssertions;
+﻿using System.Threading.Tasks;
+using AwesomeAssertions;
+using Bunit;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using ViciOne.Ui.ClusterEditor.Components;
@@ -11,27 +13,27 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Components;
 public class NodeEditorTests
 {
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupNodeEditor();
 
         // Act
-        var component = ctx.RenderComponent<NodeEditor>();
+        var component = ctx.Render<NodeEditor>();
 
         // Assert
         Assert.NotNull(component);
     }
 
     [Fact]
-    public void EdgeDraggingPointerUp_AfterDispose_RoutesThroughGuard_AndNeverThrows()
+    public async Task EdgeDraggingPointerUp_AfterDispose_RoutesThroughGuard_AndNeverThrows()
     {
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupNodeEditor();
 
         var diagramEvents = ctx.Services.GetRequiredService<DiagramEventService>();
-        var cut = ctx.RenderComponent<NodeEditor>();
+        var cut = ctx.Render<NodeEditor>();
 
         cut.Instance.Dispose();
 
@@ -41,13 +43,13 @@ public class NodeEditorTests
     }
 
     [Fact]
-    public void EdgeDraggingPointerMove_AfterDispose_RoutesThroughGuard_AndNeverThrows()
+    public async Task EdgeDraggingPointerMove_AfterDispose_RoutesThroughGuard_AndNeverThrows()
     {
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupNodeEditor();
 
         var diagramEvents = ctx.Services.GetRequiredService<DiagramEventService>();
-        var cut = ctx.RenderComponent<NodeEditor>();
+        var cut = ctx.Render<NodeEditor>();
 
         cut.Instance.Dispose();
 

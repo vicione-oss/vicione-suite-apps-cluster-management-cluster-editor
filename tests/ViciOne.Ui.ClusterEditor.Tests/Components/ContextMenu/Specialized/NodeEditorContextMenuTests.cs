@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using System.Threading.Tasks;
+using Bunit;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor;
 using ViciOne.Ui.ClusterEditor.Components.ContextMenu.Specialized;
@@ -13,10 +15,10 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Components.ContextMenu.Specialized;
 public class NodeEditorContextMenuTests
 {
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupDatastore();
         ctx.SetupConnectorSelectionDialogService();
         ctx.Services.AddNodeEditorContextMenu();
@@ -27,7 +29,7 @@ public class NodeEditorContextMenuTests
         ctx.CreateDiagramInstance();
 
         // Act
-        var component = ctx.RenderComponent<NodeEditorContextMenu>();
+        var component = ctx.Render<NodeEditorContextMenu>();
 
         // Assert
         Assert.NotNull(component);

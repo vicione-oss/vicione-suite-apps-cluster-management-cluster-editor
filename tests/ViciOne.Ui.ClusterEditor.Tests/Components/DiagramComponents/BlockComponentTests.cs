@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
 using Blazor.Diagrams.Core.Geometry;
+using Bunit;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -24,7 +25,6 @@ using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using ViciOne.Ui.ClusterEditor.Tests.TestHelpers;
 using Xunit;
-using Bunit;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Components.DiagramComponents;
 
@@ -33,10 +33,10 @@ public class BlockComponentTests
     private static CancellationToken Ct => Xunit.TestContext.Current.CancellationToken;
 
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = CreateTestContext();
+        await using var ctx = CreateTestContext();
         var childContainerNode = CreateMappedChildContainerNode(ctx);
 
         // Act
@@ -49,10 +49,10 @@ public class BlockComponentTests
     [Theory]
     [InlineData(".input-connector-container")]
     [InlineData(".output-connector-container")]
-    public void Connector_container_should_accept_a_drop(string containerSelector)
+    public async Task Connector_container_should_accept_a_drop(string containerSelector)
     {
         // Arrange
-        using var ctx = CreateTestContext();
+        await using var ctx = CreateTestContext();
         var childContainerNode = CreateMappedChildContainerNode(ctx);
 
         using var inputConnector = ctx.CreateBlockNodeConnector(childContainerNode, isInput: true);
@@ -71,10 +71,10 @@ public class BlockComponentTests
     [Theory]
     [InlineData(".input-connector-container", ".input-port-container")]
     [InlineData(".output-connector-container", ".output-port-container")]
-    public void Connector_container_should_allow_drag_over_for_a_valid_drop_target(string containerSelector, string portSelector)
+    public async Task Connector_container_should_allow_drag_over_for_a_valid_drop_target(string containerSelector, string portSelector)
     {
         // Arrange
-        using var ctx = CreateTestContext();
+        await using var ctx = CreateTestContext();
         var childContainerNode = CreateMappedChildContainerNode(ctx);
 
         using var inputConnector = ctx.CreateBlockNodeConnector(childContainerNode, isInput: true);
@@ -96,7 +96,7 @@ public class BlockComponentTests
     public async Task Double_click_on_a_container_published_marker_reveals_the_underlying_connector()
     {
         // Arrange
-        using var ctx = CreateTestContext();
+        await using var ctx = CreateTestContext();
         using var builder = BuilderFactory.Create();
         var (containerNode, containerConnector, boundaryLink) = await SetupPublishedContainerConnectorAsync(ctx, builder);
         using var linkToDispose = boundaryLink;
@@ -122,7 +122,7 @@ public class BlockComponentTests
     public async Task Double_click_on_published_marker_with_links_does_not_request_the_published_connectors_section()
     {
         // Arrange
-        using var ctx = CreateTestContext();
+        await using var ctx = CreateTestContext();
         using var builder = BuilderFactory.Create();
         var (node, connector) = await SetupPublishedConnectorAsync(ctx, builder);
 
@@ -150,7 +150,7 @@ public class BlockComponentTests
     public async Task Double_click_on_unlinked_published_marker_reveals_the_entry_in_the_published_connectors_section()
     {
         // Arrange
-        using var ctx = CreateTestContext();
+        await using var ctx = CreateTestContext();
         using var builder = BuilderFactory.Create();
         var (node, connector) = await SetupPublishedConnectorAsync(ctx, builder);
 
@@ -176,7 +176,7 @@ public class BlockComponentTests
         node.InvalidateConnectorsCache();
     }
 
-    private static ChildContainerNode CreateMappedChildContainerNode(Bunit.TestContext ctx)
+    private static ChildContainerNode CreateMappedChildContainerNode(BunitContext ctx)
     {
         var childContainerNode = new ChildContainerNode();
         ctx.Services.GetRequiredService<IDatastore>().DataflowDiagramMapping.Add(new(), childContainerNode);
@@ -184,9 +184,9 @@ public class BlockComponentTests
         return childContainerNode;
     }
 
-    private static Bunit.TestContext CreateTestContext()
+    private static BunitContext CreateTestContext()
     {
-        var ctx = new Bunit.TestContext();
+        var ctx = new BunitContext();
         ctx.Services.AddBlockNodeConnectorContextMenu();
         ctx.SetupDataPortTreeAdapter();
         ctx.Services.TryAddScoped(_ => Substitute.For<IRulesetProvider>());
@@ -212,16 +212,16 @@ public class BlockComponentTests
         return ctx;
     }
 
-    private static IRenderedComponent<BlockComponent> RenderBlockComponent(Bunit.TestContext ctx, BlockNode node)
+    private static IRenderedComponent<BlockComponent> RenderBlockComponent(BunitContext ctx, BlockNode node)
     {
         var diagram = ctx.Services.GetRequiredService<DiagramService>().Diagram;
 
-        return ctx.RenderComponent<BlockComponent>(parameters => parameters
+        return ctx.Render<BlockComponent>(parameters => parameters
             .Add(p => p.Diagram, diagram)
             .Add(p => p.Node, node));
     }
 
-    private static async Task<(FunctionBlockNode Node, IConnector Connector)> SetupPublishedConnectorAsync(Bunit.TestContext ctx, IClusterBuilder builder)
+    private static async Task<(FunctionBlockNode Node, IConnector Connector)> SetupPublishedConnectorAsync(BunitContext ctx, IClusterBuilder builder)
     {
         var datastore = ctx.Services.GetRequiredService<IDatastore>();
         var diagramService = ctx.Services.GetRequiredService<DiagramService>();
@@ -241,7 +241,7 @@ public class BlockComponentTests
     // Links two function blocks, then moves the source into a new child container so the container
     // exposes the crossing connector, and publishes that connector.
     private static async Task<(ChildContainerNode Node, BlockNodeConnector Connector, BlockNodeLink Link)>
-        SetupPublishedContainerConnectorAsync(Bunit.TestContext ctx, IClusterBuilder builder)
+        SetupPublishedContainerConnectorAsync(BunitContext ctx, IClusterBuilder builder)
     {
         var datastore = ctx.Services.GetRequiredService<IDatastore>();
         var diagramService = ctx.Services.GetRequiredService<DiagramService>();
