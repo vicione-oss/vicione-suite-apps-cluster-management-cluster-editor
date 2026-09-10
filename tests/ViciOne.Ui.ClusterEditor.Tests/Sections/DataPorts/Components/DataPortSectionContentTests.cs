@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using System.Threading.Tasks;
+using Bunit;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components;
@@ -13,10 +15,10 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Sections.DataPorts.Components;
 public class DataPortSectionContentTests
 {
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.SetupTreeEditorJs();
         ctx.SetupDragService();
         ctx.Services.AddDataPortContextMenu();
@@ -26,9 +28,10 @@ public class DataPortSectionContentTests
         ctx.Services.TryAddScoped<ToolbarService>();
         ctx.SetupDataPortTreeAdapter();
         ctx.Services.AddDialog();
+        ctx.CreateDiagramInstance();
 
         // Act
-        var component = ctx.RenderComponent<DataPortSectionContent>();
+        var component = ctx.Render<DataPortSectionContent>();
 
         // Assert
         Assert.NotNull(component);

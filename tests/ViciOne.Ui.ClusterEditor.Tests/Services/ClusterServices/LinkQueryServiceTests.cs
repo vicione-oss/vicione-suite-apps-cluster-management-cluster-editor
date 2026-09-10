@@ -23,14 +23,13 @@ using ViciOne.Ui.Shared.Dx.Services;
 using Xunit;
 using FunctionBlock = ViciOne.Cluster.Model.FunctionBlock;
 using Link = ViciOne.Cluster.Model.Link;
-using TestContext = Bunit.TestContext;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Services.ClusterServices;
 
 public sealed class LinkQueryServiceTests : IAsyncLifetime
 {
     private readonly IClusterBuilder _builder;
-    private readonly TestContext _ctx;
+    private readonly BunitContext _ctx;
     private readonly IDatastore _datastore;
     private readonly DiagramService _diagramService;
     private readonly ClusterEditService _editService;
@@ -45,7 +44,7 @@ public sealed class LinkQueryServiceTests : IAsyncLifetime
 
     public LinkQueryServiceTests()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         _ctx.JSInterop
             .Setup<int[]>("ViciOne.Diagram.BlockNode.measureNameFieldHeights", _ => true)
             .SetResult([.. Enumerable.Repeat(0, 10)]);
@@ -82,7 +81,7 @@ public sealed class LinkQueryServiceTests : IAsyncLifetime
             link.Dispose();
 
         _builder.Dispose();
-        _ctx.Dispose();
+        await _ctx.DisposeAsync();
         await _restructureService.DisposeAsync();
         await _datastore.DisposeAsync();
         _diagramService.Dispose();

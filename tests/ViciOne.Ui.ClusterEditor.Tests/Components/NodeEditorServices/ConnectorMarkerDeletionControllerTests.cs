@@ -1,4 +1,6 @@
-﻿using AwesomeAssertions;
+﻿using System.Threading.Tasks;
+using AwesomeAssertions;
+using Bunit;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.DependencyInjection;
 using ViciOne.Ui.ClusterEditor.Components.NodeEditorServices;
@@ -6,7 +8,6 @@ using ViciOne.Ui.ClusterEditor.Constants;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
-using TestContext = Bunit.TestContext;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Components.NodeEditorServices;
 
@@ -19,9 +20,10 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Components.NodeEditorServices;
 // deletion attempt with nothing selected is a no-op.
 public sealed class ConnectorMarkerDeletionControllerTests
 {
-    private static (ConnectorMarkerDeletionController Sut, InputEventService InputEvents, LinkDestinationDialogService DialogService) CreateSut(TestContext ctx)
+    private static (ConnectorMarkerDeletionController Sut, InputEventService InputEvents, LinkDestinationDialogService DialogService) CreateSut(BunitContext ctx)
     {
         ctx.SetupNodeEditor();
+        ctx.CreateDiagramInstance();
         var sut = ctx.Services.GetRequiredService<ConnectorMarkerDeletionController>();
         var inputEvents = ctx.Services.GetRequiredService<InputEventService>();
         var dialogService = ctx.Services.GetRequiredService<LinkDestinationDialogService>();
@@ -30,10 +32,10 @@ public sealed class ConnectorMarkerDeletionControllerTests
     }
 
     [Fact]
-    public void KeyDown_AfterDispose_IsNoLongerHandled()
+    public async Task KeyDown_AfterDispose_IsNoLongerHandled()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, inputEvents, dialogService) = CreateSut(ctx);
         sut.Initialize();
         sut.Dispose();
@@ -48,10 +50,10 @@ public sealed class ConnectorMarkerDeletionControllerTests
     }
 
     [Fact]
-    public void KeyDown_WithDeleteKeyAndNoSelectedConnectorMarker_DoesNothing()
+    public async Task KeyDown_WithDeleteKeyAndNoSelectedConnectorMarker_DoesNothing()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, inputEvents, dialogService) = CreateSut(ctx);
         sut.Initialize();
 
@@ -63,10 +65,10 @@ public sealed class ConnectorMarkerDeletionControllerTests
     }
 
     [Fact]
-    public void KeyDown_WithNonDeleteKey_DoesNothing()
+    public async Task KeyDown_WithNonDeleteKey_DoesNothing()
     {
         // Arrange
-        using var ctx = new TestContext();
+        await using var ctx = new BunitContext();
         var (sut, inputEvents, dialogService) = CreateSut(ctx);
         sut.Initialize();
 

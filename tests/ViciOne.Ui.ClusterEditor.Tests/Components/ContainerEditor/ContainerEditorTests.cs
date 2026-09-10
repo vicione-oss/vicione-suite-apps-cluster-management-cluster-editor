@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection.Extensions;
+﻿using System.Threading.Tasks;
+using Bunit;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
@@ -13,10 +15,10 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Components.ContainerEditor;
 public class ContainerEditorTests
 {
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.Services.TryAddScoped(_ => Substitute.For<IContainerEditorRequest>());
         ctx.Services.AddDialog();
         ctx.SetupDiagramService();
@@ -27,7 +29,7 @@ public class ContainerEditorTests
         ctx.CreateDiagramInstance();
 
         // Act
-        var component = ctx.RenderComponent<ClusterEditor.Components.ContainerEditor.ContainerEditor>();
+        var component = ctx.Render<ClusterEditor.Components.ContainerEditor.ContainerEditor>();
 
         // Assert
         Assert.NotNull(component);

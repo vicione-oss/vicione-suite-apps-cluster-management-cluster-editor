@@ -21,9 +21,9 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Components.UniversalInput;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("Maintainability", "CA1515:Consider making public types internal", Justification = "<Pending>")]
 public class UniversalInputTests
 {
-    protected static Bunit.TestContext CreateTestContext()
+    protected static BunitContext CreateTestContext()
     {
-        var testContext = new Bunit.TestContext();
+        var testContext = new BunitContext();
         testContext.Services.AddUniversalInput();
         testContext.JSInterop.Mode = JSRuntimeMode.Loose;
 
@@ -35,13 +35,13 @@ public class UniversalInputTests
         private const string InitalValue = "SomeText";
 
         [Fact]
-        public void Component_renders_string_value()
+        public async Task Component_renders_string_value()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             // Act
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, InitalValue);
                 p.Add(c => c.ValueType, typeof(string));
@@ -54,14 +54,14 @@ public class UniversalInputTests
         }
 
         [Fact]
-        public void Component_triggers_value_changed()
+        public async Task Component_triggers_value_changed()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             var valueChange = "OtherText";
             var valueChangedCalled = false;
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, InitalValue);
                 p.Add(c => c.ValueType, typeof(string));
@@ -85,13 +85,13 @@ public class UniversalInputTests
         private const bool InitalValue = true;
 
         [Fact]
-        public void Component_renders_bool_value()
+        public async Task Component_renders_bool_value()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             // Act
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, InitalValue);
                 p.Add(c => c.ValueType, typeof(bool));
@@ -103,13 +103,13 @@ public class UniversalInputTests
         }
 
         [Fact]
-        public void Component_triggers_value_changed()
+        public async Task Component_triggers_value_changed()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             var valueChangedCalled = false;
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, InitalValue);
                 p.Add(c => c.ValueType, typeof(bool));
@@ -134,14 +134,14 @@ public class UniversalInputTests
         private const DayOfWeek InitalValue = DayOfWeek.Monday;
 
         [Fact]
-        public void Component_renders_enum_value()
+        public async Task Component_renders_enum_value()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
             testContext.SetupDevExpressBlazor();
 
             // Act
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, InitalValue);
                 p.Add(c => c.ValueType, typeof(DayOfWeek));
@@ -155,13 +155,13 @@ public class UniversalInputTests
         }
 
         [Fact(Skip = "Reactivate after ComboBox is used again")]
-        public void Component_triggers_value_changed()
+        public async Task Component_triggers_value_changed()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             var valueChangedCalled = false;
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, InitalValue);
                 p.Add(c => c.ValueType, typeof(DayOfWeek));
@@ -189,13 +189,13 @@ public class UniversalInputTests
         private readonly Uri _initalValue = new("https://some.address.com/");
 
         [Fact]
-        public void Component_renders_uri_value()
+        public async Task Component_renders_uri_value()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             // Act
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, _initalValue);
                 p.Add(c => c.ValueType, typeof(Uri));
@@ -208,14 +208,14 @@ public class UniversalInputTests
         }
 
         [Fact]
-        public void Component_triggers_value_changed()
+        public async Task Component_triggers_value_changed()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             var valueChange = new Uri("https://other.address.web/");
             var valueChangedCalled = false;
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, _initalValue);
                 p.Add(c => c.ValueType, typeof(Uri));
@@ -234,13 +234,13 @@ public class UniversalInputTests
         }
 
         [Fact]
-        public void Component_triggers_value_changed_if_emptied()
+        public async Task Component_triggers_value_changed_if_emptied()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             var valueChangedCalled = false;
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, _initalValue);
                 p.Add(c => c.ValueType, typeof(Uri));
@@ -264,13 +264,13 @@ public class UniversalInputTests
         private const char InitalValue = 'A';
 
         [Fact]
-        public void Component_renders_char_value()
+        public async Task Component_renders_char_value()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             // Act
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, InitalValue);
                 p.Add(c => c.ValueType, typeof(char));
@@ -283,13 +283,13 @@ public class UniversalInputTests
         }
 
         [Fact]
-        public void Component_triggers_value_changed()
+        public async Task Component_triggers_value_changed()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             var valueChangedCalled = false;
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, InitalValue);
                 p.Add(c => c.ValueType, typeof(char));
@@ -308,13 +308,13 @@ public class UniversalInputTests
         }
 
         [Fact]
-        public void Component_triggers_value_changed_if_emptied()
+        public async Task Component_triggers_value_changed_if_emptied()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             var valueChangedCalled = false;
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, InitalValue);
                 p.Add(c => c.ValueType, typeof(char));
@@ -338,13 +338,13 @@ public class UniversalInputTests
         private static readonly DateTime s_initalValue = new(2024, 6, 15, 10, 30, 0);
 
         [Fact]
-        public void Component_renders_datetime_value()
+        public async Task Component_renders_datetime_value()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             // Act
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, s_initalValue);
                 p.Add(c => c.ValueType, typeof(DateTime));
@@ -357,14 +357,14 @@ public class UniversalInputTests
         }
 
         [Fact]
-        public void Component_triggers_value_changed()
+        public async Task Component_triggers_value_changed()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             var valueChange = new DateTime(2025, 1, 1, 12, 0, 0);
             var valueChangedCalled = false;
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, s_initalValue);
                 p.Add(c => c.ValueType, typeof(DateTime));
@@ -388,13 +388,13 @@ public class UniversalInputTests
         private static readonly TimeSpan s_initalValue = TimeSpan.FromHours(2.5);
 
         [Fact]
-        public void Component_renders_timespan_value()
+        public async Task Component_renders_timespan_value()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             // Act
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, s_initalValue);
                 p.Add(c => c.ValueType, typeof(TimeSpan));
@@ -407,14 +407,14 @@ public class UniversalInputTests
         }
 
         [Fact]
-        public void Component_triggers_value_changed()
+        public async Task Component_triggers_value_changed()
         {
             // Arrange
-            using var testContext = CreateTestContext();
+            await using var testContext = CreateTestContext();
 
             var valueChange = TimeSpan.FromMinutes(45);
             var valueChangedCalled = false;
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, s_initalValue);
                 p.Add(c => c.ValueType, typeof(TimeSpan));
@@ -438,13 +438,13 @@ public class UniversalInputTests
         private const int InitalValue = 42;
 
         [Fact]
-        public void Component_renders_numeric_value()
+        public async Task Component_renders_numeric_value()
         {
             // Arrange
-            using var testContext = CreateNumericTestContext();
+            await using var testContext = CreateNumericTestContext();
 
             // Act
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, InitalValue);
                 p.Add(c => c.ValueType, typeof(int));
@@ -459,10 +459,10 @@ public class UniversalInputTests
         public async Task Component_triggers_value_changed()
         {
             // Arrange
-            using var testContext = CreateNumericTestContext();
+            await using var testContext = CreateNumericTestContext();
 
             var valueChangedCalled = false;
-            var component = testContext.RenderComponent<UniversalInputComponent>(p =>
+            var component = testContext.Render<UniversalInputComponent>(p =>
             {
                 p.Add(c => c.Value, InitalValue);
                 p.Add(c => c.ValueType, typeof(int));
@@ -480,7 +480,7 @@ public class UniversalInputTests
             });
         }
 
-        private static Bunit.TestContext CreateNumericTestContext()
+        private static BunitContext CreateNumericTestContext()
         {
             var testContext = CreateTestContext();
             testContext.Services.AddSingleton(Substitute.For<ISpinBehavior<int, int, int>>());

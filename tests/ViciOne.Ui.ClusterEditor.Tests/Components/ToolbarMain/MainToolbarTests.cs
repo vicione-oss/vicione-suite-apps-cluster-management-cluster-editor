@@ -1,4 +1,5 @@
-﻿using Bunit;
+﻿using System.Threading.Tasks;
+using Bunit;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using ViciOne.Ui.Blazor.Components.Toolbar.Components;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarMain;
@@ -12,10 +13,10 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Components.ToolbarMain;
 public class MainToolbarTests
 {
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
 
         ctx.ComponentFactories.AddStub<Toolbar>();
         ctx.Services.AddMainToolbar();
@@ -27,7 +28,7 @@ public class MainToolbarTests
         ctx.CreateDiagramInstance();
 
         // Act
-        var component = ctx.RenderComponent<MainToolbar>();
+        var component = ctx.Render<MainToolbar>();
 
         // Assert
         Assert.NotNull(component);

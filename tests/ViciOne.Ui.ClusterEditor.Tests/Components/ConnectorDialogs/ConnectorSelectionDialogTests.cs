@@ -1,4 +1,6 @@
-﻿using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
+﻿using System.Threading.Tasks;
+using Bunit;
+using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ConnectorDialogs;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
@@ -8,10 +10,10 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Components.ConnectorDialogs;
 public class ConnectorSelectionDialogTests
 {
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.Services.AddDialog();
         ctx.SetupConnectorSelectionDialogService();
         ctx.SetupConnectorService();
@@ -19,7 +21,7 @@ public class ConnectorSelectionDialogTests
         ctx.CreateDiagramInstance();
 
         // Act
-        var component = ctx.RenderComponent<ConnectorSelectionDialog>();
+        var component = ctx.Render<ConnectorSelectionDialog>();
 
         // Assert
         Assert.NotNull(component);

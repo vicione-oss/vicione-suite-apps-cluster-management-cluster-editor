@@ -1,4 +1,4 @@
-﻿using Blazor.Diagrams;
+using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Bunit;
@@ -21,9 +21,9 @@ using ViciOne.Ui.ClusterEditor.Components.ToolbarDataflow.Models;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
-using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Services;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
+using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Services;
 using ViciOne.Ui.ClusterEditor.Sections.Information.Services;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Services;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
@@ -32,13 +32,12 @@ using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.Shared.Dx.Services;
 using Xunit;
-using TestContext = Bunit.TestContext;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Extensions;
 
-internal static class TestContextExtensions
+internal static class BunitContextExtensions
 {
-    public static BlockNodeConnector CreateBlockNodeConnector(this TestContext ctx, BlockNode? node = null, bool isInput = true)
+    public static BlockNodeConnector CreateBlockNodeConnector(this BunitContext ctx, BlockNode? node = null, bool isInput = true)
     {
         var connector = Substitute.For<Cluster.Model.IConnector>();
         connector.Links.Returns([]);
@@ -50,14 +49,14 @@ internal static class TestContextExtensions
         return new BlockNodeConnector(comparer, connector, datastore, diagramService, node ?? new FunctionBlockNode(), isInput);
     }
 
-    public static BlockNodeLink CreateBlockNodeLink(this TestContext _)
+    public static BlockNodeLink CreateBlockNodeLink(this BunitContext _)
     {
         var node = new LabelNode(new(0, 0));
 
         return new BlockNodeLink(new PortModel(node, PortAlignment.Top), new PortModel(node, PortAlignment.Bottom));
     }
 
-    public static TestContext CreateDiagramInstance(this TestContext ctx)
+    public static BunitContext CreateDiagramInstance(this BunitContext ctx)
     {
         var service = ctx.Services.GetRequiredService<DiagramService>();
         service.Diagram = new BlazorDiagram();
@@ -65,16 +64,16 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static FakeLogger<T> GetFakeLogger<T>(this TestContext ctx)
+    public static FakeLogger<T> GetFakeLogger<T>(this BunitContext ctx)
         => (FakeLogger<T>)ctx.Services.GetRequiredService<ILogger<T>>();
 
-    public static TestContext SetupBoundsService(this TestContext ctx)
+    public static BunitContext SetupBoundsService(this BunitContext ctx)
     {
         ctx.Services.TryAddScoped<BoundsService>();
         return ctx;
     }
 
-    public static TestContext SetupClusterEditorManagement(this TestContext ctx)
+    public static BunitContext SetupClusterEditorManagement(this BunitContext ctx)
     {
         ctx.SetupLibraryService();
         ctx.SetupDiagramService();
@@ -86,10 +85,10 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupComboBox(this TestContext ctx)
+    public static BunitContext SetupComboBox(this BunitContext ctx)
         => ctx.SetupDropDown();
 
-    public static TestContext SetupConnectorSelectionDialogService(this TestContext ctx)
+    public static BunitContext SetupConnectorSelectionDialogService(this BunitContext ctx)
     {
         ctx.SetupDatastore();
         ctx.SetupSelectionManager();
@@ -99,7 +98,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupConnectorService(this TestContext ctx)
+    public static BunitContext SetupConnectorService(this BunitContext ctx)
     {
         ctx.SetupSelectionManager();
         ctx.SetupDiagramService();
@@ -109,7 +108,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupDataflowStructureTreeAdapter(this TestContext ctx)
+    public static BunitContext SetupDataflowStructureTreeAdapter(this BunitContext ctx)
     {
         ctx.SetupSelectionManager();
 
@@ -118,7 +117,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupDataPortTreeAdapter(this TestContext ctx)
+    public static BunitContext SetupDataPortTreeAdapter(this BunitContext ctx)
     {
         ctx.Services.AddDataPortAddChildNodeContextMenu();
         ctx.SetupClusterEditorManagement();
@@ -137,7 +136,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupDatastore(this TestContext ctx)
+    public static BunitContext SetupDatastore(this BunitContext ctx)
     {
         ctx.Services.TryAddSingleton(new ComparerService([], Substitute.For<ILogger<ComparerService>>()));
         ctx.Services.TryAddScoped<DiagramEventService>();
@@ -148,7 +147,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupDevExpressBlazor(this TestContext ctx)
+    public static BunitContext SetupDevExpressBlazor(this BunitContext ctx)
     {
         var deviceInfo = new DeviceInfo(false);
         var env = Substitute.For<IEnvironmentInfo>();
@@ -165,7 +164,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupDiagramService(this TestContext ctx)
+    public static BunitContext SetupDiagramService(this BunitContext ctx)
     {
         ctx.SetupDatastore();
 
@@ -174,7 +173,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupDragService(this TestContext ctx)
+    public static BunitContext SetupDragService(this BunitContext ctx)
     {
         ctx.Services.TryAddScoped<InputEventService>();
         ctx.Services.TryAddScoped<DiagramEventService>();
@@ -185,7 +184,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupDropDown(this TestContext ctx)
+    public static BunitContext SetupDropDown(this BunitContext ctx)
     {
         var dropDownModule = ctx.JSInterop.SetupModule("./_content/ViciOne.Ui.Blazor.Components/drop-down/drop-down.js");
         var dropDownInstance = dropDownModule.SetupModule("attach", _ => true);
@@ -196,7 +195,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupFbSettingsEditor(this TestContext ctx)
+    public static BunitContext SetupFbSettingsEditor(this BunitContext ctx)
     {
         ctx.SetupDatastore();
         ctx.SetupSelectionManager();
@@ -209,7 +208,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupLabelEditor(this TestContext ctx)
+    public static BunitContext SetupLabelEditor(this BunitContext ctx)
     {
         ctx.Services.AddDialog();
 
@@ -218,14 +217,14 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupLibraryService(this TestContext ctx)
+    public static BunitContext SetupLibraryService(this BunitContext ctx)
     {
         ctx.Services.TryAddScoped<ILibraryService, LibraryService>();
 
         return ctx;
     }
 
-    public static TestContext SetupLinkDestinationDialogService(this TestContext ctx)
+    public static BunitContext SetupLinkDestinationDialogService(this BunitContext ctx)
     {
         ctx.SetupDatastore();
 
@@ -234,7 +233,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupNodeEditor(this TestContext ctx)
+    public static BunitContext SetupNodeEditor(this BunitContext ctx)
     {
         ctx.SetupLabelEditor();
         ctx.SetupFbSettingsEditor();
@@ -267,7 +266,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupPublishedConnectorsService(this TestContext ctx)
+    public static BunitContext SetupPublishedConnectorsService(this BunitContext ctx)
     {
         ctx.SetupDiagramService();
         ctx.Services.TryAddScoped<InputEventService>();
@@ -277,7 +276,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupResizeObserver(this TestContext ctx)
+    public static BunitContext SetupResizeObserver(this BunitContext ctx)
     {
         ctx.JSInterop.SetupVoid("ViciOne.Observer.observe", _ => true);
 
@@ -286,7 +285,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupSelectionManager(this TestContext ctx)
+    public static BunitContext SetupSelectionManager(this BunitContext ctx)
     {
         ctx.SetupDiagramService();
 
@@ -295,7 +294,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupStatisticService(this TestContext ctx)
+    public static BunitContext SetupStatisticService(this BunitContext ctx)
     {
         ctx.SetupDatastore();
 
@@ -304,7 +303,7 @@ internal static class TestContextExtensions
         return ctx;
     }
 
-    public static TestContext SetupTreeEditorJs(this TestContext ctx)
+    public static BunitContext SetupTreeEditorJs(this BunitContext ctx)
     {
         var assemblyName = typeof(TreeEditor.TreeEditor).Assembly.GetName();
         Assert.NotNull(assemblyName);

@@ -21,7 +21,6 @@ using ViciOne.Ui.Shared.Dx.Services;
 using Xunit;
 using FunctionBlock = ViciOne.Cluster.Model.FunctionBlock;
 using Link = ViciOne.Cluster.Model.Link;
-using TestContext = Bunit.TestContext;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Services.ClusterServices;
 
@@ -30,7 +29,7 @@ public sealed class DiagramProjectionServiceTests : IAsyncLifetime
     // Distinct, ascending heights so per-index height application and node ordering can be asserted.
     private static readonly int[] s_measuredHeights = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100];
     private readonly IClusterBuilder _builder;
-    private readonly TestContext _ctx;
+    private readonly BunitContext _ctx;
     private readonly IDatastore _datastore;
     private readonly DiagramService _diagramService;
     private readonly Guid _fbDesignId;
@@ -42,7 +41,7 @@ public sealed class DiagramProjectionServiceTests : IAsyncLifetime
 
     public DiagramProjectionServiceTests()
     {
-        _ctx = new TestContext();
+        _ctx = new BunitContext();
         _ctx.JSInterop
             .Setup<int[]>("ViciOne.Diagram.BlockNode.measureNameFieldHeights", _ => true)
             .SetResult(s_measuredHeights);
@@ -78,7 +77,7 @@ public sealed class DiagramProjectionServiceTests : IAsyncLifetime
             link.Dispose();
 
         _builder.Dispose();
-        _ctx.Dispose();
+        await _ctx.DisposeAsync();
         await _datastore.DisposeAsync();
         _diagramService.Dispose();
     }

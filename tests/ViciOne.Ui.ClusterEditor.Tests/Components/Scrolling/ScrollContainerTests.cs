@@ -1,4 +1,6 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using System.Threading.Tasks;
+using Bunit;
+using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
 using ViciOne.Ui.Blazor.Components.Resizing.Services;
 using ViciOne.Ui.ClusterEditor.Components.Scrolling;
@@ -9,14 +11,14 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Components.Scrolling;
 public sealed class ScrollContainerTests
 {
     [Fact]
-    public void Component_gets_rendered()
+    public async Task Component_gets_rendered()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.Services.AddScoped(_ => Substitute.For<IResizeObserver>());
 
         // Act
-        var component = ctx.RenderComponent<ScrollContainer>();
+        var component = ctx.Render<ScrollContainer>();
 
         // Assert
         Assert.NotNull(component);

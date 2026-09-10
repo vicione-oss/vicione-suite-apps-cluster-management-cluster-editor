@@ -1,4 +1,5 @@
-﻿using Bunit;
+﻿using System.Threading.Tasks;
+using Bunit;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 using ViciOne.Ui.Blazor.Components.SectionRail.Extensions;
@@ -25,10 +26,10 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Components.ToolbarDataflow;
 public class DataflowToolbarTests
 {
     [Fact]
-    public void Component_should_render()
+    public async Task Component_should_render()
     {
         // Arrange
-        using var ctx = new Bunit.TestContext();
+        await using var ctx = new BunitContext();
         ctx.ComponentFactories.AddStub<PublishedConnectorsSectionContent>(); // Added to avoid DxGrid dependency
         ctx.SetupTreeEditorJs();
         ctx.Services.AddSectionRail<DataflowToolbarSection>();
@@ -60,7 +61,7 @@ public class DataflowToolbarTests
         ctx.CreateDiagramInstance();
 
         // Act
-        var component = ctx.RenderComponent<DataflowToolbar>();
+        var component = ctx.Render<DataflowToolbar>();
 
         // Assert
         Assert.NotNull(component);
