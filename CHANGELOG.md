@@ -33,7 +33,8 @@
 ### Updated external references
 
 - `Microsoft` packages, update to version `10.0.11`
-- `ViciOne.Ui.MonochromeIcons` package, update version to `4.16.0`
+- `ViciOne.Ui.Blazor.Components` package, updated to version `6.0.0`
+- `ViciOne.Ui.MonochromeIcons` package, update version to `4.18.0`
 - `ViciOne.Ui.Design` package, added in version `2.5.0`
 
 ## 1.3.0 - 2026-08-05

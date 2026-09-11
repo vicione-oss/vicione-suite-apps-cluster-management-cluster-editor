@@ -6,6 +6,7 @@ using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
 using ViciOne.Ui.Blazor.Components.ExpandableMenu.Extensions;
 using ViciOne.Ui.Blazor.Components.Popup.Extensions;
 using ViciOne.Ui.Blazor.Components.SectionRail.Extensions;
+using ViciOne.Ui.Blazor.Components.Sidebar.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ContainerBreadcrumb.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Extensions;
@@ -79,6 +80,7 @@ public static class IServiceCollectionExtensions
 
         services.AddPopup();
         services.AddDialog();
+        services.AddSidebar();
 
         services.AddScoped<IContainerEditorRequest, ContainerEditorRequest>();
 
