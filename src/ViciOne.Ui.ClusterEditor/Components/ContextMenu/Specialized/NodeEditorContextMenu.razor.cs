@@ -1,4 +1,4 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models.Base;
@@ -25,6 +25,7 @@ public sealed partial class NodeEditorContextMenu : SpecializedContextMenuWithSt
     private readonly string _selectAllConnectorsText = CompositeFormats.SelectSomething(TechnicalTerms.ConnectorPlural);
     private readonly string _selectInputConnectorsText = CompositeFormats.SelectSomething(TechnicalTerms.InputConnectorPlural);
     private readonly string _selectOutputConnectorsText = CompositeFormats.SelectSomething(TechnicalTerms.OutputConnectorPlural);
+    private bool _shouldFocusDiagram = true;
 
     [Inject] private ClusterBuilderEventBuffer ClusterBuilderEventBuffer { get; set; } = default!;
     [Inject] private ConnectorSelectionDialogService ConnectorSelectionDialogService { get; set; } = default!;
@@ -85,7 +86,11 @@ public sealed partial class NodeEditorContextMenu : SpecializedContextMenuWithSt
     }
 
     private async Task EditContainerClickAsync()
-        => await ContainerEditorRequest.SendAsync();
+    {
+        _shouldFocusDiagram = false;
+
+        await ContainerEditorRequest.SendAsync();
+    }
 
     private int GetHighestZIndex()
         => Datastore.DataflowDiagramMapping
@@ -145,6 +150,8 @@ public sealed partial class NodeEditorContextMenu : SpecializedContextMenuWithSt
 
     private void OnConnectorsSelectionWizardClicked()
     {
+        _shouldFocusDiagram = false;
+
         var sourceConnectors = SelectionManager.SelectedBlockNodes
             .SelectMany(bn => bn.ConnectorsToList())
             .Select(Datastore.DataflowDiagramMapping.GetModel);
@@ -159,12 +166,19 @@ public sealed partial class NodeEditorContextMenu : SpecializedContextMenuWithSt
 
         if (isVisible)
         {
+            _shouldFocusDiagram = true;
+
             DiagramEventService.CloseContextMenuRequested += CloseContextMenuRequested;
         }
         else
         {
             DiagramEventService.CloseContextMenuRequested -= CloseContextMenuRequested;
-            DiagramEventService.RequestDiagramFocus();
+
+            // The context menu closes asynchronously, so this runs after a menu item has already opened
+            // its dialog and has focused itself. Without the flag the diagram would take the focus
+            // straight back and keyboard input would act on the selection behind the dialog.
+            if (_shouldFocusDiagram)
+                DiagramEventService.RequestDiagramFocus();
         }
     }
 
@@ -232,7 +246,11 @@ public sealed partial class NodeEditorContextMenu : SpecializedContextMenuWithSt
         => SelectConnectors(false, true, true);
 
     private async Task SettingsClickAsync()
-        => await FbSettingsEditorRequest.SendAsync();
+    {
+        _shouldFocusDiagram = false;
+
+        await FbSettingsEditorRequest.SendAsync();
+    }
 
     private void ToggleEngineAssignment(Cluster.Model.Engine engine)
     {

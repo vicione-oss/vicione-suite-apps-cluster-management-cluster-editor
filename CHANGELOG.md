@@ -29,6 +29,7 @@
 - Refactored default context menu handling in components to enable default context menu handling by host app
 - Updated `.editorconfig` to newest version
 - Removed obsolete persistence code from `IClusterEditorManagement`
+- Keyboard input in dialogs opened via diagram context menu is not passed to diagram anymore
 
 ### Updated external references
 
