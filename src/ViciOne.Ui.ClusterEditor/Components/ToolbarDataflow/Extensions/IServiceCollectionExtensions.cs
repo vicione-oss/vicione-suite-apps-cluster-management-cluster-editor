@@ -2,6 +2,7 @@
 using ViciOne.Cluster.Builder;
 using ViciOne.Core.Contracts.DataModel;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Extensions;
+using ViciOne.Ui.Blazor.Components.Sidebar.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Services;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarDataflow.Models;
 using ViciOne.Ui.ClusterEditor.Sections.Property.Factories;
@@ -34,5 +35,6 @@ internal static class IServiceCollectionExtensions
     }
 
     public static IServiceCollection AddToolbarDataflow(this IServiceCollection services)
-        => services.AddPropertyGrid();
+        => services.AddPropertyGrid()
+            .AddSidebar();
 }

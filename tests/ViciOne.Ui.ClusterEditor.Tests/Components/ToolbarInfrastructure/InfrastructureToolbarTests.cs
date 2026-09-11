@@ -2,6 +2,8 @@
 using Bunit;
 using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
 using ViciOne.Ui.Blazor.Components.ExpandableMenu.Extensions;
+using ViciOne.Ui.Blazor.Components.Sidebar.Extensions;
+using ViciOne.Ui.Blazor.Components.TestingHelpers.Sidebar.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarInfrastructure;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
@@ -18,6 +20,8 @@ public class InfrastructureToolbarTests
         ctx.SetupTreeEditorJs();
         ctx.Services.AddExpandableMenu();
         ctx.Services.AddDialog();
+        ctx.Services.AddSidebar();
+        ctx.JSInterop.SetupForSidebar();
         ctx.SetupClusterEditorManagement();
         ctx.SetupDataflowStructureTreeAdapter();
         ctx.SetupStatisticService();
