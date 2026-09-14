@@ -30,6 +30,7 @@
 - Updated `.editorconfig` to newest version
 - Removed obsolete persistence code from `IClusterEditorManagement`
 - Keyboard input in dialogs opened via diagram context menu is not passed to diagram anymore
+- Fixed edit form not opening for nodes in the Topology section and for Dataflows in the Dataflow structure tree
 
 ### Updated external references
 

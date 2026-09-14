@@ -14,7 +14,6 @@ using ViciOne.Ui.ClusterEditor.Models.Comparer;
 using ViciOne.Ui.ClusterEditor.Resources;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Components;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Models;
-using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
@@ -277,7 +276,7 @@ internal sealed partial class DataflowStructureTreeAdapter : TreeAdapter, IDispo
         {
             TemplateType.NodeDisplay => node switch
             {
-                DataPortNodeModel dataPortNode => dataPortNode.IsEditModeActive ? typeof(StructureTreeDataflowEditNode) : null,
+                DataflowStructureTreeNode dataflowNode => dataflowNode.Editing ? typeof(StructureTreeDataflowEditNode) : null,
                 _ => null
             },
             TemplateType.Node => typeof(CustomTooltipTreeNode),
