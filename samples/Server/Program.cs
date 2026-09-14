@@ -3,10 +3,10 @@
 
 using BlazorWasm.Client;
 using Server.Designs;
+using Shared.ClusterManagement.Extensions;
 using Shared.Designs;
 using Shared.Extensions;
 using Shared.Persistence.Extensions;
-using Shared.Services;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Services;
 
@@ -43,9 +43,9 @@ builder.WebHost.UseStaticWebAssets();
 
 builder.Services.AddClusterDependenciesSupport();
 builder.Services.AddClusterEditor(s => (IRulesetProvider)s.GetRequiredService<IPackagesStore>());
+builder.Services.AddClusterManagement();
 builder.Services.AddCultureSupport();
 builder.Services.AddPersistence();
-builder.Services.AddScoped<IndexService>();
 builder.Services.AddSingleton(new RenderModeProvider(useWebassembly));
 
 var app = builder.Build();

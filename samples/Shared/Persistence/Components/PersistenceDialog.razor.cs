@@ -1,20 +1,22 @@
 ﻿using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Forms;
+using Shared.ClusterManagement.Services;
 using Shared.Localization;
 using Shared.Persistence.Services;
-using Shared.Services;
 using ViciOne.Ui.Blazor.Components.Dialog.Components;
 using ViciOne.Ui.Localization.Resources;
 
 namespace Shared.Persistence.Components;
 
-public sealed partial class PersistenceDialog : ComponentBase, IDisposable
+public sealed partial class PersistenceDialog : ComponentBase
 {
+    private const int EmptySaveSlotSize = -1;
     private const int StartUpSaveSlot = PersistenceService.StartUpSaveSlot;
 
     private Dialog? _refDialog;
+    private IReadOnlyDictionary<int, int> _saveSlotSizes = new Dictionary<int, int>();
 
-    [Inject] private IndexService IndexService { get; set; } = default!;
+    [Inject] private ClusterManagementService ClusterManagementService { get; set; } = default!;
     [Inject] private PersistenceService PersistenceService { get; set; } = default!;
 
     private static string ImportAndExportText
@@ -25,12 +27,12 @@ public sealed partial class PersistenceDialog : ComponentBase, IDisposable
 
     private static IEnumerable<int> SaveSlots { get; } = Enumerable.Range(1, PersistenceService.SaveSlotCount);
 
-    public void Dispose()
-        => PersistenceService.SaveSlotSizesChanged -= OnSaveSlotSizesChanged;
+    private int GetSaveSlotSize(int saveSlot)
+        => _saveSlotSizes.TryGetValue(saveSlot, out var saveSlotSize) ? saveSlotSize : EmptySaveSlotSize;
 
     private string GetSaveSlotSizeText(int saveSlot)
     {
-        var saveSlotSize = PersistenceService.GetSaveSlotSize(saveSlot);
+        var saveSlotSize = GetSaveSlotSize(saveSlot);
 
         return IsSaveSlotOccupied(saveSlot)
             ? CompositeFormats.Format(Localization.PersistenceDialog.SaveSlotSize, saveSlotSize)
@@ -41,7 +43,13 @@ public sealed partial class PersistenceDialog : ComponentBase, IDisposable
         => CompositeFormats.Format(Localization.PersistenceDialog.SaveSlotWithNumber, saveSlot);
 
     private bool IsSaveSlotOccupied(int saveSlot)
-        => PersistenceService.GetSaveSlotSize(saveSlot) >= 0;
+        => GetSaveSlotSize(saveSlot) >= 0;
+
+    private async Task OnClearSaveSlot(int saveSlot)
+    {
+        await PersistenceService.ClearSaveSlot(saveSlot);
+        await RefreshSaveSlotSizes();
+    }
 
     private Task OnDialogClose()
     {
@@ -52,16 +60,28 @@ public sealed partial class PersistenceDialog : ComponentBase, IDisposable
     }
 
     private Task OnDialogShowing()
-        => PersistenceService.RefreshSaveSlotSizes();
+        => RefreshSaveSlotSizes();
 
     private Task OnFileUpload(InputFileChangeEventArgs e)
         => PersistenceService.ImportCluster(e.File);
 
-    protected override void OnInitialized()
-        => PersistenceService.SaveSlotSizesChanged += OnSaveSlotSizesChanged;
+    private async Task OnSaveToSaveSlot(int saveSlot)
+    {
+        await PersistenceService.SaveToSaveSlot(saveSlot);
+        await RefreshSaveSlotSizes();
+    }
 
-    private Task OnSaveSlotSizesChanged()
-        => InvokeAsync(StateHasChanged);
+    private async Task RefreshSaveSlotSizes()
+    {
+        var saveSlotSizes = await PersistenceService.GetSaveSlotSizes();
+
+        if (saveSlotSizes is null)
+            return;
+
+        _saveSlotSizes = saveSlotSizes;
+
+        await InvokeAsync(StateHasChanged);
+    }
 
     internal Task ShowDialog()
     {
