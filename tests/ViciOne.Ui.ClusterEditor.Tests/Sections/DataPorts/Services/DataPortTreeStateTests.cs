@@ -16,6 +16,7 @@ public sealed class DataPortTreeStateTests
         => new()
         {
             Id = id is null ? GuidNodeIdentifier.New() : new GuidNodeIdentifier(id.Value),
+            LinkDirections = [],
             Name = "Child",
             Parent = parent,
             Properties = [],
@@ -26,7 +27,7 @@ public sealed class DataPortTreeStateTests
     private static DataPortRootNodeModel CreateRoot()
         => new()
         {
-            Builder = new TreeBuilder.TreeBuilder(Resources.TestResources.MqttRuleset),
+            Builder = new Tree.Builder.TreeBuilder(Resources.TestResources.MqttRuleset),
             Name = "Root",
         };
 

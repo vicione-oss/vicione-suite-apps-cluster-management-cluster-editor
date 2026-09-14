@@ -2,5 +2,5 @@
 
 public sealed class DataPortRootNodeModel : DataPortNodeModel
 {
-    public required TreeBuilder.TreeBuilder Builder { get; set; }
+    public required Tree.Builder.TreeBuilder Builder { get; set; }
 }

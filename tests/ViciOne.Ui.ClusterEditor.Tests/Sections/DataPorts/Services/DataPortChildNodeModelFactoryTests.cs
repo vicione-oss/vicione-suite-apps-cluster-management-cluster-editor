@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Linq;
-using ViciOne.TreeBuilder.NodeTypes;
+using ViciOne.Tree.Builder.NodeTypes;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
@@ -13,7 +13,7 @@ public sealed class DataPortChildNodeModelFactoryTests
     private static DataPortRootNodeModel CreateRoot()
         => new()
         {
-            Builder = new TreeBuilder.TreeBuilder(Resources.TestResources.MqttRuleset),
+            Builder = new Tree.Builder.TreeBuilder(Resources.TestResources.MqttRuleset),
             Name = "Root",
         };
 
@@ -33,8 +33,7 @@ public sealed class DataPortChildNodeModelFactoryTests
         Assert.Same(root, result.RootNode);
         Assert.Same(root, result.Parent);
         Assert.Equal(descriptor.NodeReference, result.NodeReference);
-        Assert.Equal(nodeType.Icons, result.AvailableIcons);
-        Assert.Equal(nodeType.Icons.FirstOrDefault(), result.Icon);
+        Assert.Equal(nodeType.Icon.GetName(), result.Icon);
         Assert.Equal(nodeType.NameIsReadOnly, result.NameIsReadOnly);
     }
 

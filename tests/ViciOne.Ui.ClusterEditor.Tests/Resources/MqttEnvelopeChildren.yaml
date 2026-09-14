@@ -1,0 +1,580 @@
+Common:
+  Target       : DataPort                                                                          # required: Id String to identify the target of the file
+  ContentType  : Rules                                                                             # required: Id String to identify the content of the file
+  Version      : 2.0.0                                                                            # required: Version of the file
+  Date         : 2026-09-02                                                                        # required: Date of the file
+  Description  : "MQTT DataPort"                                                                   # required: Description of the file
+  Author       : "ifm software gmbh"                                                               # required: Author of the file
+  MetadataType : YAML                                                                              # required: Metadata type of the file (YAML, JSON, XML, Text, Binary, ...)
+  Namespace    : "ViciOne.DataPort.Mqtt"                                                           # required: Namespace of the DataPort
+
+Root:
+  Id                       : "MQTTDataPort"                                                        # required: Id String to identify the root of the DataPort
+  Name                     : "MQTT"                                                                # required: display name of the DataPort
+  Description              : "DataPort for MQTT Protocol 3.x to 5.0"                               # required: display description of the DataPort
+  Icon                     : mqtt                                                                  # required: just one Icon for the DataPort
+  ChildNodes               :
+    - Id                   : MQTT-Broker
+      MaxDepth             : 64
+      MaxInstances         : 8
+
+Nodes:
+
+  # -------------------- MQTT-Broker ------------------------------------
+
+  - Id                     : MQTT-Broker
+    Type                   : DataPortNode
+    Name                   : "Broker"
+    Description            : "Broker"
+    MetadataLength         : 0
+    Icon                   : broker
+    TransferDirections     : [ Outbound, Inbound ]
+    ChildNodes             :
+      - Id                 : Folder
+      - Id                 : DataPointBool
+      - Id                 : DataPointInteger
+      - Id                 : DataPointFloat
+      - Id                 : DataPointDateTime
+      - Id                 : DataPointString
+      - Id                 : DataPointBinary
+    PropertyCategories     :
+      - Id                 : Connection
+        Properties         :
+          - Id             : Protocol
+            Required       : true
+          - Id             : Host
+          - Id             : Port
+          - Id             : Url
+          - Id             : ClientId
+          - Id             : ProtocolVersion
+            Required       : true
+          - Id             : Pooling
+          - Id             : Username
+          - Id             : Password
+      - Id                 : Session
+        Properties         :
+          - Id             : CleanSession
+          - Id             : SessionExpiryInterval
+          - Id             : MaxPendingMessages
+          - Id             : BrokerReceiveMaximum
+      - Id                 : LastWill
+        Properties         :
+          - Id             : WillTopic
+          - Id             : WillMessage
+          - Id             : WillRetain
+      - Id                 : Certificate
+        Properties         :
+          - Id             : SslProtocol
+          - Id             : CertificateFile
+          - Id             : CertificateFilePassword
+          - Id             : CertificatePrivateKeyFile
+          - Id             : CertificateAuthorityFile
+          - Id             : DisableCertificateValidation
+      - Id                 : Other
+        Properties         :
+          - Id             : QualityOfService
+            Required       : true
+          - Id             : DefaultSerializer
+
+  # -------------------- Folder ------------------------------------------
+
+  - Id                     : Folder
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "Folder"
+    Description            : "Folder in the MQTT Topic Tree"
+    Icon                   : folder
+    TransferModes          : [ None, OnChange, Periodic  ]
+    NameValidations        :
+      - Type               : Regex
+        Pattern            : '^[^\x00-\x1f\x7f#+]+$'
+        Message            : "MQTT topic may not contain control characters, '#' or '+'."
+    ChildNodes             :
+      - Id                 : Folder
+      - Id                 : DataPointBool
+      - Id                 : DataPointInteger
+      - Id                 : DataPointFloat
+      - Id                 : DataPointDateTime
+      - Id                 : DataPointString
+      - Id                 : DataPointBinary
+
+  # -------------------- DataPoints --------------------------------------
+
+  - Id                     : DataPointBool
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "DataPoint Bool"
+    Description            : "Boolean data point in the MQTT topic tree"
+    Icon                   : datapoint
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Bool ]
+    NameValidations        :
+      - Type               : Regex
+        Pattern            : '^[^\x00-\x1f\x7f#+]+$'
+        Message            : "MQTT topic may not contain control characters, '#' or '+'."
+    ChildNodes             :
+      - Id                 : UserProperty
+        MaxInstances       : 16
+      - Id                 : Timestamp
+        MaxInstances       : 1
+      - Id                 : EngineCycle
+        MaxInstances       : 1
+      - Id                 : Validity
+        MaxInstances       : 1
+      - Id                 : Type
+        MaxInstances       : 1
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : Retain
+          - Id             : Serializer
+
+  - Id                     : DataPointInteger
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "DataPoint Integer"
+    Description            : "Integer data point in the MQTT topic tree"
+    Icon                   : datapoint
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Int32, Int64, Int16, Int8, UInt32, UInt64, UInt16, UInt8 ]
+    NameValidations        :
+      - Type               : Regex
+        Pattern            : '^[^\x00-\x1f\x7f#+]+$'
+        Message            : "MQTT topic may not contain control characters, '#' or '+'."
+    ChildNodes             :
+      - Id                 : UserProperty
+        MaxInstances       : 16
+      - Id                 : Timestamp
+        MaxInstances       : 1
+      - Id                 : EngineCycle
+        MaxInstances       : 1
+      - Id                 : Validity
+        MaxInstances       : 1
+      - Id                 : Type
+        MaxInstances       : 1
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : Retain
+          - Id             : Serializer
+
+  - Id                     : DataPointFloat
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "DataPoint Float"
+    Description            : "Float data point in the MQTT topic tree"
+    Icon                   : datapoint
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Float64, Float32 ]
+    NameValidations        :
+      - Type               : Regex
+        Pattern            : '^[^\x00-\x1f\x7f#+]+$'
+        Message            : "MQTT topic may not contain control characters, '#' or '+'."
+    ChildNodes             :
+      - Id                 : UserProperty
+        MaxInstances       : 16
+      - Id                 : Timestamp
+        MaxInstances       : 1
+      - Id                 : EngineCycle
+        MaxInstances       : 1
+      - Id                 : Validity
+        MaxInstances       : 1
+      - Id                 : Type
+        MaxInstances       : 1
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : Retain
+          - Id             : Serializer
+
+  - Id                     : DataPointDateTime
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "DataPoint DateTime"
+    Description            : "DateTime data point in the MQTT topic tree"
+    Icon                   : datapoint
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ DateTime ]
+    NameValidations        :
+      - Type               : Regex
+        Pattern            : '^[^\x00-\x1f\x7f#+]+$'
+        Message            : "MQTT topic may not contain control characters, '#' or '+'."
+    ChildNodes             :
+      - Id                 : UserProperty
+        MaxInstances       : 16
+      - Id                 : Timestamp
+        MaxInstances       : 1
+      - Id                 : EngineCycle
+        MaxInstances       : 1
+      - Id                 : Validity
+        MaxInstances       : 1
+      - Id                 : Type
+        MaxInstances       : 1
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : Retain
+          - Id             : Serializer
+
+  - Id                     : DataPointString
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "DataPoint String"
+    Description            : "String data point in the MQTT topic tree"
+    Icon                   : datapoint
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ String ]
+    NameValidations        :
+      - Type               : Regex
+        Pattern            : '^[^\x00-\x1f\x7f#+]+$'
+        Message            : "MQTT topic may not contain control characters, '#' or '+'."
+    ChildNodes             :
+      - Id                 : UserProperty
+        MaxInstances       : 16
+      - Id                 : Timestamp
+        MaxInstances       : 1
+      - Id                 : EngineCycle
+        MaxInstances       : 1
+      - Id                 : Validity
+        MaxInstances       : 1
+      - Id                 : Type
+        MaxInstances       : 1
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : Retain
+          - Id             : Serializer
+
+  - Id                     : DataPointBinary
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "DataPoint Binary"
+    Description            : "Binary data point in the MQTT topic tree"
+    Icon                   : datapoint
+    TransferModes          : [ OnChange, Periodic, None ]
+    DataTypes              : [ Binary ]
+    NameValidations        :
+      - Type               : Regex
+        Pattern            : '^[^\x00-\x1f\x7f#+]+$'
+        Message            : "MQTT topic may not contain control characters, '#' or '+'."
+    ChildNodes             :
+      - Id                 : UserProperty
+        MaxInstances       : 16
+      - Id                 : Timestamp
+        MaxInstances       : 1
+      - Id                 : EngineCycle
+        MaxInstances       : 1
+      - Id                 : Validity
+        MaxInstances       : 1
+      - Id                 : Type
+        MaxInstances       : 1
+    PropertyCategories     :
+      - Id                 : Other
+        Properties         :
+          - Id             : Retain
+          - Id             : Serializer
+
+  # -------------------- Envelope children -------------------------------
+
+  - Id                     : UserProperty
+    MappingId              : UserProperty
+    Type                   : DataPortTreeNode
+    Name                   : "User property"
+    Description            : "A user property of the message of its parent data point. The node name is the key it is sent under, and the keys 'Timestamp', 'Validity', 'EngineCycle' and 'Type' are reserved. This data port puts at most 16 user properties on a message. It has no topic and no transfer of its own; its value is carried by the parent message."
+    Icon                   : datapoint
+    TransferModes          : [ None ]
+    DataTypes              : [ String, Int64, Float64, Bool, DateTime ]
+    NameValidations        :
+      - Type               : Regex
+        Pattern            : '^[^\x00-\x1f\x7f]+$'
+        Message            : "A user property key may not be empty and may not contain control characters."
+
+  - Id                     : Timestamp
+    MappingId              : Timestamp
+    Type                   : DataPortTreeNode
+    Name                   : "Timestamp"
+    Description            : "Carries the timestamp of the parent value as the 'Timestamp' user property of the parent message. Leave it unlinked to send the timestamp of the parent value, or link it to send a timestamp of your own instead; inbound it publishes the received timestamp. It has no transfer of its own; its value is carried by the parent message."
+    Icon                   : datapoint
+    TransferModes          : [ None ]
+    DataTypes              : [ DateTime ]
+
+  - Id                     : EngineCycle
+    MappingId              : EngineCycle
+    Type                   : DataPortTreeNode
+    Name                   : "EngineCycle"
+    Description            : "Carries the engine cycle the message was published in as the 'EngineCycle' user property of the parent message, outbound only. It cannot be linked: the port fills it from the running engine cycle. It has no transfer of its own; its value is carried by the parent message."
+    Icon                   : datapoint
+    TransferModes          : [ None ]
+    TransferDirections     : [ Outbound ]
+    LinkDirections         : [ None ]
+    DataTypes              : [ Int64 ]
+
+  - Id                     : Validity
+    MappingId              : Validity
+    Type                   : DataPortTreeNode
+    Name                   : "Validity"
+    Description            : "Carries the validity of the parent value as the 'Validity' user property of the parent message, outbound only. It cannot be linked: the port derives it from the parent value. It has no transfer of its own; its value is carried by the parent message."
+    Icon                   : datapoint
+    TransferModes          : [ None ]
+    TransferDirections     : [ Outbound ]
+    LinkDirections         : [ None ]
+    DataTypes              : [ Bool ]
+
+  - Id                     : Type
+    MappingId              : Type
+    Type                   : DataPortTreeNode
+    Name                   : "Type"
+    Description            : "Adds the .NET type name of the published value as the 'Type' user property of the parent message, outbound only, so a receiving ViciOne system deserializes it with the sender's type. It cannot be linked: the port writes the assembly-qualified name of the parent value's runtime type. It has no transfer of its own; its value is carried by the parent message."
+    Icon                   : datapoint
+    TransferModes          : [ None ]
+    TransferDirections     : [ Outbound ]
+    LinkDirections         : [ None ]
+    DataTypes              : [ String ]
+
+PropertyCategories:
+  - Id          : Connection
+    Name        : "Connection"
+    Description : "Connection properties"
+
+  - Id          : Session
+    Name        : "Session"
+    Description : "Session properties"
+
+  - Id          : Certificate
+    Name        : "Certificate"
+    Description : "Certificate properties"
+
+  - Id          :  LastWill
+    Name        : "Last Will"
+    Description : "Last Will properties"
+
+  - Id          : Other
+    Name        : "Other"
+    Description : "Other properties"
+
+Properties:
+  - Id          : ClientId
+    Name        : "Client ID"
+    Description : "The identifier this client registers with at the broker. Left empty the broker assigns one, which no session can be resumed with."
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : WillTopic
+    Name        : "Will topic"
+    Description : "The topic the will message is published to when the connection is lost. The will is only sent when a message is configured as well."
+    DataType    : String
+    UiControl   : TextBox
+    Validations :
+      - Type    : Regex
+        Pattern : '^[^\x00-\x1f\x7f#+]+$'
+        Message : "MQTT topic may not contain control characters, '#' or '+'."
+
+  - Id          : WillMessage
+    Name        : "Will message"
+    Description : "The message published to the will topic when the connection is lost."
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : WillRetain
+    Name        : "Will retain"
+    Description : "Keep the will message on the broker, so it reaches clients subscribing after the connection was lost."
+    DataType    : Bool
+    DefaultValue: false
+    UiControl   : CheckBox
+
+  - Id                 : Protocol
+    Name               : "Protocol"
+    Description        : "The protocol used to contact the broker"
+    DataType           : UInt8
+    DefaultValue       : 0
+    UiControl          : NumericListBox
+    MinValue           : 0
+    MaxValue           : 1
+    Elements           : { 0: 'TCP',
+                           1: 'WebSocket' }
+    DependentProperties: { 'Host'       : [0],
+                           'Port'       : [0],
+                           'Url'        : [1],
+                           'SslProtocol': [0] }
+
+  - Id          : Host
+    Name        : "Host"
+    Description : "The broker host name or IP address for TCP, without a scheme and without the port. Required for the TCP protocol."
+    DataType    : String
+    UiControl   : TextBox
+    Validations :
+      - Type    : Regex
+        Pattern : '^[^\s/]+$'
+        Message : "The broker host is a host name or an IP address, without a scheme and without the port."
+
+  - Id          : Port
+    Name        : "Port"
+    Description : "The broker port for TCP. Plain MQTT usually listens on 1883, MQTT over TLS on 8883."
+    DataType    : UInt16
+    UiControl   : NumericUpDown
+    MinValue    : 1
+    DefaultValue: 1883
+
+  - Id          : Url
+    Name        : "Url"
+    Description : "The broker url for WebSocket. Only 'ws' and 'wss' are supported, of which 'wss' is encrypted. Required for the WebSocket protocol."
+    DataType    : Uri
+    UiControl   : TextBox
+    Validations :
+      - Type    : Regex
+        Pattern : '^\s*[wW][sS][sS]?://\S'
+        Message : "The broker url has to use the 'ws' or the 'wss' scheme."
+
+  - Id          : QualityOfService
+    Name        : "Quality of service"
+    Description : "The delivery guarantee used for published messages and for the will message."
+    DataType    : UInt8
+    DefaultValue: 0
+    UiControl   : NumericListBox
+    MinValue    : 0
+    MaxValue    : 2
+    Elements    : { 0: 'At most once',
+                    1: 'At least once',
+                    2: 'Exactly once' }
+
+  - Id                 : ProtocolVersion
+    Name               : "Protocol version"
+    Description        : "The version of the MQTT protocol spoken with the broker. Settings that MQTT 3.1.1 does not know are only offered for v5.0."
+    DataType           : UInt8
+    DefaultValue       : 1
+    UiControl          : NumericListBox
+    MinValue           : 0
+    MaxValue           : 1
+    Elements           : { 0: 'v3.1.1',
+                           1: 'v5.0' }
+    DependentProperties: { 'SessionExpiryInterval': [1] }
+
+  - Id          : Username
+    Name        : "User name"
+    Description : "The user name the broker authenticates. MQTT transmits it in clear text, so it is only protected by an encrypted connection."
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : Password
+    Name        : "Password"
+    Description : "The password the broker authenticates. MQTT transmits it in clear text, so it is only protected by an encrypted connection."
+    DataType    : String
+    UiControl   : PasswordBox
+
+  - Id          : CertificateFile
+    Name        : "Certificate file"
+    Description : "The client certificate presented to the broker, as PKCS#12 or PEM. Accepts a file path, the content itself or the content Base64 encoded. It has to carry its private key, and configuring it encrypts the connection."
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : CertificateFilePassword
+    Name        : "Certificate file password"
+    Description : "The password of a PKCS#12 certificate file. It cannot be used with a PEM certificate, whose private key has to be unencrypted."
+    DataType    : String
+    UiControl   : PasswordBox
+
+  - Id          : CertificatePrivateKeyFile
+    Name        : "Certificate private key file"
+    Description : "The PEM encoded private key of a PEM certificate, where it is required. It has to stay empty for a PKCS#12 certificate, which carries its key already."
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : CertificateAuthorityFile
+    Name        : "Certificate authority file"
+    Description : "The certificate authority the broker certificate is validated against, for a broker of a private PKI. Holds PEM, a single certificate or a bundle, or one DER encoded certificate. A self-signed broker certificate configured here anchors on itself, which trusts that one broker and nothing else. Without it the broker is validated against the trusted authorities of the system."
+    DataType    : String
+    UiControl   : TextBox
+
+  - Id          : SslProtocol
+    Name        : "SSL protocol"
+    Description : "The TLS version enforced for a TCP connection. 'None' does not mean the version of the system, it means that this setting does not encrypt the connection; once a certificate encrypts it, leaving 'None' negotiates TLS 1.2 or 1.3."
+    DataType    : UInt8
+    DefaultValue: 0
+    UiControl   : NumericListBox
+    MinValue    : 0
+    MaxValue    : 2
+    Elements    : { 0: 'None',
+                    1: 'TLSv1.2',
+                    2: 'TLSv1.3' }
+
+  - Id                 : DisableCertificateValidation
+    Name               : "Disable certificate validation"
+    Description        : "Accept any broker certificate. It contradicts the certificate authority file, which validates the broker."
+    DataType           : Bool
+    DefaultValue       : false
+    UiControl          : CheckBox
+    DependentProperties: { 'CertificateAuthorityFile': [false] }
+
+  - Id          : CleanSession
+    Name        : "Clean session"
+    Description : "Start with a fresh session instead of resuming the one the broker kept for this client id."
+    DataType    : Bool
+    DefaultValue: true
+    UiControl   : CheckBox
+
+  - Id          : SessionExpiryInterval
+    Name        : "Session expiry interval"
+    Description : "The seconds the broker keeps the session after the connection is lost. Known to MQTT 5.0 only; 0 discards the session immediately."
+    DataType    : UInt32
+    DefaultValue: 0
+    UiControl   : NumericUpDown
+    MinValue    : 0
+
+  - Id          : Retain
+    Name        : "Retain"
+    Description : "Keep the last message of this topic on the broker, so it reaches clients subscribing later."
+    DataType    : Bool
+    DefaultValue: false
+    UiControl   : CheckBox
+
+  - Id          : DefaultSerializer
+    Name        : "Serializer"
+    Description : "The payload format used by the data points of this broker that do not choose one themselves."
+    DataType    : UInt8
+    UiControl   : NumericListBox
+    MinValue    : 1
+    MaxValue    : 1
+    DefaultValue: 1
+    Elements    : { 1: 'JSON', }
+
+  - Id          : Serializer
+    Name        : "Serializer"
+    Description : "The payload format of this data point. 'Inherited' uses the serializer configured at the broker."
+    DataType    : UInt8
+    UiControl   : NumericListBox
+    MinValue    : 0
+    MaxValue    : 2
+    DefaultValue: 0
+    Elements    : { 0: 'Inherited',
+                    1: 'JSON',
+                    2: 'PlainText', }
+
+  - Id          : Pooling
+    Name        : "Pooling"
+    Description : "Pooling is a technique that involves creating and maintaining a pool of connections, which are then be reused"
+    DataType    : Bool
+    DefaultValue: true
+    UiControl   : CheckBox
+
+  - Id          : MaxPendingMessages
+    Name        : "MaxPendingMessages"
+    Description : "The messages queued while the connection is down. The oldest is dropped once the queue is full."
+    DataType    : Int32
+    DefaultValue: 100000
+    UiControl   : NumericUpDown
+    MinValue    : 1
+
+  - Id          : BrokerReceiveMaximum
+    Name        : "BrokerReceiveMaximum"
+    Description : "The messages published without waiting for their acknowledgement. An MQTT 5.0 broker may lower it further."
+    DataType    : UInt16
+    DefaultValue: 100
+    UiControl   : NumericUpDown
+    MaxValue    : 100
+    MinValue    : 1
+
+Icons:
+
+  - Id          : mqtt
+    Content     : PHN2ZyB2aWV3Qm94PSIwIDAgMzIgMzIiIHZlcnNpb249IjEuMSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB4bWxuczp4bGluaz0iaHR0cDovL3d3dy53My5vcmcvMTk5OS94bGluayI+CiAgICA8dGl0bGU+ZGFyay10aGVtZS9pY29uL21vbm9jaHJvbWUvMzJ4MzIvZGF0YXBvcnQvbXF0dC9saWdodDwvdGl0bGU+CiAgICA8ZyBpZD0iZGFyay10aGVtZS9pY29uL21vbm9jaHJvbWUvMzJ4MzIvZGF0YXBvcnQvbXF0dC9saWdodCIgc3Ryb2tlPSJub25lIiBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPgogICAgICAgIDxwYXRoIGQ9Ik03LjM0OTQ5NDk1LDI1LjA1ODQ3MzIgTDcuNTAzMDMwMywyNS40NDM5NjMyIEw3LjY1NjU2NTY2LDI1LjA0OTgxMDUgTDcuODIyMjIyMjIsMjQuNjgxNjQ1OSBMOS40MjIyMjIyMiwyMS4zMDMxOTQ0IEM5LjQ1MDUwNTA1LDIxLjI0Njg4NjggOS40Nzg3ODc4OCwyMS4xOTkyNDIgOS41MTExMTExMSwyMS4xNjg5MjI2IEM5LjUzOTM5Mzk0LDIxLjEzODYwMzEgOS41NzU3NTc1OCwyMS4xMTI2MTUxIDkuNjEyMTIxMjEsMjEuMDk5NjIxIEM5LjY0ODQ4NDg1LDIxLjA4MjI5NTYgOS42OTI5MjkyOSwyMS4wNzc5NjQzIDkuNzM3MzczNzQsMjEuMDc3OTY0MyBMMTEuMDA2MDYwNiwyMS4wNzc5NjQzIEwxMS4wMDYwNjA2LDI3Ljc1MjU3MTcgTDkuNzMzMzMzMzMsMjcuNzUyNTcxNyBMOS43MzMzMzMzMywyMy45MTA2NjU5IEM5LjczMzMzMzMzLDIzLjcyNDQxOCA5Ljc0MTQxNDE0LDIzLjUyMDg0NDYgOS43NTc1NzU3NiwyMy4zMDQyNzcyIEw4LjEwOTA5MDkxLDI2LjczOTAzNjMgQzguMDU2NTY1NjYsMjYuODQ3MzIgNy45ODc4Nzg3OSwyNi45MjUyODQyIDcuOTAzMDMwMywyNi45ODE1OTE4IEM3LjgxNDE0MTQxLDI3LjAzNzg5OTMgNy43MTcxNzE3MiwyNy4wNjM4ODc0IDcuNjA0MDQwNCwyNy4wNjM4ODc0IEw3LjQwNjA2MDYxLDI3LjA2Mzg4NzQgQzcuMjkyOTI5MjksMjcuMDYzODg3NCA3LjE5NTk1OTYsMjcuMDM3ODk5MyA3LjEwNzA3MDcxLDI2Ljk4MTU5MTggQzcuMDE4MTgxODIsMjYuOTI1Mjg0MiA2Ljk0OTQ5NDk1LDI2Ljg0NzMyIDYuOTAxMDEwMSwyNi43MzkwMzYzIEw1LjI0MDQwNDA0LDIzLjI5OTk0NTkgQzUuMjUyNTI1MjUsMjMuNDA4MjI5NiA1LjI2MDYwNjA2LDIzLjUxMjE4MTkgNS4yNjQ2NDY0NiwyMy42MjA0NjU2IEw1LjI3MjcyNzI3LDIzLjkxMDY2NTkgTDUuMjcyNzI3MjcsMjcuNzUyNTcxNyBMNCwyNy43NTI1NzE3IEw0LDIxLjA3MzYzMjkgTDUuMjY4Njg2ODcsMjEuMDczNjMyOSBDNS4zMTcxNzE3MiwyMS4wNzM2MzI5IDUuMzU3NTc1NzYsMjEuMDgyMjk1NiA1LjM5MzkzOTM5LDIxLjA5NTI4OTcgQzUuNDMwNzQ3OTUsMjEuMTEyNjU1NCA1LjQ2NDgyMjY0LDIxLjEzNjAzMzUgNS40OTQ5NDk0OSwyMS4xNjQ1OTEyIEM1LjUyMzIzMjMyLDIxLjE5NDkxMDcgNS41NTU1NTU1NiwyMS4yNDI1NTU1IDUuNTgzODM4MzgsMjEuMjk4ODYzIEw3LjE4Nzg3ODc5LDI0LjY5MDMwODYgTDcuMzQ5NDk0OTUsMjUuMDU4NDczMiBaIE0xNy44MzQzNDM0LDI0LjQwODc3MSBDMTcuODM0MzQzNCwyNC42OTQ2NCAxNy44MDYwNjA2LDI0Ljk3MTg0NjIgMTcuNzQ5NDk0OSwyNS4yMzYwNTg1IEMxNy42OTI5MjkzLDI1LjUwMDI3MDcgMTcuNjEyMTIxMiwyNS43NDcxNTc2IDE3LjUxMTExMTEsMjUuOTgxMDUwNCBDMTcuNDA2MDYwNiwyNi4yMTQ5NDMyIDE3LjI3Njc2NzcsMjYuNDI3MTc5MiAxNy4xMjcyNzI3LDI2LjYyNjQyMTIgQzE2Ljk3MzczNzQsMjYuODI1NjYzMiAxNi44LDI2Ljk5ODkxNzIgMTYuNjA2MDYwNiwyNy4xNTQ4NDU3IEwxOC4xODE4MTgyLDI5IEwxNi45OTM5Mzk0LDI5IEMxNi44MjQyNDI0LDI5IDE2LjY2NjY2NjcsMjguOTc4MzQzMyAxNi41MjkyOTI5LDI4LjkzNTAyOTggQzE2LjM4Nzg3ODgsMjguODkxNzE2MyAxNi4yNjY2NjY3LDI4LjgwMDc1OCAxNi4xNTc1NzU4LDI4LjY2NjQ4NjIgTDE1LjM4MTgxODIsMjcuNzM1MjQ2MyBDMTUuMjU2NTY1NywyNy43NjEyMzQ0IDE1LjEyNzI3MjcsMjcuNzgyODkxMiAxNC45OTc5Nzk4LDI3LjgwMDIxNjYgQzE0Ljg2ODY4NjksMjcuODE3NTQyIDE0LjczNTM1MzUsMjcuODIxODczMyAxNC41OTc5Nzk4LDI3LjgyMTg3MzMgQzE0LjExMzEzMTMsMjcuODIxODczMyAxMy42NzI3MjczLDI3LjczNTI0NjMgMTMuMjcyNzI3MywyNy41NjE5OTI0IEMxMi44NzI3MjczLDI3LjM4ODczODUgMTIuNTMzMzMzMywyNy4xNDYxODMgMTIuMjUwNTA1MSwyNi44Mzg2NTczIEMxMS45NjQ3Njg2LDI2LjUyOTMwNjcgMTEuNzQwNjk5OCwyNi4xNjA4OTYxIDExLjU5MTkxOTIsMjUuNzU1ODIwMiBDMTEuNDM4MzgzOCwyNS4zNDAwMTA4IDExLjM1NzU3NTgsMjQuODg5NTUwNiAxMS4zNTc1NzU4LDI0LjQwODc3MSBDMTEuMzU3NTc1OCwyMy45Mjc5OTEzIDExLjQzNDM0MzQsMjMuNDc3NTMxMSAxMS41OTE5MTkyLDIzLjA2MTcyMTcgQzExLjc0MDY5OTgsMjIuNjU2NjQ1OSAxMS45NjQ3Njg2LDIyLjI4ODIzNTIgMTIuMjUwNTA1MSwyMS45Nzg4ODQ3IEMxMi41MzMzMzMzLDIxLjY3MTM1OSAxMi44NzY3Njc3LDIxLjQzMzEzNDggMTMuMjcyNzI3MywyMS4yNTk4ODA5IEMxMy42NzI3MjczLDIxLjA4NjYyNyAxNC4xMTMxMzEzLDIxIDE0LjU5Nzk3OTgsMjEgQzE1LjA4MjgyODMsMjEgMTUuNTIzMjMyMywyMS4wODY2MjcgMTUuOTE5MTkxOSwyMS4yNjQyMTIyIEMxNi4zMTUxNTE1LDIxLjQ0MTc5NzUgMTYuNjU4NTg1OSwyMS42ODAwMjE3IDE2LjkzNzM3MzcsMjEuOTg3NTQ3NCBDMTcuMjIwMjAyLDIyLjI5NTA3MzEgMTcuNDM4MzgzOCwyMi42NTQ1NzUgMTcuNTkxOTE5MiwyMy4wNzAzODQ0IEMxNy43NTc1NzU4LDIzLjQ4MTg2MjUgMTcuODM0MzQzNCwyMy45Mjc5OTEzIDE3LjgzNDM0MzQsMjQuNDA4NzcxIEwxNy44MzQzNDM0LDI0LjQwODc3MSBaIE0xNi4zNTU1NTU2LDI0LjQwODc3MSBDMTYuMzU1NTU1NiwyNC4wNzk1ODg1IDE2LjMxNTE1MTUsMjMuNzgwNzI1NSAxNi4yMzQzNDM0LDIzLjUxNjUxMzMgQzE2LjE1MzUzNTQsMjMuMjUyMzAxIDE2LjA0MDQwNCwyMy4wMjcwNzA5IDE1Ljg5MDkwOTEsMjIuODQ1MTU0MyBDMTUuNzQxNDE0MSwyMi42NjMyMzc3IDE1LjU1OTU5NiwyMi41MjAzMDMyIDE1LjM0MTQxNDEsMjIuNDI1MDEzNSBDMTUuMTIzMjMyMywyMi4zMjUzOTI1IDE0Ljg3Njc2NzcsMjIuMjc3NzQ3NyAxNC42MDIwMjAyLDIyLjI3Nzc0NzcgQzE0LjMyMzIzMjMsMjIuMjc3NzQ3NyAxNC4wNzI3MjczLDIyLjMyNTM5MjUgMTMuODU0NTQ1NSwyMi40MjUwMTM1IEMxMy42MzYzNjM2LDIyLjUyNDYzNDUgMTMuNDU0NTQ1NSwyMi42NjMyMzc3IDEzLjMwNTA1MDUsMjIuODQ1MTU0MyBDMTMuMTU1NTU1NiwyMy4wMjcwNzA5IDEzLjA0MjQyNDIsMjMuMjUyMzAxIDEyLjk2MTYxNjIsMjMuNTE2NTEzMyBDMTIuODgwODA4MSwyMy43ODA3MjU1IDEyLjg0MDQwNCwyNC4wNzk1ODg1IDEyLjg0MDQwNCwyNC40MDg3NzEgQzEyLjg0MDQwNCwyNC43NDIyODQ4IDEyLjg4MDgwODEsMjUuMDQxMTQ3OCAxMi45NjE2MTYyLDI1LjMwNTM2IEMxMy4wNDI0MjQyLDI1LjU2OTU3MjMgMTMuMTU1NTU1NiwyNS43OTQ4MDI0IDEzLjMwNTA1MDUsMjUuOTc2NzE5IEMxMy40NTQ1NDU1LDI2LjE1ODYzNTYgMTMuNjQwNDA0LDI2LjMwMTU3MDEgMTMuODU0NTQ1NSwyNi4zOTY4NTk4IEMxNC4wNzI3MjczLDI2LjQ5MjE0OTQgMTQuMzE5MTkxOSwyNi41Mzk3OTQzIDE0LjYwMjAyMDIsMjYuNTM5Nzk0MyBDMTQuODc2NzY3NywyNi41Mzk3OTQzIDE1LjEyMzIzMjMsMjYuNDkyMTQ5NCAxNS4zNDE0MTQxLDI2LjM5Njg1OTggQzE1LjU1OTU5NiwyNi4zMDE1NzAxIDE1Ljc0MTQxNDEsMjYuMTYyOTY3IDE1Ljg5MDkwOTEsMjUuOTc2NzE5IEMxNi4wNDA0MDQsMjUuNzk0ODAyNCAxNi4xNTM1MzU0LDI1LjU2OTU3MjMgMTYuMjM0MzQzNCwyNS4zMDUzNiBDMTYuMzE1MTUxNSwyNS4wNDExNDc4IDE2LjM1NTU1NTYsMjQuNzQyMjg0OCAxNi4zNTU1NTU2LDI0LjQwODc3MSBaIE0yMi40NTY1NjU3LDIxLjA2OTMwMTYgTDIyLjQ1NjU2NTcsMjIuMjk5NDA0NCBMMjAuNzgzODM4NCwyMi4yOTk0MDQ0IEwyMC43ODM4Mzg0LDI3Ljc0ODI0MDQgTDE5LjMzNzM3MzcsMjcuNzQ4MjQwNCBMMTkuMzM3MzczNywyMi4yOTk0MDQ0IEwxNy42NjQ2NDY1LDIyLjI5OTQwNDQgTDE3LjY2NDY0NjUsMjEuMDY5MzAxNiBMMjIuNDU2NTY1NywyMS4wNjkzMDE2IEwyMi40NTY1NjU3LDIxLjA2OTMwMTYgWiBNMjgsMjEuMDY5MzAxNiBMMjgsMjIuMjk5NDA0NCBMMjYuMjQ2NDY0NiwyMi4yOTk0MDQ0IEwyNi4yNDY0NjQ2LDI3Ljc0ODI0MDQgTDI0LjgsMjcuNzQ4MjQwNCBMMjQuOCwyMi4yOTk0MDQ0IEwyMy4xMjcyNzI3LDIyLjI5OTQwNDQgTDIzLjEyNzI3MjcsMjEuMDY5MzAxNiBMMjgsMjEuMDY5MzAxNiBMMjgsMjEuMDY5MzAxNiBaIE04Ljc5MjU5MjU5LDEyLjQwOTkxMjQgTDguNzkyNTkyNTksMTguMDgyNzI3OCBDOC43OTI1OTI1OSwxOC40ODk2NTkgOS4xMTMxMzEzMSwxOC44MjM5MjQgOS41MTM4MDQ3MSwxOC44MjM5MjQgTDE1LjE1MTUxNTIsMTguODIzOTI0IEMxNS4xMDQzNzcxLDE1LjI3NzgwODggMTIuMjcxMzgwNSwxMi40MDk5MTI0IDguNzkyNTkyNTksMTIuNDA5OTEyNCBaIE04Ljc5MjU5MjU5LDcuNzMwMjAzMDkgTDguNzkyNTkyNTksMTAuMTQyNzI0MSBDMTMuNDU5MjU5MywxMC4xODYzMjM4IDE3LjI0OTE1ODIsMTQuMDUyMTcwNyAxNy4yOTYyOTYzLDE4LjgxOTA3OTYgTDE5LjczMzMzMzMsMTguODE5MDc5NiBDMTkuNjg2MTk1MywxMi43MDA1Nzc2IDE0Ljc5Nzk3OTgsNy43MzUwNDc1MSA4Ljc5MjU5MjU5LDcuNzMwMjAzMDkgWiBNMjMuMjA3NDA3NCwxOC4wNzc4ODM0IEwyMy4yMDc0MDc0LDEzLjAzNDg0MjYgQzIxLjU2NzAwMzQsOC44NDkyNjQwMiAxOC4yMjk2Mjk2LDUuNTQ1MzY5ODUgMTQuMDY3MzQwMSw0IEw5LjUxMzgwNDcxLDQgQzkuMTE3ODQ1MTIsNCA4Ljc5MjU5MjU5LDQuMzI5NDIwNTMgOC43OTI1OTI1OSw0Ljc0MTE5NjIgTDguNzkyNTkyNTksNS40Njc4NTkxNCBDMTUuOTg1ODU4Niw1LjUxMTQ1ODkyIDIxLjgzMDk3NjQsMTEuNDc0OTM5NCAyMS44NzgxMTQ1LDE4LjgxOTA3OTYgTDIyLjQ5MDkwOTEsMTguODE5MDc5NiBDMjIuODg2ODY4NywxOC44MTkwNzk2IDIzLjIwNzQwNzQsMTguNDg5NjU5IDIzLjIwNzQwNzQsMTguMDc3ODgzNCBMMjMuMjA3NDA3NCwxOC4wNzc4ODM0IFogTTIxLjMwNzc0NDEsNi4wNzM0MTE1OSBDMjEuOTkxMjQ1OCw2Ljc3MTAwODAxIDIyLjY1NTg5MjMsNy42MDkwOTI2IDIzLjIxMjEyMTIsOC4zODkwNDQxNiBMMjMuMjEyMTIxMiw0Ljc0MTE5NjIgQzIzLjIxMjEyMTIsNC4zMzQyNjQ5NSAyMi44OTE1ODI1LDQgMjIuNDkwOTA5MSw0IEwxOC44NDcxMzgsNCBDMTkuNjk1NjIyOSw0LjYxMDM5Njg3IDIwLjU1MzUzNTQsNS4zMDMxNDg4NyAyMS4zMDc3NDQxLDYuMDczNDExNTkgWiIgaWQ9Ikljb24iIGZpbGw9ImN1cnJlbnRDb2xvciI+PC9wYXRoPgogICAgPC9nPgo8L3N2Zz4=
+    ContentType : Base64

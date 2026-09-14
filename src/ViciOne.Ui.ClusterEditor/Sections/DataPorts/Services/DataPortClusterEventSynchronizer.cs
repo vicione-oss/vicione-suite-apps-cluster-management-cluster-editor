@@ -56,10 +56,10 @@ internal sealed class DataPortClusterEventSynchronizer(
             if (dataPortNode is null)
                 continue;
 
-            // At this point the icons of the children must change. This should be done by a call to
-            // Events.InvokeChildrenChanged(dataPortNode), but currently this method doesn't
-            // update the icons of the children. Therefore we do this recursively here until the bug is fixed.
-            UpdateChildrenIconsRecursively(dataPortNode);
+            // The icons of the children must change too. This should be done by a call to
+            // Events.InvokeChildrenChanged(dataPortNode), but currently that method doesn't
+            // update the icons of the children.
+            dataPortNode.NotifyIconsChangedRecursively(state.Builder);
         }
     }
 
@@ -135,13 +135,5 @@ internal sealed class DataPortClusterEventSynchronizer(
         }
 
         state.IsDeletionInProgress = false;
-    }
-
-    private void UpdateChildrenIconsRecursively(DataPortNodeModel dataPortNode)
-    {
-        foreach (var child in dataPortNode.Children)
-            UpdateChildrenIconsRecursively(child);
-
-        state.Builder.Notifications.NotifyNodeChanged(dataPortNode, ChangedNodeDetail.Icons);
     }
 }

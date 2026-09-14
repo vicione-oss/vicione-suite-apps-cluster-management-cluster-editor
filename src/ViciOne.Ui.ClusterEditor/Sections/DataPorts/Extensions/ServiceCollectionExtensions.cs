@@ -51,6 +51,7 @@ internal static class ServiceCollectionExtensions
         services.AddScoped<DataPortNodeActionProvider>();
         services.AddScoped<DataPortDragCoordinator>();
         services.AddScoped<DataPortClusterEventSynchronizer>();
+        services.AddScoped<AddDataPortMenuItemProvider>();
 
         return services;
     }

@@ -1,21 +1,19 @@
-﻿using System;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
-using ViciOne.Cluster.Model;
-using ViciOne.TreeBuilder.NodeTypes;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Components;
-using ViciOne.Ui.ClusterEditor.Models.Data;
-using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
-using ViciOne.Ui.ColorableIcons;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.ContextMenu;
 
 public sealed partial class DataPortAddChildNodeContextMenu : SpecializedContextMenuBase<DataPortAddChildNodeContextMenuContext>
 {
+    // Keyed by reference: the descriptors are rebuilt whenever a node's PossibleChildren is
+    // reassigned, so an instance stands for exactly one entry of one menu.
+    private readonly Dictionary<DataPortChildNodeContextMenuDescriptor, string> _iconData = [];
+
     [Inject] private DiagramEventService DiagramEventService { get; set; } = default!;
 
     [Parameter]
@@ -38,42 +36,24 @@ public sealed partial class DataPortAddChildNodeContextMenu : SpecializedContext
         }
     }
 
-    private static string GetIconData(DataPortChildNodeContextMenuDescriptor descriptor)
+    /// <summary>
+    /// Cached for the lifetime of one open menu: the item asks for its icon on every render, and
+    /// building it means building the node the entry would create.
+    /// </summary>
+    private string GetIconData(DataPortChildNodeContextMenuDescriptor descriptor)
     {
-        var rootNode = descriptor.ParentNode.GetRootNode();
+        if (_iconData.TryGetValue(descriptor, out var iconData))
+            return iconData;
 
-        if (!rootNode.Builder.NodeTypes.TryGetValue(descriptor.NodeReference.Id, out var nodeType))
-            return string.Empty;
-
-        var dataPortDirection = (descriptor.ParentNode as DataPortChildNodeModel)?.GetRootSuccessor().GetSystemProperty<DataPortDirection>()?.TypedValue ?? DataPortDirection.In;
-
-        var runtimeType = typeof(object);
-        if (nodeType is DataPortTreeNodeType dataPortTreeNodeType
-            && dataPortTreeNodeType.DataTypes.Length > 0
-            && rootNode.Builder.DataTypes.TryGetValue(dataPortTreeNodeType.DataTypes[0], out var dataType)
-            && dataType.RuntimeType is not null)
-        {
-            runtimeType = dataType.RuntimeType;
-        }
-
-        var color = ConnectorColor.Get(runtimeType);
-        var icon = descriptor.IconName != "datapoint"
-            ? rootNode.Builder.GetSvgIcon(descriptor.IconName)
-            : ColoredIconFactory.GetDataPortIcon(color, dataPortDirection, true, true);
-
-        icon = icon?.Replace("viewBox=\"0 0 32 32\"", "viewBox=\"4 4 28 28\" width=\"16\" height=\"16\"",
-            StringComparison.InvariantCulture);
-        icon = icon?.Replace("currentColor", DataPortColorConstants.ColorEditorFont,
-            StringComparison.InvariantCulture);
-
-        var iconBase64Encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(icon ?? string.Empty));
-
-        return $"data:image/svg+xml;base64,{iconBase64Encoded}";
+        return _iconData[descriptor] = DataPortMenuIconProvider.GetIconData(descriptor);
     }
 
     private void OnContextMenuVisibilityChanged(bool isVisible)
     {
-        if (!isVisible)
-            DiagramEventService.RequestDiagramFocus();
+        if (isVisible)
+            return;
+
+        _iconData.Clear();
+        DiagramEventService.RequestDiagramFocus();
     }
 }

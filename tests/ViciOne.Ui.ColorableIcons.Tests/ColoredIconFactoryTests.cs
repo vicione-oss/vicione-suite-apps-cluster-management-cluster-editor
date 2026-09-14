@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using ViciOne.Cluster.Model;
 using Xunit;
 
@@ -241,6 +242,35 @@ public static class ColoredIconFactoryTests
             var result = ColoredIconFactory.GetDataPortIcon("#F0F", DataPortDirection.InOut, true, true, 16);
 
             Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void Returns_icon_with_no_arrows_when_direction_is_null()
+        {
+            // Arrange: a node with no effective direction at all (e.g. narrowed below its parent's
+            // directions until nothing overlaps) draws the plain body without any arrow.
+            var expected =
+                "<svg viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\">" +
+                    "<path d=\"M20.51 10.5c.55 0 .99.44.99.99v9.02c0 .55-.44.99-.99.99h-9.02a.99.99 0 0 1-.99-.99v-9.02c0-.55.44-.99.99-.99h9.02Zm-.39 1.38h-8.25v8.24h8.26v-8.25Z\" id=\"empty\" fill=\"#F0F\" fill-rule=\"evenodd\" />" +
+                "</svg>";
+
+            // Act
+            var result = ColoredIconFactory.GetDataPortIcon("#F0F", null);
+
+            // Assert
+            Assert.Equal(expected, result);
+        }
+
+        [Fact]
+        public void Returns_filled_icon_without_arrows_when_direction_is_null_and_something_is_linked()
+        {
+            // Act: losing the direction must not hide a link that is still there.
+            var result = ColoredIconFactory.GetDataPortIcon("#F0F", null, true, true);
+
+            // Assert
+            Assert.Contains("id=\"filled\"", result, StringComparison.InvariantCulture);
+            Assert.DoesNotContain("id=\"arrow-in\"", result, StringComparison.InvariantCulture);
+            Assert.DoesNotContain("id=\"arrow-out\"", result, StringComparison.InvariantCulture);
         }
     }
 }

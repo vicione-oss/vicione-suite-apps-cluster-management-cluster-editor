@@ -6,7 +6,7 @@ using ViciOne.Core.Dataflow.DataModel;
 using ViciOne.Core.Dataflow.DataModel.Generation;
 using ViciOne.Core.Dataflow.Pooling;
 using ViciOne.Engine.DefaultPoolings;
-using ViciOne.TreeBuilder.Rules;
+using ViciOne.Tree.Builder.Rules;
 
 namespace Server.Designs;
 

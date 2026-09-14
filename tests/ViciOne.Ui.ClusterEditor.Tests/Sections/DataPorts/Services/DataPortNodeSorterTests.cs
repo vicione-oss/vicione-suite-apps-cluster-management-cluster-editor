@@ -1,6 +1,6 @@
 ﻿using System.Linq;
 using NSubstitute;
-using ViciOne.TreeBuilder.NodeTypes;
+using ViciOne.Tree.Builder.NodeTypes;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.TreeEditor.Builder;
@@ -11,10 +11,12 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Sections.DataPorts.Services;
 
 public sealed class DataPortNodeSorterTests
 {
-    private static DataPortChildNodeModel CreateChild(string name, bool isParent, DataPortRootNodeModel root, DataPortNodeModel parent)
+    private static DataPortChildNodeModel CreateChild(string name, bool isParent, DataPortRootNodeModel root, DataPortNodeModel parent, bool isDataPoint = false)
     {
         var node = new DataPortChildNodeModel
         {
+            IsDataPoint = isDataPoint,
+            LinkDirections = [],
             Name = name,
             Parent = parent,
             Properties = [],
@@ -42,7 +44,7 @@ public sealed class DataPortNodeSorterTests
     private static DataPortRootNodeModel CreateRoot()
         => new()
         {
-            Builder = new TreeBuilder.TreeBuilder(Resources.TestResources.MqttRuleset),
+            Builder = new Tree.Builder.TreeBuilder(Resources.TestResources.MqttRuleset),
             Name = "Root",
         };
 
@@ -112,6 +114,39 @@ public sealed class DataPortNodeSorterTests
 
         // Assert
         Assert.Equal(["AAA", "BBB"], root.Children.Select(c => c.Name));
+    }
+
+    [Fact]
+    public void SortNodes_KeepsADatapointThatCanTakeEnvelopeChildrenBelowTheFolders()
+    {
+        // Arrange
+        var root = CreateRoot();
+        var dataPoint = CreateChild("Temperature", isParent: true, root, root, isDataPoint: true);
+        var folder = CreateChild("Zone", isParent: true, root, root);
+        var leaf = CreateChild("Alarm", isParent: false, root, root, isDataPoint: true);
+
+        // Act
+        var sorted = DataPortNodeSorter.SortNodes([dataPoint, folder, leaf], false);
+
+        // Assert
+        Assert.Equal(["Zone", "Temperature", "Alarm"], sorted.Select(n => n.Name));
+    }
+
+    [Fact]
+    public void SortNodes_DoesNotTreatAMarkerEnvelopeChildAsAFolder()
+    {
+        // Arrange: a marker envelope child (e.g. "Type") has no DataTypes and is therefore not a
+        // datapoint, but it also has no children of its own, so it must stay a leaf like any other
+        // envelope child rather than being sorted with the folders.
+        var root = CreateRoot();
+        var folder = CreateChild("Zone", isParent: true, root, root);
+        var markerChild = CreateChild("Type", isParent: false, root, root, isDataPoint: false);
+
+        // Act
+        var sorted = DataPortNodeSorter.SortNodes([markerChild, folder], false);
+
+        // Assert
+        Assert.Equal(["Zone", "Type"], sorted.Select(n => n.Name));
     }
 
     [Fact]

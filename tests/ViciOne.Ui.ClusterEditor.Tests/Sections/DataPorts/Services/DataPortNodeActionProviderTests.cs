@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
@@ -57,7 +58,7 @@ public sealed class DataPortNodeActionProviderTests
             rulesetProvider,
             Substitute.For<ILogger<DataPortTreeMutator>>(),
             _state,
-            new(rulesetProvider));
+            new(rulesetProvider, new FakeLogger<DataPortTreeBuilderRegistry>()));
         _editingCoordinator = new DataPortEditingCoordinator(
             Substitute.For<IClusterEditorManagementInternal>(),
             _state);
@@ -71,7 +72,7 @@ public sealed class DataPortNodeActionProviderTests
     private static DataPortRootNodeModel CreateRoot()
         => new()
         {
-            Builder = new TreeBuilder.TreeBuilder(Resources.TestResources.MqttRuleset),
+            Builder = new Tree.Builder.TreeBuilder(Resources.TestResources.MqttRuleset),
             Name = "Root",
         };
 

@@ -29,13 +29,14 @@ public sealed class DataPortEditingCoordinatorTests
     private static DataPortRootNodeModel CreateRoot()
         => new()
         {
-            Builder = new TreeBuilder.TreeBuilder(Resources.TestResources.MqttRuleset),
+            Builder = new Tree.Builder.TreeBuilder(Resources.TestResources.MqttRuleset),
             Name = "Root",
         };
 
     private static DataPortChildNodeModel CreateChild(DataPortRootNodeModel root)
         => new()
         {
+            LinkDirections = [],
             Name = "Child",
             Parent = root,
             Properties = [],

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ViciOne.TreeBuilder.Extensions;
+using ViciOne.Tree.Builder.Extensions;
 using ViciOne.Ui.ClusterEditor.Models.Comparer;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
@@ -10,6 +10,11 @@ namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 
 internal static class DataPortNodeSorter
 {
+    // A datapoint that carries envelope children can take further children, but it is still a value
+    // node and belongs with the other datapoints rather than with the folders.
+    internal static bool IsContainerNode(DataPortNodeModel node)
+        => node.PossibleChildren.Any() && node is not DataPortChildNodeModel { IsDataPoint: true };
+
     internal static void SortChildren(DataPortNodeModel dataPortParentNode, bool sortNonParentChildren)
     {
         var children = dataPortParentNode.Children;
@@ -20,7 +25,7 @@ internal static class DataPortNodeSorter
 
     internal static void SortNodeChildren(DataPortNodeModel node, ITreeBuilder builder)
     {
-        if (node.PossibleChildren.Any())
+        if (IsContainerNode(node))
         {
             if (node.GetRootNode().TryGetPathToNode(node, out var path) && path.Count > 1)
             {
@@ -38,7 +43,7 @@ internal static class DataPortNodeSorter
     internal static IEnumerable<DataPortNodeModel> SortNodes(IEnumerable<DataPortNodeModel> children, bool sortNonParentChildren)
     {
         var childrenList = children.ToList();
-        var parentChildNodes = childrenList.Where(c => c.PossibleChildren.Any()).ToList();
+        var parentChildNodes = childrenList.Where(IsContainerNode).ToList();
         var nonParentChildNodes = childrenList.Except(parentChildNodes).ToList();
         parentChildNodes = [.. parentChildNodes.OrderBy(c => c.Name, AlphaNumericComparer<string>.Default)];
 

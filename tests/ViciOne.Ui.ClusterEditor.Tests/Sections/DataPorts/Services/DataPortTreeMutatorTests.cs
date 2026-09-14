@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
@@ -36,7 +37,7 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         _rulesetProvider = Substitute.For<IRulesetProvider>();
         _builder = Substitute.For<ITreeBuilder>();
         _state = new DataPortTreeState { Builder = _builder };
-        _registry = new DataPortTreeBuilderRegistry(_rulesetProvider);
+        _registry = new DataPortTreeBuilderRegistry(_rulesetProvider, new FakeLogger<DataPortTreeBuilderRegistry>());
         _mutator = new DataPortTreeMutator(
             _datastore,
             _rulesetProvider,

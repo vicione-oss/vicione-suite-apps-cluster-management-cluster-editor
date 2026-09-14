@@ -6,7 +6,7 @@ using NSubstitute;
 using ViciOne.Cluster.Builder;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
-using ViciOne.TreeBuilder.PropertyTypes;
+using ViciOne.Tree.Builder.PropertyTypes;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Extensions;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
@@ -25,11 +25,9 @@ public sealed class DataPortChildNodeModelPropertyDescriptorProviderTests
     private const string TransferModeProperty = nameof(DataPortTreeNode.TransferMode);
     private const string ValueTypeProperty = nameof(DataPortTreeNode.ValueType);
 
-    private static DataPortChildNodeModel CreateChildNode(
-        List<IDataPortNodeModelProperty>? properties = null,
-        IReadOnlyList<string>? availableIcons = null)
+    private static DataPortChildNodeModel CreateChildNode(List<IDataPortNodeModelProperty>? properties = null)
     {
-        var builder = new TreeBuilder.TreeBuilder(TestResources.MqttRuleset);
+        var builder = new Tree.Builder.TreeBuilder(TestResources.MqttRuleset);
         var rootNode = new DataPortRootNodeModel
         {
             Builder = builder,
@@ -38,7 +36,7 @@ public sealed class DataPortChildNodeModelPropertyDescriptorProviderTests
 
         return new DataPortChildNodeModel
         {
-            AvailableIcons = availableIcons ?? [],
+            LinkDirections = [],
             Name = "Test",
             Parent = rootNode,
             Properties = properties ?? [],
@@ -119,27 +117,11 @@ public sealed class DataPortChildNodeModelPropertyDescriptorProviderTests
     }
 
     [Fact]
-    public void GetPropertyDescriptors_WhenMultipleAvailableIcons_YieldsIconSelectionDescriptor()
+    public void GetPropertyDescriptors_NeverYieldsAnIconDescriptor()
     {
-        // Arrange
-        var node = CreateChildNode(availableIcons: ["icon-a", "icon-b"]);
+        // Arrange: a node type declares exactly one icon, so the editor offers no choice.
+        var node = CreateChildNode();
         node.Icon = "icon-a";
-        using var clusterBuilder = new ClusterBuilder(Substitute.For<IDependencyResolver>());
-
-        // Act
-        var descriptors = GetDescriptors(node, clusterBuilder);
-
-        // Assert
-        var iconDescriptor = descriptors.OfType<SelectionPropertyDescriptor<DataPortChildNodeModel, string>>()
-            .First(descriptor => descriptor.Name == nameof(DataPortChildNodeModel.Icon));
-        Assert.Equal(2, iconDescriptor.GetSelectableValues(node).Count());
-    }
-
-    [Fact]
-    public void GetPropertyDescriptors_WhenSingleAvailableIcon_DoesNotYieldIconDescriptor()
-    {
-        // Arrange
-        var node = CreateChildNode(availableIcons: ["icon-a"]);
         using var clusterBuilder = new ClusterBuilder(Substitute.For<IDependencyResolver>());
 
         // Act
@@ -469,28 +451,6 @@ public sealed class DataPortChildNodeModelPropertyDescriptorProviderTests
         // Act & Assert
         var exception = Assert.Throws<InvalidOperationException>(() => GetDescriptors(node, clusterBuilder));
         Assert.Contains("Circular dependency", exception.Message, StringComparison.Ordinal);
-    }
-
-    [Fact]
-    public void GetPropertyDescriptors_IconDescriptor_ExposesWorkingValueAccessors()
-    {
-        // Arrange
-        var node = CreateChildNode(availableIcons: ["icon-a", "icon-b"]);
-        node.Icon = "icon-a";
-        using var clusterBuilder = new ClusterBuilder(Substitute.For<IDependencyResolver>());
-
-        // Act
-        var iconDescriptor = GetDescriptors(node, clusterBuilder)
-            .OfType<SelectionPropertyDescriptor<DataPortChildNodeModel, string>>()
-            .First(descriptor => descriptor.Name == nameof(DataPortChildNodeModel.Icon));
-
-        // Assert
-        Assert.Equal("icon-a", iconDescriptor.GetDefaultValue!(node));
-        Assert.Equal("icon-a", iconDescriptor.GetValue!(node));
-        iconDescriptor.SetValue!(node, "icon-b");
-        Assert.Equal("icon-b", iconDescriptor.GetValue!(node));
-        iconDescriptor.ResetValue!(node);
-        Assert.Equal("icon-a", iconDescriptor.GetValue!(node));
     }
 
     [Fact]

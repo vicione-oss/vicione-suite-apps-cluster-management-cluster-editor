@@ -1,5 +1,5 @@
 ﻿using ViciOne.Cluster.Model;
-using ViciOne.TreeBuilder.Rules;
+using ViciOne.Tree.Builder.Rules;
 using ViciOne.Ui.ClusterEditor.Services;
 
 namespace Server.Designs;

@@ -1,11 +1,11 @@
 ﻿using System.Linq;
-using ViciOne.TreeBuilder;
+using ViciOne.Tree.Builder;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Validators;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Validators.Localization;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Validators;
 
-internal class DataPortNodeNameValidator(TreeBuilder.TreeBuilder treeBuilder, ITreeNode node) : IPropertyValueValidator<string>
+internal class DataPortNodeNameValidator(Tree.Builder.TreeBuilder treeBuilder, ITreeNode node) : IPropertyValueValidator<string>
 {
     public string? Validate(string value)
     {

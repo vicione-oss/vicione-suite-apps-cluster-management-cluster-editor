@@ -12,7 +12,7 @@ public static class ColoredIconFactory
         return icon.SetSize(size).SetColor(htmlColor);
     }
 
-    public static string GetDataPortIcon(string htmlColor, DataPortDirection dataPortDirection, bool isConnectedToOutputConnectors = false, bool isConnectedToInputConnectors = false, int? size = default)
+    public static string GetDataPortIcon(string htmlColor, DataPortDirection? dataPortDirection, bool isConnectedToOutputConnectors = false, bool isConnectedToInputConnectors = false, int? size = default)
     {
         var body = IconParts.DataPortIconBody.SetSize(size);
 
@@ -23,6 +23,12 @@ public static class ColoredIconFactory
             DataPortDirection.InOut => isConnectedToInputConnectors
                 ? isConnectedToOutputConnectors ? IconParts.DataPortIconFilled : IconParts.DataPortIconInputFilled
                 : isConnectedToOutputConnectors ? IconParts.DataPortIconOutputFilled : IconParts.DataPortIconEmpty,
+            // No effective direction at all (e.g. a node narrowed below its parent's directions
+            // until nothing overlaps): there is no side to fill, but an existing link still has to
+            // show.
+            null => isConnectedToInputConnectors || isConnectedToOutputConnectors
+                ? IconParts.DataPortIconFilled
+                : IconParts.DataPortIconEmpty,
             _ => throw new NotSupportedException("Unsupported DataPort direction.")
         };
 
@@ -33,6 +39,7 @@ public static class ColoredIconFactory
             DataPortDirection.In => IconParts.DataPortArrowInPath,
             DataPortDirection.Out => IconParts.DataPortArrowOutPath,
             DataPortDirection.InOut => IconParts.DataPortArrowInPath + IconParts.DataPortArrowOutPath,
+            null => string.Empty,
             _ => throw new NotSupportedException("Unsupported DataPort direction.")
         };
 

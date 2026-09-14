@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using ViciOne.TreeBuilder.PropertyTypes;
+using ViciOne.Tree.Builder.PropertyTypes;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 

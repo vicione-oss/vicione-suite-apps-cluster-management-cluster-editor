@@ -132,6 +132,7 @@ internal static class BunitContextExtensions
         ctx.Services.TryAddScoped<DataPortNodeActionProvider>();
         ctx.Services.TryAddScoped<DataPortDragCoordinator>();
         ctx.Services.TryAddScoped<DataPortClusterEventSynchronizer>();
+        ctx.Services.TryAddScoped<AddDataPortMenuItemProvider>();
 
         return ctx;
     }
