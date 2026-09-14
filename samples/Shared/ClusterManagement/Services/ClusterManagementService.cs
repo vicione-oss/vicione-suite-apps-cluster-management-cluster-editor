@@ -1,5 +1,4 @@
-﻿using System.Drawing;
-using Microsoft.Extensions.Logging;
+﻿using Microsoft.Extensions.Logging;
 using Shared.ClusterSerialization;
 using Shared.Designs;
 using Shared.Extensions;
@@ -7,69 +6,34 @@ using ViciOne.Cluster.Builder;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Ui.ClusterEditor.Services;
 
-namespace Shared.Services;
+namespace Shared.ClusterManagement.Services;
 
-public sealed partial class IndexService : IAsyncDisposable
+/// <summary>
+/// Owns the life cycle of the cluster that is currently being edited: it creates the <see cref="IClusterBuilder"/>,
+/// keeps the cluster editor in sync with it and disposes it. The boundary towards the persistence is the cluster JSON.
+/// </summary>
+public sealed partial class ClusterManagementService : IAsyncDisposable
 {
     private readonly IClusterEditorManagement _clusterEditorManagement;
     private IDependencyResolver _dependencyResolver = default!;
     private readonly IDesignProvider _designProvider;
     private bool _disposed;
-    private CancellationTokenSource _forceContainerReloadCts = new();
-    private readonly SemaphoreSlim _forceContainerReloadCtsSemaphore = new(1);
     private CancellationTokenSource _loadClusterCts = new();
     private readonly SemaphoreSlim _loadClusterCtsSemaphore = new(1);
-    private readonly ILogger<IndexService> _logger;
+    private readonly ILogger<ClusterManagementService> _logger;
 
     public IClusterBuilder Builder { get; private set; } = default!;
 
-    public event Func<IClusterBuilder, Task>? ClusterLoaded;
-
-    public IndexService(
+    public ClusterManagementService(
         IClusterEditorManagement clusterEditorManagement,
         IDesignProvider designProvider,
-        ILogger<IndexService> logger)
+        ILogger<ClusterManagementService> logger)
     {
         _clusterEditorManagement = clusterEditorManagement;
         _designProvider = designProvider;
         _logger = logger;
 
         _clusterEditorManagement.LoadFunctionBlockDesignsRequested += OnDataManagementLoadFunctionBlockDesignsRequested;
-    }
-
-    internal async Task AddContainersAndRefresh()
-    {
-        if (_disposed)
-            return;
-
-        var root = Builder.Cluster.Dataflows[0].Root;
-        for (var i = 0; i < 5; i++)
-            Builder.Editors.Container.AddContainer(root, $"Generated {i}", location: new Point(i * 200, 0));
-
-        try
-        {
-            await _forceContainerReloadCtsSemaphore.WaitAsync();
-            try
-            {
-                await _forceContainerReloadCts.CancelAsync();
-                _forceContainerReloadCts.Dispose();
-                _forceContainerReloadCts = new CancellationTokenSource();
-
-                await _clusterEditorManagement.ForceRootContainerReload(_forceContainerReloadCts.Token);
-            }
-            finally
-            {
-                _forceContainerReloadCtsSemaphore.Release();
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            // Nothing to do here, return gracefully
-        }
-        catch (ObjectDisposedException) when (_disposed)
-        {
-            // Semaphore or other object already disposed, nothing we can do, return gracefully
-        }
     }
 
     private ClusterBuilder CreateBuilder(string clusterJson)
@@ -119,19 +83,6 @@ public sealed partial class IndexService : IAsyncDisposable
         }
 
         _loadClusterCtsSemaphore.Dispose();
-
-        await _forceContainerReloadCtsSemaphore.WaitAsync();
-        try
-        {
-            await _forceContainerReloadCts.CancelAsync();
-            _forceContainerReloadCts.Dispose();
-        }
-        finally
-        {
-            _forceContainerReloadCtsSemaphore.Release();
-        }
-
-        _forceContainerReloadCtsSemaphore.Dispose();
     }
 
     /// <summary>
@@ -151,29 +102,7 @@ public sealed partial class IndexService : IAsyncDisposable
         await LoadFunctionBlockDesignsIntoManagement();
     }
 
-    private async Task InvokeClusterLoaded(IClusterBuilder builder)
-    {
-        if (ClusterLoaded is null)
-            return;
-
-        var tasks = ClusterLoaded.GetInvocationList()
-            .Cast<Func<IClusterBuilder, Task>>()
-            .Select(async handler =>
-            {
-                try
-                {
-                    await handler(builder);
-                }
-                catch (Exception ex)
-                {
-                    LogEventHandlerException(_logger, ex, $"{nameof(IndexService)}.{nameof(ClusterLoaded)}");
-                }
-            });
-
-        await Task.WhenAll(tasks);
-    }
-
-    public async Task LoadCluster(IClusterBuilder builder)
+    private async Task LoadCluster(IClusterBuilder builder)
     {
         if (_disposed)
             return;
@@ -207,13 +136,12 @@ public sealed partial class IndexService : IAsyncDisposable
     }
 
     /// <summary>
-    /// Simulate async cluster loading similar to the Suite
+    /// Replaces the current cluster with the one described by the given JSON.
     /// </summary>
-    /// <param name="clusterJson"></param>
-    /// <returns></returns>
+    /// <param name="clusterJson">The JSON of the cluster to load.</param>
     public Task LoadClusterJson(string clusterJson)
 #pragma warning disable CA2000 // Dispose objects before losing scope
-        => InvokeClusterLoaded(CreateBuilder(clusterJson));
+        => LoadCluster(CreateBuilder(clusterJson));
 #pragma warning restore CA2000 // Dispose objects before losing scope
 
     private async Task LoadFunctionBlockDesignsIntoManagement()
@@ -240,10 +168,6 @@ public sealed partial class IndexService : IAsyncDisposable
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Failed to create a cluster from the stored JSON.")]
     private static partial void LogCreateClusterFailed(ILogger logger, Exception ex);
-
-    [LoggerMessage(Level = LogLevel.Error, Message = "Exception in {FnName} event handler.")]
-    private static partial void LogEventHandlerException(ILogger logger, Exception ex, string fnName);
-
 
     private async Task OnDataManagementLoadFunctionBlockDesignsRequested()
         => await LoadFunctionBlockDesignsIntoManagement();

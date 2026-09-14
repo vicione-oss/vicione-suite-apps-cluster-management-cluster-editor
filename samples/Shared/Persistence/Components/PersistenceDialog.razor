@@ -19,7 +19,7 @@
             </div>
 
             <div class="actions">
-                <Button OnClick="IndexService.LoadNewCluster"
+                <Button OnClick="ClusterManagementService.LoadNewCluster"
                         Size="@ButtonSize.Small"
                         Text="@Localization.PersistenceDialog.CreateVerb" />
             </div>
@@ -37,16 +37,16 @@
             </div>
 
             <div class="actions">
-                <Button OnClick="PersistenceService.SaveStartUpCluster"
+                <Button OnClick="@(() => OnSaveToSaveSlot(StartUpSaveSlot))"
                         Size="@ButtonSize.Small"
                         Text="@CommonVocabulary.Save" />
 
                 <Button Enabled="@IsSaveSlotOccupied(StartUpSaveSlot)"
-                        OnClick="PersistenceService.LoadStartUpCluster"
+                        OnClick="@(() => PersistenceService.LoadFromSaveSlot(StartUpSaveSlot))"
                         Size="@ButtonSize.Small"
                         Text="@Localization.PersistenceDialog.LoadVerb" />
 
-                <Button OnClick="PersistenceService.ClearStartUpCluster"
+                <Button OnClick="@(() => OnClearSaveSlot(StartUpSaveSlot))"
                         Size="@ButtonSize.Small"
                         Text="@CommonVocabulary.ClearVerb" />
 
@@ -68,7 +68,7 @@
                 </div>
 
                 <div class="actions">
-                    <Button OnClick="@(() => PersistenceService.SaveToSaveSlot(saveSlot))"
+                    <Button OnClick="@(() => OnSaveToSaveSlot(saveSlot))"
                             Size="@ButtonSize.Small"
                             Text="@CommonVocabulary.Save" />
 
@@ -77,7 +77,7 @@
                             Size="@ButtonSize.Small"
                             Text="@Localization.PersistenceDialog.LoadVerb" />
 
-                    <Button OnClick="@(() => PersistenceService.ClearSaveSlot(saveSlot))"
+                    <Button OnClick="@(() => OnClearSaveSlot(saveSlot))"
                             Size="@ButtonSize.Small"
                             Text="@CommonVocabulary.ClearVerb" />
 

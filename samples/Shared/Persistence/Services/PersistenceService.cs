@@ -2,8 +2,8 @@
 using Microsoft.AspNetCore.Components.Forms;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using Shared.ClusterManagement.Services;
 using Shared.ClusterSerialization;
-using Shared.Services;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Ui.ClusterEditor.Services;
 
@@ -11,11 +11,10 @@ namespace Shared.Persistence.Services;
 
 /// <summary>
 /// Owns everything that is needed to persist a cluster: the browser storage, the file download and upload
-/// and the serialization. The boundary towards <see cref="IndexService"/> is the cluster JSON.
+/// and the serialization. The boundary towards <see cref="ClusterManagementService"/> is the cluster JSON.
 /// </summary>
 public sealed partial class PersistenceService : IAsyncDisposable
 {
-    private const int EmptySaveSlotSize = -1;
     private const int MaxUploadFileSize = 1024 * 1024 * 1024;
     internal const int SaveSlotCount = 3;
     internal const int StartUpSaveSlot = SaveSlotCount + 1;
@@ -23,42 +22,31 @@ public sealed partial class PersistenceService : IAsyncDisposable
     private static readonly int[] s_allSaveSlots = [.. Enumerable.Range(1, StartUpSaveSlot)];
 
     private readonly IClusterEditorManagement _clusterEditorManagement;
+    private readonly ClusterManagementService _clusterManagementService;
     private bool _disposed;
-    private readonly IndexService _indexService;
     private readonly IJSRuntime _jsRuntime;
     private CancellationTokenSource _loadStoredClusterJsonCts = new();
     private readonly SemaphoreSlim _loadStoredClusterJsonCtsSemaphore = new(1);
     private readonly ILogger<PersistenceService> _logger;
-    private readonly Dictionary<int, int> _saveSlotSizes = s_allSaveSlots.ToDictionary(saveSlot => saveSlot, _ => EmptySaveSlotSize);
 
     public event Func<Task>? SaveFailed;
-    internal event Func<Task>? SaveSlotSizesChanged;
 
     public PersistenceService(
         IClusterEditorManagement clusterEditorManagement,
-        IndexService indexService,
+        ClusterManagementService clusterManagementService,
         IJSRuntime jsRuntime,
         ILogger<PersistenceService> logger)
     {
         _clusterEditorManagement = clusterEditorManagement;
-        _indexService = indexService;
+        _clusterManagementService = clusterManagementService;
         _jsRuntime = jsRuntime;
         _logger = logger;
 
         _clusterEditorManagement.SaveRequested += OnSaveRequested;
-        _indexService.ClusterLoaded += OnClusterLoaded;
     }
 
     internal async Task ClearSaveSlot(int saveSlot)
-    {
-        if (!await TryInvokeVoid("ViciOne.File.clear", saveSlot))
-            return;
-
-        await RefreshSaveSlotSizes();
-    }
-
-    internal Task ClearStartUpCluster()
-        => ClearSaveSlot(StartUpSaveSlot);
+        => await TryInvokeVoid("ViciOne.File.clear", saveSlot);
 
     public async ValueTask DisposeAsync()
     {
@@ -66,7 +54,6 @@ public sealed partial class PersistenceService : IAsyncDisposable
             return;
 
         _clusterEditorManagement.SaveRequested -= OnSaveRequested;
-        _indexService.ClusterLoaded -= OnClusterLoaded;
 
         await _loadStoredClusterJsonCtsSemaphore.WaitAsync();
         try
@@ -92,8 +79,21 @@ public sealed partial class PersistenceService : IAsyncDisposable
         await TryInvokeVoid("ViciOne.File.download", json);
     }
 
-    internal int GetSaveSlotSize(int saveSlot)
-        => _saveSlotSizes.TryGetValue(saveSlot, out var saveSlotSize) ? saveSlotSize : EmptySaveSlotSize;
+    /// <summary>
+    /// Reads the size in kilobytes of every save slot, or <see langword="null" /> if the sizes cannot be read.
+    /// An empty save slot reports a size of <c>-1</c>.
+    /// </summary>
+    internal async Task<IReadOnlyDictionary<int, int>?> GetSaveSlotSizes()
+    {
+        var (succeeded, saveSlotSizes) = await TryInvoke<int[]>("ViciOne.File.getSizes", CancellationToken.None, s_allSaveSlots);
+
+        if (!succeeded || saveSlotSizes is null || saveSlotSizes.Length != s_allSaveSlots.Length)
+            return null;
+
+        return s_allSaveSlots
+            .Select((saveSlot, index) => (SaveSlot: saveSlot, Size: saveSlotSizes[index]))
+            .ToDictionary(entry => entry.SaveSlot, entry => entry.Size);
+    }
 
     internal async Task ImportCluster(IBrowserFile file)
     {
@@ -103,7 +103,7 @@ public sealed partial class PersistenceService : IAsyncDisposable
             await file.OpenReadStream(MaxUploadFileSize).CopyToAsync(ms);
             var json = Encoding.UTF8.GetString(ms.ToArray());
 
-            await _indexService.LoadClusterJson(json);
+            await _clusterManagementService.LoadClusterJson(json);
         }
         catch (Exception ex)
         {
@@ -133,28 +133,6 @@ public sealed partial class PersistenceService : IAsyncDisposable
         await Task.WhenAll(tasks);
     }
 
-    private async Task InvokeSaveSlotSizesChanged()
-    {
-        if (SaveSlotSizesChanged is null)
-            return;
-
-        var tasks = SaveSlotSizesChanged.GetInvocationList()
-            .Cast<Func<Task>>()
-            .Select(async handler =>
-            {
-                try
-                {
-                    await handler();
-                }
-                catch (Exception ex)
-                {
-                    LogEventHandlerException(_logger, ex, $"{nameof(PersistenceService)}.{nameof(SaveSlotSizesChanged)}");
-                }
-            });
-
-        await Task.WhenAll(tasks);
-    }
-
     internal async Task LoadFromSaveSlot(int saveSlot)
     {
         var (succeeded, json) = await TryInvoke<string>("ViciOne.File.load", CancellationToken.None, saveSlot);
@@ -162,11 +140,16 @@ public sealed partial class PersistenceService : IAsyncDisposable
         if (!succeeded || string.IsNullOrEmpty(json))
             return;
 
-        await _indexService.LoadClusterJson(json);
+        try
+        {
+            await _clusterManagementService.LoadClusterJson(json);
+        }
+        catch (Exception ex)
+        {
+            // Can happen if the cluster model has changed since the cluster was saved
+            LogFailedLoadFromSaveSlot(_logger, ex, saveSlot);
+        }
     }
-
-    internal Task LoadStartUpCluster()
-        => LoadFromSaveSlot(StartUpSaveSlot);
 
     private async Task<string?> LoadStoredClusterJson()
     {
@@ -216,40 +199,24 @@ public sealed partial class PersistenceService : IAsyncDisposable
     [LoggerMessage(Level = LogLevel.Error, Message = "Failed to import cluster from {File}.")]
     private static partial void LogFailedImport(ILogger<PersistenceService> logger, Exception ex, string file);
 
+    [LoggerMessage(Level = LogLevel.Error, Message = "Failed to load the cluster from save slot {SaveSlot}.")]
+    private static partial void LogFailedLoadFromSaveSlot(ILogger<PersistenceService> logger, Exception ex, int saveSlot);
+
     [LoggerMessage(Level = LogLevel.Debug, Message = "Loading the stored cluster was canceled.")]
     private static partial void LogLoadStoredClusterCanceled(ILogger<PersistenceService> logger, Exception ex);
 
-    private Task OnClusterLoaded(IClusterBuilder builder)
-        => _indexService.LoadCluster(builder);
-
     private Task OnSaveRequested(IClusterBuilder builder)
-        => SaveToSaveSlot(StartUpSaveSlot);
-
-    internal async Task RefreshSaveSlotSizes()
-    {
-        var (succeeded, saveSlotSizes) = await TryInvoke<int[]>("ViciOne.File.getSizes", CancellationToken.None, s_allSaveSlots);
-
-        if (!succeeded || saveSlotSizes is null || saveSlotSizes.Length != s_allSaveSlots.Length)
-            return;
-
-        for (var i = 0; i < s_allSaveSlots.Length; i++)
-            _saveSlotSizes[s_allSaveSlots[i]] = saveSlotSizes[i];
-
-        await InvokeSaveSlotSizesChanged();
-    }
+        => SaveToSaveSlot(StartUpSaveSlot, builder);
 
     /// <summary>
     /// Restores the cluster that was stored during the last session, or creates a new one if there is none.
     /// </summary>
     public async Task RestoreCluster()
-        => await _indexService.InitCluster(await LoadStoredClusterJson());
+        => await _clusterManagementService.InitCluster(await LoadStoredClusterJson());
 
-    internal Task SaveStartUpCluster()
-        => SaveToSaveSlot(StartUpSaveSlot);
-
-    internal async Task SaveToSaveSlot(int saveSlot)
+    internal async Task SaveToSaveSlot(int saveSlot, IClusterBuilder? builder = null)
     {
-        var json = SerializeCurrentCluster();
+        var json = SerializeCurrentCluster(builder);
 
         if (json is null)
             return;
@@ -260,21 +227,18 @@ public sealed partial class PersistenceService : IAsyncDisposable
             return;
 
         if (!saved)
-        {
             await InvokeSaveFailed();
-            return;
-        }
-
-        await RefreshSaveSlotSizes();
     }
 
-    private string? SerializeCurrentCluster()
+    private string? SerializeCurrentCluster(IClusterBuilder? builder = null)
     {
-        if (_indexService.Builder is null)
+        var builderToSerialize = builder is null ? _clusterManagementService.Builder : builder;
+
+        if (builderToSerialize is null)
             return null;
 
-        _indexService.PrepareClusterSerialization();
-        return ClusterSerializer.Serialize(_indexService.Builder.Cluster);
+        _clusterManagementService.PrepareClusterSerialization();
+        return ClusterSerializer.Serialize(builderToSerialize.Cluster);
     }
 
     private async Task<(bool Succeeded, T? Value)> TryInvoke<T>(string identifier, CancellationToken cancellationToken, params object?[]? args)
