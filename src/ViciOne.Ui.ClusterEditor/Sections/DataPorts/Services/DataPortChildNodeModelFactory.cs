@@ -16,10 +16,10 @@ internal static class DataPortChildNodeModelFactory
 
         return new DataPortChildNodeModel
         {
-            AvailableIcons = nodeType.Icons,
             CanHaveChildren = nodeType.ChildNodes.Length != 0,
-            Icon = nodeType.Icons.FirstOrDefault(),
+            Icon = nodeType.Icon.GetName(),
             IsDataPoint = nodeType.IsDataPoint(),
+            LinkDirections = nodeType.GetEffectiveLinkDirections(parentNode, rootNode.Builder),
             Name = nodeType.Name,
             NameIsReadOnly = nodeType.NameIsReadOnly,
             NodeReference = descriptor.NodeReference,

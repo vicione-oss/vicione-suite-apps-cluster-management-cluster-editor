@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 using System.Threading.Tasks;
 using Blazor.Diagrams.Core;
 using Blazor.Diagrams.Core.Models.Base;
@@ -18,6 +19,7 @@ using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
+using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
@@ -61,6 +63,21 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
     [Inject] private ToolbarService ToolbarService { get; set; } = default!;
     [Inject] private TooltipService TooltipService { get; set; } = default!;
     [Parameter] public BlockNode? Node { get; set; }
+
+    private void AssignConnector(DataPortChildNodeModel treeNode, Connector connector)
+    {
+        // Several nodes can be dragged onto one connector and the drop target only has to suit one
+        // of them, so every node is asked again for itself.
+        if (!treeNode.TransferDirectionIsPossible(connector))
+            return;
+
+        var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeIds.GetValueOrDefault(treeNode.Id.Value);
+        if (dataPortTreeNode is null)
+            return;
+
+        if (Datastore.Builder.Editors.DataPortTreeNode.CanAssignConnector(dataPortTreeNode, connector))
+            Datastore.Builder.Editors.DataPortTreeNode.AssignConnector(dataPortTreeNode, connector);
+    }
 
     public void Dispose()
     {
@@ -307,24 +324,14 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
 
     private void OnDrop(BlockNodeConnector blockNodeConnector)
     {
-        if (blockNodeConnector.IsValidDropTarget)
-        {
-            var targetConnector = Datastore.DataflowDiagramMapping.GetModel(blockNodeConnector);
-            var connector = targetConnector is ContainerConnector ? targetConnector.GetUnderlyingConnector() : (Connector)targetConnector;
+        if (!blockNodeConnector.IsValidDropTarget)
+            return;
 
-            foreach (var draggedItem in DragService.DraggedItems)
-            {
-                if (draggedItem is not DataPortNodeModel treeNode)
-                    continue;
+        var targetConnector = Datastore.DataflowDiagramMapping.GetModel(blockNodeConnector);
+        var connector = targetConnector is ContainerConnector ? targetConnector.GetUnderlyingConnector() : (Connector)targetConnector;
 
-                var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeIds.GetValueOrDefault(treeNode.Id.Value);
-                if (dataPortTreeNode is null)
-                    continue;
-
-                if (Datastore.Builder.Editors.DataPortTreeNode.CanAssignConnector(dataPortTreeNode, connector))
-                    Datastore.Builder.Editors.DataPortTreeNode.AssignConnector(dataPortTreeNode, connector);
-            }
-        }
+        foreach (var treeNode in DragService.DraggedItems.OfType<DataPortChildNodeModel>())
+            AssignConnector(treeNode, connector);
     }
 
     private void OnEngineDisplayTextPointerEnter(PointerEventArgs e)

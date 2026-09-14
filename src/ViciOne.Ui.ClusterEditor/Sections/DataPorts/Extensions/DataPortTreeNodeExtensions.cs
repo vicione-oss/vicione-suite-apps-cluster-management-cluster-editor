@@ -31,11 +31,11 @@ internal static class DataPortTreeNodeExtensions
 
         var newChild = new DataPortChildNodeModel
         {
-            AvailableIcons = nodeType.Icons,
             CanHaveChildren = nodeType.ChildNodes.Length != 0,
-            Icon = clusterTreeNode.Icon ?? nodeType.Icons.FirstOrDefault(),
+            Icon = clusterTreeNode.Icon ?? nodeType.Icon.GetName(),
             Id = new GuidNodeIdentifier(clusterTreeNode.Id),
             IsDataPoint = nodeType.IsDataPoint(),
+            LinkDirections = nodeType.GetEffectiveLinkDirections(editorParent, rootNode.Builder),
             Name = clusterTreeNode.Name,
             NameIsReadOnly = nodeType.NameIsReadOnly,
             NodeReference = nodeRef,

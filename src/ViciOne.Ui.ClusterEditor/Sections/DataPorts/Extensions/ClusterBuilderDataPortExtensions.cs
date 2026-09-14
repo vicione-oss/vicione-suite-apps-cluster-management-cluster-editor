@@ -2,7 +2,7 @@
 using System.Linq;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
-using ViciOne.TreeBuilder.NodeTypes;
+using ViciOne.Tree.Builder.NodeTypes;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
@@ -65,7 +65,7 @@ internal static class ClusterBuilderDataPortExtensions
                 dataPortId
             );
 
-            var defaultIcon = dataPortNode.Icon ?? (dataPortNode.AvailableIcons.Count > 0 ? dataPortNode.AvailableIcons[0] : null);
+            var defaultIcon = dataPortNode.Icon ?? nodeType.Icon.GetName();
             if (defaultIcon is not null)
                 builder.Editors.DataPort.SetIcon(dataPort, defaultIcon);
 

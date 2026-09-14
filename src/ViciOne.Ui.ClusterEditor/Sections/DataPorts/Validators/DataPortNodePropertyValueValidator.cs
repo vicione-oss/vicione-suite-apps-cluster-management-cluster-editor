@@ -4,7 +4,7 @@ using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Validators;
 
-internal class DataPortNodePropertyValueValidator<TPropertyValue>(TreeBuilder.TreeBuilder treeBuilder, IDataPortNodeModelProperty dataPortNodeModelProperty) : IPropertyValueValidator<TPropertyValue>
+internal class DataPortNodePropertyValueValidator<TPropertyValue>(Tree.Builder.TreeBuilder treeBuilder, IDataPortNodeModelProperty dataPortNodeModelProperty) : IPropertyValueValidator<TPropertyValue>
 {
     public string? Validate(TPropertyValue value)
     {

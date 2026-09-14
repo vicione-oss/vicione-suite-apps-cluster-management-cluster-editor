@@ -5,10 +5,11 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
-using ViciOne.TreeBuilder.NodeTypes;
-using ViciOne.TreeBuilder.Rules;
+using ViciOne.Tree.Builder.NodeTypes;
+using ViciOne.Tree.Builder.Rules;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
@@ -153,7 +154,11 @@ public sealed partial class DebugSectionContent : ComponentBase
         var dataPortEditor = Datastore.Builder.Editors.DataPortTreeNode;
         var cache = Datastore.Builder.Cache;
 
-        var dataPortTreeNodes = cache.DataPortTreeNodes.Where(n => n.ValueType is not null).ToList();
+        // Whether an envelope child may be linked at all is a ruleset decision this generator does
+        // not read, so it leaves them alone rather than wiring up a predefined one such as a validity.
+        var dataPortTreeNodes = cache.DataPortTreeNodes
+            .Where(n => n.ValueType is not null && cache.GetDataPortTreeNodeParent(n) is not DataPortTreeNode)
+            .ToList();
         var candidateConnectors = cache.Connectors.Where(c => c.Type != ConnectorType.Setting).ToList();
         if (dataPortTreeNodes.Count == 0 || candidateConnectors.Count == 0)
             return;

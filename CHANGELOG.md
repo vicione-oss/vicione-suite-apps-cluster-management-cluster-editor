@@ -1,4 +1,4 @@
-# Changelog
+﻿# Changelog
 
 ## 2.0.0 - Unreleased
 
@@ -9,6 +9,7 @@
 - Double click on a published connector marker without links now opens the Published Connectors section and selects the matching entry
 - CLAUDE.md file that references AGENTS.md files
 - Renovate integration
+- Support for rulesets whose datapoints declare envelope children
 
 ### Changed
 
@@ -31,6 +32,22 @@
 - Removed obsolete persistence code from `IClusterEditorManagement`
 - Keyboard input in dialogs opened via diagram context menu is not passed to diagram anymore
 - Fixed edit form not opening for nodes in the Topology section and for Dataflows in the Dataflow structure tree
+- Reworked DataPort nodes - direction, linking and icons now follow the ruleset and the parent node:
+  - A datapoint icon shows the node's own effective direction instead of the DataPort's
+  - A node's transfer directions are narrowed to its parent's; a node left transferring nowhere is greyed out
+  - A side that can never be linked is drawn as connected, since its value always comes from its parent
+  - An envelope child is greyed out together with its parent datapoint, and follows an edit at once
+  - A marker child without a value falls back to its node type's icon instead of showing none
+  - The insert menu shows the icon the node will get once created, and no longer leaves it empty
+  - A node is offered as a link target only where the ruleset allows it, also when several nodes are dragged onto one connector
+  - A ruleset that fails validation is reported and hidden instead of breaking the whole section
+  - **Breaking:** `IRulesetProvider` and the public DataPort tree model use the renamed `ViciOne.Tree.Builder` types
+  - **Breaking:** `DataPortChildNodeModel` has a new required `LinkDirections` member
+  - **Breaking:** `ColoredIconFactory.GetDataPortIcon` takes a nullable `DataPortDirection`
+
+### Removed
+
+- **Breaking:** `DataPortNodeModel.AvailableIcons` and the per-node icon selection in the property grid it fed
 
 ### Updated external references
 
@@ -38,6 +55,7 @@
 - `ViciOne.Ui.Blazor.Components` package, updated to version `6.0.0`
 - `ViciOne.Ui.MonochromeIcons` package, update version to `4.18.0`
 - `ViciOne.Ui.Design` package, added in version `2.5.0`
+- `ViciOne.TreeBuilder` package, replaced by `ViciOne.Tree.Builder` in version `3.0.0`
 
 ## 1.3.0 - 2026-08-05
 

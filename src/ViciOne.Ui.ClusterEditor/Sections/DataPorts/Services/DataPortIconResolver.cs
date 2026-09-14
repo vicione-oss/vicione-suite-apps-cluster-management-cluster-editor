@@ -21,7 +21,7 @@ internal sealed class DataPortIconResolver(IDatastore datastore)
         if (dataPortNode is DataPortRootNodeModel rootNodeModel)
         {
             var iconName = string.IsNullOrEmpty(dataPortNode.Icon)
-                ? (dataPortNode.AvailableIcons.Count > 0 ? dataPortNode.AvailableIcons[0] : null)
+                ? rootNodeModel.Builder.Ruleset.Root?.Icon.GetName()
                 : dataPortNode.Icon;
             if (!string.IsNullOrEmpty(iconName))
             {
@@ -40,7 +40,7 @@ internal sealed class DataPortIconResolver(IDatastore datastore)
                 case null:
                     {
                         var nodeType = childNode.GetRootNode().Builder.NodeTypes[childNode.NodeReference!.Id];
-                        var iconName = nodeType.Icons.FirstOrDefault();
+                        var iconName = nodeType.Icon.GetName();
                         if (iconName is not null)
                         {
                             var icon = DataPortTreeIconProvider.GetSvgIcon(childNode.RootNode.Builder, iconName);
@@ -55,6 +55,15 @@ internal sealed class DataPortIconResolver(IDatastore datastore)
                         var icon = DataPortTreeIconProvider.GetDataPointIcon(childNode, 24, datastore.Builder.Cache);
                         if (icon is not null)
                             yield return icon;
+                        else
+                        {
+                            // A marker envelope child (no DataTypes) still carries the "datapoint"
+                            // icon name, but has no value to derive a colored icon from. Fall back
+                            // to the plain node type icon instead of showing nothing.
+                            var svgIcon = DataPortTreeIconProvider.GetSvgIcon(childNode.RootNode.Builder, childNode.Icon);
+                            if (!string.IsNullOrEmpty(svgIcon))
+                                yield return new SvgIcon(svgIcon);
+                        }
                         break;
                     }
 

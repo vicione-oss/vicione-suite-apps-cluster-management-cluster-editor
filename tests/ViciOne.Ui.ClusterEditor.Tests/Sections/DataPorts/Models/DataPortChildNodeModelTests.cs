@@ -6,7 +6,7 @@ using NSubstitute;
 using ViciOne.Cluster.Builder;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
-using ViciOne.TreeBuilder.PropertyTypes;
+using ViciOne.Tree.Builder.PropertyTypes;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Extensions;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
@@ -25,7 +25,7 @@ public class DataPortChildNodeModelTests
 
     private static DataPortChildNodeModel CreateChildNode(List<IDataPortNodeModelProperty>? properties)
     {
-        var builder = new TreeBuilder.TreeBuilder(TestResources.MqttRuleset);
+        var builder = new Tree.Builder.TreeBuilder(TestResources.MqttRuleset);
         var rootNode = new DataPortRootNodeModel
         {
             Builder = builder,
@@ -34,6 +34,7 @@ public class DataPortChildNodeModelTests
 
         return new DataPortChildNodeModel()
         {
+            LinkDirections = [],
             Name = "Test",
             Parent = rootNode,
             Properties = properties ?? [],
@@ -133,7 +134,7 @@ public class DataPortChildNodeModelTests
         };
 
         var childNode = CreateChildNode(properties);
-        var expectedPropertyDescriptorCount = childNode.AvailableIcons.Any() ? 5 : 4;
+        const int expectedPropertyDescriptorCount = 4;
 
         using var clusterBuilder = new ClusterBuilder(Substitute.For<IDependencyResolver>());
 

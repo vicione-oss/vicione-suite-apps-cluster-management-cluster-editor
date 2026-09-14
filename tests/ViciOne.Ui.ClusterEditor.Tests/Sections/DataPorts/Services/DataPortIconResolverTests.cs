@@ -3,7 +3,8 @@ using System.Linq;
 using NSubstitute;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
-using ViciOne.TreeBuilder.NodeTypes;
+using ViciOne.Tree.Builder.Icons;
+using ViciOne.Tree.Builder.NodeTypes;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
@@ -21,7 +22,7 @@ public sealed class DataPortIconResolverTests
     private readonly DataPortTreeNode _dataPortTreeNode;
     private readonly IDatastore _datastore = Substitute.For<IDatastore>();
     private readonly DataPortIconResolver _resolver;
-    private readonly TreeBuilder.TreeBuilder _treeBuilder = new(Resources.TestResources.MqttRuleset);
+    private readonly Tree.Builder.TreeBuilder _treeBuilder = new(Resources.TestResources.MqttRuleset);
 
     public DataPortIconResolverTests()
     {
@@ -40,10 +41,9 @@ public sealed class DataPortIconResolverTests
         _datastore.Builder.Returns(builder);
     }
 
-    private static DataPortRootNodeModel CreateRoot(TreeBuilder.TreeBuilder treeBuilder, string? icon = null, params string[] availableIcons)
+    private static DataPortRootNodeModel CreateRoot(Tree.Builder.TreeBuilder treeBuilder, string? icon = null)
         => new()
         {
-            AvailableIcons = availableIcons,
             Builder = treeBuilder,
             Icon = icon,
             Name = "Root",
@@ -54,15 +54,23 @@ public sealed class DataPortIconResolverTests
         {
             Icon = icon,
             Id = new(id),
+            LinkDirections = [DataPortTransferDirection.Inbound, DataPortTransferDirection.Outbound],
             Name = "Child",
             NodeReference = nodeReference,
             Parent = root,
             Properties = [
-                new DataPortTreeNodeSystemProperty<Cluster.Model.DataPortTransferMode>() { Name = nameof(Cluster.Model.DataPortTransferMode), TypedValue = Cluster.Model.DataPortTransferMode.OnChange },
+                new DataPortTreeNodeSystemProperty<Cluster.Model.DataPortTransferMode>()
+                {
+                    AvailableValues = [Cluster.Model.DataPortTransferMode.OnChange, Cluster.Model.DataPortTransferMode.Periodic, Cluster.Model.DataPortTransferMode.None],
+                    Name = nameof(Cluster.Model.DataPortTransferMode),
+                    TypedValue = Cluster.Model.DataPortTransferMode.OnChange,
+                },
                 new DataPortTreeNodeSystemProperty<string>() { Name = nameof(DataPortTreeNode.ValueType), TypedValue = "String" }
             ],
             RootNode = root,
-            TransferDirections = [],
+            // Unrestricted by default, matching a node type that declares no TransferDirections
+            // of its own.
+            TransferDirections = [DataPortTransferDirection.Inbound, DataPortTransferDirection.Outbound],
         };
 
     [Fact]
@@ -94,11 +102,15 @@ public sealed class DataPortIconResolverTests
     }
 
     [Fact]
-    public void GetIcons_WithRootNode_EmptyIcon_UsesFirstAvailableIcon()
+    public void GetIcons_WithRootNode_EmptyIcon_UsesTheRulesetRootIcon()
     {
-        // Arrange
-        var root = CreateRoot(_treeBuilder, icon: null, "broker", "folder");
-        var expectedIconMarkup = _treeBuilder.GetSvgIcon("broker");
+        // Arrange: a root node with no icon of its own falls back to the one its ruleset root
+        // declares. Set here rather than taken from the fixture, whose 'mqtt' icon is not in the
+        // icon library and would land in the server fallback covered below.
+        var treeBuilder = new Tree.Builder.TreeBuilder(Resources.TestResources.MqttRuleset);
+        treeBuilder.Ruleset.Root!.Icon = new IconReference { Id = "broker" };
+        var root = CreateRoot(treeBuilder, icon: null);
+        var expectedIconMarkup = treeBuilder.GetSvgIcon("broker");
 
         // Act
         var result = _resolver.GetIcons(root).ToList();
@@ -109,10 +121,13 @@ public sealed class DataPortIconResolverTests
     }
 
     [Fact]
-    public void GetIcons_WithRootNode_EmptyIcon_ReturnsEmptyListIfNoAvailableIcons()
+    public void GetIcons_WithRootNode_EmptyIcon_AndARulesetRootWithoutAnIcon_ReturnsEmpty()
     {
-        // Arrange
-        var root = CreateRoot(_treeBuilder, null);
+        // Arrange: the ruleset is validated before its icon is cleared, since a root without one
+        // would not pass validation - this covers the resolver, not the ruleset.
+        var treeBuilder = new Tree.Builder.TreeBuilder(Resources.TestResources.MqttRuleset);
+        treeBuilder.Ruleset.Root!.Icon = new IconReference();
+        var root = CreateRoot(treeBuilder, null);
 
         // Act
         var result = _resolver.GetIcons(root).ToList();
@@ -172,6 +187,25 @@ public sealed class DataPortIconResolverTests
     }
 
     [Fact]
+    public void GetIcons_WithChildNode_DatapointIconButNotADataPoint_FallsBackToNodeTypeIcon()
+    {
+        // Arrange: a marker envelope child (no DataTypes) still carries the "datapoint" icon
+        // name, but GetDataPointIcon has nothing to draw for it since it is not a datapoint.
+        // It must still get a sensible icon instead of none at all.
+        var root = CreateRoot(_treeBuilder);
+        var child = CreateChild(root, _childId, icon: "datapoint", nodeReference: new NodeReference { Id = "DataPointBool" });
+        child.IsDataPoint = false;
+        var expectedIconMarkup = _treeBuilder.GetSvgIcon("datapoint");
+
+        // Act
+        var result = _resolver.GetIcons(child).ToList();
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal(expectedIconMarkup, ((SvgIcon)result[0]).MarkupString);
+    }
+
+    [Fact]
     public void GetIcons_WithChildNode_CustomIcon_ReturnsSvgIcon()
     {
         // Arrange
@@ -194,7 +228,7 @@ public sealed class DataPortIconResolverTests
         var root = CreateRoot(_treeBuilder);
         var descriptor = root.GetPossibleChildNodes().First(d => d.Children.Count == 0);
         var nodeType = root.Builder.NodeTypes[descriptor.NodeReference.Id];
-        var iconName = nodeType.Icons.FirstOrDefault();
+        var iconName = nodeType.Icon.GetName();
         Assert.NotNull(iconName);
         var expectedIconMarkup = _treeBuilder.GetSvgIcon(iconName);
 

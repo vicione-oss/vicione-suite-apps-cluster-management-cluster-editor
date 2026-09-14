@@ -16,7 +16,7 @@
     <PackageReference Include="Microsoft.Extensions.Localization" />
     <PackageReference Include="StronglyTypedId" PrivateAssets="all" ExcludeAssets="runtime" />
     <PackageReference Include="ViciOne.Cluster.Builder" />
-    <PackageReference Include="ViciOne.TreeBuilder" />
+    <PackageReference Include="ViciOne.Tree.Builder" />
     <PackageReference Include="ViciOne.Ui.Blazor.Components" />
     <PackageReference Include="ViciOne.Ui.Design">
       <PrivateAssets>all</PrivateAssets>

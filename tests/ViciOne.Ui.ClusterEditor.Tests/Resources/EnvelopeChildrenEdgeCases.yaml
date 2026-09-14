@@ -1,0 +1,69 @@
+Common:
+  Target       : DataPort
+  ContentType  : Rules
+  Version      : 1.0
+  Date         : 2026-09-08
+  Description  : "Envelope-child shapes a ruleset may declare that the shipped dp-mqtt ruleset does not use"
+  Author       : "ifm software gmbh"
+  MetadataType : YAML
+
+Root:
+  Id                       : "EdgeCaseDataPort"
+  Name                     : "Edge cases"
+  Description              : "Envelope-child edge cases"
+  Icon                     : mqtt
+  ChildNodes               :
+    - Id                   : Broker
+      MaxDepth             : 8
+      MaxInstances         : 1
+
+Nodes:
+
+  - Id                     : Broker
+    Type                   : DataPortNode
+    Name                   : "Broker"
+    Description            : "Transfers in both directions, so a child is free to narrow"
+    MetadataLength         : 0
+    Icon                   : broker
+    TransferDirections     : [ Outbound, Inbound ]
+    ChildNodes             :
+      - Id                 : DataPointOutboundOnly
+
+  # A datapoint narrower than the broker above it. Every envelope child under it is narrowed
+  # to Outbound too, however wide the child declares itself.
+  - Id                     : DataPointOutboundOnly
+    MappingId              : Topic
+    Type                   : DataPortTreeNode
+    Name                   : "Outbound-only datapoint"
+    Description            : "Publishes only, so its envelope children can never be linked inbound"
+    Icon                   : datapoint
+    TransferModes          : [ OnChange, Periodic, None ]
+    TransferDirections     : [ Outbound ]
+    DataTypes              : [ Float64, Float32 ]
+    ChildNodes             :
+      - Id                 : Timestamp
+        MaxInstances       : 1
+      - Id                 : Marker
+        MaxInstances       : 1
+
+  - Id                     : Timestamp
+    MappingId              : Timestamp
+    Type                   : DataPortTreeNode
+    Name                   : "Timestamp"
+    Description            : "Declares no directions of its own and inherits the datapoint's"
+    Icon                   : datapoint
+    TransferModes          : [ None ]
+    DataTypes              : [ DateTime ]
+
+  # An envelope child with no DataTypes at all: it carries no value, only its presence tells the
+  # data port to add something to the parent's message. The shipped dp-mqtt ruleset no longer
+  # declares one, but TreeBuilder still allows it and the editor still has to render it.
+  - Id                     : Marker
+    MappingId              : Marker
+    Type                   : DataPortTreeNode
+    Name                   : "Marker"
+    Description            : "Carries no value of its own and is never linkable"
+    Icon                   : datapoint
+    TransferModes          : [ None ]
+    TransferDirections     : [ Outbound ]
+    LinkDirections         : [ None ]

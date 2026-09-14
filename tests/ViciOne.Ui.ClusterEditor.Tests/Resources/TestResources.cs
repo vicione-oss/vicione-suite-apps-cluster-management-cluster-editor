@@ -3,8 +3,8 @@ using System.Reflection;
 using ViciOne.Core.Contracts.DataModel;
 using ViciOne.Core.Dataflow.DataModel;
 using ViciOne.Serialization.Json;
-using ViciOne.TreeBuilder.Rules;
-using ViciOne.TreeBuilder.Rules.Yaml;
+using ViciOne.Tree.Builder.Rules;
+using ViciOne.Tree.Builder.Rules.Yaml;
 using Xunit;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Resources;
@@ -13,6 +13,8 @@ internal static class TestResources
 {
     private static readonly string s_assemblyDirectory = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? string.Empty;
 
+    internal static Ruleset EnvelopeChildrenEdgeCasesRuleset => LoadRuleSet("EnvelopeChildrenEdgeCases.yaml");
+    internal static Ruleset MqttEnvelopeChildrenRuleset => LoadRuleSet("MqttEnvelopeChildren.yaml");
     internal static Ruleset MqttRuleset => LoadRuleSet("MQTT.yaml");
     internal static Ruleset SqliteRuleset => LoadRuleSet("SQLite.yaml");
 

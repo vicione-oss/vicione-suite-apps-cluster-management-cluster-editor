@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Blazor.Diagrams;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
@@ -55,7 +56,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         _rulesetProvider = Substitute.For<IRulesetProvider>();
         _eventSynchronizer = new(_eventBuffer, _rulesetProvider, _datastore, _treeState);
         _iconResolver = new DataPortIconResolver(_datastore);
-        _treeBuilderRegistry = new DataPortTreeBuilderRegistry(_rulesetProvider);
+        _treeBuilderRegistry = new DataPortTreeBuilderRegistry(_rulesetProvider, new FakeLogger<DataPortTreeBuilderRegistry>());
         _treeMutator = new DataPortTreeMutator(_datastore, _rulesetProvider, Substitute.For<ILogger<DataPortTreeMutator>>(), _treeState, _treeBuilderRegistry);
         _contextMenuRequest = Substitute.For<IContextMenuRequest<DataPortAddChildNodeContextMenuContext>>();
         _actionProvider = new DataPortNodeActionProvider(_contextMenuRequest,

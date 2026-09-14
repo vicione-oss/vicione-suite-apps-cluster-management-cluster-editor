@@ -1,11 +1,12 @@
 ﻿using System.Collections.Generic;
-using ViciOne.TreeBuilder.NodeTypes;
+using ViciOne.Tree.Builder.NodeTypes;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 
 public sealed class DataPortChildNodeModel : DataPortNodeModel
 {
     public bool IsDataPoint { get; set; }
+    public required IList<DataPortTransferDirection> LinkDirections { get; init; }
     public required DataPortNodeModel Parent { get; set; }
     public required IList<IDataPortNodeModelProperty> Properties { get; init; }
     public required DataPortRootNodeModel RootNode { get; set; }

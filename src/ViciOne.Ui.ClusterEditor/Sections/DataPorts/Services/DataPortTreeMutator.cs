@@ -24,7 +24,7 @@ internal sealed partial class DataPortTreeMutator(
     DataPortTreeState state,
     DataPortTreeBuilderRegistry registry)
 {
-    private DataPortRootNodeModel AddOrGetTreeRootNode(TreeBuilder.TreeBuilder treeBuilder)
+    private DataPortRootNodeModel AddOrGetTreeRootNode(Tree.Builder.TreeBuilder treeBuilder)
     {
         // the root node is just a visual container and does not get stored in the cluster
         var rootNode = state.FindRootNode(k => Equals(k.Builder.Ruleset.Root?.Id, treeBuilder.Ruleset.Root?.Id));
@@ -32,9 +32,8 @@ internal sealed partial class DataPortTreeMutator(
         {
             rootNode = new()
             {
-                AvailableIcons = treeBuilder.Ruleset.Root!.Icons, // always exactly one
                 Builder = treeBuilder,
-                Icon = treeBuilder.Ruleset.Root!.Icons.FirstOrDefault(),
+                Icon = treeBuilder.Ruleset.Root!.Icon.GetName(),
                 Id = Guid.TryParse(treeBuilder.Ruleset.Root!.Id, out var rnId)
                     ? new GuidNodeIdentifier(rnId)
                     : GuidNodeIdentifier.New(),
@@ -86,7 +85,7 @@ internal sealed partial class DataPortTreeMutator(
         dataPortParentNode.PossibleChildren = [.. dataPortParentNode.GetPossibleChildNodes()];
         dataPortChildNode.PossibleChildren = [.. dataPortChildNode.GetPossibleChildNodes()];
 
-        if (dataPortChildNode.PossibleChildren.Any())
+        if (DataPortNodeSorter.IsContainerNode(dataPortChildNode))
             DataPortNodeSorter.SortChildren(dataPortParentNode, false);
 
         state.Builder.Notifications.NotifyNodeChanged(dataPortParentNode, ChangedNodeDetail.Actions);

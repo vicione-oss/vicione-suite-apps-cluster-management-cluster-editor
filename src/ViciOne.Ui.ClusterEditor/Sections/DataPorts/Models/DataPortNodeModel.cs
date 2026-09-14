@@ -1,17 +1,16 @@
 ﻿using System.Collections.Generic;
-using ViciOne.TreeBuilder.NodeTypes;
+using ViciOne.Tree.Builder.NodeTypes;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.TreeEditor.Builder.Interface.NodeIdentifier;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 
-public abstract class DataPortNodeModel : IClusterEditorTreeNode, TreeBuilder.ITreeNode, IDragable
+public abstract class DataPortNodeModel : IClusterEditorTreeNode, Tree.Builder.ITreeNode, IDragable
 {
-    public IReadOnlyList<string> AvailableIcons { get; set; } = [];
     public bool CanHaveChildren { get; set; }
     public List<DataPortNodeModel> Children { get; init; } = [];
-    IList<TreeBuilder.ITreeNode> TreeBuilder.ITreeNode.Children
+    IList<Tree.Builder.ITreeNode> Tree.Builder.ITreeNode.Children
         => [.. Children];
     public bool Expanded { get; set; }
     public bool HasChangedProperties { get; set; }

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Components;
+using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
@@ -34,9 +34,9 @@ public sealed partial class AddDataPortContextMenu : SpecializedContextMenuBase<
 
         var rulesetId = new RulesetIdentifier(DataPortTreeAdapter.DataPortCategory, possibleChild);
         var ruleSet = RulesetProvider.GetRuleset(rulesetId);
-        var icon = ruleSet.Root?.Icons.FirstOrDefault() ?? string.Empty;
+        var icon = ruleSet.Root?.Icon.GetName() ?? string.Empty;
 
-        icon = TreeBuilder.TreeBuilder.GetSvgIcon(icon, ruleSet) ?? TreeBuilder.TreeBuilder.GetSvgIcon("server", ruleSet);
+        icon = Tree.Builder.TreeBuilder.GetSvgIcon(icon, ruleSet) ?? Tree.Builder.TreeBuilder.GetSvgIcon("server", ruleSet);
         icon = icon?.Replace("viewBox=\"0 0 32 32\"", "viewBox=\"2 2 28 28\" width=\"16\" height=\"16\"",
             StringComparison.InvariantCulture);
         icon = icon?.Replace("currentColor", DataPortColorConstants.ColorEditorFont,

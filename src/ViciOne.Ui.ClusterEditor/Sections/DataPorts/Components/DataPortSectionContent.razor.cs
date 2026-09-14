@@ -42,12 +42,12 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
     private readonly TreeEditor.Builder.TreeBuilder _treeBuilder = new();
 
     [Inject] private IContextMenuRequest<AddDataPortContextMenuContext> AddDataPortContextMenuRequest { get; set; } = default!;
+    [Inject] private AddDataPortMenuItemProvider AddDataPortMenuItemProvider { get; set; } = default!;
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
     [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DragService DragService { get; set; } = default!;
     [Inject] private LinkDestinationDialogService LinkDestinationDialogService { get; set; } = default!;
     [Inject] private ILogger<DataPortSectionContent> Logger { get; set; } = default!;
-    [Inject] private IRulesetProvider RulesetProvider { get; set; } = default!;
     [Inject] private ToolbarService ToolbarService { get; set; } = default!;
     [Inject] private DataPortTreeAdapter TreeAdapter { get; set; } = default!;
 
@@ -293,7 +293,14 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         node.IsEditModeActive = false;
         TreeAdapter.ProcessNodeChanges(node);
         TreeAdapter.SortNodeChildren(node);
-        _treeBuilder.Notifications.NotifyNodeChanged(node, ChangedNodeDetail.Icons);
+
+        // An envelope child is greyed out exactly when the datapoint carrying it is, so a datapoint
+        // edit has to redraw the children right away. A DataPort's direction change reaches its
+        // whole subtree through DataPortClusterEventSynchronizer instead.
+        if (node is DataPortChildNodeModel { IsDataPoint: true })
+            node.NotifyIconsChangedRecursively(_treeBuilder);
+        else
+            _treeBuilder.Notifications.NotifyNodeChanged(node, ChangedNodeDetail.Icons);
     }
 
     private async void OnRootNodesUpdated()
@@ -324,20 +331,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
 
     private async Task RefreshPossibleDataPorts()
     {
-        _addDataPortContextMenuItems = RulesetProvider
-            .GetRulesetIdentifiers(DataPortTreeAdapter.DataPortCategory)
-            .Select(r => (r.Key, RulesetProvider.GetRuleset(r)))
-            .Where(item => item.Item2?.Root is not null)
-            .Select(item =>
-            {
-                var root = item.Item2.Root!;
-                var rootNode = TreeAdapter.GetDataPortRootNode(root.Id);
-                rootNode?.PossibleChildren = [.. rootNode.GetPossibleChildNodes()];
-
-                var enabled = rootNode?.PossibleChildren.Any() ?? true;
-                return new DataPortContextMenuItem(root.Name, enabled, item.Key);
-            })
-            .OrderBy(i => i.DisplayText);
+        _addDataPortContextMenuItems = AddDataPortMenuItemProvider.GetMenuItems();
 
         await InvokeAsync(StateHasChanged);
     }

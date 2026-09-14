@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using ViciOne.Cluster.Model;
-using ViciOne.TreeBuilder.NodeTypes;
+using ViciOne.Tree.Builder.NodeTypes;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Tests.Resources;
 
@@ -17,13 +17,16 @@ internal static class DataPortNodeModelCreator
         bool isDataPoint = true,
         Cluster.Model.DataPortTransferMode dataPortTransferMode = Cluster.Model.DataPortTransferMode.None,
         string? dataTypeValue = null,
-        DataPortDirection? dataPortDirection = null)
+        DataPortDirection? dataPortDirection = null,
+        List<Cluster.Model.DataPortTransferMode>? availableTransferModes = null,
+        IList<DataPortTransferDirection>? transferDirections = null,
+        IList<DataPortTransferDirection>? linkDirections = null)
     {
         var properties = new List<IDataPortNodeModelProperty>
         {
             new DataPortTreeNodeSystemProperty<Cluster.Model.DataPortTransferMode>
             {
-                AvailableValues = [.. Enum.GetValues<Cluster.Model.DataPortTransferMode>()],
+                AvailableValues = availableTransferModes ?? [.. Enum.GetValues<Cluster.Model.DataPortTransferMode>()],
                 DefaultValue = dataPortTransferMode,
                 Name = nameof(DataPortTreeNode.TransferMode),
                 Value = dataPortTransferMode,
@@ -55,20 +58,24 @@ internal static class DataPortNodeModelCreator
         {
             Icon = icon,
             IsDataPoint = isDataPoint,
+            // Linkable wherever it transfers unless a test narrows it, matching a node type
+            // that declares no LinkDirections of its own.
+            LinkDirections = linkDirections ?? transferDirections ?? [DataPortTransferDirection.Inbound, DataPortTransferDirection.Outbound],
             Name = "Child",
             NodeReference = nodeReference,
             Parent = parent is null ? CreateDataPortRootNodeModel() : parent,
             Properties = properties,
             RootNode = rootNode is null ? CreateDataPortRootNodeModel() : rootNode,
-            TransferDirections = []
+            // Unrestricted by default, matching a node type that declares no TransferDirections
+            // of its own; pass an explicit value to simulate a node narrowed below its parent.
+            TransferDirections = transferDirections ?? [DataPortTransferDirection.Inbound, DataPortTransferDirection.Outbound],
         };
     }
 
-    internal static DataPortRootNodeModel CreateDataPortRootNodeModel(string? icon = "root-icon", IReadOnlyList<string>? availableIcons = null)
+    internal static DataPortRootNodeModel CreateDataPortRootNodeModel(string? icon = "root-icon")
         => new()
         {
-            AvailableIcons = availableIcons ?? [],
-            Builder = new TreeBuilder.TreeBuilder(TestResources.MqttRuleset),
+            Builder = new Tree.Builder.TreeBuilder(TestResources.MqttRuleset),
             Icon = icon,
             Name = "Root"
         };

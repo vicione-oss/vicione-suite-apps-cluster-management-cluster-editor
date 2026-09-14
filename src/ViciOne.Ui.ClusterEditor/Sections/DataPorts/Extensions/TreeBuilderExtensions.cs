@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using ViciOne.Cluster.Model;
-using ViciOne.TreeBuilder.NodeTypes;
+using ViciOne.Tree.Builder.NodeTypes;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.TreeEditor.Builder.Interface.NodeIdentifier;
 using DataPortTransferMode = ViciOne.Cluster.Model.DataPortTransferMode;
@@ -11,7 +11,7 @@ namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 
 internal static class TreeBuilderExtensions
 {
-    public static void CreateDataPortTree(this TreeBuilder.TreeBuilder builder, DataPort dataPort, DataPortRootNodeModel rootNode)
+    public static void CreateDataPortTree(this Tree.Builder.TreeBuilder builder, DataPort dataPort, DataPortRootNodeModel rootNode)
     {
         if (!dataPort.RulesetId.Equals(builder.Ruleset.Root?.Id, StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException($"DataPort ruleset id ({dataPort.RulesetId}) does not match root ruleset id ({builder.Ruleset.Root?.Id})");
@@ -32,11 +32,11 @@ internal static class TreeBuilderExtensions
 
         var dataPortNode = new DataPortChildNodeModel
         {
-            AvailableIcons = nodeType.Icons,
             CanHaveChildren = nodeType.ChildNodes.Length != 0,
             Icon = dataPort.Icon,
             Id = new GuidNodeIdentifier(dataPort.Id),
             IsDataPoint = nodeType.IsDataPoint(),
+            LinkDirections = nodeType.GetEffectiveLinkDirections(rootNode, builder),
             Name = dataPort.Name,
             NameIsReadOnly = nodeType.NameIsReadOnly,
             NodeReference = nodeRef,
@@ -103,7 +103,7 @@ internal static class TreeBuilderExtensions
         }
     }
 
-    public static string? GetDataTypeName(this TreeBuilder.TreeBuilder builder, Type? dataPortTreeNodeType)
+    public static string? GetDataTypeName(this Tree.Builder.TreeBuilder builder, Type? dataPortTreeNodeType)
     {
         if (dataPortTreeNodeType is null)
             return null;
@@ -122,7 +122,7 @@ internal static class TreeBuilderExtensions
         return directions[0];
     }
 
-    public static IEnumerable<IDataPortNodeModelProperty> GetProperties(this TreeBuilder.TreeBuilder builder, NodeType nodeType)
+    public static IEnumerable<IDataPortNodeModelProperty> GetProperties(this Tree.Builder.TreeBuilder builder, NodeType nodeType)
     {
         switch (nodeType)
         {
@@ -185,12 +185,12 @@ internal static class TreeBuilderExtensions
         };
 #pragma warning restore format
 
-    private static DataPortTransferMode TranslateToClusterModel(TreeBuilder.NodeTypes.DataPortTransferMode mode)
+    private static DataPortTransferMode TranslateToClusterModel(Tree.Builder.NodeTypes.DataPortTransferMode mode)
         => mode switch
         {
-            TreeBuilder.NodeTypes.DataPortTransferMode.None => DataPortTransferMode.None,
-            TreeBuilder.NodeTypes.DataPortTransferMode.OnChange => DataPortTransferMode.OnChange,
-            TreeBuilder.NodeTypes.DataPortTransferMode.Periodic => DataPortTransferMode.Periodic,
+            Tree.Builder.NodeTypes.DataPortTransferMode.None => DataPortTransferMode.None,
+            Tree.Builder.NodeTypes.DataPortTransferMode.OnChange => DataPortTransferMode.OnChange,
+            Tree.Builder.NodeTypes.DataPortTransferMode.Periodic => DataPortTransferMode.Periodic,
             _ => throw new ArgumentOutOfRangeException(nameof(mode), mode, null)
         };
 }

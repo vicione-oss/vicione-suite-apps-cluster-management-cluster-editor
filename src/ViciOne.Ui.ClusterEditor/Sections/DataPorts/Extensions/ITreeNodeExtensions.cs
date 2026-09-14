@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using ViciOne.TreeBuilder;
-using ViciOne.TreeBuilder.NodeTypes;
+using ViciOne.Tree.Builder;
+using ViciOne.Tree.Builder.NodeTypes;
 using ViciOne.Ui.ClusterEditor.Models.Comparer;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 
@@ -33,7 +33,7 @@ internal static class ITreeNodeExtensions
 
             var leafDescriptor = new DataPortChildNodeContextMenuDescriptor
             {
-                IconName = nodeType.Icons.FirstOrDefault() ?? string.Empty,
+                IconName = nodeType.Icon.GetName() ?? string.Empty,
                 IsDataPoint = nodeType.IsDataPoint(),
                 Name = nodeType.Name,
                 NodeReference = successorRef,

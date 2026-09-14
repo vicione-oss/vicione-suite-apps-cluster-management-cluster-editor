@@ -1,5 +1,5 @@
-﻿using ViciOne.TreeBuilder.Rules;
-using ViciOne.TreeBuilder.Rules.Yaml;
+﻿using ViciOne.Tree.Builder.Rules;
+using ViciOne.Tree.Builder.Rules.Yaml;
 
 namespace Shared.Designs;
 
