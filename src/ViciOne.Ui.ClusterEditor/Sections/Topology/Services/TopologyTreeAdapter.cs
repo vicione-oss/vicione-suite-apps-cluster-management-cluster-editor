@@ -9,7 +9,6 @@ using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
-using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.Localization;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Components;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Extensions;
@@ -315,7 +314,7 @@ internal sealed partial class TopologyTreeAdapter : TreeAdapter, IDisposable
         {
             TemplateType.NodeDisplay => node switch
             {
-                DataPortNodeModel dataPortNode => dataPortNode.IsEditModeActive ? typeof(TopologyNodeEditTemplate) : null,
+                TopologyTreeViewModel topologyNode => topologyNode.IsEditModeActive ? typeof(TopologyNodeEditTemplate) : null,
                 _ => null
             },
             TemplateType.Node => typeof(CustomTooltipTreeNode),
