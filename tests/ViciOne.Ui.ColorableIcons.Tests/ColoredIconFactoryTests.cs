@@ -1,4 +1,3 @@
-﻿using System;
 using System.Diagnostics.CodeAnalysis;
 using ViciOne.Cluster.Model;
 using Xunit;

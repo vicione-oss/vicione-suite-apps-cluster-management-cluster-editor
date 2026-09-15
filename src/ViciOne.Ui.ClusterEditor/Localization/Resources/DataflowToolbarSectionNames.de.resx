@@ -120,9 +120,6 @@
   <data name="ClusterTopology" xml:space="preserve">
     <value>Cluster Topologie</value>
   </data>
-  <data name="Debug" xml:space="preserve">
-    <value>Debug</value>
-  </data>
   <data name="PublishedConnectors" xml:space="preserve">
     <value>Veröffentlichte Konnektoren</value>
   </data>

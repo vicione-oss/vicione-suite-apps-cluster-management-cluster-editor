@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace Shared.Localization.Resources {
+namespace Shared.Debugging.Components.Localization {
     using System;
     
     
@@ -22,14 +22,14 @@ namespace Shared.Localization.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "18.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class TechnicalTerms {
+    internal class DebugDialog {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal TechnicalTerms() {
+        internal DebugDialog() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Shared.Localization.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Shared.Localization.Resources.TechnicalTerms", typeof(TechnicalTerms).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Shared.Debugging.Components.Localization.DebugDialog", typeof(DebugDialog).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,47 +61,20 @@ namespace Shared.Localization.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DataPort.
+        ///   Looks up a localized string similar to Debug tools.
         /// </summary>
-        internal static string DataPort {
+        internal static string DebugTools {
             get {
-                return ResourceManager.GetString("DataPort", resourceCulture);
+                return ResourceManager.GetString("DebugTools", resourceCulture);
             }
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DataPorts.
+        ///   Looks up a localized string similar to Design name.
         /// </summary>
-        internal static string DataPortPlural {
+        internal static string DesignName {
             get {
-                return ResourceManager.GetString("DataPortPlural", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to FunctionBlocks.
-        /// </summary>
-        internal static string FunctionBlockPlural {
-            get {
-                return ResourceManager.GetString("FunctionBlockPlural", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Links.
-        /// </summary>
-        internal static string LinkPlural {
-            get {
-                return ResourceManager.GetString("LinkPlural", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Persistence.
-        /// </summary>
-        internal static string Persistence {
-            get {
-                return ResourceManager.GetString("Persistence", resourceCulture);
+                return ResourceManager.GetString("DesignName", resourceCulture);
             }
         }
     }

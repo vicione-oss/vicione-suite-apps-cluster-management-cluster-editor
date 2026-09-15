@@ -16,7 +16,8 @@ internal static class IServiceCollectionExtensions
             .AddTransient<IClusterDependencyStore, ClusterDependencyStore>()
             .AddSingleton<IFileSystem, FileSystem>()
             .AddSingleton<IPackagesStore, InMemoryPackagesStore>()
-            .AddSingleton<IDesignProvider>(s => (InMemoryPackagesStore)s.GetRequiredService<IPackagesStore>());
+            .AddSingleton<IDesignProvider>(s => (InMemoryPackagesStore)s.GetRequiredService<IPackagesStore>())
+            .AddSingleton<IRulesetSource>(s => (InMemoryPackagesStore)s.GetRequiredService<IPackagesStore>());
 
         return services;
     }

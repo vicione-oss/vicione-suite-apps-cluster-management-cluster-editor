@@ -1,10 +1,11 @@
-﻿using ViciOne.Cluster.Model;
+﻿using Shared.Designs;
+using ViciOne.Cluster.Model;
 using ViciOne.Tree.Builder.Rules;
 using ViciOne.Ui.ClusterEditor.Services;
 
 namespace Server.Designs;
 
-internal sealed partial class InMemoryPackagesStore : IRulesetProvider
+internal sealed partial class InMemoryPackagesStore : IRulesetProvider, IRulesetSource
 {
     private ClusterDependency? _systemDataPortDependency;
 

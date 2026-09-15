@@ -69,15 +69,6 @@ namespace ViciOne.Ui.ClusterEditor.Localization.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Debug.
-        /// </summary>
-        internal static string Debug {
-            get {
-                return ResourceManager.GetString("Debug", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Information.
         /// </summary>
         internal static string Information {

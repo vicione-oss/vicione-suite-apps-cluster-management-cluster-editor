@@ -24,6 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Debugging\Components\Localization\DebugDialog.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>DebugDialog.resx</DependentUpon>
+    </Compile>
     <Compile Update="Localization\Resources\TechnicalTerms.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
@@ -42,6 +47,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Update="Debugging\Components\Localization\DebugDialog.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DebugDialog.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
     <EmbeddedResource Update="Localization\Resources\TechnicalTerms.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>TechnicalTerms.Designer.cs</LastGenOutput>

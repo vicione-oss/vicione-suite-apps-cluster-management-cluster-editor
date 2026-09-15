@@ -4,6 +4,7 @@
 using BlazorWasm.Client;
 using Server.Designs;
 using Shared.ClusterManagement.Extensions;
+using Shared.Debugging.Extensions;
 using Shared.Designs;
 using Shared.Extensions;
 using Shared.Persistence.Extensions;
@@ -44,6 +45,7 @@ builder.WebHost.UseStaticWebAssets();
 builder.Services.AddClusterDependenciesSupport();
 builder.Services.AddClusterEditor(s => (IRulesetProvider)s.GetRequiredService<IPackagesStore>());
 builder.Services.AddClusterManagement();
+builder.Services.AddDebugging();
 builder.Services.AddCultureSupport();
 builder.Services.AddPersistence();
 builder.Services.AddSingleton(new RenderModeProvider(useWebassembly));

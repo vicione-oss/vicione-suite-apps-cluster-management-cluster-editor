@@ -5,6 +5,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Builder.Abstractions;
+using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
@@ -18,6 +19,8 @@ internal sealed class ClusterEditorManagement(IDatastore datastore, DiagramServi
     private readonly IDatastore _datastore = datastore;
     private readonly DiagramService _diagramService = diagramService;
     private readonly ILibraryService _libraryService = libraryService;
+
+    public Container ActiveContainer => _datastore.ActiveContainer;
 
     public event Func<Task>? ExportRequested;
     public event Func<Task>? ImportRequested;
@@ -57,6 +60,14 @@ internal sealed class ClusterEditorManagement(IDatastore datastore, DiagramServi
 
     public void PrepareClusterSerialization()
         => _datastore.SaveViewport(_diagramService);
+
+    public Task ReloadActiveContainer(CancellationToken cancellationToken)
+    {
+        // Fast fail if cancellation has already been requested
+        cancellationToken.ThrowIfCancellationRequested();
+
+        return _datastore.LoadContainer(_datastore.ActiveContainer, _diagramService, cancellationToken, true);
+    }
 
     public Task RequestExport()
         => ExportRequested.InvokeEventAsync(logger, nameof(ExportRequested));

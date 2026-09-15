@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+using System;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 

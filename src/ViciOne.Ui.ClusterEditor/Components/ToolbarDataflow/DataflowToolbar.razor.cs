@@ -19,9 +19,6 @@ public sealed partial class DataflowToolbar : ComponentBase, IDisposable
 {
     private static readonly string s_clusterIconCssClass = MonochromeIconName.ClusterStreams.GetCssClasses().ToSpaceSeparated();
     private static readonly string s_dataPortsIconCssClass = MonochromeIconName.DataSwitch.GetCssClasses().ToSpaceSeparated();
-#if DEBUG
-    private static readonly string s_debugIconCssClass = MonochromeIconName.BugLight.GetCssClasses().ToSpaceSeparated();
-#endif
     private static readonly string s_libraryIconCssClass = MonochromeIconName.Library.GetCssClasses().ToSpaceSeparated();
     private static readonly string s_propertiesIconCssClass = MonochromeIconName.Properties.GetCssClasses().ToSpaceSeparated();
     private static readonly string s_publishedConnectorsIconCssClass = MonochromeIconName.PublishedConnectorFull.GetCssClasses().ToSpaceSeparated();

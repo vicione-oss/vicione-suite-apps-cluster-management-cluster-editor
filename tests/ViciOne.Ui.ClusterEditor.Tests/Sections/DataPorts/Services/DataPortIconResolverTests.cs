@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using NSubstitute;
 using ViciOne.Cluster.Builder.Abstractions;
@@ -97,8 +97,8 @@ public sealed class DataPortIconResolverTests
         var result = _resolver.GetIcons(root).ToList();
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(expectedIconMarkup, ((SvgIcon)result[0]).MarkupString);
+        var item = Assert.Single(result);
+        Assert.Equal(expectedIconMarkup, ((SvgIcon)item).MarkupString);
     }
 
     [Fact]
@@ -116,8 +116,8 @@ public sealed class DataPortIconResolverTests
         var result = _resolver.GetIcons(root).ToList();
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(expectedIconMarkup, ((SvgIcon)result[0]).MarkupString);
+        var item = Assert.Single(result);
+        Assert.Equal(expectedIconMarkup, ((SvgIcon)item).MarkupString);
     }
 
     [Fact]
@@ -147,8 +147,8 @@ public sealed class DataPortIconResolverTests
         var result = _resolver.GetIcons(root).ToList();
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(expectedIconMarkup, ((SvgIcon)result[0]).MarkupString);
+        var item = Assert.Single(result);
+        Assert.Equal(expectedIconMarkup, ((SvgIcon)item).MarkupString);
     }
 
     [Fact]
@@ -182,8 +182,8 @@ public sealed class DataPortIconResolverTests
         var result = _resolver.GetIcons(child).ToList();
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(expectedIconMarkup, result[0].MarkupString);
+        var item = Assert.Single(result);
+        Assert.Equal(expectedIconMarkup, item.MarkupString);
     }
 
     [Fact]
@@ -201,8 +201,8 @@ public sealed class DataPortIconResolverTests
         var result = _resolver.GetIcons(child).ToList();
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(expectedIconMarkup, ((SvgIcon)result[0]).MarkupString);
+        var item = Assert.Single(result);
+        Assert.Equal(expectedIconMarkup, ((SvgIcon)item).MarkupString);
     }
 
     [Fact]
@@ -217,8 +217,8 @@ public sealed class DataPortIconResolverTests
         var result = _resolver.GetIcons(child).ToList();
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(expectedIconMarkup, ((SvgIcon)result[0]).MarkupString);
+        var item = Assert.Single(result);
+        Assert.Equal(expectedIconMarkup, ((SvgIcon)item).MarkupString);
     }
 
     [Fact]
@@ -238,7 +238,7 @@ public sealed class DataPortIconResolverTests
         var result = _resolver.GetIcons(child).ToList();
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(expectedIconMarkup, ((SvgIcon)result[0]).MarkupString);
+        var item = Assert.Single(result);
+        Assert.Equal(expectedIconMarkup, ((SvgIcon)item).MarkupString);
     }
 }

@@ -4,7 +4,6 @@ public enum DataflowToolbarSection
 {
     Connectors,
     Cluster,
-    Debug,
     Library,
     Properties,
     SearchTools,

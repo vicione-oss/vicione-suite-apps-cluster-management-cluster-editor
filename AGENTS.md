@@ -101,7 +101,7 @@ The library is organized by feature. Blazor components use the code-behind patte
   `Components/`, `Services/`, `Models/`, `Extensions/` (and often a
   `ServiceCollectionExtensions` for DI registration): `Dataflow`, `DataPorts`,
   `Topology`, `Property`, `PublishedConnectors`, `Library`, `Information`,
-  `Debugging`, `File`, `SearchAndTools`.
+  `File`, `SearchAndTools`.
 - `Services/` — core services, including `ClusterServices/` (datastore, projection,
   edit/restructure services) and `ComponentServices/`.
 - `Behaviors/` — diagram interaction behaviors (pan, zoom, selection, drag, keyboard).

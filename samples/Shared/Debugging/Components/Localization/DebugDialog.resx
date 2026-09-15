@@ -117,16 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="ClusterTopology" xml:space="preserve">
-    <value>Cluster Topology</value>
+  <data name="DebugTools" xml:space="preserve">
+    <value>Debug tools</value>
   </data>
-  <data name="PublishedConnectors" xml:space="preserve">
-    <value>Published Connectors</value>
-  </data>
-  <data name="SearchAndTools" xml:space="preserve">
-    <value>Search &amp; Tools</value>
-  </data>
-  <data name="Information" xml:space="preserve">
-    <value>Information</value>
+  <data name="DesignName" xml:space="preserve">
+    <value>Design name</value>
   </data>
 </root>

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
@@ -134,7 +134,7 @@ public class DataPortChildNodeModelTests
         };
 
         var childNode = CreateChildNode(properties);
-        const int expectedPropertyDescriptorCount = 4;
+        const int ExpectedPropertyDescriptorCount = 4;
 
         using var clusterBuilder = new ClusterBuilder(Substitute.For<IDependencyResolver>());
 
@@ -159,7 +159,7 @@ public class DataPortChildNodeModelTests
         var propertyDescriptors = propertyDescriptorProvider.GetPropertyDescriptors(editContext).ToArray();
 
         // Assert
-        Assert.Equal(expectedPropertyDescriptorCount, propertyDescriptors.Length);
+        Assert.Equal(ExpectedPropertyDescriptorCount, propertyDescriptors.Length);
 
         Assert.Equal(2, propertyDescriptors.OfType<SelectionPropertyDescriptor<DataPortChildNodeModel, DataPortTransferMode>>()
             .First(k => k.Name == nameof(DataPortTransferMode))

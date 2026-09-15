@@ -42,6 +42,20 @@ public sealed class ClusterEditorManagementTests : IAsyncDisposable
     }
 
     [Fact]
+    public void ActiveContainer_ReturnsActiveContainerOfDatastore()
+    {
+        // Arrange
+        var expectedContainer = Substitute.For<Cluster.Model.Container>();
+        _datastore.ActiveContainer.Returns(expectedContainer);
+
+        // Act
+        var activeContainer = _sut.ActiveContainer;
+
+        // Assert
+        activeContainer.Should().BeSameAs(expectedContainer);
+    }
+
+    [Fact]
     public async Task ForceRootContainerReload_CallsLoadContainerWithForceTrue_PassesDiagramService_PassesCancellationToken()
     {
         // Arrange
@@ -148,6 +162,40 @@ public sealed class ClusterEditorManagementTests : IAsyncDisposable
 
         // Assert
         _datastore.Received(1).SaveViewport(_diagramService);
+    }
+
+    [Fact]
+    public async Task ReloadActiveContainer_CallsLoadContainerWithForceTrue_PassesDiagramService_PassesCancellationToken()
+    {
+        // Arrange
+        var expectedContainer = Substitute.For<Cluster.Model.Container>();
+        _datastore.ActiveContainer.Returns(expectedContainer);
+        var ct = TestContext.Current.CancellationToken;
+
+        // Act
+        await _sut.ReloadActiveContainer(ct);
+
+        // Assert
+        await _datastore.Received(1).LoadContainer(expectedContainer, _diagramService, ct, true);
+    }
+
+    [Fact]
+    public async Task ReloadActiveContainer_WithAlreadyCancelledToken_ThrowsCanceledOperationException()
+    {
+        // Arrange
+        var expectedContainer = Substitute.For<Cluster.Model.Container>();
+        _datastore.ActiveContainer.Returns(expectedContainer);
+        using (var cts = new CancellationTokenSource())
+        {
+            await cts.CancelAsync();
+
+            // Act
+            var act = () => _sut.ReloadActiveContainer(cts.Token);
+
+            // Assert
+            await act.Should().ThrowAsync<OperationCanceledException>();
+            await _datastore.Received(0).LoadContainer(expectedContainer, _diagramService, cts.Token, true);
+        }
     }
 
     [Fact]

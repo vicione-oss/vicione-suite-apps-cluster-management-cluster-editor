@@ -3,6 +3,7 @@ using System.Net.Http;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.DependencyInjection;
 using Shared.ClusterManagement.Extensions;
+using Shared.Debugging.Extensions;
 using Shared.Extensions;
 using Shared.Persistence.Extensions;
 using ViciOne.Ui.ClusterEditor.Extensions;
@@ -16,6 +17,7 @@ builder.Services.AddDevExpressBlazor(configure => configure.BootstrapVersion = D
 builder.Services.AddLocalization();
 builder.Services.AddClusterEditor(sp => sp.GetRequiredService<IRulesetProvider>());
 builder.Services.AddClusterManagement();
+builder.Services.AddDebugging();
 builder.Services.AddCultureSupport();
 builder.Services.AddPersistence();
 

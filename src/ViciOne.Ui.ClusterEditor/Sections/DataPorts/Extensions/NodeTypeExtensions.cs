@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Linq;
 using ViciOne.Tree.Builder.Extensions;
 using ViciOne.Tree.Builder.NodeTypes;
@@ -39,7 +39,9 @@ internal static class NodeTypeExtensions
 
         if (parentNode is DataPortChildNodeModel { NodeReference.Id: { } parentNodeTypeId }
             && builder.Ruleset.IsEnvelopeRelation(parentNodeTypeId, nodeType.Id))
+        {
             return [.. builder.Ruleset.GetEnvelopeLinkDirections(parentNodeTypeId, nodeType.Id).Intersect(transferDirections)];
+        }
 
         return [.. nodeType.GetDeclaredLinkDirections(transferDirections).Intersect(transferDirections)];
     }
@@ -49,7 +51,7 @@ internal static class NodeTypeExtensions
     /// </summary>
     /// <remarks>
     /// The ruleset answers the same question per node type pair through
-    /// <see cref="ViciOne.Tree.Builder.Extensions.EnvelopeExtensions.GetEnvelopeTransferDirections"/>,
+    /// <see cref="EnvelopeExtensions.GetEnvelopeTransferDirections"/>,
     /// but only against the parent type's declaration. A parent that inherited a narrower set from
     /// its own ancestors is not covered by that, so the chain is walked here instead.
     /// </remarks>

@@ -1,0 +1,31 @@
+﻿@use "./../../Styles/dialog";
+
+.debug-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-left: 32px;
+    padding-right: 24px;
+    padding-bottom: 16px;
+
+    .heading {
+        @include dialog.heading-styles();
+
+        padding-bottom: 6px;
+    }
+
+    .label {
+        @include dialog.muted-text-styles();
+    }
+
+    .actions {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-height: 32px;
+
+        ::deep .spin-edit {
+            width: 80px;
+        }
+    }
+}

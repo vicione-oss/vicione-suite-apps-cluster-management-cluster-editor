@@ -10,6 +10,7 @@
 - CLAUDE.md file that references AGENTS.md files
 - Renovate integration
 - Support for rulesets whose datapoints declare envelope children
+- `ActiveContainer` and `ReloadActiveContainer` to `IClusterEditorManagement` so hosts can create cluster elements in the container the user is looking at and have the editor re-project them
 
 ### Changed
 
@@ -44,10 +45,12 @@
   - **Breaking:** `IRulesetProvider` and the public DataPort tree model use the renamed `ViciOne.Tree.Builder` types
   - **Breaking:** `DataPortChildNodeModel` has a new required `LinkDirections` member
   - **Breaking:** `ColoredIconFactory.GetDataPortIcon` takes a nullable `DataPortDirection`
+- Moved the debug generators for function blocks, links and data ports into the sample app, where they work through the `ClusterBuilder`
 
 ### Removed
 
 - **Breaking:** `DataPortNodeModel.AvailableIcons` and the per-node icon selection in the property grid it fed
+- The debug section and the debug console from the cluster editor, eliminating all `#if DEBUG` code paths from the product code
 
 ### Updated external references
 

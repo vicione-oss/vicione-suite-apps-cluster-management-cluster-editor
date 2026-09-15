@@ -1,0 +1,89 @@
+@using Shared.Debugging.Models
+@using ViciOne.Ui.Blazor.Components.Button
+@using ViciOne.Ui.Blazor.Components.Button.Enums
+@using ViciOne.Ui.Blazor.Components.SpinEdit
+@using ViciOne.Ui.Blazor.Components.TextBox
+@using LocalTechnicalTerms = Shared.Localization.Resources.TechnicalTerms
+
+<Dialog @ref="_refDialog"
+        HeaderText="@Localization.DebugDialog.DebugTools"
+        Width="150px">
+
+    <Body>
+        <div class="debug-container">
+
+            <div class="heading">
+                @GenerateFunctionBlocksText
+            </div>
+
+            <div class="label">
+                @Localization.DebugDialog.DesignName
+            </div>
+
+            <div class="actions">
+                <SpinEdit @bind-Value="_functionBlockAmount"
+                          CssClass="spin-edit"
+                          Interval="1"
+                          Maximum="@int.MaxValue"
+                          Minimum="0" />
+
+                <TextBox @bind-Value="_functionBlockDesignName" />
+
+                <Button OnClick="@OnGenerateFunctionBlocksClick"
+                        Size="@ButtonSize.Small"
+                        Text="@CommonVocabulary.Generate" />
+            </div>
+
+            <div class="actions">
+                <Button OnClick="@OnGenerateAllFunctionBlocksClick"
+                        Size="@ButtonSize.Small"
+                        Text="@GenerateAllFunctionBlocksText" />
+            </div>
+
+            <div class="heading">
+                @GenerateLinksText
+            </div>
+
+            <div class="actions">
+                <SpinEdit @bind-Value="_linkAmount"
+                          CssClass="spin-edit"
+                          Interval="1"
+                          Maximum="@int.MaxValue"
+                          Minimum="0" />
+
+                <Button OnClick="@(() => OnGenerateLinksClick(GenerateLinksType.Visible))"
+                        Size="@ButtonSize.Small"
+                        Text="@CommonVocabulary.Visible" />
+
+                <Button OnClick="@(() => OnGenerateLinksClick(GenerateLinksType.Hidden))"
+                        Size="@ButtonSize.Small"
+                        Text="@CommonVocabulary.Hidden" />
+
+                <Button OnClick="@(() => OnGenerateLinksClick(GenerateLinksType.DataPort))"
+                        Size="@ButtonSize.Small"
+                        Text="@LocalTechnicalTerms.DataPort" />
+            </div>
+
+            <div class="heading">
+                @GenerateDataPortsText
+            </div>
+
+            <div class="actions">
+                <SpinEdit @bind-Value="_dataPointAmount"
+                          CssClass="spin-edit"
+                          Interval="1"
+                          Maximum="@int.MaxValue"
+                          Minimum="0" />
+
+                <Button OnClick="@OnGenerateDataPointsClick"
+                        Size="@ButtonSize.Small"
+                        Text="@CommonVocabulary.Generate" />
+            </div>
+        </div>
+    </Body>
+
+    <Footer>
+        <DialogFooterButton OnClick="@OnDialogClose"
+                            Text="@CommonVocabulary.CloseVerb" />
+    </Footer>
+</Dialog>

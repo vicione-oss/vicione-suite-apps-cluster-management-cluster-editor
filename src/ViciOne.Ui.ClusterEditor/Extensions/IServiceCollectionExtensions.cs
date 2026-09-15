@@ -20,7 +20,6 @@ using ViciOne.Ui.ClusterEditor.Models.ComponentStates.ContextMenu.Specialized;
 using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
-using ViciOne.Ui.ClusterEditor.Sections.Debugging.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Information.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Property.Extensions;
@@ -106,8 +105,6 @@ public static class IServiceCollectionExtensions
         services.AddContainerBreadcrumb();
 
         services.AddMainToolbar();
-
-        services.AddDebugSection();
 
         services.AddClusterEditorManagement();
 

@@ -1,7 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
@@ -54,7 +53,9 @@ internal sealed class DataPortIconResolver(IDatastore datastore)
                     {
                         var icon = DataPortTreeIconProvider.GetDataPointIcon(childNode, 24, datastore.Builder.Cache);
                         if (icon is not null)
+                        {
                             yield return icon;
+                        }
                         else
                         {
                             // A marker envelope child (no DataTypes) still carries the "datapoint"
