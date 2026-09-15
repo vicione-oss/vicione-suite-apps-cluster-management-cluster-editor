@@ -16,7 +16,9 @@ internal static class DataPortTreeIconProvider
         if (!childNode.IsDataPoint)
             return null;
 
-        var clusterNode = clusterCache.DataPortTreeNodeIds[childNode.Id.Value];
+        if (!clusterCache.DataPortTreeNodeIds.TryGetValue(childNode.Id.Value, out var clusterNode))
+            return null;
+
         var icon = GetDataPointIconMarkup(
             childNode,
             size,

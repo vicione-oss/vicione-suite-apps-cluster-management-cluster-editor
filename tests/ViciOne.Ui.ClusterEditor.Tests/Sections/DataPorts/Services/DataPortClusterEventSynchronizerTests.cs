@@ -52,6 +52,26 @@ public sealed class DataPortClusterEventSynchronizerTests : IAsyncDisposable
     }
 
     [Fact]
+    public void OnDataPortsRemoved_ResetsIsDeletionInProgress()
+    {
+        // Arrange - a DataPort without tree nodes raises no tree node event that could reset the flag
+        _synchronizer.Initialize();
+        var root = DataPortNodeModelCreator.CreateDataPortRootNodeModel();
+        _state.AddRootNode(root);
+        var dataPort = new DataPort { Name = "Port" };
+        AddChild(root, dataPort.Id);
+        _state.IsDeletionInProgress = true;
+
+        // Act
+        Raise<IEnumerable<(Cluster.Model.Dataflow Parent, DataPort DataPort)>>(
+            nameof(ClusterBuilderEventBuffer.DataPortsRemoved),
+            [(new Cluster.Model.Dataflow(), dataPort)]);
+
+        // Assert
+        Assert.False(_state.IsDeletionInProgress);
+    }
+
+    [Fact]
     public void OnDataPortsRemoved_WhenNodeNotFound_DoesNotNotify()
     {
         // Arrange
@@ -237,6 +257,50 @@ public sealed class DataPortClusterEventSynchronizerTests : IAsyncDisposable
         Assert.False(_state.IsDeletionInProgress);
     }
 
+    [Fact]
+    public void OnTreeNodesRemoved_WhenAnAncestorOfTheEditingNodeIsRemoved_ClearsEditingNode()
+    {
+        // Arrange - the edited node is taken out of the tree together with its parent, so no
+        // removal event ever names it.
+        _synchronizer.Initialize();
+        var root = DataPortNodeModelCreator.CreateDataPortRootNodeModel();
+        _state.AddRootNode(root);
+        var broker = AddChild(root, Guid.NewGuid());
+        var removedParent = AddChild(root, Guid.NewGuid(), parent: broker);
+        var editedChild = AddChild(root, Guid.NewGuid(), parent: removedParent);
+        _state.EditingTreeNode = editedChild;
+        var treeNode = new DataPortTreeNode { Id = removedParent.Id.Value };
+
+        // Act
+        Raise<IEnumerable<(IHasDataPortTreeNodes Parent, DataPortTreeNode DataPortTreeNode)>>(
+            nameof(ClusterBuilderEventBuffer.TreeNodesRemoved),
+            [(null!, treeNode)]);
+
+        // Assert
+        Assert.DoesNotContain(removedParent, broker.Children);
+        Assert.Null(_state.EditingTreeNode);
+    }
+
+    [Fact]
+    public void OnDataPortsRemoved_WhenTheEditingNodeIsBelowTheRemovedDataPort_ClearsEditingNode()
+    {
+        // Arrange
+        _synchronizer.Initialize();
+        var root = DataPortNodeModelCreator.CreateDataPortRootNodeModel();
+        _state.AddRootNode(root);
+        var dataPort = new DataPort { Name = "Port" };
+        var removedChild = AddChild(root, dataPort.Id);
+        var editedChild = AddChild(root, Guid.NewGuid(), parent: removedChild);
+        _state.EditingTreeNode = editedChild;
+
+        // Act
+        Raise<IEnumerable<(Cluster.Model.Dataflow Parent, DataPort DataPort)>>(
+            nameof(ClusterBuilderEventBuffer.DataPortsRemoved),
+            [(new Cluster.Model.Dataflow(), dataPort)]);
+
+        // Assert
+        Assert.Null(_state.EditingTreeNode);
+    }
     [Fact]
     public void OnTreeNodesRemoved_WhenParentIsNotChildNode_DoesNotRemove()
     {

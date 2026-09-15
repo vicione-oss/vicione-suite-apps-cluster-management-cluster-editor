@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
@@ -115,46 +116,17 @@ internal sealed partial class DataPortTreeMutator(
 
         void DeleteAction()
         {
-            state.IsDeletionInProgress = true;
-
-            // root node (eg. MQTT DataPort)
-            if (e.Node is DataPortRootNodeModel rootNode)
+            var deleted = e.Node switch
             {
-                state.RemoveRootNode(rootNode);
+                // root node (eg. MQTT DataPort)
+                DataPortRootNodeModel rootNode => TryDeleteRootNode(datastore.Builder, rootNode),
+                DataPortChildNodeModel childNode => TryDeleteChildNode(datastore.Builder, childNode),
+                _ => false,
+            };
 
-                // whole data port container node gets removed so we need to remove all contained data port
-                foreach (var rootChild in rootNode.Children)
-                {
-                    var nodeId = rootChild.Id.Value;
-                    var dataPort = datastore.Builder.Cache.DataPorts.First(k => k.Id == nodeId);
-
-                    datastore.Builder.Editors.Dataflow.RemoveDataPort(dataPort, true);
-                }
-
-                // The root node for e.g. Mqtt was removed so it's dependency is not needed anymore
-                datastore.Builder.RemoveUnusedSystemDataPortDependency(rulesetProvider);
-
-                state.Builder.Notifications.NotifyRootNodesChanged();
-            }
-
-            // we listen to the builder delete events of DataPorts and nodes to react on builder
-            // changes done outside
-            if (e.Node is DataPortChildNodeModel childNode)
-            {
-                var childNodeId = childNode.Id.Value;
-
-                // child of child node
-                if (childNode.Parent is DataPortChildNodeModel)
-                {
-                    var cachedNode = datastore.Builder.Cache.DataPortTreeNodes.First(k => k.Id == childNodeId);
-                    datastore.Builder.Editors.DataPort.RemoveTreeNode(cachedNode);
-                    return;
-                }
-
-                // child of root node (for MQTT e.g. MQTT Broker -> DataPort)
-                var cachedDataPort = datastore.Builder.Cache.DataPorts.First(k => k.Id == childNodeId);
-                datastore.Builder.Editors.Dataflow.RemoveDataPort(cachedDataPort, true);
-            }
+            // Only a deletion the builder accepted raises the events that reset the flag again.
+            if (deleted)
+                state.IsDeletionInProgress = true;
         }
 
         if (state.OnDeleteNodeUserConfirmationRequest is null)
@@ -190,7 +162,8 @@ internal sealed partial class DataPortTreeMutator(
         // Parent is root node so child is DataPort
         if (childNode.Parent is DataPortRootNodeModel)
         {
-            var dataPort = datastore.Builder.GetDataPort(childNode);
+            if (!datastore.Builder.TryGetDataPort(childNode, out var dataPort))
+                return;
 
             // TODO - make it possible to change the engine in the node edit section
             datastore.Builder.Editors.DataPort.SetName(dataPort, childNode.Name);
@@ -206,7 +179,7 @@ internal sealed partial class DataPortTreeMutator(
         var childNodeId = childNode.Id.Value;
         var clusterNode = datastore.Builder.Cache.DataPortTreeNodes.FirstOrDefault(k => k.Id == childNodeId);
         if (clusterNode is null)
-            return; // TODO: Error?!
+            return;
 
         datastore.Builder.Editors.DataPortTreeNode.SetName(clusterNode, childNode.Name);
         if (clusterNode.Name != childNode.Name)
@@ -224,12 +197,11 @@ internal sealed partial class DataPortTreeMutator(
         var root = childNode.GetRootNode();
         if (childNode.Parent.Id == root.Id)
         {
-            var dataPort = datastore.Builder.GetDataPort(childNode);
-            childNode.AssignValuesAndProperties(dataPort);
+            if (datastore.Builder.TryGetDataPort(childNode, out var dataPort))
+                childNode.AssignValuesAndProperties(dataPort);
         }
-        else
+        else if (datastore.Builder.Cache.DataPortTreeNodeIds.TryGetValue(childNode.Id.Value, out var treeNode))
         {
-            var treeNode = datastore.Builder.Cache.DataPortTreeNodeIds[childNode.Id.Value];
             childNode.AssignValuesAndProperties(treeNode, root.Builder);
         }
     }
@@ -250,5 +222,55 @@ internal sealed partial class DataPortTreeMutator(
         {
             CreateDataPortTreeFailed(logger, ex, dataPort.Id);
         }
+    }
+
+    // we listen to the builder delete events of DataPorts and nodes to react on builder
+    // changes done outside. Until such an event arrives the tree still shows nodes the cluster
+    // has already dropped - deleted a second time, or together with an ancestor - and the event
+    // removes them, so a node that is no longer cached needs no deletion of its own.
+    private bool TryDeleteChildNode(IClusterBuilder builder, DataPortChildNodeModel childNode)
+    {
+        var childNodeId = childNode.Id.Value;
+
+        // child of child node
+        if (childNode.Parent is DataPortChildNodeModel)
+        {
+            if (!builder.Cache.DataPortTreeNodeIds.TryGetValue(childNodeId, out var cachedNode))
+                return false;
+
+            builder.Editors.DataPort.RemoveTreeNode(cachedNode);
+            return true;
+        }
+
+        // child of root node (for MQTT e.g. MQTT Broker -> DataPort)
+        if (!builder.Cache.DataPortIds.TryGetValue(childNodeId, out var cachedDataPort))
+            return false;
+
+        builder.Editors.Dataflow.RemoveDataPort(cachedDataPort, true);
+        return true;
+    }
+
+    private bool TryDeleteRootNode(IClusterBuilder builder, DataPortRootNodeModel rootNode)
+    {
+        state.RemoveRootNode(rootNode);
+
+        var removedAnyDataPort = false;
+
+        // whole data port container node gets removed so we need to remove all contained data port
+        foreach (var rootChild in rootNode.Children)
+        {
+            if (!builder.Cache.DataPortIds.TryGetValue(rootChild.Id.Value, out var dataPort))
+                continue;
+
+            builder.Editors.Dataflow.RemoveDataPort(dataPort, true);
+            removedAnyDataPort = true;
+        }
+
+        // The root node for e.g. Mqtt was removed so it's dependency is not needed anymore
+        builder.RemoveUnusedSystemDataPortDependency(rulesetProvider);
+
+        state.Builder.Notifications.NotifyRootNodesChanged();
+
+        return removedAnyDataPort;
     }
 }

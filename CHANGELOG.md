@@ -1,4 +1,4 @@
-﻿# Changelog
+# Changelog
 
 ## 2.0.0 - Unreleased
 
@@ -15,24 +15,18 @@
 ### Changed
 
 - Refactored `DataPortTreeAdapter` into multiple services to avoid excessive class coupling and improve maintainability
-- Fixed potential marker tooltip exception when deleting a DataPort
 - Exchanged svg filter icons with monochrome icons in `PublishedConnectorsSection`
-- Fixed potential exception during application load with non-default language settings
 - The "Path" column in the Published Connectors section now displays the Dataflow name instead of "Root"
 - The "Path" column in the Link Destination dialog now displays the Dataflow name instead of "Root"
-- Fixed localization for FunctionBlock marker tooltips
-- Fixed localization in DataPort section button tooltips
 - Breadcrumb now displays the current Dataflow name instead of "Root" as it's first entry
 - Changed tooltip to use design from `ViciOne.Ui.Design`
 - Refactored `NodeEditor` component into multiple services to avoid excessive class coupling and improve maintainability
 - Moved `ViciOne.Ui.Shared.Dx.Components.SearchHighlighter` to `ViciOne.Ui.ClusterEditor.Components.SearchHighlighter`
 - Improved the connector drop zone when dragging from DataPorts to match the drop zone when creating links 
-- Fixed a crash while panning or zooming a diagram with many blocks, caused by minimap state being updated from a background thread
 - Refactored default context menu handling in components to enable default context menu handling by host app
 - Updated `.editorconfig` to newest version
 - Removed obsolete persistence code from `IClusterEditorManagement`
 - Keyboard input in dialogs opened via diagram context menu is not passed to diagram anymore
-- Fixed edit form not opening for nodes in the Topology section and for Dataflows in the Dataflow structure tree
 - Reworked DataPort nodes - direction, linking and icons now follow the ruleset and the parent node:
   - A datapoint icon shows the node's own effective direction instead of the DataPort's
   - A node's transfer directions are narrowed to its parent's; a node left transferring nowhere is greyed out
@@ -47,6 +41,21 @@
   - **Breaking:** `ColoredIconFactory.GetDataPortIcon` takes a nullable `DataPortDirection`
 - Moved the debug generators for function blocks, links and data ports into the sample app, where they work through the `ClusterBuilder`
 
+### Fixed
+
+- Fixed potential marker tooltip exception when deleting a DataPort
+- Fixed potential exception during application load with non-default language settings
+- Fixed localization for FunctionBlock marker tooltips
+- Fixed localization in DataPort section button tooltips
+- Fixed a crash while panning or zooming a diagram with many blocks, caused by minimap state being updated from a background thread
+- Fixed edit form not opening for nodes in the Topology section and for Dataflows in the Dataflow structure tree
+- Fixed DataPort actions on a node the cluster no longer has:
+  - Deleting a tree node twice in a row, or a child of a node just deleted, no longer throws
+  - Confirming or cancelling an edit of a node removed in the meantime no longer throws
+  - A datapoint whose cluster node is gone falls back to its node type icon instead of failing the tree render
+  - DataPort icons keep refreshing after a DataPort without tree nodes was deleted
+  - Deleting a node's parent while editing it no longer blocks all further edits, or crashes when the warning is closed
+
 ### Removed
 
 - **Breaking:** `DataPortNodeModel.AvailableIcons` and the per-node icon selection in the property grid it fed
@@ -54,7 +63,7 @@
 
 ### Updated external references
 
-- `Microsoft` packages, update to version `10.0.11`
+- `Microsoft` packages, update to version `10.0.12`
 - `ViciOne.Ui.Blazor.Components` package, updated to version `6.0.0`
 - `ViciOne.Ui.MonochromeIcons` package, update version to `4.18.0`
 - `ViciOne.Ui.Design` package, added in version `2.5.0`

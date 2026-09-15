@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
@@ -25,10 +26,8 @@ internal static class ClusterBuilderDataPortExtensions
 
     public static DataPort GetDataPort(this IClusterBuilder builder, DataPortChildNodeModel dataPortNode)
     {
-        var successor = dataPortNode.GetRootSuccessor();
-        var dataPortId = successor.Id.Value;
-        if (!builder.Cache.DataPortIds.TryGetValue(dataPortId, out var dataPort))
-            throw new InvalidOperationException($"DataPort {dataPortId} not found.");
+        if (!builder.TryGetDataPort(dataPortNode, out var dataPort))
+            throw new InvalidOperationException($"DataPort {dataPortNode.GetRootSuccessor().Id.Value} not found.");
 
         return dataPort;
     }
@@ -204,4 +203,7 @@ internal static class ClusterBuilderDataPortExtensions
 
         // TODO: TransferPooling
     }
+
+    public static bool TryGetDataPort(this IClusterBuilder builder, DataPortChildNodeModel dataPortNode, [NotNullWhen(true)] out DataPort? dataPort)
+        => builder.Cache.DataPortIds.TryGetValue(dataPortNode.GetRootSuccessor().Id.Value, out dataPort);
 }

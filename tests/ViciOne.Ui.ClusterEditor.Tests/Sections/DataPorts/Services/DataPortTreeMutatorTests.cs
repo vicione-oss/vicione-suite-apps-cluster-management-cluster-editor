@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using AwesomeAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
@@ -112,9 +113,9 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         _mutator.CreateNewChildNode(broker, folder);
 
         // Assert
-        Assert.Contains(folder, broker.Children);
-        Assert.Equal(dataPortCountBefore, _clusterBuilder.Cache.DataPorts.Count);
-        Assert.NotEmpty(_clusterBuilder.Cache.DataPortTreeNodes);
+        broker.Children.Should().Contain(folder);
+        _clusterBuilder.Cache.DataPorts.Count.Should().Be(dataPortCountBefore);
+        _clusterBuilder.Cache.DataPortTreeNodes.Should().NotBeEmpty();
     }
 
     [Fact]
@@ -130,9 +131,9 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         var root = _state.GetDataPortRootNode(MqttRootId)!;
 
         // Assert
-        Assert.Equal(MqttRootId, root.Builder.Ruleset.Root?.Id);
-        Assert.Single(root.Children);
-        Assert.Single(_clusterBuilder.Cache.DataPorts);
+        root.Builder.Ruleset.Root?.Id.Should().Be(MqttRootId);
+        root.Children.Should().ContainSingle();
+        _clusterBuilder.Cache.DataPorts.Should().ContainSingle();
         _builder.Notifications.ReceivedWithAnyArgs().NotifyChildrenChanged((ITreeNode)default!);
         _builder.Selection.Received().ChangeSelection(previouslySelected, false);
     }
@@ -149,7 +150,7 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         _mutator.DeleteDataPortTreeNode(default!, args);
 
         // Assert
-        Assert.False(_state.IsDeletionInProgress);
+        _state.IsDeletionInProgress.Should().BeFalse();
     }
 
     [Fact]
@@ -163,9 +164,9 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         _mutator.DeleteDataPortTreeNode(default!, args);
 
         // Assert
-        Assert.Empty(_state.RootNodes);
-        Assert.Empty(_clusterBuilder.Cache.DataPorts);
-        Assert.True(_state.IsDeletionInProgress);
+        _state.RootNodes.Should().BeEmpty();
+        _clusterBuilder.Cache.DataPorts.Should().BeEmpty();
+        _state.IsDeletionInProgress.Should().BeTrue();
     }
 
     [Fact]
@@ -179,7 +180,7 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         _mutator.DeleteDataPortTreeNode(default!, args);
 
         // Assert
-        Assert.DoesNotContain(_clusterBuilder.Cache.ClusterDependencies, d => d.Name == "SystemDataPort");
+        _clusterBuilder.Cache.ClusterDependencies.Should().NotContain(d => d.Name == "SystemDataPort");
     }
 
     [Fact]
@@ -194,7 +195,7 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         _mutator.DeleteDataPortTreeNode(default!, args);
 
         // Assert
-        Assert.Empty(_clusterBuilder.Cache.DataPorts);
+        _clusterBuilder.Cache.DataPorts.Should().BeEmpty();
     }
 
     [Fact]
@@ -207,7 +208,7 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         var folder = DataPortChildNodeModelFactory.CreateDataPortChildNodeModel(folderDescriptor, broker);
         _mutator.CreateNewChildNode(broker, folder);
 
-        Assert.NotEmpty(_clusterBuilder.Cache.DataPortTreeNodes);
+        _clusterBuilder.Cache.DataPortTreeNodes.Should().NotBeEmpty();
 
         var args = new VisibleActionArguments { Builder = _builder, Node = folder };
 
@@ -215,8 +216,8 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         _mutator.DeleteDataPortTreeNode(default!, args);
 
         // Assert - only the tree node is removed, the data port itself remains
-        Assert.Empty(_clusterBuilder.Cache.DataPortTreeNodes);
-        Assert.Single(_clusterBuilder.Cache.DataPorts);
+        _clusterBuilder.Cache.DataPortTreeNodes.Should().BeEmpty();
+        _clusterBuilder.Cache.DataPorts.Should().ContainSingle();
     }
 
     [Fact]
@@ -232,11 +233,104 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         _mutator.DeleteDataPortTreeNode(default!, args);
 
         // Assert - not deleted until confirmation callback runs
-        Assert.Single(_state.RootNodes);
-        Assert.NotNull(confirm);
+        _state.RootNodes.Should().ContainSingle();
+        confirm.Should().NotBeNull();
 
         confirm!();
-        Assert.Empty(_state.RootNodes);
+        _state.RootNodes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void DeleteDataPortTreeNode_ForChildOfChild_WhenAlreadyDeleted_DoesNothing()
+    {
+        // Arrange - the tree still shows the folder after the first deletion, so it can be deleted again
+        var root = CreateRootWithBroker();
+        var broker = root.Children.Single();
+        var folder = DataPortChildNodeModelFactory.CreateDataPortChildNodeModel(broker.PossibleChildren[0], broker);
+        _mutator.CreateNewChildNode(broker, folder);
+
+        var args = new VisibleActionArguments { Builder = _builder, Node = folder };
+        _mutator.DeleteDataPortTreeNode(default!, args);
+
+        // Act
+        var act = () => _mutator.DeleteDataPortTreeNode(default!, args);
+
+        // Assert
+        act.Should().NotThrow();
+        _clusterBuilder.Cache.DataPortTreeNodes.Should().BeEmpty();
+        _clusterBuilder.Cache.DataPorts.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void DeleteDataPortTreeNode_ForChildOfDeletedParent_DoesNothing()
+    {
+        // Arrange - deleting the folder takes its child with it, but the tree still shows the child
+        var root = CreateRootWithBroker();
+        var broker = root.Children.Single();
+        var folder = DataPortChildNodeModelFactory.CreateDataPortChildNodeModel(broker.PossibleChildren[0], broker);
+        _mutator.CreateNewChildNode(broker, folder);
+        var child = DataPortChildNodeModelFactory.CreateDataPortChildNodeModel(folder.PossibleChildren[0], folder);
+        _mutator.CreateNewChildNode(folder, child);
+
+        _mutator.DeleteDataPortTreeNode(default!, new VisibleActionArguments { Builder = _builder, Node = folder });
+
+        // Act
+        var act = () => _mutator.DeleteDataPortTreeNode(default!, new VisibleActionArguments { Builder = _builder, Node = child });
+
+        // Assert
+        act.Should().NotThrow();
+        _clusterBuilder.Cache.DataPortTreeNodes.Should().BeEmpty();
+        _clusterBuilder.Cache.DataPorts.Should().ContainSingle();
+    }
+
+    [Fact]
+    public void DeleteDataPortTreeNode_ForDataPortChild_WhenAlreadyDeleted_DoesNothing()
+    {
+        // Arrange
+        var root = CreateRootWithBroker();
+        var broker = root.Children.Single();
+        var args = new VisibleActionArguments { Builder = _builder, Node = broker };
+        _mutator.DeleteDataPortTreeNode(default!, args);
+
+        // Act
+        var act = () => _mutator.DeleteDataPortTreeNode(default!, args);
+
+        // Assert
+        act.Should().NotThrow();
+        _clusterBuilder.Cache.DataPorts.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void DeleteDataPortTreeNode_ForRootNode_WhenDataPortsAlreadyRemoved_DoesNothing()
+    {
+        // Arrange - the root node still lists the broker that was deleted on its own
+        var root = CreateRootWithBroker();
+        var broker = root.Children.Single();
+        _mutator.DeleteDataPortTreeNode(default!, new VisibleActionArguments { Builder = _builder, Node = broker });
+
+        // Act
+        var act = () => _mutator.DeleteDataPortTreeNode(default!, new VisibleActionArguments { Builder = _builder, Node = root });
+
+        // Assert
+        act.Should().NotThrow();
+        _state.RootNodes.Should().BeEmpty();
+    }
+
+    [Fact]
+    public void DeleteDataPortTreeNode_WhenNothingWasDeleted_KeepsDeletionInProgressUnset()
+    {
+        // Arrange - the flag is reset by the builder events of the first deletion
+        var root = CreateRootWithBroker();
+        var broker = root.Children.Single();
+        var args = new VisibleActionArguments { Builder = _builder, Node = broker };
+        _mutator.DeleteDataPortTreeNode(default!, args);
+        _state.IsDeletionInProgress = false;
+
+        // Act - a deletion the builder never sees raises no event that could reset the flag again
+        _mutator.DeleteDataPortTreeNode(default!, args);
+
+        // Assert
+        _state.IsDeletionInProgress.Should().BeFalse();
     }
 
     [Fact]
@@ -249,8 +343,8 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         _mutator.InitializeDataPortTree();
 
         // Assert
-        var item = Assert.Single(_state.RootNodes);
-        Assert.Single(item.Children);
+        var rootNode = _state.RootNodes.Should().ContainSingle().Which;
+        rootNode.Children.Should().ContainSingle();
     }
 
     [Fact]
@@ -264,7 +358,7 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         _mutator.InitializeDataPortTree();
 
         // Assert - the failing data port produced no root node
-        Assert.Empty(_state.RootNodes);
+        _state.RootNodes.Should().BeEmpty();
     }
 
     [Fact]
@@ -300,7 +394,24 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
 
         // Act & Assert (should not throw; folder is not in cache so nothing is updated)
         _mutator.ProcessNodeChanges(folder);
-        Assert.Equal("Renamed Folder", folder.Name);
+        folder.Name.Should().Be("Renamed Folder");
+    }
+
+    [Fact]
+    public void ProcessNodeChanges_ForDataPortChild_WhenDataPortWasRemoved_DoesNothing()
+    {
+        // Arrange - the broker is still in edit mode while its data port is already deleted
+        var root = CreateRootWithBroker();
+        var broker = (DataPortChildNodeModel)root.Children.Single();
+        _mutator.DeleteDataPortTreeNode(default!, new VisibleActionArguments { Builder = _builder, Node = broker });
+        broker.Name = "Renamed Broker";
+
+        // Act
+        var act = () => _mutator.ProcessNodeChanges(broker);
+
+        // Assert
+        act.Should().NotThrow();
+        broker.Name.Should().Be("Renamed Broker");
     }
 
     [Fact]
@@ -316,8 +427,8 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
 
         // Assert
         var dataPort = _clusterBuilder.Cache.DataPorts.Single();
-        Assert.Equal("Renamed Broker", dataPort.Name);
-        Assert.Equal(dataPort.Name, broker.Name);
+        dataPort.Name.Should().Be("Renamed Broker");
+        broker.Name.Should().Be(dataPort.Name);
     }
 
     [Fact]
@@ -339,8 +450,8 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
 
         // Assert - the node name was synced back to the builder-adjusted (unique) name
         var adjustedDataPort = _clusterBuilder.Cache.DataPorts.Single(d => d.Id == secondBroker.Id.Value);
-        Assert.NotEqual(firstBroker.Name, secondBroker.Name);
-        Assert.Equal(adjustedDataPort.Name, secondBroker.Name);
+        secondBroker.Name.Should().NotBe(firstBroker.Name);
+        secondBroker.Name.Should().Be(adjustedDataPort.Name);
     }
 
     [Fact]
@@ -360,8 +471,8 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
 
         // Assert
         var treeNode = _clusterBuilder.Cache.DataPortTreeNodes.Single(k => k.Id == folder.Id.Value);
-        Assert.Equal("Renamed Folder", treeNode.Name);
-        Assert.Equal(treeNode.Name, folder.Name);
+        treeNode.Name.Should().Be("Renamed Folder");
+        folder.Name.Should().Be(treeNode.Name);
     }
 
     [Fact]
@@ -385,8 +496,8 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
 
         // Assert - the node name was synced back to the builder-adjusted (unique) name
         var adjustedTreeNode = _clusterBuilder.Cache.DataPortTreeNodes.Single(k => k.Id == secondFolder.Id.Value);
-        Assert.NotEqual(firstFolder.Name, secondFolder.Name);
-        Assert.Equal(adjustedTreeNode.Name, secondFolder.Name);
+        secondFolder.Name.Should().NotBe(firstFolder.Name);
+        secondFolder.Name.Should().Be(adjustedTreeNode.Name);
     }
 
     [Fact]
@@ -402,7 +513,7 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         _mutator.RevertNodeChanges(broker);
 
         // Assert
-        Assert.Equal(originalName, broker.Name);
+        broker.Name.Should().Be(originalName);
     }
 
     [Fact]
@@ -421,7 +532,43 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         _mutator.RevertNodeChanges(folder);
 
         // Assert
-        Assert.Equal(originalName, folder.Name);
+        folder.Name.Should().Be(originalName);
+    }
+
+    [Fact]
+    public void RevertNodeChanges_ForDataPortChild_WhenDataPortWasRemoved_DoesNothing()
+    {
+        // Arrange - the broker is still in edit mode while its data port is already deleted
+        var root = CreateRootWithBroker();
+        var broker = (DataPortChildNodeModel)root.Children.Single();
+        _mutator.DeleteDataPortTreeNode(default!, new VisibleActionArguments { Builder = _builder, Node = broker });
+        broker.Name = "Unsaved Name";
+
+        // Act
+        var act = () => _mutator.RevertNodeChanges(broker);
+
+        // Assert - nothing is left to restore the values from
+        act.Should().NotThrow();
+        broker.Name.Should().Be("Unsaved Name");
+    }
+
+    [Fact]
+    public void RevertNodeChanges_ForTreeNodeChild_WhenTreeNodeWasRemoved_DoesNothing()
+    {
+        // Arrange - the folder is still in edit mode while its tree node is already deleted
+        var root = CreateRootWithBroker();
+        var broker = root.Children.Single();
+        var folder = DataPortChildNodeModelFactory.CreateDataPortChildNodeModel(broker.PossibleChildren[0], broker);
+        _mutator.CreateNewChildNode(broker, folder);
+        _mutator.DeleteDataPortTreeNode(default!, new VisibleActionArguments { Builder = _builder, Node = folder });
+        folder.Name = "Unsaved Folder Name";
+
+        // Act
+        var act = () => _mutator.RevertNodeChanges(folder);
+
+        // Assert - nothing is left to restore the values from
+        act.Should().NotThrow();
+        folder.Name.Should().Be("Unsaved Folder Name");
     }
 
     [Fact]
@@ -435,6 +582,6 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
 
         // Act & Assert (should not throw and leaves the node untouched)
         _mutator.RevertNodeChanges(broker);
-        Assert.Equal("Unsaved Name", broker.Name);
+        broker.Name.Should().Be("Unsaved Name");
     }
 }

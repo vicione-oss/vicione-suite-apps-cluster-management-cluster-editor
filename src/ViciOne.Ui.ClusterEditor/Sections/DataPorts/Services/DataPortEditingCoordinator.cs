@@ -20,7 +20,9 @@ internal sealed class DataPortEditingCoordinator(IClusterEditorManagementInterna
         {
             if (editingTreeNode.HasChangedProperties)
             {
-                await dataManagementService.ShowMessageToast(LogLevel.Warning, SharedSectionText.UnsavedNodeChanges, () => editingTreeNode.ScrollToNode(state.Builder));
+                // Resolved when the toast is closed rather than captured here: by then the node may
+                // have gone with a deleted ancestor, and the tree builder would throw for it.
+                await dataManagementService.ShowMessageToast(LogLevel.Warning, SharedSectionText.UnsavedNodeChanges, ScrollBackToEditingNode);
                 return;
             }
 
@@ -36,5 +38,11 @@ internal sealed class DataPortEditingCoordinator(IClusterEditorManagementInterna
 
         state.EditingTreeNode = dpNode;
         state.Builder.Notifications.NotifyNodeChanged(dpNode, ChangedNodeDetail.None);
+    }
+
+    private void ScrollBackToEditingNode()
+    {
+        if (state.EditingTreeNode is { } editingTreeNode)
+            editingTreeNode.ScrollToNode(state.Builder);
     }
 }

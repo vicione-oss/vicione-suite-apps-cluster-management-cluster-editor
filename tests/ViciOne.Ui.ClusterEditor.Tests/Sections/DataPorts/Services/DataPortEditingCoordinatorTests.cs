@@ -83,6 +83,34 @@ public sealed class DataPortEditingCoordinatorTests
     }
 
     [Fact]
+    public async Task BeginEdit_WhenTheEditedNodeIsRemovedWhileTheToastIsOpen_ScrollBackDoesNothing()
+    {
+        // Arrange - the toast's callback runs long after it was handed over, by which time the
+        // node it points at may have gone with a deleted ancestor.
+        var root = CreateRoot();
+        var editingNode = CreateChild(root);
+        editingNode.IsEditModeActive = true;
+        editingNode.HasChangedProperties = true;
+        _state.EditingTreeNode = editingNode;
+
+        Action? scrollBack = null;
+        _dataManagementService
+            .ShowMessageToast(Arg.Any<LogLevel>(), Arg.Any<string>(), Arg.Do<Action>(callback => scrollBack = callback))
+            .Returns(Task.CompletedTask);
+
+        await _coordinator.BeginEdit(CreateChild(root));
+        Assert.NotNull(scrollBack);
+        _state.EditingTreeNode = null;
+
+        // Act
+        scrollBack();
+
+        // Assert
+        _builder.Expansion.DidNotReceiveWithAnyArgs().ExpandToNode(default!);
+        _builder.Scrolling.DidNotReceiveWithAnyArgs().RequestScrollToNode(default!);
+    }
+
+    [Fact]
     public async Task BeginEdit_WhenEditingNodeHasNoChanges_DeactivatesPreviousAndActivatesNew()
     {
         // Arrange
