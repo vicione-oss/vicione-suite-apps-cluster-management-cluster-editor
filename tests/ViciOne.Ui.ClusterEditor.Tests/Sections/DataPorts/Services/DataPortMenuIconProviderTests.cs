@@ -101,8 +101,8 @@ public class DataPortMenuIconProviderTests
     {
         // Arrange
         var dataPoint = CreateDataPoint(DataPortDirection.InOut);
-        dataPoint.GetRequiredSystemProperty<Cluster.Model.DataPortTransferMode>(nameof(DataPortTreeNode.TransferMode)).Value
-            = Cluster.Model.DataPortTransferMode.None;
+        dataPoint.GetRequiredSystemProperty<DataPortTransferMode>(nameof(DataPortTreeNode.TransferMode)).Value
+            = DataPortTransferMode.None;
 
         // Act
         var icon = DataPortMenuIconProvider.GetIcon(DescriptorUnder(dataPoint, "Timestamp"));
@@ -116,8 +116,8 @@ public class DataPortMenuIconProviderTests
     {
         // Arrange
         var dataPoint = CreateDataPoint(DataPortDirection.InOut);
-        dataPoint.GetRequiredSystemProperty<Cluster.Model.DataPortTransferMode>(nameof(DataPortTreeNode.TransferMode)).Value
-            = Cluster.Model.DataPortTransferMode.OnChange;
+        dataPoint.GetRequiredSystemProperty<DataPortTransferMode>(nameof(DataPortTreeNode.TransferMode)).Value
+            = DataPortTransferMode.OnChange;
 
         // Act
         var icon = DataPortMenuIconProvider.GetIcon(DescriptorUnder(dataPoint, "Timestamp"));

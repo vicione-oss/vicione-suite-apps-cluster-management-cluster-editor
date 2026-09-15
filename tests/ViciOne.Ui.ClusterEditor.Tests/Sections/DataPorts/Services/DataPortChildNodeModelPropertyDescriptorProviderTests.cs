@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
@@ -199,8 +199,8 @@ public sealed class DataPortChildNodeModelPropertyDescriptorProviderTests
         var directionDescriptor = descriptors.OfType<SelectionPropertyDescriptor<DataPortChildNodeModel, DataPortDirection>>()
             .First(descriptor => descriptor.Name == DirectionProperty);
         var selectable = directionDescriptor.GetSelectableValues(node).ToArray();
-        Assert.Single(selectable);
-        Assert.Equal(DataPortDirection.In, selectable[0].Value);
+        var item = Assert.Single(selectable);
+        Assert.Equal(DataPortDirection.In, item.Value);
     }
 
     [Fact]
@@ -301,8 +301,8 @@ public sealed class DataPortChildNodeModelPropertyDescriptorProviderTests
         var valueTypeDescriptor = descriptors.OfType<SelectionPropertyDescriptor<DataPortChildNodeModel, string>>()
             .First(descriptor => descriptor.Name == ValueTypeProperty);
         var selectable = valueTypeDescriptor.GetSelectableValues(node).ToArray();
-        Assert.Single(selectable);
-        Assert.Equal("Int32", selectable[0].Value);
+        var item = Assert.Single(selectable);
+        Assert.Equal("Int32", item.Value);
         Assert.False(valueTypeDescriptor.Enabled!(node));
         Assert.Equal("Int32", valueTypeDescriptor.GetDefaultValue!(node));
         Assert.Equal("Int32", valueTypeDescriptor.GetValue!(node));

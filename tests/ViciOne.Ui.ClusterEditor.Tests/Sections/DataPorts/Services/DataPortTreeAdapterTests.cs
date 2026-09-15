@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Blazor.Diagrams;
@@ -105,8 +105,8 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         var result = _adapter.GetIcons(rootNode).ToList();
 
         // Assert
-        Assert.Single(result);
-        Assert.Equal(_iconResolver.GetIcons(rootNode).First().MarkupString, ((SvgIcon)result[0]).MarkupString);
+        var item = Assert.Single(result);
+        Assert.Equal(_iconResolver.GetIcons(rootNode).First().MarkupString, ((SvgIcon)item).MarkupString);
     }
 
     private DataPortRootNodeModel SeedRoot()

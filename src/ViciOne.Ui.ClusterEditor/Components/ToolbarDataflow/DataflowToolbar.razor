@@ -3,7 +3,6 @@
 @using ViciOne.Ui.Blazor.Components.Sidebar
 @using ViciOne.Ui.Blazor.Components.Sidebar.Enums
 @using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components
-@using ViciOne.Ui.ClusterEditor.Sections.Debugging.Components
 @using ViciOne.Ui.ClusterEditor.Sections.Library.Components
 @using ViciOne.Ui.ClusterEditor.Sections.Property.Components
 @using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Components
@@ -62,19 +61,6 @@
 
             <PropertySectionContent PropertyGridController="@PropertyGridController" />
         </Section>
-
-        @{
-            #if DEBUG
-            {
-                <Section IconCssClass="@s_debugIconCssClass"
-                         Id="DataflowToolbarSection.Debug"
-                         Title="@DataflowToolbarSectionNames.Debug">
-
-                    <DebugSectionContent />
-                </Section>
-            }
-            #endif
-        }
     </SectionRail>
 </Sidebar>
 

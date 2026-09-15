@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Globalization;
 using System.Threading.Tasks;
 using Bunit;
@@ -119,7 +119,7 @@ public class UniversalInputTests
             // Act
             var childComponent = component.FindComponent<CheckBox<bool>>();
             var input = childComponent.Find("input");
-            input.Input(EventArgs.Empty);
+            await input.InputAsync(EventArgs.Empty);
 
             // Assert
             component.WaitForAssertion(() =>

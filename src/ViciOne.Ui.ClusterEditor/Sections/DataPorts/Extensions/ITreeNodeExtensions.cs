@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+using System.Collections.Generic;
 using ViciOne.Tree.Builder;
 using ViciOne.Tree.Builder.NodeTypes;
 using ViciOne.Ui.ClusterEditor.Models.Comparer;

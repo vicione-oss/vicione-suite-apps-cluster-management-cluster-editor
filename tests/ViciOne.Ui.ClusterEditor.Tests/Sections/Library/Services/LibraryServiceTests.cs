@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
@@ -138,22 +138,22 @@ internal sealed class LibraryServiceTests
                 ]);
             var result = _libraryService.LibraryEntries.ToArray();
 
-            Assert.Single(result);
+            var entry_1 = Assert.Single(result);
 
-            Assert.Equal("Namespace a", result.ElementAt(0).Name);
-            Assert.Single(result.ElementAt(0).Children);
+            Assert.Equal("Namespace a", entry_1.Name);
+            var entry_2 = Assert.Single(entry_1.Children);
 
-            Assert.Equal("Namespace b", result.ElementAt(0).Children[0].Name);
-            Assert.Equal(2, result.ElementAt(0).Children[0].Children.Count);
+            Assert.Equal("Namespace b", entry_2.Name);
+            Assert.Equal(2, entry_2.Children.Count);
 
-            Assert.Equal("Namespace c", result.ElementAt(0).Children[0].Children[0].Name);
-            Assert.Equal(2, result.ElementAt(0).Children[0].Children[0].Children.Count);
-            Assert.Equal("Name abc1", result.ElementAt(0).Children[0].Children[0].Children[0].Name);
-            Assert.Equal("Name abc2", result.ElementAt(0).Children[0].Children[0].Children[1].Name);
+            Assert.Equal("Namespace c", entry_2.Children[0].Name);
+            Assert.Equal(2, entry_2.Children[0].Children.Count);
+            Assert.Equal("Name abc1", entry_2.Children[0].Children[0].Name);
+            Assert.Equal("Name abc2", entry_2.Children[0].Children[1].Name);
 
-            Assert.Equal("Namespace d", result.ElementAt(0).Children[0].Children[1].Name);
-            Assert.Single(result.ElementAt(0).Children[0].Children[1].Children);
-            Assert.Equal("Name abd1", result.ElementAt(0).Children[0].Children[1].Children[0].Name);
+            Assert.Equal("Namespace d", entry_2.Children[1].Name);
+            var item = Assert.Single(entry_2.Children[1].Children);
+            Assert.Equal("Name abd1", item.Name);
         }
 
         [Fact]
@@ -175,8 +175,8 @@ internal sealed class LibraryServiceTests
             Assert.Equal("2", result.ElementAt(0).Children[1].Name);
 
             Assert.Equal("2", result.ElementAt(1).Name);
-            Assert.Single(result.ElementAt(1).Children);
-            Assert.Equal("2", result.ElementAt(1).Children[0].Name);
+            var item = Assert.Single(result.ElementAt(1).Children);
+            Assert.Equal("2", item.Name);
         }
     }
 }

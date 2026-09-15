@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -249,8 +249,8 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         _mutator.InitializeDataPortTree();
 
         // Assert
-        Assert.Single(_state.RootNodes);
-        Assert.Single(_state.RootNodes.Single().Children);
+        var item = Assert.Single(_state.RootNodes);
+        Assert.Single(item.Children);
     }
 
     [Fact]

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -13,23 +13,23 @@ internal sealed partial class DataPortTreeBuilderRegistry(IRulesetProvider rules
 {
     public const string DataPortCategory = "DataPorts";
     private readonly HashSet<string> _failedRulesets = [];
-    private readonly Dictionary<string, Tree.Builder.TreeBuilder> _treeBuilders = [];
+    private readonly Dictionary<string, TreeBuilder> _treeBuilders = [];
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Skipping ruleset {RulesetKey}: {ValidationMessages}")]
     public static partial void CreateTreeBuilderFailed(ILogger logger, Exception ex, string rulesetKey, string validationMessages);
 
-    private Tree.Builder.TreeBuilder GetOrCreateTreeBuilder(RulesetIdentifier rulesetId)
+    private TreeBuilder GetOrCreateTreeBuilder(RulesetIdentifier rulesetId)
     {
         if (!_treeBuilders.TryGetValue(rulesetId.Key, out var treeBuilder))
         {
-            treeBuilder = new Tree.Builder.TreeBuilder(rulesetProvider.GetRuleset(rulesetId));
+            treeBuilder = new TreeBuilder(rulesetProvider.GetRuleset(rulesetId));
             _treeBuilders.Add(rulesetId.Key, treeBuilder);
         }
 
         return treeBuilder;
     }
 
-    public Tree.Builder.TreeBuilder GetOrCreateTreeBuilder(string dataPortCategory, string rulesetIdentifier)
+    public TreeBuilder GetOrCreateTreeBuilder(string dataPortCategory, string rulesetIdentifier)
         => GetOrCreateTreeBuilder(new RulesetIdentifier(dataPortCategory, rulesetIdentifier));
 
     /// <summary>
@@ -74,7 +74,7 @@ internal sealed partial class DataPortTreeBuilderRegistry(IRulesetProvider rules
         }
     }
 
-    public bool TryGetTreeBuilderForDataPort(string rulesetId, out Tree.Builder.TreeBuilder? treeBuilder)
+    public bool TryGetTreeBuilderForDataPort(string rulesetId, out TreeBuilder? treeBuilder)
     {
         treeBuilder = _treeBuilders.Values.FirstOrDefault(k => rulesetId.Equals(k.Ruleset.Root?.Id, StringComparison.OrdinalIgnoreCase));
         return treeBuilder is not null;

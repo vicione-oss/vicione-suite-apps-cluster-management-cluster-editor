@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
@@ -41,8 +41,8 @@ public sealed class DataPortTreeStateTests
         _state.AddRootNode(root);
 
         // Assert
-        Assert.Single(_state.RootNodes);
-        Assert.Same(root, _state.RootNodes[0]);
+        var item = Assert.Single(_state.RootNodes);
+        Assert.Same(root, item);
     }
 
     [Fact]
