@@ -209,6 +209,8 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
 
     private async Task OnDeleteNodeCancel()
     {
+        _confirmDeleteDialogAction = () => { };
+
         if (_confirmDeleteDialogRef is null)
             return;
 
@@ -218,8 +220,8 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
 
     private async Task OnDeleteNodeConfirm()
     {
-        if (_confirmDeleteDialogAction is not null)
-            _confirmDeleteDialogAction();
+        _confirmDeleteDialogAction();
+        _confirmDeleteDialogAction = () => { };
 
         if (_confirmDeleteDialogRef is null)
             return;

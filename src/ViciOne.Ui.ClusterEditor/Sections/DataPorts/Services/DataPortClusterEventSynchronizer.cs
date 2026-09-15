@@ -71,9 +71,6 @@ internal sealed class DataPortClusterEventSynchronizer(
             if (dataPortNode is null)
                 continue;
 
-            if (state.EditingTreeNode is not null && state.EditingTreeNode.Id == dataPortNode.Id)
-                state.EditingTreeNode = null;
-
             dataPortNode.RootNode.Children.Remove(dataPortNode);
 
             if (dataPortNode.RootNode.Children.Count != 0)
@@ -89,6 +86,12 @@ internal sealed class DataPortClusterEventSynchronizer(
                 state.Builder.Notifications.NotifyRootNodesChanged();
             }
         }
+
+        ClearEditingNodeIfItIsGone();
+
+        // A DataPort without tree nodes is removed without a tree node event following it, so this
+        // is the last event of such a deletion.
+        state.IsDeletionInProgress = false;
     }
 
     private void OnDataPortTreeNodeLinksChanged(IEnumerable<Link> links)
@@ -125,15 +128,25 @@ internal sealed class DataPortClusterEventSynchronizer(
             if (childNode.Parent is not DataPortChildNodeModel parent)
                 continue;
 
-            if (state.EditingTreeNode is not null && state.EditingTreeNode.Id == childNode.Id)
-                state.EditingTreeNode = null;
-
             parent.Children.Remove(childNode);
             parent.PossibleChildren = [.. parent.GetPossibleChildNodes()];
             state.Builder.Notifications.NotifyNodeChanged(parent, ChangedNodeDetail.Actions);
             state.Builder.Notifications.NotifyChildrenChanged(parent);
         }
 
+        ClearEditingNodeIfItIsGone();
         state.IsDeletionInProgress = false;
+    }
+
+    /// <summary>
+    /// Forgets the node being edited once the tree no longer holds it. The removal event does not
+    /// always name it: deleting an ancestor takes the whole subtree along. A node left behind here
+    /// would keep every later edit reporting unsaved changes for a node the user cannot see any
+    /// more, and hand the toast a node the tree builder has already dropped.
+    /// </summary>
+    private void ClearEditingNodeIfItIsGone()
+    {
+        if (state.EditingTreeNode is { } editingNode && state.FindAnyNode(editingNode.Id) is null)
+            state.EditingTreeNode = null;
     }
 }

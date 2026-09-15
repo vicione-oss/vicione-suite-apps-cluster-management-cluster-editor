@@ -44,7 +44,8 @@ public sealed partial class AddDataPortContextMenu : SpecializedContextMenuBase<
 
         var iconBase64Encoded = Convert.ToBase64String(Encoding.UTF8.GetBytes(icon ?? string.Empty));
 
-        _iconData[possibleChild] = $"data:image/svg+xml;base64,{iconBase64Encoded}";
+        iconData = $"data:image/svg+xml;base64,{iconBase64Encoded}";
+        _iconData[possibleChild] = iconData;
 
         return iconData;
     }

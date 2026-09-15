@@ -29,6 +29,22 @@ internal sealed class DataPortTreeState
     public void ClearRootNodes()
         => _dataPorts.Clear();
 
+    /// <summary>
+    /// The node with <paramref name="id"/> anywhere in the tree, root nodes included, or
+    /// <see langword="null"/> when no root node still reaches it.
+    /// </summary>
+    public DataPortNodeModel? FindAnyNode(GuidNodeIdentifier id)
+    {
+        foreach (var rootNode in _dataPorts)
+        {
+            var treeNode = FindTreeNode(rootNode, id);
+            if (treeNode is not null)
+                return treeNode;
+        }
+
+        return null;
+    }
+
     public DataPortChildNodeModel? FindNode(Guid nodeId)
         => _dataPorts.FindNode(nodeId);
 

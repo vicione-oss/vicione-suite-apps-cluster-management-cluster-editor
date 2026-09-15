@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NSubstitute;
 using ViciOne.Cluster.Builder.Abstractions;
@@ -36,7 +37,7 @@ public sealed class DataPortIconResolverTests
         };
         _dataPortTreeNode.IncomingLinks.Add(new());
         _dataPortTreeNode.OutgoingLinks.Add(new());
-        builderCache.DataPortTreeNodeIds[_childId].Returns(_dataPortTreeNode);
+        builderCache.DataPortTreeNodeIds.Returns(new Dictionary<Guid, DataPortTreeNode> { [_childId] = _dataPortTreeNode });
         builder.Cache.Returns(builderCache);
         _datastore.Builder.Returns(builder);
     }
