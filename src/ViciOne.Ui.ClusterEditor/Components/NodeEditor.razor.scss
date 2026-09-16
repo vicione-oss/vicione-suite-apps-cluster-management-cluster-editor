@@ -12,6 +12,12 @@
         cursor: default;
         grid-column: 1;
         grid-row: 1;
+        /*
+            Prevents a text selection when a select box drag ends on the edge dragging area.
+            Otherwise the next drag on the canvas starts a native browser drag of that selection
+            which cancels all further pointer events (see #1722).
+        */
+        user-select: none;
 
         .diagram-node {
             &.locked {

@@ -38,6 +38,12 @@ public sealed partial class EdgeDraggingArea : ComponentBase, IDisposable
         DiagramEventService.EdgeDraggingVisibilityChangeRequested -= OnEdgeDraggingVisibilityChangeRequested;
     }
 
+    private void OnContainerPointerCancel(PointerEventArgs _)
+    {
+        StopPanning();
+        Cleanup();
+    }
+
     private void OnContainerPointerMove(PointerEventArgs e)
     {
         _lastPointerMoveEventArgs = e;

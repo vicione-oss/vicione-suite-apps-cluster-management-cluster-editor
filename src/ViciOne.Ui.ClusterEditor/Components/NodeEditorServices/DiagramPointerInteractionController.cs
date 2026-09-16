@@ -68,10 +68,7 @@ internal sealed class DiagramPointerInteractionController(
             await selectionManager.SelectInRectangle(mode, _draggingRectangle);
         }
 
-        _draggingRectangle = null;
-        _draggingViewRectangle = null;
-        _draggingStartPoint = null;
-
+        ResetSelectBox();
         _requestRender();
     }
 
@@ -99,6 +96,17 @@ internal sealed class DiagramPointerInteractionController(
         diagramEventService.EdgeDraggingPointerUp += OnExternalPointerUp;
 
         _initialized = true;
+    }
+
+    public void OnContainerPointerCancel(PointerEventArgs _)
+    {
+        // The browser cancels the pointer (e.g. by starting a native drag), so no pointer up
+        // will follow. Discard the select box without selecting anything.
+        diagramEventService.RequestEdgeDraggingVisibilityChange(false);
+
+        _contextMenuAllowed = true;
+        ResetSelectBox();
+        _requestRender();
     }
 
     public void OnContainerPointerDown(PointerEventArgs e)
@@ -131,10 +139,7 @@ internal sealed class DiagramPointerInteractionController(
 
         if (e.Buttons != LeftMouseButton)
         {
-            _draggingRectangle = null;
-            _draggingViewRectangle = null;
-            _draggingStartPoint = null;
-            inputEventService.PointerMove -= OnContainerPointerMove;
+            ResetSelectBox();
             _requestRender();
             return;
         }
@@ -215,6 +220,14 @@ internal sealed class DiagramPointerInteractionController(
         await ContainerPointerUp();
         _diagram.Refresh();
         _requestRender();
+    }
+
+    private void ResetSelectBox()
+    {
+        inputEventService.PointerMove -= OnContainerPointerMove;
+        _draggingRectangle = null;
+        _draggingStartPoint = null;
+        _draggingViewRectangle = null;
     }
 
     private void SetDiagramViewport(Rectangle rect)
