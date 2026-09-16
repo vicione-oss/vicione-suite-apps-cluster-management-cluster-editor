@@ -40,6 +40,7 @@
   - **Breaking:** `DataPortChildNodeModel` has a new required `LinkDirections` member
   - **Breaking:** `ColoredIconFactory.GetDataPortIcon` takes a nullable `DataPortDirection`
 - Moved the debug generators for function blocks, links and data ports into the sample app, where they work through the `ClusterBuilder`
+- Unified JavaScript interop error handling so a lost circuit, a disposed runtime or module and interop cancellations are logged instead of crashing, while errors raised inside JavaScript still surface
 
 ### Fixed
 
@@ -56,6 +57,7 @@
   - DataPort icons keep refreshing after a DataPort without tree nodes was deleted
   - Deleting a node's parent while editing it no longer blocks all further edits, or crashes when the warning is closed
 - Fixed selection rectangle no longer working on an empty diagram after a previous selection ended on the edge dragging area
+- Fixed a rare crash when a library drag left the diagram while a JavaScript call was still running
 
 ### Removed
 

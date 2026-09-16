@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.JSInterop;
 using ViciOne.Ui.ClusterEditor.Components.NodeEditorServices;
 using Xunit;
@@ -17,7 +18,7 @@ public sealed class NodeEditorJsInteropTests
         // Arrange
         await using var ctx = new BunitContext();
         ctx.JSInterop.Mode = JSRuntimeMode.Loose;
-        var sut = new NodeEditorJsInterop(ctx.Services.GetRequiredService<IJSRuntime>());
+        var sut = new NodeEditorJsInterop(ctx.Services.GetRequiredService<IJSRuntime>(), NullLogger<NodeEditorJsInterop>.Instance);
 
         // Act
         await sut.FocusDiagramCanvasAsync();
@@ -33,7 +34,7 @@ public sealed class NodeEditorJsInteropTests
         // Arrange
         await using var ctx = new BunitContext();
         ctx.JSInterop.Setup<bool>("ViciOne.NodeMove.waitForNodes", _ => true).SetResult(true);
-        var sut = new NodeEditorJsInterop(ctx.Services.GetRequiredService<IJSRuntime>());
+        var sut = new NodeEditorJsInterop(ctx.Services.GetRequiredService<IJSRuntime>(), NullLogger<NodeEditorJsInterop>.Instance);
         var ids = new[] { "node-a", "node-b" };
 
         // Act

@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Behaviors;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using ViciOne.Ui.ClusterEditor.Behaviors;
 using ViciOne.Ui.ClusterEditor.Services;
@@ -18,6 +19,7 @@ internal sealed class NodeEditorBehaviorController(
     DiagramService diagramService,
     InputEventService inputEventService,
     IJSRuntime jsRuntime,
+    ILoggerFactory loggerFactory,
     SelectionManager selectionManager) : IDisposable
 {
     private IPanBehavior? _activePanBehavior;
@@ -64,7 +66,14 @@ internal sealed class NodeEditorBehaviorController(
 
         _selectionBehavior = new(_diagram, selectionManager);
         _diagram.RegisterBehavior(_selectionBehavior);
-        _dragMovablesBehavior = new(datastore, _diagram, diagramEventService, diagramService, inputEventService, jsRuntime);
+        _dragMovablesBehavior = new(
+            datastore,
+            _diagram,
+            diagramEventService,
+            diagramService,
+            inputEventService,
+            jsRuntime,
+            loggerFactory.CreateLogger<VODragMovablesBehavior>());
         _diagram.RegisterBehavior(_dragMovablesBehavior);
 
         _dragNewLinkBehavior = new(datastore, _diagram, diagramEventService, diagramService, inputEventService);

@@ -1,60 +1,43 @@
-﻿using System;
-using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using Microsoft.JSInterop.Infrastructure;
-using ViciOne.Ui.ClusterEditor.Constants;
 
 namespace ViciOne.Ui.ClusterEditor.Extensions;
 
-internal static class IJSRuntimeExtensions
+internal static class IJSObjectReferenceExtensions
 {
-    internal static async Task<int[]> MeasureNameFieldHeights(
-        this IJSRuntime jsRuntime,
+    /// <summary>
+    /// Releases the JS object reference and reports whether disposal completed instead of throwing when
+    /// the JS target is unavailable. See <see cref="JsInteropGuard.RunGuarded{TValue}"/> for what is caught.
+    /// </summary>
+    /// <remarks>
+    /// Disposal is not an invoke, so the identifier that is logged is the calling member rather than a
+    /// JavaScript function name.
+    /// </remarks>
+    internal static Task<bool> TryDisposeAsync(
+        this IJSObjectReference jsObjectReference,
         ILogger logger,
-        List<string> names,
-        CancellationToken cancellationToken)
-    {
-        if (names.Count == 0)
-            return [];
-
-        try
-        {
-            var (success, heights) = await jsRuntime.TryInvoke<int[]>(
-                logger,
-                "ViciOne.Diagram.BlockNode.measureNameFieldHeights",
-                cancellationToken,
-                names,
-                BlockNodeLayout.Width,
-                DiagramSettings.DefaultGridSize).ConfigureAwait(false);
-
-            if (success && heights is not null)
-                return heights;
-        }
-        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
-        {
-            // Callers mutate the cluster model before measuring and check the token themselves afterwards,
-            // so a cancelled measurement must still yield nodes (with the default height) instead of throwing.
-        }
-
-        var fallback = new int[names.Count];
-        Array.Fill(fallback, 2 * DiagramSettings.DefaultGridSize);
-        return fallback;
-    }
+        [CallerMemberName] string caller = "")
+        => JsInteropGuard.RunGuarded(
+            jsObjectReference.DisposeAsync,
+            logger,
+            caller,
+            CancellationToken.None);
 
     /// <summary>
     /// Invokes <paramref name="identifier"/> and reports whether the call completed instead of throwing
     /// when the JS target is unavailable. See <see cref="JsInteropGuard.RunGuarded{TValue}"/> for what is caught.
     /// </summary>
     internal static Task<(bool Success, TValue? Value)> TryInvoke<TValue>(
-        this IJSRuntime jsRuntime,
+        this IJSObjectReference jsObjectReference,
         ILogger logger,
         string identifier,
         params object?[]? args)
         => JsInteropGuard.RunGuarded(
-            () => jsRuntime.InvokeAsync<TValue>(identifier, args),
+            () => jsObjectReference.InvokeAsync<TValue>(identifier, args),
             logger,
             identifier,
             CancellationToken.None);
@@ -64,20 +47,20 @@ internal static class IJSRuntimeExtensions
     /// when the JS target is unavailable. See <see cref="JsInteropGuard.RunGuarded{TValue}"/> for what is caught.
     /// </summary>
     /// <remarks>
-    /// Two binding hazards, both shared with the framework's own <c>JSRuntimeExtensions</c>:
+    /// Two binding hazards, both shared with the framework's own <c>JSObjectReferenceExtensions</c>:
     /// a <see cref="CancellationToken"/> meant as a JavaScript <em>argument</em> binds to
     /// <paramref name="cancellationToken"/> and is never passed to JavaScript; and because
     /// <paramref name="args"/> is a <c>params</c> array, passing a single array spreads it into one
     /// JavaScript argument per element rather than passing it as one array argument.
     /// </remarks>
     internal static Task<(bool Success, TValue? Value)> TryInvoke<TValue>(
-        this IJSRuntime jsRuntime,
+        this IJSObjectReference jsObjectReference,
         ILogger logger,
         string identifier,
         CancellationToken cancellationToken,
         params object?[]? args)
         => JsInteropGuard.RunGuarded(
-            () => jsRuntime.InvokeAsync<TValue>(identifier, args),
+            () => jsObjectReference.InvokeAsync<TValue>(identifier, args),
             logger,
             identifier,
             cancellationToken);
@@ -87,13 +70,13 @@ internal static class IJSRuntimeExtensions
     /// when the JS target is unavailable. See <see cref="JsInteropGuard.RunGuarded{TValue}"/> for what is caught.
     /// </summary>
     internal static async Task<bool> TryInvokeVoid(
-        this IJSRuntime jsRuntime,
+        this IJSObjectReference jsObjectReference,
         ILogger logger,
         string identifier,
         params object?[]? args)
     {
         var (success, _) = await JsInteropGuard.RunGuarded(
-            () => jsRuntime.InvokeAsync<IJSVoidResult>(identifier, args),
+            () => jsObjectReference.InvokeAsync<IJSVoidResult>(identifier, args),
             logger,
             identifier,
             CancellationToken.None).ConfigureAwait(false);
@@ -106,21 +89,21 @@ internal static class IJSRuntimeExtensions
     /// when the JS target is unavailable. See <see cref="JsInteropGuard.RunGuarded{TValue}"/> for what is caught.
     /// </summary>
     /// <remarks>
-    /// Two binding hazards, both shared with the framework's own <c>JSRuntimeExtensions</c>:
+    /// Two binding hazards, both shared with the framework's own <c>JSObjectReferenceExtensions</c>:
     /// a <see cref="CancellationToken"/> meant as a JavaScript <em>argument</em> binds to
     /// <paramref name="cancellationToken"/> and is never passed to JavaScript; and because
     /// <paramref name="args"/> is a <c>params</c> array, passing a single array spreads it into one
     /// JavaScript argument per element rather than passing it as one array argument.
     /// </remarks>
     internal static async Task<bool> TryInvokeVoid(
-        this IJSRuntime jsRuntime,
+        this IJSObjectReference jsObjectReference,
         ILogger logger,
         string identifier,
         CancellationToken cancellationToken,
         params object?[]? args)
     {
         var (success, _) = await JsInteropGuard.RunGuarded(
-            () => jsRuntime.InvokeAsync<IJSVoidResult>(identifier, args),
+            () => jsObjectReference.InvokeAsync<IJSVoidResult>(identifier, args),
             logger,
             identifier,
             cancellationToken).ConfigureAwait(false);

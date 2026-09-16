@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Models;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarDataflow.Models;
+using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
@@ -23,6 +25,7 @@ public sealed partial class ClusterEditor : ComponentBase, IDisposable
     [Inject] private FullscreenService FullscreenService { get; set; } = default!;
     [Inject] private InputEventService InputEventService { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+    [Inject] private ILogger<ClusterEditor> Logger { get; set; } = default!;
 
     public void Dispose()
     {
@@ -35,7 +38,7 @@ public sealed partial class ClusterEditor : ComponentBase, IDisposable
         if (firstRender)
         {
             _refObject = DotNetObjectReference.Create(InputEventService);
-            await JSRuntime.InvokeVoidAsync("ViciOne.InputEvents.initializeKeyboardListener", _refObject);
+            await JSRuntime.TryInvokeVoid(Logger, "ViciOne.InputEvents.initializeKeyboardListener", _refObject);
         }
     }
 

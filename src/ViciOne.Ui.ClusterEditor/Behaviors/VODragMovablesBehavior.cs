@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Blazor.Diagrams.Core;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models.Base;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
@@ -24,6 +25,7 @@ internal sealed class VODragMovablesBehavior : Behavior
     private Point _initialPointerPosition = Point.Zero;
     private readonly InputEventService _inputEventService;
     private readonly IJSRuntime _jSRuntime;
+    private readonly ILogger<VODragMovablesBehavior> _logger;
     private bool _modelWasMoved;
     private DotNetObjectReference<VODragMovablesBehavior>? _refObject;
 
@@ -35,13 +37,15 @@ internal sealed class VODragMovablesBehavior : Behavior
         DiagramEventService diagramEventService,
         DiagramService diagramService,
         InputEventService inputEventService,
-        IJSRuntime jSRuntime) : base(diagram)
+        IJSRuntime jSRuntime,
+        ILogger<VODragMovablesBehavior> logger) : base(diagram)
     {
         _datastore = datastore;
         _diagramEventService = diagramEventService;
         _diagramService = diagramService;
         _inputEventService = inputEventService;
         _jSRuntime = jSRuntime;
+        _logger = logger;
 
         Diagram.PanChanged += OnDiagramPanChanged;
         Diagram.PointerDown += OnDiagramPointerDown;
@@ -105,7 +109,7 @@ internal sealed class VODragMovablesBehavior : Behavior
 
         Move(clientX, clientY);
 
-        _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.end").AsTask();
+        AsyncGuard.SafeFireAndForget(() => _jSRuntime.TryInvokeVoid(_logger, "ViciOne.NodeMove.end"), _logger);
 
         End();
     }
@@ -115,7 +119,7 @@ internal sealed class VODragMovablesBehavior : Behavior
         if (!IsMoving)
             return;
 
-        _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.externalMove", clientX, clientY).AsTask();
+        AsyncGuard.SafeFireAndForget(() => _jSRuntime.TryInvokeVoid(_logger, "ViciOne.NodeMove.externalMove", clientX, clientY), _logger);
     }
 
     [JSInvokable]
@@ -167,7 +171,7 @@ internal sealed class VODragMovablesBehavior : Behavior
         if (!IsMoving)
             return;
 
-        _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.diagramPanChanged", Diagram.Pan.X, Diagram.Pan.Y).AsTask();
+        AsyncGuard.SafeFireAndForget(() => _jSRuntime.TryInvokeVoid(_logger, "ViciOne.NodeMove.diagramPanChanged", Diagram.Pan.X, Diagram.Pan.Y), _logger);
     }
 
     private void OnDiagramPointerDown(Model? model, global::Blazor.Diagrams.Core.Events.PointerEventArgs e)
@@ -186,7 +190,7 @@ internal sealed class VODragMovablesBehavior : Behavior
         if (!IsMoving)
             return;
 
-        _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.diagramZoomChanged", Diagram.Zoom).AsTask();
+        AsyncGuard.SafeFireAndForget(() => _jSRuntime.TryInvokeVoid(_logger, "ViciOne.NodeMove.diagramZoomChanged", Diagram.Zoom), _logger);
     }
 
     private void OnEdgeDraggingPointerUp(Microsoft.AspNetCore.Components.Web.PointerEventArgs e)
@@ -273,21 +277,25 @@ internal sealed class VODragMovablesBehavior : Behavior
 
         _refObject ??= DotNetObjectReference.Create(this);
 
-        _ = _jSRuntime.InvokeVoidAsync("ViciOne.NodeMove.start",
-            linkIds,
-            linkSourceIds,
-            linkSourcePosXs,
-            linkSourcePosYs,
-            linkTargetIds,
-            linkTargetPosXs,
-            linkTargetPosYs,
-            _refObject,
-            gridSize,
-            movableModelIds,
-            Diagram.Zoom,
-            containerPos,
-            pan,
-            initPos,
-            useJsDomEvents).AsTask();
+        AsyncGuard.SafeFireAndForget(
+            () => _jSRuntime.TryInvokeVoid(
+                _logger,
+                "ViciOne.NodeMove.start",
+                linkIds,
+                linkSourceIds,
+                linkSourcePosXs,
+                linkSourcePosYs,
+                linkTargetIds,
+                linkTargetPosXs,
+                linkTargetPosYs,
+                _refObject,
+                gridSize,
+                movableModelIds,
+                Diagram.Zoom,
+                containerPos,
+                pan,
+                initPos,
+                useJsDomEvents),
+            _logger);
     }
 }

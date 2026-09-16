@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Blazor.Diagrams.Core.Models;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Constants;
@@ -24,6 +25,7 @@ public sealed partial class BlockLinkComponent : ComponentBase
     [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramService DiagramService { get; set; } = default!;
     [Inject] private IJSRuntime JSRuntime { get; set; } = default!;
+    [Inject] private ILogger<BlockLinkComponent> Logger { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
 
     [Parameter] public BlockNodeLink? Link { get; set; }
@@ -53,7 +55,9 @@ public sealed partial class BlockLinkComponent : ComponentBase
         // Das funktioniert nur solange, wie wir keine Links mit "Vertices"
         // (https://blazor-diagrams.zhaytam.com/links/vertices) haben
         var curvePoints = GetLinkPathPoints();
-        var t = await JSRuntime.InvokeAsync<double>("ViciOne.Diagram.Link.getRatio",
+        var (success, t) = await JSRuntime.TryInvoke<double>(
+            Logger,
+            "ViciOne.Diagram.Link.getRatio",
             curvePoints[1],
             curvePoints[2],
             curvePoints[4],
@@ -64,6 +68,9 @@ public sealed partial class BlockLinkComponent : ComponentBase
             curvePoints[9],
             e.OffsetX,
             e.OffsetY);
+
+        if (!success)
+            return;
 
         BlockNodeConnector? connector;
         NodeModel node;

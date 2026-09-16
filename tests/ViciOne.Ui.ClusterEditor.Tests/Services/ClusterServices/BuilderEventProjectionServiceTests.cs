@@ -34,9 +34,14 @@ public sealed class BuilderEventProjectionServiceTests : IDisposable
         var diagramProjectionService = new DiagramProjectionService(
             new ComparerService([], NullLogger<ComparerService>.Instance),
             _state,
-            Substitute.For<IJSRuntime>());
+            Substitute.For<IJSRuntime>(),
+            NullLogger<DiagramProjectionService>.Instance);
 
-        _sut = new BuilderEventProjectionService(_buffer, _state, diagramProjectionService);
+        _sut = new BuilderEventProjectionService(
+            _buffer,
+            _state,
+            diagramProjectionService,
+            NullLogger<BuilderEventProjectionService>.Instance);
         _sut.Attach();
 
         _state.PropertyChanged += _propertyChanges.Add;

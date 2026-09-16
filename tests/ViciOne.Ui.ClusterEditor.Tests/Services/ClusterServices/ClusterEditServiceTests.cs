@@ -127,6 +127,24 @@ public sealed class ClusterEditServiceTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task AddFunctionBlock_WhenCallerTokenIsCancelled_StillRegistersNode()
+    {
+        // Arrange - the library ghost drag cancels its token when the pointer leaves the diagram while
+        // the function block is being created. The model object must still get a node so the drag leave
+        // can remove both again.
+        using var cts = new CancellationTokenSource();
+        await cts.CancelAsync();
+
+        // Act
+        var node = await _sut.AddFunctionBlock(_diagramService, _fbDesignId, new Point(0, 0), cts.Token);
+
+        // Assert
+        var functionBlock = _state.DataflowDiagramMapping.GetModel(node);
+        _state.DataflowDiagramMapping.TryGetDiagramModel(functionBlock, out _).Should().BeTrue();
+        node.NameFieldHeight.Should().Be(2 * DiagramSettings.DefaultGridSize);
+    }
+
+    [Fact]
     public async Task AddFunctionBlock_WhenNoValidEngines_DoesNotAssignEngine()
     {
         // Arrange
