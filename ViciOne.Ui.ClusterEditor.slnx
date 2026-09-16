@@ -12,6 +12,7 @@
     <File Path="AGENTS.md" />
     <File Path="CHANGELOG.md" />
     <File Path="CLAUDE.md" />
+    <File Path="CodeCoverage.runsettings" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
     <File Path="global.json" />
