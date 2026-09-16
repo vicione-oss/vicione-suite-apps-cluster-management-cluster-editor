@@ -1,12 +1,15 @@
-﻿using System.Diagnostics;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.IO.Abstractions;
 using System.Reflection;
+using Microsoft.Extensions.Options;
 using Sdk.Backend.Modules;
 using Semver;
 using Shared.ClusterSerialization;
 using Shared.Designs;
 using ViciOne.Cluster.Model;
+using ViciOne.Core.Dataflow.DataModel;
+using ViciOne.Serialization.Json;
 
 namespace Server.Designs;
 
@@ -14,6 +17,7 @@ namespace Server.Designs;
 internal sealed partial class DesignLoader(
     IClusterDependencyStore clusterDependencyStore,
     IFileSystem fileSystem,
+    IOptions<FunctionBlockDesignImportOptions> jsonDesignImportOptions,
     ILogger<DesignLoader> logger,
     IPackagesStore packagesStore,
     IWorkspaceProvider<FakeBackendModule> workspaceProvider,
@@ -111,6 +115,8 @@ internal sealed partial class DesignLoader(
                     LogAddPackageFailed(logger, component.Key.Name, ToVersion(component.Key.Version));
             }
 
+            LoadFunctionBlockDesignsFromJson();
+
             LogDependencyLoadingDone(logger);
 
             ClusterSerializer.SetTypedSerializerOptions();
@@ -123,6 +129,61 @@ internal sealed partial class DesignLoader(
         {
             _downloadProcess.TrySetResult();
         }
+    }
+
+    private void LoadFunctionBlockDesignsFromJson()
+    {
+        var sources = jsonDesignImportOptions.Value.Sources.Count > 0
+            ? jsonDesignImportOptions.Value.Sources
+            : [new FunctionBlockDesignSource()];
+
+        foreach (var source in sources)
+            LoadFunctionBlockDesigns(source);
+    }
+
+    private void LoadFunctionBlockDesigns(FunctionBlockDesignSource source)
+    {
+        var sourcePath = fileSystem.Path.IsPathRooted(source.SourcePath)
+            ? source.SourcePath
+            : fileSystem.Path.Combine(AppContext.BaseDirectory, source.SourcePath);
+
+        if (!fileSystem.Directory.Exists(sourcePath))
+        {
+            LogFunctionBlockDesignSourceDirectoryMissing(logger, source.Name, sourcePath);
+            return;
+        }
+
+        List<FunctionBlockDesign> designs = [];
+        foreach (var file in fileSystem.Directory.GetFiles(sourcePath, "*.json", SearchOption.TopDirectoryOnly))
+        {
+            try
+            {
+                var json = fileSystem.File.ReadAllText(file);
+                var design = JsonSerialization.Default.Load<FunctionBlockDesign>(json);
+                if (design is null)
+                {
+                    LogFunctionBlockDesignDeserializationFailed(logger, null, file);
+                    continue;
+                }
+
+                designs.Add(design);
+            }
+            catch (Exception ex)
+            {
+                LogFunctionBlockDesignDeserializationFailed(logger, ex, file);
+            }
+        }
+
+        if (designs.Count == 0)
+        {
+            LogNoFunctionBlockDesignsLoaded(logger, source.Name, sourcePath);
+            return;
+        }
+
+        var dependency = new ClusterDependency { Name = source.Name, Version = source.Version };
+
+        if (!packagesStore.TryAddPackage(dependency, designs))
+            LogFunctionBlockDesignsAddFailed(logger, source.Name);
     }
 
     private ClusterDependency LoadSystemDataPortFunctionBlock()
@@ -150,6 +211,18 @@ internal sealed partial class DesignLoader(
 
     [LoggerMessage(Level = LogLevel.Information, Message = "Downloading {Count} dependencies (skipped={Skipped}, errors={Errors}) took {Elapsed}.")]
     private static partial void LogDownloadComplete(ILogger logger, int count, int skipped, int errors, TimeSpan elapsed);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to deserialize FunctionBlockDesign from {File}.")]
+    private static partial void LogFunctionBlockDesignDeserializationFailed(ILogger logger, Exception? exception, string file);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "FunctionBlockDesign source directory {SourcePath} for '{Name}' does not exist.")]
+    private static partial void LogFunctionBlockDesignSourceDirectoryMissing(ILogger logger, string name, string sourcePath);
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to add FunctionBlockDesigns for '{Name}' to store.")]
+    private static partial void LogFunctionBlockDesignsAddFailed(ILogger logger, string name);
+
+    [LoggerMessage(Level = LogLevel.Information, Message = "No FunctionBlockDesigns loaded for '{Name}' from {SourcePath}.")]
+    private static partial void LogNoFunctionBlockDesignsLoaded(ILogger logger, string name, string sourcePath);
 
     [LoggerMessage(Level = LogLevel.Warning, Message = "Failed to update {SourcePath}.")]
     private static partial void LogUpdateFailed(ILogger logger, Exception? exception, string sourcePath);

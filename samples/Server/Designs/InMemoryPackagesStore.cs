@@ -1,4 +1,4 @@
-﻿using System.IO.Abstractions;
+using System.IO.Abstractions;
 using Sdk.Backend.Modules;
 using Shared.Designs;
 using ViciOne.Cluster.Model;
@@ -66,6 +66,30 @@ internal sealed partial class InMemoryPackagesStore(
             return true;
         }
     }
+
+    public bool TryAddPackage(ClusterDependency dependency, IEnumerable<FunctionBlockDesign> designs)
+    {
+        lock (_lock)
+        {
+            if (_packages.ContainsKey(dependency))
+                return false;
+
+            Dictionary<Guid, FunctionBlockDesign> designsById = [];
+            foreach (var design in designs)
+            {
+                if (!designsById.TryAdd(design.Id, design))
+                    LogDuplicateFunctionBlockDesignId(logger, design.Id, dependency.Name);
+            }
+
+            var rulesets = new Dictionary<string, Ruleset>();
+
+            _packages[dependency] = new(designsById, rulesets, false);
+            return true;
+        }
+    }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Duplicate FunctionBlockDesign id {Id} encountered while adding package '{Name}'; keeping the first occurrence.")]
+    private static partial void LogDuplicateFunctionBlockDesignId(ILogger logger, Guid id, string name);
 
     private sealed record Content(IReadOnlyDictionary<Guid, FunctionBlockDesign> Designs, IReadOnlyDictionary<string, Ruleset> Rulesets, bool Hide);
 }
