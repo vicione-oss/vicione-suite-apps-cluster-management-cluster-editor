@@ -60,6 +60,7 @@
 
 - **Breaking:** `DataPortNodeModel.AvailableIcons` and the per-node icon selection in the property grid it fed
 - The debug section and the debug console from the cluster editor, eliminating all `#if DEBUG` code paths from the product code
+- Outdated docs (feature list, quickstart, performance measurements, SVG optimization guide) and the German duplicates of the component and code style guidelines
 
 ### Updated external references
 

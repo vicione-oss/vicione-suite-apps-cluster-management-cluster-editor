@@ -40,8 +40,9 @@ Comments should be written in english. They should start with a capital letter a
 
 ## git
 
-### Commit messages
+### Merge request titles and commit messages
 
-Commit messages should be written in english and start with a capital letter.
-Commit messages should be written in imperative mood and complete the following sentence "If applied, this commit will <commit message>",
-e.g. "Release version 1.0.0" - "If applied, this commit will <release version 1.0.0>".
+Merge requests are squashed on merge, so the merge request title is what ends up in the history.
+It should be written in english, start with a capital letter and use imperative mood, e.g. "Fix selection rectangle breaking after drag".
+
+Individual commit messages have no enforced convention, keep them short.

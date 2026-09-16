@@ -55,7 +55,7 @@ Add one space before `/>`, but not before `>`.
 
 ### Child content
 
-If a component has more than one attribute, write each attribute on a new line.
+If a component has more than one attribute, write each attribute on a new line, indented to the column of the first attribute.
 If the component has child content, add an empty line.
 
 ```

@@ -9,7 +9,7 @@ as well as https://danieldonbavand.com/2022/06/13/using-playwright-with-the-weba
 ## Setup
 
 To run these tests, a first time setup is necessary (see https://playwright.dev/dotnet/docs/library):
-  - install required browsers, replace netX with actual output folder name, e.g. net8.0.
+  - install required browsers, replace netX with actual output folder name, e.g. net10.0.
          `pwsh bin/Debug/netX/playwright.ps1 install`
   - if the pwsh command does not work (throws TypeNotFound), make sure to use an up-to-date version of PowerShell.
          `dotnet tool update --global PowerShell`
