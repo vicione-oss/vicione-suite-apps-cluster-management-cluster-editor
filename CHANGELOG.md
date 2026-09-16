@@ -55,6 +55,7 @@
   - A datapoint whose cluster node is gone falls back to its node type icon instead of failing the tree render
   - DataPort icons keep refreshing after a DataPort without tree nodes was deleted
   - Deleting a node's parent while editing it no longer blocks all further edits, or crashes when the warning is closed
+- Fixed selection rectangle no longer working on an empty diagram after a previous selection ended on the edge dragging area
 
 ### Removed
 

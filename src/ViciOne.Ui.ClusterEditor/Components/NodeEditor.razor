@@ -11,6 +11,7 @@
              @oncontextmenu="@ShowContextMenu"
              @oncontextmenu:preventDefault
              @oncontextmenu:stopPropagation
+             @onpointercancel="@DiagramPointerInteractionController.OnContainerPointerCancel"
              @onpointerdown="@DiagramPointerInteractionController.OnContainerPointerDown"
              @onpointerdown:stopPropagation
              @onpointerup:stopPropagation

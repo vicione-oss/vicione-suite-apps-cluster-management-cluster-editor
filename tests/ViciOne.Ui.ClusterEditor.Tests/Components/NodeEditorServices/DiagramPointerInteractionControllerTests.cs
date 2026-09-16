@@ -82,6 +82,77 @@ public sealed class DiagramPointerInteractionControllerTests
     }
 
     [Fact]
+    public async Task OnContainerPointerCancel_DuringSelectBoxDrag_ResetsInteractionState()
+    {
+        // Arrange
+        await using var ctx = new BunitContext();
+        var (sut, diagram, diagramEvents) = CreateSut(ctx);
+        var renderRequested = false;
+        sut.Initialize(diagram, () => renderRequested = true);
+
+        bool? edgeDraggingVisible = null;
+        diagramEvents.EdgeDraggingVisibilityChangeRequested += visible => edgeDraggingVisible = visible;
+
+        sut.OnContainerPointerDown(new PointerEventArgs { Button = 0, ClientX = 10, ClientY = 10 });
+        diagramEvents.InvokeEdgeDraggingPointerMove(new PointerEventArgs { Buttons = 1, ClientX = 100, ClientY = 100 });
+        sut.ViewRectangle.Should().NotBeNull();
+        renderRequested = false;
+
+        // Act - the browser cancels the pointer (e.g. native drag start), no pointer up follows.
+        sut.OnContainerPointerCancel(new PointerEventArgs());
+
+        // Assert
+        sut.ContextMenuAllowed().Should().BeTrue();
+        sut.ViewRectangle.Should().BeNull();
+        edgeDraggingVisible.Should().BeFalse();
+        renderRequested.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task OnContainerPointerCancel_DuringSelectBoxDrag_DoesNotApplyDiscardedSelectBoxOnNextClick()
+    {
+        // Arrange
+        await using var ctx = new BunitContext();
+        var (sut, diagram, diagramEvents) = CreateSut(ctx);
+        sut.Initialize(diagram, () => { });
+        var initialZoom = diagram.Zoom;
+        var initialPanX = diagram.Pan.X;
+        var initialPanY = diagram.Pan.Y;
+
+        sut.OnContainerPointerDown(new PointerEventArgs { Button = 0, ClientX = 10, ClientY = 10 });
+        diagramEvents.InvokeEdgeDraggingPointerMove(new PointerEventArgs { Buttons = 1, ClientX = 100, ClientY = 100 });
+        sut.OnContainerPointerCancel(new PointerEventArgs());
+
+        // Act - a click with Shift would zoom to the discarded select box if it was still stored.
+        sut.OnContainerPointerDown(new PointerEventArgs { Button = 0, ClientX = 10, ClientY = 10, ShiftKey = true });
+        diagramEvents.InvokeEdgeDraggingPointerUp(new PointerEventArgs());
+
+        // Assert
+        diagram.Zoom.Should().Be(initialZoom);
+        diagram.Pan.X.Should().Be(initialPanX);
+        diagram.Pan.Y.Should().Be(initialPanY);
+    }
+
+    [Fact]
+    public async Task OnContainerPointerCancel_DuringSelectBoxDrag_IgnoresSubsequentPointerMove()
+    {
+        // Arrange
+        await using var ctx = new BunitContext();
+        var (sut, diagram, diagramEvents) = CreateSut(ctx);
+        sut.Initialize(diagram, () => { });
+
+        sut.OnContainerPointerDown(new PointerEventArgs { Button = 0, ClientX = 10, ClientY = 10 });
+        diagramEvents.InvokeEdgeDraggingPointerMove(new PointerEventArgs { Buttons = 1, ClientX = 100, ClientY = 100 });
+        sut.OnContainerPointerCancel(new PointerEventArgs());
+
+        // Act - a pointer move with the button still pressed must not resurrect the discarded select box.
+        diagramEvents.InvokeEdgeDraggingPointerMove(new PointerEventArgs { Buttons = 1, ClientX = 200, ClientY = 200 });
+
+        // Assert
+        sut.ViewRectangle.Should().BeNull();
+    }
+
+    [Fact]
     public async Task OnContainerPointerDown_WhenContainerNotInitialized_IsIgnored()
     {
         // Arrange - a diagram whose container has not been measured yet (as during initial load).

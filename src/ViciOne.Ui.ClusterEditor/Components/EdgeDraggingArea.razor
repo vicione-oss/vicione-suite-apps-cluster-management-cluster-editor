@@ -1,4 +1,5 @@
-﻿<div @onpointermove="@(EventHandlerProvider.AsNonRenderingEventHandler<PointerEventArgs>(OnContainerPointerMove))"
+﻿<div @onpointercancel="@(EventHandlerProvider.AsNonRenderingEventHandler<PointerEventArgs>(OnContainerPointerCancel))"
+     @onpointermove="@(EventHandlerProvider.AsNonRenderingEventHandler<PointerEventArgs>(OnContainerPointerMove))"
      @onpointerup="@(EventHandlerProvider.AsNonRenderingEventHandler<PointerEventArgs>(OnContainerPointerUp))"
      class="edge-dragging-area-container">
 
