@@ -33,12 +33,12 @@ public sealed class FullscreenService(IJSRuntime jSRuntime, ILogger<FullscreenSe
 
         _refObject ??= DotNetObjectReference.Create(this);
 
-        await jSRuntime.InvokeVoidAsync(
+        await jSRuntime.TryInvokeVoid(
+            logger,
             "ViciOne.Element.setFullscreen",
             isFullscreen,
             _refObject,
-            "fullscreenExitHandler"
-        );
+            "fullscreenExitHandler");
     }
 
     public async Task ToggleFullscreen()

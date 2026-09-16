@@ -1,51 +1,56 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using ViciOne.Ui.Blazor.Components.Dialog.Components;
+using ViciOne.Ui.ClusterEditor.Extensions;
 
 namespace ViciOne.Ui.ClusterEditor.Components;
 
 public sealed partial class LabelEditor : ComponentBase, IAsyncDisposable
 {
-    private readonly CancellationTokenSource _cts = new();
+    private bool _disposed;
     private string _editorVisibility = "visible";
     private IJSObjectReference? _jsModule;
     private Dialog? _refDialog;
 
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
+    [Inject] private ILogger<LabelEditor> Logger { get; set; } = default!;
 
     internal event Action<string>? LabelEditorClosed;
 
     public async ValueTask DisposeAsync()
     {
-        await _cts.CancelAsync();
-        _cts.Dispose();
+        _disposed = true;
+        await DisposeModuleAsync();
+    }
 
-        try
-        {
-            if (_jsModule is not null)
-                await _jsModule.DisposeAsync();
-        }
-        catch (JSDisconnectedException) { }
-        catch (OperationCanceledException) { }
+    private async ValueTask DisposeModuleAsync()
+    {
+        var module = _jsModule;
+        _jsModule = null;
+
+        if (module is null)
+            return;
+
+        await module.TryDisposeAsync(Logger);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            try
-            {
-                _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>(
-                    "import",
-                    _cts.Token,
-                    "./_content/ViciOne.Ui.ClusterEditor/Components/LabelEditor.razor.js");
-            }
-            catch (OperationCanceledException) { }
-            catch (JSDisconnectedException) { }
-        }
+        if (!firstRender)
+            return;
+
+        var (_, module) = await JsRuntime.TryInvoke<IJSObjectReference>(
+            Logger,
+            "import",
+            "./_content/ViciOne.Ui.ClusterEditor/Components/LabelEditor.razor.js");
+
+        _jsModule = module;
+
+        if (_disposed)
+            await DisposeModuleAsync();
     }
 
     private async Task OnDialogCancel()
@@ -63,9 +68,13 @@ public sealed partial class LabelEditor : ComponentBase, IAsyncDisposable
         if (_refDialog is null)
             return;
 
-        var value = await _jsModule!.InvokeAsync<string>("getValue");
+        if (_jsModule is not null)
+        {
+            var (success, value) = await _jsModule.TryInvoke<string>(Logger, "getValue");
 
-        LabelEditorClosed?.Invoke(value);
+            if (success && value is not null)
+                LabelEditorClosed?.Invoke(value);
+        }
 
         _editorVisibility = "hidden";
         await _refDialog.CloseAsync();
@@ -80,6 +89,8 @@ public sealed partial class LabelEditor : ComponentBase, IAsyncDisposable
 
         _editorVisibility = "visible";
         await InvokeAsync(StateHasChanged);
-        await _jsModule!.InvokeVoidAsync("showEditor", content);
+
+        if (_jsModule is not null)
+            await _jsModule.TryInvokeVoid(Logger, "showEditor", content);
     }
 }

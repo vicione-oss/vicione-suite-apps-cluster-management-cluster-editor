@@ -4,6 +4,7 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
+using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
@@ -20,7 +21,11 @@ namespace ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 /// mutations to avoid feedback loops.
 /// </summary>
 [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
-internal sealed class BuilderEventProjectionService(ClusterBuilderEventBuffer clusterBuilderEventBuffer, DatastoreState state, DiagramProjectionService diagramProjectionService) : IDisposable
+internal sealed class BuilderEventProjectionService(
+    ClusterBuilderEventBuffer clusterBuilderEventBuffer,
+    DatastoreState state,
+    DiagramProjectionService diagramProjectionService,
+    ILogger<BuilderEventProjectionService> logger) : IDisposable
 {
     private bool _disposed;
 
@@ -145,7 +150,7 @@ internal sealed class BuilderEventProjectionService(ClusterBuilderEventBuffer cl
         }
 
         if (nameChanges is not null)
-            _ = diagramProjectionService.UpdateNameFieldHeights(nameChanges, CancellationToken.None);
+            ScheduleNameFieldHeightUpdate(nameChanges);
     }
 
     private void OnFunctionBlockEnginesChanged(IEnumerable<FunctionBlock> functionBlocks)
@@ -189,7 +194,7 @@ internal sealed class BuilderEventProjectionService(ClusterBuilderEventBuffer cl
         }
 
         if (nameChanges is not null)
-            _ = diagramProjectionService.UpdateNameFieldHeights(nameChanges, CancellationToken.None);
+            ScheduleNameFieldHeightUpdate(nameChanges);
     }
 
     private void OnLabelPropertiesChanged(IEnumerable<(object? sender, PropertyChangedEventArgs e)> changedLabelProperties)
@@ -203,6 +208,11 @@ internal sealed class BuilderEventProjectionService(ClusterBuilderEventBuffer cl
             state.InvokePropertyChanged(e.PropertyName);
         }
     }
+
+    private void ScheduleNameFieldHeightUpdate(List<(BlockNode Node, string Name)> nameChanges)
+        => AsyncGuard.SafeFireAndForget(
+            () => diagramProjectionService.UpdateNameFieldHeights(nameChanges, CancellationToken.None),
+            logger);
 
     private void UpdateConnectorMarker(Link link)
     {

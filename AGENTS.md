@@ -210,6 +210,9 @@ Sections are the unit of feature organization. To add one (mirroring the existin
 - Nullable reference type warnings are build errors — keep code null-safe.
 - No hard-coded UI text — add `.resx` entries (neutral + `.de`).
 - Treat the app as **Blazor Server** by default (`RenderWasm` = `false`).
+- **Do not** call `IJSRuntime` / `IJSObjectReference` invoke or dispose methods directly — use the
+  guarded `TryInvoke` / `TryInvokeVoid` / `TryDisposeAsync` extensions in `Extensions/`
+  (see `docs/component-guidelines.en.md`).
 
 ## Useful references
 

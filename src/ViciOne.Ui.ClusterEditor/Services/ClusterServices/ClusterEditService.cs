@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading;
@@ -36,9 +37,16 @@ internal sealed class ClusterEditService(
         containerEditor.SetBackColor(container, BlockNodeColors.BackgroundDefault);
         containerEditor.SetForeColor(container, BlockNodeColors.ForegroundDefault);
 
-        var containerNodes = await projection.AddChildContainersToMapping([container], diagramService, cancellationToken);
+        List<ChildContainerNode> containerNodes;
+        try
+        {
+            containerNodes = await projection.AddChildContainersToMapping([container], diagramService, cancellationToken);
+        }
+        finally
+        {
+            builderEvents.Attach();
+        }
 
-        builderEvents.Attach();
         diagramEventService.InvokeContainerAdded(container);
 
         return containerNodes[0];
@@ -64,9 +72,15 @@ internal sealed class ClusterEditService(
         if (engine is not null)
             functionBlockEditor.AssignEngine(engine, functionBlock);
 
-        var functionBlockNodes = await projection.AddFunctionBlocksToMapping([functionBlock], diagramService, cancellationToken);
-
-        builderEvents.Attach();
+        List<FunctionBlockNode> functionBlockNodes;
+        try
+        {
+            functionBlockNodes = await projection.AddFunctionBlocksToMapping([functionBlock], diagramService, cancellationToken);
+        }
+        finally
+        {
+            builderEvents.Attach();
+        }
 
         return functionBlockNodes[0];
     }

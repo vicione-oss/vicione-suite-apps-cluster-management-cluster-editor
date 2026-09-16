@@ -466,13 +466,19 @@ public sealed class SelectionManager(DiagramService diagramService, IJSRuntime j
 
     private async Task SelectInRectangleFunctionBlockLink(Rectangle rect)
     {
-        var linkIds = await jsRuntime.InvokeAsync<IEnumerable<string>>("ViciOne.Diagram.Link.getIdsInRectangle", new
-        {
-            Left = (int)rect.Left,
-            Top = (int)rect.Top,
-            Right = (int)rect.Right,
-            Bottom = (int)rect.Bottom
-        });
+        var (success, linkIds) = await jsRuntime.TryInvoke<IEnumerable<string>>(
+            logger,
+            "ViciOne.Diagram.Link.getIdsInRectangle",
+            new
+            {
+                Left = (int)rect.Left,
+                Top = (int)rect.Top,
+                Right = (int)rect.Right,
+                Bottom = (int)rect.Bottom
+            });
+
+        if (!success || linkIds is null)
+            return;
 
         var links = diagramService.Diagram.Links;
         var linksById = new Dictionary<string, BaseLinkModel>(links.Count);

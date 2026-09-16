@@ -168,8 +168,13 @@ public partial class CustomTooltipTreeNode : NodeTemplate, IAsyncDisposable
 
                 if (_lastPointerMoveEvents is not null)
                 {
+                    var windowBounds = await BoundsService.GetWindowBoundsAsync().ConfigureAwait(false);
+
+                    if (windowBounds is null)
+                        continue;
+
                     _tooltipVisible = true;
-                    TooltipService.StartTooltip(_tooltipKey, await GetTooltipInfo(_lastPointerMoveEvents, await BoundsService.GetWindowBoundsAsync().ConfigureAwait(false)));
+                    TooltipService.StartTooltip(_tooltipKey, await GetTooltipInfo(_lastPointerMoveEvents, windowBounds.Value));
                 }
             }
         }

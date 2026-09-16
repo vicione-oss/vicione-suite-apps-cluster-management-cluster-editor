@@ -2,6 +2,7 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
@@ -26,16 +27,18 @@ internal sealed class DiagramProjectionService
 {
     private readonly ComparerService _comparerService;
     private readonly IJSRuntime _jsRuntime;
+    private readonly ILogger<DiagramProjectionService> _logger;
     private readonly IDatastoreState _state;
 
-    public DiagramProjectionService(ComparerService comparerService, IDatastoreState state, IJSRuntime jsRuntime)
+    public DiagramProjectionService(ComparerService comparerService, IDatastoreState state, IJSRuntime jsRuntime, ILogger<DiagramProjectionService> logger)
     {
         _comparerService = comparerService;
         _state = state;
         _jsRuntime = jsRuntime;
+        _logger = logger;
 
         // This line adds the IAggregatingPooling to the cache of Shared.Dx.Services.ComparerService
-        // which prevents a noticable delay when the user drags the first FunctionBlock from the Library
+        // which prevents a noticeable delay when the user drags the first FunctionBlock from the Library
         // to the diagram
         var _ = _comparerService.GetComparer(typeof(Core.Contracts.DataModel.IAggregatingPooling));
     }
@@ -49,7 +52,7 @@ internal sealed class DiagramProjectionService
         foreach (var cc in childContainers)
             childContainerNames.Add(cc.Name);
 
-        var measuredHeights = await _jsRuntime.MeasureNameFieldHeights(childContainerNames, cancellationToken);
+        var measuredHeights = await _jsRuntime.MeasureNameFieldHeights(_logger, childContainerNames, cancellationToken);
 
         var result = new List<ChildContainerNode>(childContainers.Count);
         for (var i = 0; i < childContainers.Count; i++)
@@ -72,7 +75,7 @@ internal sealed class DiagramProjectionService
         foreach (var fb in functionBlocks)
             functionBlockNames.Add(fb.Name);
 
-        var measuredHeights = await _jsRuntime.MeasureNameFieldHeights(functionBlockNames, cancellationToken);
+        var measuredHeights = await _jsRuntime.MeasureNameFieldHeights(_logger, functionBlockNames, cancellationToken);
 
         var result = new List<FunctionBlockNode>(functionBlockNames.Count);
         for (var i = 0; i < functionBlockNames.Count; i++)
@@ -158,8 +161,8 @@ internal sealed class DiagramProjectionService
         foreach (var (_, name) in nodes)
             names.Add(name);
 
-        var measuredHeights = await _jsRuntime.MeasureNameFieldHeights(names, cancellationToken);
-        if (measuredHeights is null || measuredHeights.Length < nodes.Count)
+        var measuredHeights = await _jsRuntime.MeasureNameFieldHeights(_logger, names, cancellationToken);
+        if (measuredHeights.Length < nodes.Count)
             return;
 
         for (var i = 0; i < nodes.Count; i++)

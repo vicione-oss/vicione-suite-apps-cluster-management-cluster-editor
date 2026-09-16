@@ -73,6 +73,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
     [Inject] private DiagramService DiagramService { get; set; } = default!;
     [Inject] private ILogger<DiagramService> DiagramServiceLogger { get; set; } = default!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
+    [Inject] private ILogger<ContainerEditor> Logger { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
 
     private void AddPlaceholder(bool isInput)
@@ -688,7 +689,7 @@ public sealed partial class ContainerEditor : ComponentBase, IDisposable
         };
         using var cts = new CancellationTokenSource();
 
-        var nameFieldHeight = (await JsRuntime.MeasureNameFieldHeights([containerModel.Name], cts.Token))[0];
+        var nameFieldHeight = (await JsRuntime.MeasureNameFieldHeights(Logger, [containerModel.Name], cts.Token))[0];
         _currentContainerNode = ChildContainerMapper.CreateNode(ComparerService, Datastore, _diagramService!, containerModel, nameFieldHeight);
         _currentContainerNode.Position = new(0, 0);
 

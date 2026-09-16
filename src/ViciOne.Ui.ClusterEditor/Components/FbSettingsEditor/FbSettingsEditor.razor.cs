@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DevExpress.Blazor;
 using Microsoft.AspNetCore.Components;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using ViciOne.Ui.Blazor.Components.Dialog.Components;
 using ViciOne.Ui.Blazor.Components.Extensions;
@@ -25,6 +26,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
 #pragma warning disable IDE0052 // Remove unread private members
     private bool _closeOnEscape = true;
 #pragma warning restore IDE0052 // Remove unread private members
+    private bool _disposed;
     private readonly string _editTemplatesText = CompositeFormats.EditSomething(TechnicalTerms.TemplatePlural);
     private readonly Dictionary<string, object?> _initialEditValues = [];
     private bool _isEditmodeActive;
@@ -43,6 +45,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
     [Inject] private IFbSettingsEditorRequest FbSettingsEditorRequest { get; set; } = default!;
     [Inject] private FullscreenService FullscreenService { get; set; } = default!;
     [Inject] private IJSRuntime JsRuntime { get; set; } = default!;
+    [Inject] private ILogger<FbSettingsEditor> Logger { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
 
     public async ValueTask DisposeAsync()
@@ -50,21 +53,21 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
         FbSettingsEditorRequest.FbSettingsEditorRequested -= OnFbSettingsEditorRequested;
         FullscreenService.FullscreenStateChanged -= OnFullscreenStateChanged;
 
+        _disposed = true;
         _refObject?.Dispose();
 
-        if (_jsModule is not null)
-        {
-            try
-            {
-                await _jsModule.DisposeAsync();
-                _jsModule = null;
-            }
-            catch (JSDisconnectedException)
-            {
-                // JSDisconnectedException is trapped during module disposal
-                // in case Blazor's SignalR circuit is lost.
-            }
-        }
+        await DisposeModuleAsync();
+    }
+
+    private async ValueTask DisposeModuleAsync()
+    {
+        var module = _jsModule;
+        _jsModule = null;
+
+        if (module is null)
+            return;
+
+        await module.TryDisposeAsync(Logger);
     }
 
     private static object? GetCellValue(string fbName, IGrouping<string, FbSetting>? settingGroup)
@@ -115,10 +118,18 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-        {
-            _jsModule = await JsRuntime.InvokeAsync<IJSObjectReference>("import", "./_content/ViciOne.Ui.ClusterEditor/Components/FbSettingsEditor/FbSettingsEditor.razor.js");
-        }
+        if (!firstRender)
+            return;
+
+        var (_, module) = await JsRuntime.TryInvoke<IJSObjectReference>(
+            Logger,
+            "import",
+            "./_content/ViciOne.Ui.ClusterEditor/Components/FbSettingsEditor/FbSettingsEditor.razor.js");
+
+        _jsModule = module;
+
+        if (_disposed)
+            await DisposeModuleAsync();
     }
 
     private void OnCheckedChanged(
@@ -157,7 +168,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
     private async Task OnDialogClosing()
     {
         if (_jsModule is not null)
-            await _jsModule.InvokeVoidAsync("removeEscEventListener");
+            await _jsModule.TryInvokeVoid(Logger, "removeEscEventListener");
 
         if (_isFullscreen)
             await FullscreenService.SetFullscreen(false);
@@ -184,7 +195,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
         _refObject ??= DotNetObjectReference.Create(this);
 
         if (_jsModule is not null)
-            await _jsModule.InvokeVoidAsync("addEscEventListener", _refObject);
+            await _jsModule.TryInvokeVoid(Logger, "addEscEventListener", _refObject);
     }
 
     [JSInvokable]

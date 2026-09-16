@@ -2,13 +2,15 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
+using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Services;
 
 [SuppressMessage("Performance", "CA1812:Avoid uninstantiated internal classes", Justification = "Instantiated through dependency injection")]
-internal sealed class BoundsService(DiagramService diagramService, IJSRuntime jsRuntime)
+internal sealed class BoundsService(DiagramService diagramService, IJSRuntime jsRuntime, ILogger<BoundsService> logger)
 {
     public Rectangle GetDiagramBounds()
     {
@@ -27,10 +29,14 @@ internal sealed class BoundsService(DiagramService diagramService, IJSRuntime js
         return diagramContainerBounds;
     }
 
-    public async Task<Rectangle> GetWindowBoundsAsync()
+    public async Task<Rectangle?> GetWindowBoundsAsync()
     {
-        var windowWidth = await jsRuntime.InvokeAsync<int>("eval", "window.innerWidth");
-        var windowHeight = await jsRuntime.InvokeAsync<int>("eval", "window.innerHeight");
+        var (widthSuccess, windowWidth) = await jsRuntime.TryInvoke<int>(logger, "eval", "window.innerWidth");
+        var (heightSuccess, windowHeight) = await jsRuntime.TryInvoke<int>(logger, "eval", "window.innerHeight");
+
+        if (!widthSuccess || !heightSuccess)
+            return null;
+
         return new Rectangle(0, 0, windowWidth, windowHeight);
     }
 }
