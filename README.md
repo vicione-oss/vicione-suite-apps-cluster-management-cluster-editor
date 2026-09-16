@@ -41,10 +41,9 @@ dotnet user-secrets set "ArtifactRepository:Sources:2:Password" "<password>"
 
 ## Guidelines
 
-- [Automation Suite Render Guideline](docs/automation-suite-render-guide.de.md)
+- [Automation Suite Render Guideline](docs/automation-suite-render-guide.en.md)
 - [Blazor Component Guideline](docs/component-guidelines.en.md)
 - [Code Style Guideline](docs/code-style-guidelines.en.md)
-- [CSS Guideline (german)](docs/css-guidelines.de.md)
 - [Localization Guideline](docs/localization-guidelines.en.md)
 
 ## Deployments

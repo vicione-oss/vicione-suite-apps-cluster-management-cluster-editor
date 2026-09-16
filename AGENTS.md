@@ -224,12 +224,9 @@ These contain the binding rules; this file only summarizes.
 |---|---|
 | `docs/component-guidelines.en.md` | writing or changing any Blazor component. |
 | `docs/code-style-guidelines.en.md` | any C# change — naming, structure, style. |
-| `docs/css-guidelines.de.md` | touching `.scss` / scoped styles. **German.** |
 | `docs/localization-guidelines.en.md` | adding or changing user-facing strings / `.resx`. |
 | `docs/end-to-end-tests.en.md` | running or writing Playwright tests (one-time setup). |
-| `docs/automation-suite-render-guide.de.md` | rendering/integration work with the Suite. **German.** |
-
-The two German docs are current, not stale duplicates.
+| `docs/automation-suite-render-guide.en.md` | rendering/integration work with the Suite. |
 
 ## Keeping this document accurate
 
