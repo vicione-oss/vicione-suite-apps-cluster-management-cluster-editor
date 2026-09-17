@@ -1,4 +1,4 @@
-﻿{
+{
     "codeCoverage": {
         "Configuration": {
             "CodeCoverage": {
@@ -11,13 +11,18 @@
                     }
                 },
                 "ModulePaths": {
-                    "Exclude": {
+                    "Include": {
                         "ModulePath": [
-                            "*Client*",
-                            "*Server*",
-                            "*Shared*",
-                            ".*Facts.dll",
-                            ".*Tests.dll"
+                            ".*[\\\\/]ViciOne\\.Ui\\.ClusterEditor\\.dll$",
+                            ".*[\\\\/]ViciOne\\.Ui\\.ColorableIcons\\.dll$"
+                        ]
+                    }
+                },
+                "Sources": {
+                    "Exclude": {
+                        "Source": [
+                            ".*\\.Designer\\.cs$",
+                            ".*[\\\\/]obj[\\\\/].*"
                         ]
                     }
                 }

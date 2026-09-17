@@ -47,6 +47,14 @@
     <UseMicrosoftTestingPlatformRunner>true</UseMicrosoftTestingPlatformRunner> <!-- Microsoft Testing Platform command line experience -->
   </PropertyGroup>
 
+  <!-- Shared Microsoft Testing Platform configuration (e.g. code coverage settings); only picked up from the output directory -->
+  <ItemGroup Condition="$(MSBuildProjectName.EndsWith('Tests')) And $(MSBuildProjectDirectory.Contains('tests'))">
+    <None Include="$(MSBuildThisFileDirectory)testconfig.json"
+          Link="testconfig.json"
+          CopyToOutputDirectory="PreserveNewest"
+          TargetPath="$(AssemblyName).testconfig.json" />
+  </ItemGroup>
+
   <!-- Properties for sample projects -->
   <PropertyGroup Condition="$(MSBuildProjectDirectory.Contains('samples'))">
     <IsPackable>false</IsPackable>

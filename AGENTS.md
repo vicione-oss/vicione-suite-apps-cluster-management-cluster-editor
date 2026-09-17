@@ -133,6 +133,13 @@ The library is organized by feature. Blazor components use the code-behind patte
 - **Unit / component:** `tests/ViciOne.Ui.ClusterEditor.Tests` — xUnit v3 + **bUnit**
   (components) + **NSubstitute** + **AwesomeAssertions**. Folders mirror the source structure.
 - Internals are visible to the test project via `InternalsVisibleTo`.
+- **Code coverage:** settings live in the root `testconfig.json`; `Directory.Build.props` copies it
+  to every test project's output as `<AssemblyName>.testconfig.json` (MTP only reads it from there).
+  Coverage is restricted to the `src/` assemblies; `*.Designer.cs`, `obj/` sources and code marked
+  `[GeneratedCode]` / `[ExcludeFromCodeCoverage]` are excluded.
+  Visual Studio ("Analyze Code Coverage") does not read `testconfig.json` and uses the root
+  `CodeCoverage.runsettings` instead. Both files contain the same filters — **when changing one,
+  update the other accordingly**.
 - **End-to-end:** `tests/ViciOne.Ui.ClusterEditor.EndToEnd.Tests` — **Playwright**,
   requires one-time local setup (`docs/end-to-end-tests.en.md`).
 
