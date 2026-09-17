@@ -22,11 +22,8 @@ internal sealed class ClusterEditorManagement(IDatastore datastore, DiagramServi
 
     public Container ActiveContainer => _datastore.ActiveContainer;
 
-    public event Func<Task>? ExportRequested;
-    public event Func<Task>? ImportRequested;
     public event Func<Task>? LoadFunctionBlockDesignsRequested;
     public event Func<LogLevel, string, Action, Task>? MessageToastRequested;
-    public event Func<Task>? NewRequested;
     public event Func<IClusterBuilder, Task>? SaveRequested;
 
     public Task ForceRootContainerReload(CancellationToken cancellationToken)
@@ -69,17 +66,8 @@ internal sealed class ClusterEditorManagement(IDatastore datastore, DiagramServi
         return _datastore.LoadContainer(_datastore.ActiveContainer, _diagramService, cancellationToken, true);
     }
 
-    public Task RequestExport()
-        => ExportRequested.InvokeEventAsync(logger, nameof(ExportRequested));
-
-    public Task RequestImport()
-        => ImportRequested.InvokeEventAsync(logger, nameof(ImportRequested));
-
     public Task RequestLoadFbDesigns()
         => LoadFunctionBlockDesignsRequested.InvokeEventAsync(logger, nameof(LoadFunctionBlockDesignsRequested));
-
-    public Task RequestNew()
-        => NewRequested.InvokeEventAsync(logger, nameof(NewRequested));
 
     public async Task RequestSave()
     {

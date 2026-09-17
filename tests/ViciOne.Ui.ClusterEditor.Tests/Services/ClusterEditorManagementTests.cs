@@ -199,58 +199,6 @@ public sealed class ClusterEditorManagementTests : IAsyncDisposable
     }
 
     [Fact]
-    public async Task RequestExport_InvokesAllHandlers_DoesNotThrowEvenIfHandlerThrows()
-    {
-        // Arrange
-        var invocationCount = 0;
-        _sut.ExportRequested += () => { invocationCount++; throw new InvalidOperationException("First handler fails"); };
-        _sut.ExportRequested += () => { invocationCount++; return Task.CompletedTask; };
-
-        // Act
-        var act = () => _sut.RequestExport();
-
-        // Assert
-        await act.Should().NotThrowAsync();
-        invocationCount.Should().Be(2);
-    }
-
-    [Fact]
-    public async Task RequestExport_WithNoHandlers_DoesNotThrow()
-    {
-        // Act
-        var act = () => _sut.RequestExport();
-
-        // Assert
-        await act.Should().NotThrowAsync();
-    }
-
-    [Fact]
-    public async Task RequestImport_InvokesAllHandlers_DoesNotThrowEvenIfHandlerThrows()
-    {
-        // Arrange
-        var invocationCount = 0;
-        _sut.ImportRequested += () => { invocationCount++; throw new InvalidOperationException("First handler fails"); };
-        _sut.ImportRequested += () => { invocationCount++; return Task.CompletedTask; };
-
-        // Act
-        var act = () => _sut.RequestImport();
-
-        // Assert
-        await act.Should().NotThrowAsync();
-        invocationCount.Should().Be(2);
-    }
-
-    [Fact]
-    public async Task RequestImport_WithNoHandlers_DoesNotThrow()
-    {
-        // Act
-        var act = () => _sut.RequestImport();
-
-        // Assert
-        await act.Should().NotThrowAsync();
-    }
-
-    [Fact]
     public async Task RequestLoadFbDesigns_InvokesAllHandlers_DoesNotThrowEvenIfHandlerThrows()
     {
         // Arrange
@@ -274,32 +222,6 @@ public sealed class ClusterEditorManagementTests : IAsyncDisposable
 
         // Assert
         await act.Should().NotThrowAsync();
-    }
-
-    [Fact]
-    public async Task RequestNew_InvokesAllHandlers_DoesNotThrowEvenIfHandlerThrows()
-    {
-        // Arrange
-        var invocationCount = 0;
-        _sut.NewRequested += () => { invocationCount++; throw new InvalidOperationException("First handler fails"); };
-        _sut.NewRequested += () => { invocationCount++; return Task.CompletedTask; };
-
-        // Act
-        var act = () => _sut.RequestNew();
-
-        // Assert
-        await act.Should().NotThrowAsync();
-        invocationCount.Should().Be(2);
-    }
-
-    [Fact]
-    public void RequestNew_WithNoHandlers_DoesNotThrow()
-    {
-        // Act
-        var act = () => _sut.RequestNew();
-
-        // Assert
-        act.Should().NotThrowAsync();
     }
 
     [Fact]
