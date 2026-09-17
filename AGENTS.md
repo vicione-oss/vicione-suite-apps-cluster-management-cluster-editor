@@ -213,6 +213,9 @@ Sections are the unit of feature organization. To add one (mirroring the existin
 - **Do not** call `IJSRuntime` / `IJSObjectReference` invoke or dispose methods directly — use the
   guarded `TryInvoke` / `TryInvokeVoid` / `TryDisposeAsync` extensions in `Extensions/`
   (see `docs/component-guidelines.en.md`).
+- Comments on types, members and fields must be XML doc comments (`///`), not `//`. Keep them sparse,
+  don't restate the name, and never describe the caller's logic
+  (see `docs/code-style-guidelines.en.md` → Comments).
 
 ## Useful references
 
