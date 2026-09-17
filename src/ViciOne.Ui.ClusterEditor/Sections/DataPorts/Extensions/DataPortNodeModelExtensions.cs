@@ -31,6 +31,18 @@ internal static class DataPortNodeModelExtensions
         };
 
     /// <summary>
+    /// Notifies the tree builder about a change of every node below <paramref name="node"/>, excluding the node itself.
+    /// </summary>
+    public static void NotifyDescendantsChanged(this DataPortNodeModel node, ITreeBuilder builder)
+    {
+        foreach (var child in node.Children)
+        {
+            builder.Notifications.NotifyNodeChanged(child, ChangedNodeDetail.None);
+            child.NotifyDescendantsChanged(builder);
+        }
+    }
+
+    /// <summary>
     /// Redraws the icon of <paramref name="node"/> and of every node below it.
     /// </summary>
     /// <remarks>

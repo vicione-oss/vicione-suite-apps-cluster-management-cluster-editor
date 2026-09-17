@@ -8,6 +8,7 @@ using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components;
+using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.TreeEditor.Builder.Interface;
@@ -40,6 +41,9 @@ internal sealed class DataPortTreeAdapter(
     public List<ITreeNode> ValidInboundDropTargets => treeState.ValidInboundDropTargets;
 
     public event Func<ITreeNode, Task>? DataPortWithLinksDoubleClicked;
+
+    public override bool CanDragNode(ITreeNode treeNode)
+        => treeNode is not DataPortChildNodeModel childNode || !childNode.IsLockedByEditMode();
 
     public override bool CanInboundDropAsChild(ITreeNode target)
         => ValidInboundDropTargets.Contains(target);
@@ -180,6 +184,9 @@ internal sealed class DataPortTreeAdapter(
 
         return false;
     }
+
+    public void NotifyDescendantsChanged(DataPortNodeModel node)
+        => node.NotifyDescendantsChanged(Builder);
 
     private void OnExpansionChanged(ITreeNode node, bool expanded)
     {

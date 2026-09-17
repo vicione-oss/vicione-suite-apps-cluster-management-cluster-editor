@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using NSubstitute;
 using ViciOne.Cluster.Model;
+using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.Data;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.ClusterEditor.Services;
@@ -93,6 +94,75 @@ public sealed class DataPortDragCoordinatorTests : IAsyncDisposable
 
         // Act
         _builder.DragAndDrop.DragStarted += Raise.Event<Action<IEnumerable<ITreeNode>>>(new List<ITreeNode> { node });
+
+        // Assert
+        Assert.Empty(_dragService.DraggedItems);
+    }
+
+    [Fact]
+    public void OnDragStarted_WhenAllNodesLocked_StillStartsDraggingAndReplacesPreviousItems()
+    {
+        // Arrange - state of a previous drag with items and targets
+        _coordinator.Attach(_builder);
+        var previousNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+        _dragService.StartDragging([previousNode], [Substitute.For<IDragTarget>()], false);
+        Assert.NotEmpty(_dragService.DraggedItems);
+        Assert.NotEmpty(_dragService.DragTargets!);
+
+        var lockedNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+        lockedNode.IsEditModeActive = true;
+
+        // Act
+        _builder.DragAndDrop.DragStarted += Raise.Event<Action<IEnumerable<ITreeNode>>>(new List<ITreeNode> { lockedNode });
+
+        // Assert
+        Assert.Empty(_dragService.DraggedItems);
+        Assert.NotNull(_dragService.DragTargets);
+        Assert.Empty(_dragService.DragTargets);
+    }
+
+    [Fact]
+    public void OnDragStarted_WithDescendantOfNodeInEditMode_DoesNotAddNodeToDraggedItems()
+    {
+        // Arrange
+        _coordinator.Attach(_builder);
+        var parentNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+        parentNode.IsEditModeActive = true;
+        var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel(parent: parentNode);
+
+        // Act
+        _builder.DragAndDrop.DragStarted += Raise.Event<Action<IEnumerable<ITreeNode>>>(new List<ITreeNode> { childNode });
+
+        // Assert
+        Assert.Empty(_dragService.DraggedItems);
+    }
+
+    [Fact]
+    public void OnDragStarted_WithLockedAndUnlockedNodes_OnlyDragsUnlockedNodes()
+    {
+        // Arrange
+        _coordinator.Attach(_builder);
+        var lockedNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+        lockedNode.IsEditModeActive = true;
+        var unlockedNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+
+        // Act
+        _builder.DragAndDrop.DragStarted += Raise.Event<Action<IEnumerable<ITreeNode>>>(new List<ITreeNode> { lockedNode, unlockedNode });
+
+        // Assert
+        Assert.Same(unlockedNode, Assert.Single(_dragService.DraggedItems));
+    }
+
+    [Fact]
+    public void OnDragStarted_WithNodeInEditMode_DoesNotAddNodeToDraggedItems()
+    {
+        // Arrange
+        _coordinator.Attach(_builder);
+        var childNode = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+        childNode.IsEditModeActive = true;
+
+        // Act
+        _builder.DragAndDrop.DragStarted += Raise.Event<Action<IEnumerable<ITreeNode>>>(new List<ITreeNode> { childNode });
 
         // Assert
         Assert.Empty(_dragService.DraggedItems);

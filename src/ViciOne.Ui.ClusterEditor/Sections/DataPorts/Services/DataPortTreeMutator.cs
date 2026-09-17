@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using Microsoft.Extensions.Logging;
@@ -50,6 +50,54 @@ internal sealed partial class DataPortTreeMutator(
         rootNode.CanHaveChildren = rootNode.PossibleChildren.Any();
 
         return rootNode;
+    }
+
+    // Mirrors the builder calls of ProcessNodeChanges that are known to throw, so that invalid pending
+    // values are rejected before anything gets committed (e.g. links were added while the edit form was open).
+    public bool CanApplyNodeChanges(
+        DataPortChildNodeModel childNode,
+        DataPortChildNodePropertyValueStore pendingValues,
+        [NotNullWhen(false)] out string? errorMessage)
+    {
+        errorMessage = null;
+
+        if (!datastore.HasBuilder)
+            return true;
+
+        // Parent is root node so child is DataPort
+        if (childNode.Parent is DataPortRootNodeModel)
+        {
+            if (!datastore.Builder.Cache.DataPortIds.TryGetValue(childNode.Id.Value, out var dataPort))
+                return true;
+
+            if (childNode.GetSystemProperty<DataPortDirection>() is not null
+                && pendingValues.TryGet<DataPortDirection>(nameof(DataPort.Direction), out var direction)
+                && direction != dataPort.Direction
+                && !datastore.Builder.Editors.DataPort.CanSetDirection(dataPort, direction))
+            {
+                errorMessage = Components.Localization.DataPortSection.DirectionChangeNotPossible;
+                return false;
+            }
+
+            return true;
+        }
+
+        // Normal child eg. for MQTT Folder, Value
+        if (!datastore.Builder.Cache.DataPortTreeNodeIds.TryGetValue(childNode.Id.Value, out var treeNode))
+            return true;
+
+        // Unknown data types are not validated here, SetSystemDataPortTreeNodeProperties keeps its current behavior for them.
+        if (pendingValues.TryGet<string>(nameof(DataPortTreeNode.ValueType), out var valueTypeName)
+            && !string.IsNullOrEmpty(valueTypeName)
+            && childNode.RootNode.Builder.DataTypes.TryGetValue(valueTypeName, out var dataType)
+            && dataType.RuntimeType != treeNode.ValueType
+            && !datastore.Builder.Editors.DataPortTreeNode.CanSetValueType(treeNode, dataType.RuntimeType))
+        {
+            errorMessage = Components.Localization.DataPortSection.ValueTypeChangeNotPossible;
+            return false;
+        }
+
+        return true;
     }
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Failed to build tree for DataPort {DataPortId}.")]
@@ -228,7 +276,7 @@ internal sealed partial class DataPortTreeMutator(
     // changes done outside. Until such an event arrives the tree still shows nodes the cluster
     // has already dropped - deleted a second time, or together with an ancestor - and the event
     // removes them, so a node that is no longer cached needs no deletion of its own.
-    private bool TryDeleteChildNode(IClusterBuilder builder, DataPortChildNodeModel childNode)
+    private static bool TryDeleteChildNode(IClusterBuilder builder, DataPortChildNodeModel childNode)
     {
         var childNodeId = childNode.Id.Value;
 

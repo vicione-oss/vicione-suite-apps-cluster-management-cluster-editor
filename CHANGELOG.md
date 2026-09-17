@@ -59,6 +59,7 @@
 - Fixed selection rectangle no longer working on an empty diagram after a previous selection ended on the edge dragging area
 - Fixed a rare crash when a library drag left the diagram while a JavaScript call was still running
 - Fixed missing highlight of focused and selected rows in grids (e.g. Link Destination dialog) by providing the Bootstrap color variables still used by DevExpress components
+- Fixed a crash when saving a DataPort node after links were added while its edit form was open; nodes below a node in edit mode can no longer be linked
 
 ### Removed
 

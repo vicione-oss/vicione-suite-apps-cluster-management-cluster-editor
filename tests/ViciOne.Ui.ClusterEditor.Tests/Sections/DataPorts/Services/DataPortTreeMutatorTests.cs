@@ -7,6 +7,8 @@ using Microsoft.Extensions.Logging.Testing;
 using NSubstitute;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
+using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components.Localization;
+using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.ClusterEditor.Services;
@@ -22,6 +24,8 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Sections.DataPorts.Services;
 
 public sealed class DataPortTreeMutatorTests : IAsyncDisposable
 {
+    private const string FloatDataPointNodeTypeId = "DataPointFloat";
+    private const string FolderNodeTypeId = "Folder";
     private const string MqttRootId = "MQTTDataPort";
 
     private readonly ITreeBuilder _builder;
@@ -49,6 +53,7 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         // Wire a real ClusterBuilder and MQTT ruleset so the mutator's happy paths can run end-to-end.
         _clusterBuilder = BuilderFactory.Create();
         _datastore.Builder.Returns(_clusterBuilder);
+        _datastore.HasBuilder.Returns(true);
         _datastore.ActiveDataflow.Returns(_clusterBuilder.Cluster.Dataflows[0]);
         _rulesetProvider.GetRuleset(Arg.Any<RulesetIdentifier>()).Returns(TestResources.MqttRuleset);
         _rulesetProvider
@@ -63,10 +68,219 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
         await _datastore.DisposeAsync();
     }
 
+    // The demo elements of BuilderFactory contain no function blocks, so a block of the test design provides the connectors.
+    private void AssignConnector(DataPortTreeNode treeNode)
+    {
+        _clusterBuilder.Editors.Container.AddFunctionBlock(_clusterBuilder.Cluster.Dataflows[0].Root, BuilderFactory.FbDesignId);
+
+        var connector = _clusterBuilder.Cache.Connectors.First(c =>
+            c.Type == ConnectorType.ProcessData && _clusterBuilder.Editors.DataPortTreeNode.CanAssignConnector(treeNode, c));
+        _clusterBuilder.Editors.DataPortTreeNode.AssignConnector(treeNode, connector);
+
+        Assert.NotEmpty(treeNode.Links);
+    }
+
+    // Creates Broker -> Folder -> DataPoint Float in the tree and in the cluster.
+    private (DataPortChildNodeModel Broker, DataPortChildNodeModel Value, DataPortTreeNode ValueTreeNode) CreateBrokerWithValue()
+    {
+        var root = CreateRootWithBroker();
+        var broker = (DataPortChildNodeModel)root.Children.Single();
+
+        var folder = DataPortChildNodeModelFactory.CreateDataPortChildNodeModel(
+            broker.PossibleChildren.First(d => d.NodeReference.Id == FolderNodeTypeId), broker);
+        _mutator.CreateNewChildNode(broker, folder);
+
+        var value = DataPortChildNodeModelFactory.CreateDataPortChildNodeModel(
+            folder.PossibleChildren.First(d => d.NodeReference.Id == FloatDataPointNodeTypeId), folder);
+        _mutator.CreateNewChildNode(folder, value);
+
+        return (broker, value, _clusterBuilder.Cache.DataPortTreeNodeIds[value.Id.Value]);
+    }
+
     private DataPortRootNodeModel CreateRootWithBroker()
     {
         _mutator.CreateNewDataPortRootNode(MqttRootId);
         return _state.RootNodes.Single();
+    }
+
+    private static string GetValueTypeName(DataPortChildNodeModel value, DataPortTreeNode valueTreeNode, Func<Type, bool> predicate)
+        => value.GetRequiredSystemProperty<string>(nameof(DataPortTreeNode.ValueType)).AvailableValues
+            .First(name => value.RootNode.Builder.DataTypes[name].RuntimeType is { } runtimeType
+                && runtimeType != valueTreeNode.ValueType
+                && predicate(runtimeType));
+
+    [Fact]
+    public void CanApplyNodeChanges_WhenDataPortNoLongerInCluster_ReturnsTrue()
+    {
+        // Arrange - not validated here by design; committing changes of a removed DataPort is a separate issue
+        var root = DataPortNodeModelCreator.CreateDataPortRootNodeModel();
+        var node = DataPortNodeModelCreator.CreateDataPortChildNodeModel(parent: root, rootNode: root, dataPortDirection: DataPortDirection.Out);
+        var pendingValues = new DataPortChildNodePropertyValueStore();
+        pendingValues.Set(nameof(DataPort.Direction), DataPortDirection.In);
+
+        // Act
+        var result = _mutator.CanApplyNodeChanges(node, pendingValues, out var errorMessage);
+
+        // Assert
+        Assert.True(result);
+        Assert.Null(errorMessage);
+    }
+
+    [Fact]
+    public void CanApplyNodeChanges_WhenDirectionChangeAllowedWithoutLinks_ReturnsTrue()
+    {
+        // Arrange
+        var (broker, _, _) = CreateBrokerWithValue();
+        var dataPort = _clusterBuilder.Cache.DataPortIds[broker.Id.Value];
+        var direction = Enum.GetValues<DataPortDirection>()
+            .First(d => d != dataPort.Direction && _clusterBuilder.Editors.DataPort.CanSetDirection(dataPort, d));
+
+        var pendingValues = new DataPortChildNodePropertyValueStore();
+        pendingValues.Set(nameof(DataPort.Direction), direction);
+
+        // Act
+        var result = _mutator.CanApplyNodeChanges(broker, pendingValues, out var errorMessage);
+
+        // Assert
+        Assert.True(result);
+        Assert.Null(errorMessage);
+    }
+
+    [Fact]
+    public void CanApplyNodeChanges_WhenDirectionConflictsWithLinkOnDescendant_ReturnsFalseWithMessage()
+    {
+        // Arrange - regression #1700: a link is added below the DataPort while its edit form is open
+        var (broker, _, valueTreeNode) = CreateBrokerWithValue();
+        var dataPort = _clusterBuilder.Cache.DataPortIds[broker.Id.Value];
+        var allowedDirectionsBeforeLink = Enum.GetValues<DataPortDirection>()
+            .Where(d => d != dataPort.Direction && _clusterBuilder.Editors.DataPort.CanSetDirection(dataPort, d))
+            .ToList();
+
+        AssignConnector(valueTreeNode);
+
+        var direction = allowedDirectionsBeforeLink.First(d => !_clusterBuilder.Editors.DataPort.CanSetDirection(dataPort, d));
+        var pendingValues = new DataPortChildNodePropertyValueStore();
+        pendingValues.Set(nameof(DataPort.Direction), direction);
+
+        // Act
+        var result = _mutator.CanApplyNodeChanges(broker, pendingValues, out var errorMessage);
+
+        // Assert
+        Assert.False(result);
+        Assert.Equal(DataPortSection.DirectionChangeNotPossible, errorMessage);
+    }
+
+    [Fact]
+    public void CanApplyNodeChanges_WhenDirectionUnchanged_ReturnsTrue()
+    {
+        // Arrange - the builder rejects every direction, so only the unchanged check can lead to true
+        var (broker, _, _) = CreateBrokerWithValue();
+        var dataPort = _clusterBuilder.Cache.DataPortIds[broker.Id.Value];
+
+        var clusterBuilder = Substitute.For<IClusterBuilder>();
+        clusterBuilder.Cache.DataPortIds.Returns(_clusterBuilder.Cache.DataPortIds);
+        clusterBuilder.Editors.DataPort.CanSetDirection(Arg.Any<DataPort>(), Arg.Any<DataPortDirection>()).Returns(false);
+        _datastore.Builder.Returns(clusterBuilder);
+
+        var pendingValues = new DataPortChildNodePropertyValueStore();
+        pendingValues.Set(nameof(DataPort.Direction), dataPort.Direction);
+
+        // Act
+        var result = _mutator.CanApplyNodeChanges(broker, pendingValues, out var errorMessage);
+
+        // Assert
+        Assert.True(result);
+        Assert.Null(errorMessage);
+        clusterBuilder.Editors.DataPort.DidNotReceiveWithAnyArgs().CanSetDirection(default!, default);
+    }
+
+    [Fact]
+    public void CanApplyNodeChanges_WhenNoBuilderLoaded_ReturnsTrue()
+    {
+        // Arrange
+        _datastore.HasBuilder.Returns(false);
+        var root = DataPortNodeModelCreator.CreateDataPortRootNodeModel();
+        var node = DataPortNodeModelCreator.CreateDataPortChildNodeModel(parent: root, rootNode: root, dataPortDirection: DataPortDirection.Out);
+        var pendingValues = new DataPortChildNodePropertyValueStore();
+        pendingValues.Set(nameof(DataPort.Direction), DataPortDirection.In);
+
+        // Act
+        var result = _mutator.CanApplyNodeChanges(node, pendingValues, out var errorMessage);
+
+        // Assert
+        Assert.True(result);
+        Assert.Null(errorMessage);
+    }
+
+    [Fact]
+    public void CanApplyNodeChanges_WhenValueTypeChangeAllowed_ReturnsTrue()
+    {
+        // Arrange
+        var (_, value, valueTreeNode) = CreateBrokerWithValue();
+        var valueTypeName = GetValueTypeName(value, valueTreeNode,
+            runtimeType => _clusterBuilder.Editors.DataPortTreeNode.CanSetValueType(valueTreeNode, runtimeType));
+
+        var pendingValues = new DataPortChildNodePropertyValueStore();
+        pendingValues.Set(nameof(DataPortTreeNode.ValueType), valueTypeName);
+
+        // Act
+        var result = _mutator.CanApplyNodeChanges(value, pendingValues, out var errorMessage);
+
+        // Assert
+        Assert.True(result);
+        Assert.Null(errorMessage);
+    }
+
+    [Fact]
+    public void CanApplyNodeChanges_WhenValueTypeConflictsWithLink_ReturnsFalseWithMessage()
+    {
+        // Arrange - the builder only rejects value types that are incompatible with the linked connectors. The test
+        // resources provide no such link for any data point, so the rejection of the builder is stubbed here.
+        var (_, value, valueTreeNode) = CreateBrokerWithValue();
+        var valueTypeName = GetValueTypeName(value, valueTreeNode, _ => true);
+        var valueType = value.RootNode.Builder.DataTypes[valueTypeName].RuntimeType;
+
+        var clusterBuilder = Substitute.For<IClusterBuilder>();
+        clusterBuilder.Cache.DataPortTreeNodeIds.Returns(_clusterBuilder.Cache.DataPortTreeNodeIds);
+        clusterBuilder.Editors.DataPortTreeNode.CanSetValueType(Arg.Any<DataPortTreeNode>(), Arg.Any<Type>()).Returns(true);
+        clusterBuilder.Editors.DataPortTreeNode.CanSetValueType(valueTreeNode, valueType).Returns(false);
+        _datastore.Builder.Returns(clusterBuilder);
+
+        var pendingValues = new DataPortChildNodePropertyValueStore();
+        pendingValues.Set(nameof(DataPortTreeNode.ValueType), valueTypeName);
+
+        // Act
+        var result = _mutator.CanApplyNodeChanges(value, pendingValues, out var errorMessage);
+
+        // Assert
+        Assert.False(result);
+        Assert.Equal(DataPortSection.ValueTypeChangeNotPossible, errorMessage);
+        clusterBuilder.Editors.DataPortTreeNode.Received(1).CanSetValueType(valueTreeNode, valueType);
+    }
+
+    [Fact]
+    public void CanApplyNodeChanges_WhenValueTypeUnchanged_ReturnsTrue()
+    {
+        // Arrange - the builder rejects every value type, so only the unchanged check can lead to true
+        var (_, value, valueTreeNode) = CreateBrokerWithValue();
+        var valueTypeName = value.GetRequiredSystemProperty<string>(nameof(DataPortTreeNode.ValueType)).TypedValue;
+        Assert.Equal(valueTreeNode.ValueType, value.RootNode.Builder.DataTypes[valueTypeName!].RuntimeType);
+
+        var clusterBuilder = Substitute.For<IClusterBuilder>();
+        clusterBuilder.Cache.DataPortTreeNodeIds.Returns(_clusterBuilder.Cache.DataPortTreeNodeIds);
+        clusterBuilder.Editors.DataPortTreeNode.CanSetValueType(Arg.Any<DataPortTreeNode>(), Arg.Any<Type>()).Returns(false);
+        _datastore.Builder.Returns(clusterBuilder);
+
+        var pendingValues = new DataPortChildNodePropertyValueStore();
+        pendingValues.Set(nameof(DataPortTreeNode.ValueType), valueTypeName);
+
+        // Act
+        var result = _mutator.CanApplyNodeChanges(value, pendingValues, out var errorMessage);
+
+        // Assert
+        Assert.True(result);
+        Assert.Null(errorMessage);
+        clusterBuilder.Editors.DataPortTreeNode.DidNotReceiveWithAnyArgs().CanSetValueType(default!, default!);
     }
 
     [Fact]

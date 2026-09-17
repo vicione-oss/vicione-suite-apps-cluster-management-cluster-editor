@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Ui.Blazor.Components.Models;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Comparers;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Messages;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
-using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
@@ -23,6 +23,7 @@ public sealed partial class DataPortEditNodeTemplate : NodeTemplateBase, IDispos
     private DataPortEditTemplateContext EditTemplateContext { get; set; } = default!;
 
     [Inject] private IDatastore Datastore { get; set; } = default!;
+    [Inject] private DataPortEditingCoordinator EditingCoordinator { get; set; } = default!;
     [Inject] private IInsertionOrderCategoryComparer InsertionOrderCategoryComparer { get; set; } = default!;
     [Inject] private IInsertionOrderPropertyComparer InsertionOrderPropertyComparer { get; set; } = default!;
     [Inject] private IPropertyGridController<DataPortChildNodeEditContext> PropertyGridController { get; set; } = default!;
@@ -44,13 +45,14 @@ public sealed partial class DataPortEditNodeTemplate : NodeTemplateBase, IDispos
             EditTemplateContext.InvokeCancel(dataPortNode);
     }
 
-    private void OnConfirmClicked()
+    private async Task OnConfirmClickedAsync()
     {
-        if (Node.TreeNode is DataPortChildNodeModel dataPortChildNodeModel)
-            dataPortChildNodeModel.AssignValuesAndProperties(PropertyValueStore);
+        if (Node.TreeNode is not DataPortChildNodeModel childNode)
+            return;
 
-        if (Node.TreeNode is DataPortNodeModel dataPortNode)
-            EditTemplateContext.InvokeConfirm(dataPortNode);
+        // Confirm directly after the validation without any further await, otherwise the cluster could change in between.
+        if (await EditingCoordinator.TryConfirmEditAsync(childNode, PropertyValueStore))
+            EditTemplateContext.InvokeConfirm(childNode);
     }
 
     protected override void OnInitialized()

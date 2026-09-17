@@ -135,4 +135,10 @@
   <data name="ElementAddedWhileFilteredInfo" xml:space="preserve">
     <value>Ein Element wurde hinzugefügt während ein Filter aktiv ist. (insgesamt {0})</value>
   </data>
+  <data name="DirectionChangeNotPossible" xml:space="preserve">
+    <value>Die Richtung kann nicht geändert werden, da Links verbunden sind, die die gewählte Richtung nicht zulassen. Behalten Sie die aktuelle Richtung bei oder brechen Sie die Bearbeitung ab und entfernen Sie die betroffenen Links.</value>
+  </data>
+  <data name="ValueTypeChangeNotPossible" xml:space="preserve">
+    <value>Der ValueType kann nicht geändert werden, da Links verbunden sind, die den gewählten ValueType nicht zulassen. Behalten Sie den aktuellen ValueType bei oder brechen Sie die Bearbeitung ab und entfernen Sie die betroffenen Links.</value>
+  </data>
 </root>

@@ -71,6 +71,15 @@ namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The direction cannot be changed because links are connected that do not allow the selected direction. Keep the current direction, or cancel the edit and remove the conflicting links..
+        /// </summary>
+        internal static string DirectionChangeNotPossible {
+            get {
+                return ResourceManager.GetString("DirectionChangeNotPossible", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Added a new element while a filter is active. (total {0}).
         /// </summary>
         internal static string ElementAddedWhileFilteredInfo {
@@ -103,6 +112,15 @@ namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components.Localization {
         internal static string NodeActionSortChildren {
             get {
                 return ResourceManager.GetString("NodeActionSortChildren", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The ValueType cannot be changed because links are connected that do not allow the selected ValueType. Keep the current ValueType, or cancel the edit and remove the conflicting links..
+        /// </summary>
+        internal static string ValueTypeChangeNotPossible {
+            get {
+                return ResourceManager.GetString("ValueTypeChangeNotPossible", resourceCulture);
             }
         }
         

@@ -121,6 +121,22 @@ internal static class DataPortChildNodeModelExtensions
     public static DataPortTreeNodeSystemProperty<TData>? GetSystemProperty<TData>(this DataPortChildNodeModel childNode, string? propertyName = null)
         => childNode.Properties.OfType<DataPortTreeNodeSystemProperty<TData>>().FirstOrDefault(k => string.IsNullOrEmpty(propertyName) || k.Name == propertyName);
 
+    // A node is locked while it or one of its ancestors is edited, because pending changes of the
+    // edited node (e.g. Direction) depend on the links of its whole subtree.
+    public static bool IsLockedByEditMode(this DataPortChildNodeModel node)
+    {
+        DataPortNodeModel current = node;
+        while (!current.IsEditModeActive)
+        {
+            if (current is not DataPortChildNodeModel childNode)
+                return false;
+
+            current = childNode.Parent;
+        }
+
+        return true;
+    }
+
     private static void SetCustomProperties(this DataPortChildNodeModel childNode, IHasDataPortProperties source)
     {
         foreach (var customProperty in childNode.Properties.OfType<DataPortNodeModelCustomProperty>())
