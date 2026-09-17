@@ -98,9 +98,9 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         {
             var dataPortTreeNode = Datastore.Builder.Cache.DataPortTreeNodeIds[childNode.Id.Value];
 
-            if (childNode.TransferDirectionIsPossible(connector) &&
-                Datastore.Builder.Editors.DataPortTreeNode.CanAssignConnector(dataPortTreeNode, connector) &&
-                !childNode.IsEditModeActive)
+            if (!childNode.IsLockedByEditMode() &&
+                childNode.TransferDirectionIsPossible(connector) &&
+                Datastore.Builder.Editors.DataPortTreeNode.CanAssignConnector(dataPortTreeNode, connector))
             {
                 nodesToHighlight.Add(childNode);
             }
@@ -288,6 +288,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
             TreeAdapter.RevertNodeChanges(childNode);
 
         _treeBuilder.Notifications.NotifyNodeChanged(node, ChangedNodeDetail.None);
+        TreeAdapter.NotifyDescendantsChanged(node);
     }
 
     private void OnPropertyEditConfirm(DataPortNodeModel node)
@@ -303,6 +304,8 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
             node.NotifyIconsChangedRecursively(_treeBuilder);
         else
             _treeBuilder.Notifications.NotifyNodeChanged(node, ChangedNodeDetail.Icons);
+
+        TreeAdapter.NotifyDescendantsChanged(node);
     }
 
     private async void OnRootNodesUpdated()
@@ -314,6 +317,9 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
             return;
 
         DragService.EndDragging();
+
+        if (nodeDroppedOn is DataPortChildNodeModel droppedOnChildNode && droppedOnChildNode.IsLockedByEditMode())
+            return;
 
         if (DragService.DraggedItems.FirstOrDefault(d => d is BlockNodeConnector) is not BlockNodeConnector draggedBlockNodeConnector)
             return;

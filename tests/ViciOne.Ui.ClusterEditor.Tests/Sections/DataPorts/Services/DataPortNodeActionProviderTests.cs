@@ -61,6 +61,7 @@ public sealed class DataPortNodeActionProviderTests
             new(rulesetProvider, new FakeLogger<DataPortTreeBuilderRegistry>()));
         _editingCoordinator = new DataPortEditingCoordinator(
             Substitute.For<IClusterEditorManagementInternal>(),
+            _mutator,
             _state);
         _provider = new DataPortNodeActionProvider(
             _addChildNodeContextMenuRequest,

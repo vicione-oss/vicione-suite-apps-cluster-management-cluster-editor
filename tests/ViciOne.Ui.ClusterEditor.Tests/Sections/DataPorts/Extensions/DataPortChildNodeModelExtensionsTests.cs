@@ -4,6 +4,7 @@ using ViciOne.Tree.Builder.NodeTypes;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Models;
 using ViciOne.Ui.ClusterEditor.Tests.Resources;
+using ViciOne.Ui.ClusterEditor.Tests.Sections.DataPorts.Services;
 using Xunit;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Sections.DataPorts.Extensions;
@@ -77,6 +78,96 @@ public class DataPortChildNodeModelExtensionsTests
 
         // Act
         var result = node.TransferDirectionIsPossible(new ConnectorInput());
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsLockedByEditMode_WhenChildInEditMode_ReturnsFalse()
+    {
+        // Arrange
+        var node = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+        var child = DataPortNodeModelCreator.CreateDataPortChildNodeModel(parent: node);
+        child.IsEditModeActive = true;
+
+        // Act
+        var result = node.IsLockedByEditMode();
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsLockedByEditMode_WhenGrandparentInEditMode_ReturnsTrue()
+    {
+        // Arrange
+        var grandparent = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+        grandparent.IsEditModeActive = true;
+        var parent = DataPortNodeModelCreator.CreateDataPortChildNodeModel(parent: grandparent);
+        var node = DataPortNodeModelCreator.CreateDataPortChildNodeModel(parent: parent);
+
+        // Act
+        var result = node.IsLockedByEditMode();
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsLockedByEditMode_WhenNodeItselfInEditMode_ReturnsTrue()
+    {
+        // Arrange
+        var node = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+        node.IsEditModeActive = true;
+
+        // Act
+        var result = node.IsLockedByEditMode();
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsLockedByEditMode_WhenNoNodeInEditMode_ReturnsFalse()
+    {
+        // Arrange
+        var parent = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+        var node = DataPortNodeModelCreator.CreateDataPortChildNodeModel(parent: parent);
+
+        // Act
+        var result = node.IsLockedByEditMode();
+
+        // Assert
+        result.Should().BeFalse();
+    }
+
+    [Fact]
+    public void IsLockedByEditMode_WhenParentInEditMode_ReturnsTrue()
+    {
+        // Arrange
+        var parent = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+        parent.IsEditModeActive = true;
+        var node = DataPortNodeModelCreator.CreateDataPortChildNodeModel(parent: parent);
+
+        // Act
+        var result = node.IsLockedByEditMode();
+
+        // Assert
+        result.Should().BeTrue();
+    }
+
+    [Fact]
+    public void IsLockedByEditMode_WhenSiblingInEditMode_ReturnsFalse()
+    {
+        // Arrange
+        var parent = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+        var sibling = DataPortNodeModelCreator.CreateDataPortChildNodeModel(parent: parent);
+        sibling.IsEditModeActive = true;
+        var node = DataPortNodeModelCreator.CreateDataPortChildNodeModel(parent: parent);
+
+        // Act
+        var result = node.IsLockedByEditMode();
 
         // Assert
         result.Should().BeFalse();

@@ -61,7 +61,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         _contextMenuRequest = Substitute.For<IContextMenuRequest<DataPortAddChildNodeContextMenuContext>>();
         _actionProvider = new DataPortNodeActionProvider(_contextMenuRequest,
             _treeMutator,
-            new DataPortEditingCoordinator(Substitute.For<IClusterEditorManagementInternal>(), _treeState),
+            new DataPortEditingCoordinator(Substitute.For<IClusterEditorManagementInternal>(), _treeMutator, _treeState),
             _treeState);
 
         _adapter = new DataPortTreeAdapter(
@@ -93,6 +93,48 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         _eventBuffer.Dispose();
         _eventSynchronizer.Dispose();
         _treeBuilder.Dispose();
+    }
+
+    [Fact]
+    public void CanDragNode_WhenAncestorInEditMode_ReturnsFalse()
+    {
+        // Arrange
+        var parent = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+        parent.IsEditModeActive = true;
+        var node = DataPortNodeModelCreator.CreateDataPortChildNodeModel(parent: parent);
+
+        // Act
+        var result = _adapter.CanDragNode(node);
+
+        // Assert
+        Assert.False(result);
+    }
+
+    [Fact]
+    public void CanDragNode_WhenNodeIsNotDataPortChildNode_ReturnsTrue()
+    {
+        // Arrange
+        var node = Substitute.For<ITreeNode>();
+
+        // Act
+        var result = _adapter.CanDragNode(node);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    [Fact]
+    public void CanDragNode_WhenNodeNotLocked_ReturnsTrue()
+    {
+        // Arrange
+        var parent = DataPortNodeModelCreator.CreateDataPortChildNodeModel();
+        var node = DataPortNodeModelCreator.CreateDataPortChildNodeModel(parent: parent);
+
+        // Act
+        var result = _adapter.CanDragNode(node);
+
+        // Assert
+        Assert.True(result);
     }
 
     [Fact]

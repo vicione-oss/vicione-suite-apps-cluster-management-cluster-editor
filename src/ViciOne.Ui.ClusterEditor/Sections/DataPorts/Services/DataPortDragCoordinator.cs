@@ -42,13 +42,16 @@ internal sealed class DataPortDragCoordinator(DragService dragService, IDatastor
 
     private void OnDragStarted(IEnumerable<ITreeNode> treeNodes)
     {
+        // Nodes below a node in edit mode must not be linked, see DataPortChildNodeModelExtensions.IsLockedByEditMode.
+        // The list is materialized here because the dragged items are enumerated again on drop.
+        List<IDragable> draggedItems = [.. treeNodes
+            .OfType<IDragable>()
+            .Where(n => n is not DataPortChildNodeModel childNode || !childNode.IsLockedByEditMode())];
+
         List<BlockNodeConnector> possibleTargetConnectors = [];
 
-        foreach (var treeNode in treeNodes)
+        foreach (var dataPortChildNode in draggedItems.OfType<DataPortChildNodeModel>())
         {
-            if (treeNode is not DataPortChildNodeModel dataPortChildNode)
-                continue;
-
             var dataPortTreeNode = datastore.Builder.Cache.DataPortTreeNodeIds.GetValueOrDefault(dataPortChildNode.Id.Value);
             if (dataPortTreeNode is null)
                 continue;
@@ -56,6 +59,7 @@ internal sealed class DataPortDragCoordinator(DragService dragService, IDatastor
             possibleTargetConnectors.AddRange(dataPortTreeNode.GetValidTargetConnectors(datastore, dataPortChildNode));
         }
 
-        dragService.StartDragging(treeNodes.OfType<IDragable>(), possibleTargetConnectors, false);
+        // Always start dragging, even without items, as DragService.EndDragging does not reset the items and targets of a previous drag.
+        dragService.StartDragging(draggedItems, possibleTargetConnectors, false);
     }
 }
