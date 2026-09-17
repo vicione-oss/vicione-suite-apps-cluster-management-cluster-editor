@@ -58,6 +58,7 @@
   - Deleting a node's parent while editing it no longer blocks all further edits, or crashes when the warning is closed
 - Fixed selection rectangle no longer working on an empty diagram after a previous selection ended on the edge dragging area
 - Fixed a rare crash when a library drag left the diagram while a JavaScript call was still running
+- Fixed missing highlight of focused and selected rows in grids (e.g. Link Destination dialog) by providing the Bootstrap color variables still used by DevExpress components
 
 ### Removed
 
