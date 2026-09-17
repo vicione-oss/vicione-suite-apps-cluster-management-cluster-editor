@@ -36,7 +36,43 @@ Groups are separated from each other by a line break.
 
 ### Comments
 
-Comments should be written in english. They should start with a capital letter and a whitespace, e.g. `// This is a comment.`
+Comments are written in English. They start with a capital letter, followed by a whitespace after the comment token, e.g. `// This is a comment.` or `/// <summary>This is a comment.</summary>`.
+
+#### Inline comments
+
+Comments inside a member body use `//`.
+
+#### Documentation comments
+
+Comments on types, members and fields (anything that is not inline) are XML documentation comments (`///`), never `//`. This applies regardless of access modifier, including `private` members. It applies to newly written comments only; existing `//` comments do not need to be converted.
+
+1. **Comment only when it adds information.**
+   Not every type or member needs a comment. Add one only if it tells the reader something the name and signature do not. Do not restate the name, e.g. `/// <summary>Gets the name.</summary>` on `Name`.
+2. **Keep it sparse.**
+   Use only the tags that have something useful to say. A `<summary>` alone is often enough. Leave out `<param>`, `<returns>` etc. when they are self-explanatory and behave as one would reasonably assume, e.g. `CancellationToken ct`.
+3. **Describe the member, not its callers.**
+   The comment describes what the member does, its result, side effects and the preconditions it requires. It does not describe who calls it, when it is called or what callers do with the result, because that goes stale as soon as a caller changes.
+4. **Put implementation notes in `<remarks>`.**
+   Background such as why a member has a certain visibility or where code was adapted from goes into `<remarks>`. Use `<see href="..."/>` for links.
+5. **Reference code with `<see cref>`.**
+   Refer to types and members with `<see cref="..."/>` (and parameters with `<paramref name="..."/>`) instead of plain text, so references are kept up to date by renames.
+6. **Don't duplicate inherited documentation.**
+   On overrides and interface implementations use `<inheritdoc/>` or no comment at all, instead of copying the base comment.
+
+Example:
+
+```csharp
+// Bad: plain comment, explains the caller
+// Called by the section when the user jumps from the diagram, so we only expand what is needed.
+private bool ExpandGroupRowsTo(DataGridConnectorWrapper target)
+
+// Good
+/// <summary>
+/// Expands only the group rows that contain <paramref name="target"/> and leaves all other groups untouched.
+/// </summary>
+/// <returns><see langword="false"/> if the row cannot be reached because an active filter or search text excludes it.</returns>
+private bool ExpandGroupRowsTo(DataGridConnectorWrapper target)
+```
 
 ## git
 
