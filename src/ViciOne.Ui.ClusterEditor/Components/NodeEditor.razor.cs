@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Threading.Tasks;
 using Blazor.Diagrams;
@@ -14,6 +14,7 @@ using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services;
+using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Components;
@@ -27,6 +28,7 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
     [Inject] private NodeEditorBehaviorController BehaviorController { get; set; } = default!;
     [Inject] private ConnectorMarkerDeletionController ConnectorMarkerDeletionController { get; set; } = default!;
     [Inject] private IContextMenuRequest<NodeEditorContextMenuContext> ContextMenuRequest { get; set; } = default!;
+    [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DiagramEventService DiagramEventService { get; set; } = default!;
     [Inject] private DiagramModelSyncController DiagramModelSyncController { get; set; } = default!;
     [Inject] private DiagramPointerInteractionController DiagramPointerInteractionController { get; set; } = default!;
@@ -55,10 +57,15 @@ public sealed partial class NodeEditor : ComponentBase, IDisposable
         BehaviorController.Dispose();
     }
 
-    protected override void OnAfterRender(bool firstRender)
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
-            LabelEditingController.AttachEditor(_labelEditor!);
+        if (!firstRender)
+            return;
+
+        LabelEditingController.AttachEditor(_labelEditor!);
+
+        if (Datastore.HasBuilder)
+            await Datastore.LoadContainer(Datastore.ActiveContainer, DiagramService, force: true);
     }
 
     private Task OnContainerLoaded(Container container)

@@ -4,3 +4,11 @@
     height: 100%;
     overflow: hidden;
 }
+
+/* Anchors the absolutely positioned error content of the AdvancedErrorBoundary,
+   so it covers the editor only and leaves the top bar usable. */
+.cluster-editor-area {
+    position: relative;
+    height: 100%;
+    overflow: hidden;
+}

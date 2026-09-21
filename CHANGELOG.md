@@ -60,6 +60,8 @@
 - Fixed a rare crash when a library drag left the diagram while a JavaScript call was still running
 - Fixed missing highlight of focused and selected rows in grids (e.g. Link Destination dialog) by providing the Bootstrap color variables still used by DevExpress components
 - Fixed a crash when saving a DataPort node after links were added while its edit form was open; nodes below a node in edit mode can no longer be linked
+- Fixed the diagram staying empty when the editor renders a second time for an already loaded cluster; the active container is projected into the newly created diagram
+- Fixed the Dataflow structure tree not mirroring the datastore when its nodes are rebuilt for an unchanged cluster; the active dataflow is marked again, and the active container is selected and expanded to
 
 ### Removed
 
