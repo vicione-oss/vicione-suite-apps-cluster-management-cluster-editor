@@ -72,7 +72,7 @@
 ### Updated external references
 
 - `Microsoft` packages, update to version `10.0.12`
-- `ViciOne.Ui.Blazor.Components` package, updated to version `6.0.0`
+- `ViciOne.Ui.Blazor.Components` package, updated to version `6.1.1`
 - `ViciOne.Ui.MonochromeIcons` package, update version to `4.18.0`
 - `ViciOne.Ui.Design` package, added in version `2.5.0`
 - `ViciOne.TreeBuilder` package, replaced by `ViciOne.Tree.Builder` in version `3.0.0`
