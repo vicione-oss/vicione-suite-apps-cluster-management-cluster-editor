@@ -1,10 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
+using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Sections.Dataflow.Models;
 using ViciOne.Ui.TreeEditor.Builder.Interface.NodeIdentifier;
 using ViciOne.Ui.TreeEditor.Builder.Interface.Nodes;
@@ -34,6 +35,30 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
 
         _datastore.ActiveDataflowChanged -= UpdateDataflowActiveState;
         _diagramEventService.ContainerLoaded -= OnContainerLoaded;
+    }
+
+    private IClusterEditorTreeNode? GetOrCreateTreeNode(Container container)
+    {
+        if (container is not ChildContainer childContainer)
+        {
+            var dataflow = _dataflowMap.Keys.FirstOrDefault(df => df.Root == container);
+
+            return dataflow is null ? null : _dataflowMap[dataflow];
+        }
+
+        if (_containerMap.TryGetValue(childContainer, out var containerNode))
+            return containerNode;
+
+        containerNode = new ContainerStructureTreeNode()
+        {
+            ChildContainer = childContainer,
+            Id = new GuidNodeIdentifier(childContainer.Id),
+            Name = childContainer.Name,
+        };
+
+        _containerMap[childContainer] = containerNode;
+
+        return containerNode;
     }
 
     private void InvokeChildrenChanged(IEnumerable<Container> changedContainers)
@@ -88,6 +113,9 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
                 });
             }
         }
+
+        UpdateDataflowActiveState();
+        SelectActiveContainer();
 
         Builder.Reset();
         Builder.Helper.Preload();
@@ -286,6 +314,32 @@ internal sealed partial class DataflowStructureTreeAdapter : IDisposable
         }
 
         InvokeChildrenChanged(updatedParents.Distinct());
+    }
+
+    /// <summary>
+    /// Selects the node of the datastore's active container and expands every node above it, so the tree
+    /// points at the container the editor is showing.
+    /// </summary>
+    private void SelectActiveContainer()
+    {
+        var activeContainer = _datastore.ActiveContainer;
+
+        if (GetOrCreateTreeNode(activeContainer) is not { } activeNode)
+            return;
+
+        foreach (var node in _containerMap.Values)
+            node.Selected = false;
+
+        foreach (var node in _dataflowMap.Values)
+            node.Selected = false;
+
+        activeNode.Selected = true;
+
+        for (var parent = (activeContainer as ChildContainer)?.Parent; parent is not null; parent = (parent as ChildContainer)?.Parent)
+        {
+            if (GetOrCreateTreeNode(parent) is { } parentNode)
+                parentNode.Expanded = true;
+        }
     }
 
     public void UseBuilder(IClusterBuilder newBuilder)

@@ -72,6 +72,15 @@ public sealed partial class Index : ComponentBase, IDisposable
         _designLoadingTask.ContinueWith(t => HideLoader(), TaskScheduler.Default);
     }
 
+    /// <summary>
+    /// Does nothing. The editor restores its diagram itself once the error boundary renders it again, so
+    /// there is nothing left to prepare here - the callback exists because the boundary only offers its
+    /// recover button when one is set.
+    /// </summary>
+    private static void OnPrepareRecover()
+    {
+    }
+
     private async Task OnSaveFailed()
     {
         _errorVisible = true;
