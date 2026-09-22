@@ -69,7 +69,7 @@ public sealed partial class DataPortEditNodeTemplate : NodeTemplateBase, IDispos
     {
         if (Node.TreeNode is DataPortChildNodeModel node)
         {
-            _editContext = new() { ClusterBuilder = Datastore.Builder, Node = node };
+            _editContext = new() { ClusterBuilder = Datastore.Builder, Node = node, PendingValues = EditingCoordinator.GetPendingValues(node) };
 
             PropertyGridController.SetInstances([node], _editContext);
         }

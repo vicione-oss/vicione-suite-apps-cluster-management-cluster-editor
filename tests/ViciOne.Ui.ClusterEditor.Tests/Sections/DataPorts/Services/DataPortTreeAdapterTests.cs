@@ -61,7 +61,7 @@ public sealed class DataPortTreeAdapterTests : IAsyncDisposable
         _contextMenuRequest = Substitute.For<IContextMenuRequest<DataPortAddChildNodeContextMenuContext>>();
         _actionProvider = new DataPortNodeActionProvider(_contextMenuRequest,
             _treeMutator,
-            new DataPortEditingCoordinator(Substitute.For<IClusterEditorManagementInternal>(), _treeMutator, _treeState),
+            new DataPortEditingCoordinator(Substitute.For<IClusterEditorManagementInternal>(), _treeMutator, new DataPortChildNodePropertyValueStore(), _treeState),
             _treeState);
 
         _adapter = new DataPortTreeAdapter(

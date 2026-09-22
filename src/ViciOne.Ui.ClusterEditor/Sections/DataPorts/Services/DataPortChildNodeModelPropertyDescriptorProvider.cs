@@ -154,7 +154,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
                 .Select(v => new SelectableValue<DataPortDirection> { Text = v.ToString(), Value = v })];
         });
 
-        propertyValueStore.Set(directionProperty.Name, directionProperty.TypedValue);
+        propertyValueStore.SetIfAbsent(directionProperty.Name, directionProperty.TypedValue);
 
         return new SelectionPropertyDescriptor<DataPortChildNodeModel, DataPortDirection>
         {
@@ -205,7 +205,11 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
         var treeBuilder = context.Node.RootNode.Builder;
 
         propertyValueStore.Clear();
-        propertyValueStore.Set(nameof(context.Node.Name), context.Node.Name);
+
+        foreach (var (propertyName, pendingValue) in context.PendingValues)
+            propertyValueStore.Set(propertyName, pendingValue);
+
+        propertyValueStore.SetIfAbsent(nameof(context.Node.Name), context.Node.Name);
 
         yield return new PropertyDescriptor<DataPortChildNodeModel, string>
         {
@@ -251,7 +255,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
 
         foreach (var property in OrderByDependency(customProperties))
         {
-            propertyValueStore.Set(property.Name, property.Value);
+            propertyValueStore.SetIfAbsent(property.Name, property.Value);
 
             var descriptor = CreateCustomPropertyDescriptor((DataPortNodeModelCustomProperty)property, treeBuilder);
             if (descriptor is not null)
@@ -268,7 +272,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
 
     private IPropertyDescriptor<DataPortChildNodeModel> GetRegularPropertyData(DataPortNodeModelSystemProperty property, Tree.Builder.TreeBuilder treeBuilder)
     {
-        propertyValueStore.Set(property.Name, property.Value);
+        propertyValueStore.SetIfAbsent(property.Name, property.Value);
 
         var propertyValueType = property.Value?.GetType() ?? typeof(string);
 
@@ -284,7 +288,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     private IPropertyDescriptor<DataPortChildNodeModel> GetStringPropertyData(DataPortTreeNodeSystemProperty<string> stringProperty,
         DataPortChildNodeModel node, IClusterBuilder clusterBuilder)
     {
-        propertyValueStore.Set(stringProperty.Name, stringProperty.TypedValue);
+        propertyValueStore.SetIfAbsent(stringProperty.Name, stringProperty.TypedValue);
 
         if (IsValueTypeProperty(stringProperty))
             return GetValueTypePropertyData(node, stringProperty, clusterBuilder);
@@ -322,7 +326,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
     private SelectionPropertyDescriptor<DataPortChildNodeModel, DataPortTransferMode> GetTransferModePropertyData(
         DataPortTreeNodeSystemProperty<DataPortTransferMode> transferModeProperty)
     {
-        propertyValueStore.Set(transferModeProperty.Name, transferModeProperty.TypedValue);
+        propertyValueStore.SetIfAbsent(transferModeProperty.Name, transferModeProperty.TypedValue);
 
         var selectableValues = transferModeProperty.AvailableValues
             .Select(v => new SelectableValue<DataPortTransferMode> { Text = v.ToString(), Value = v })
@@ -343,7 +347,7 @@ internal sealed class DataPortChildNodeModelPropertyDescriptorProvider(
 
     private PropertyDescriptor<DataPortChildNodeModel, uint?> GetUintPropertyData(DataPortTreeNodeSystemProperty<uint?> uintProperty, IReadOnlyCollection<IPropertyDescriptor>? dependencies)
     {
-        propertyValueStore.Set(uintProperty.Name, uintProperty.TypedValue);
+        propertyValueStore.SetIfAbsent(uintProperty.Name, uintProperty.TypedValue);
 
         return new NumericPropertyDescriptor<DataPortChildNodeModel, uint?, uint, uint>
         {

@@ -127,6 +127,7 @@ internal static class BunitContextExtensions
         ctx.Services.TryAddScoped<DataPortTreeBuilderRegistry>();
         ctx.Services.TryAddScoped<DataPortIconResolver>();
         ctx.Services.TryAddScoped<DataPortTreeState>();
+        ctx.Services.TryAddScoped<DataPortChildNodePropertyValueStore>();
         ctx.Services.TryAddScoped<DataPortEditingCoordinator>();
         ctx.Services.TryAddScoped<DataPortTreeMutator>();
         ctx.Services.TryAddScoped<DataPortNodeActionProvider>();

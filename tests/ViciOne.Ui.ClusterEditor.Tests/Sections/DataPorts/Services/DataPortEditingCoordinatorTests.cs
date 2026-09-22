@@ -25,6 +25,7 @@ public sealed class DataPortEditingCoordinatorTests : IAsyncDisposable
     private readonly DataPortEditingCoordinator _coordinator;
     private readonly IClusterEditorManagementInternal _dataManagementService;
     private readonly IDatastore _datastore;
+    private readonly DataPortChildNodePropertyValueStore _propertyValueStore = new();
     private readonly DataPortTreeState _state;
 
     public DataPortEditingCoordinatorTests()
@@ -42,7 +43,7 @@ public sealed class DataPortEditingCoordinatorTests : IAsyncDisposable
             _state,
             new DataPortTreeBuilderRegistry(rulesetProvider, new FakeLogger<DataPortTreeBuilderRegistry>()));
 
-        _coordinator = new DataPortEditingCoordinator(_dataManagementService, mutator, _state);
+        _coordinator = new DataPortEditingCoordinator(_dataManagementService, mutator, _propertyValueStore, _state);
     }
 
     public async ValueTask DisposeAsync()
@@ -213,6 +214,140 @@ public sealed class DataPortEditingCoordinatorTests : IAsyncDisposable
 
         // Assert
         _builder.Notifications.Received(1).NotifyNodeChanged(editingNodeChild, ChangedNodeDetail.None);
+    }
+
+    [Fact]
+    public async Task BeginEdit_WhenANewEditStarts_DropsPendingValuesOfAnEarlierEdit()
+    {
+        // Arrange - a restored edit was cancelled, its pending values must not come back
+        var root = CreateRoot();
+        var node = CreateChild(root);
+        _state.AddRootNode(root);
+        root.Children.Add(node);
+        await _coordinator.RestorePendingEditAsync(new DataPortPendingEdit(node.Id, new Dictionary<string, object?> { [nameof(node.Name)] = PendingName }));
+        node.IsEditModeActive = false;
+
+        // Act
+        await _coordinator.BeginEdit(node);
+
+        // Assert
+        Assert.Empty(_coordinator.GetPendingValues(node));
+    }
+
+    [Fact]
+    public void CapturePendingEdit_WhenNoNodeIsBeingEdited_ReturnsNull()
+    {
+        // Act
+        var pendingEdit = _coordinator.CapturePendingEdit();
+
+        // Assert
+        Assert.Null(pendingEdit);
+    }
+
+    [Fact]
+    public void CapturePendingEdit_WhenTheEditFormHasNoChanges_ReturnsTheNodeWithoutChangedValues()
+    {
+        // Arrange
+        var node = CreateChild(CreateRoot());
+        node.IsEditModeActive = true;
+        _state.EditingTreeNode = node;
+        _propertyValueStore.Set(nameof(node.Name), PendingName);
+
+        // Act
+        var pendingEdit = _coordinator.CapturePendingEdit();
+
+        // Assert
+        Assert.NotNull(pendingEdit);
+        Assert.Equal(node.Id, pendingEdit.NodeId);
+        Assert.Empty(pendingEdit.ChangedValues);
+    }
+
+    [Fact]
+    public void CapturePendingEdit_WhenTheEditFormHasChanges_ReturnsOnlyTheChangedValues()
+    {
+        // Arrange
+        var root = CreateRoot();
+        var node = DataPortNodeModelCreator.CreateDataPortChildNodeModel(parent: root, rootNode: root, dataPortDirection: DataPortDirection.Out);
+        node.IsEditModeActive = true;
+        node.HasChangedProperties = true;
+        _state.EditingTreeNode = node;
+        _propertyValueStore.Set(nameof(node.Name), node.Name);
+        _propertyValueStore.Set(nameof(DataPort.Direction), DataPortDirection.In);
+        _propertyValueStore.Set("NotAPropertyOfTheNode", 42);
+
+        // Act
+        var pendingEdit = _coordinator.CapturePendingEdit();
+
+        // Assert
+        Assert.NotNull(pendingEdit);
+        var changedValue = Assert.Single(pendingEdit.ChangedValues);
+        Assert.Equal(nameof(DataPort.Direction), changedValue.Key);
+        Assert.Equal(DataPortDirection.In, changedValue.Value);
+    }
+
+    [Fact]
+    public void GetPendingValues_WhenAnotherNodeIsBeingEdited_ReturnsNoValues()
+    {
+        // Arrange
+        var root = CreateRoot();
+        _state.EditingTreeNode = CreateChild(root);
+        _state.PendingEditValues = new Dictionary<string, object?> { [nameof(DataPortChildNodeModel.Name)] = PendingName };
+
+        // Act
+        var pendingValues = _coordinator.GetPendingValues(CreateChild(root));
+
+        // Assert
+        Assert.Empty(pendingValues);
+    }
+
+    [Fact]
+    public async Task RestorePendingEditAsync_WhenTheNodeIsGoneAndHadChanges_ShowsWarningToast()
+    {
+        // Arrange
+        var node = CreateChild(CreateRoot());
+        var pendingEdit = new DataPortPendingEdit(node.Id, new Dictionary<string, object?> { [nameof(node.Name)] = PendingName });
+
+        // Act
+        await _coordinator.RestorePendingEditAsync(pendingEdit);
+
+        // Assert
+        await _dataManagementService.Received(1).ShowMessageToast(LogLevel.Warning, DataPortSection.PendingChangesDiscarded, Arg.Any<Action>());
+        Assert.Null(_state.EditingTreeNode);
+    }
+
+    [Fact]
+    public async Task RestorePendingEditAsync_WhenTheNodeIsGoneWithoutChanges_ShowsNoToast()
+    {
+        // Arrange
+        var node = CreateChild(CreateRoot());
+
+        // Act
+        await _coordinator.RestorePendingEditAsync(new DataPortPendingEdit(node.Id, new Dictionary<string, object?>()));
+
+        // Assert
+        await _dataManagementService.DidNotReceiveWithAnyArgs().ShowMessageToast(default, default!, default!);
+    }
+
+    [Fact]
+    public async Task RestorePendingEditAsync_WhenTheNodeStillExists_ReopensTheEditFormWithTheChangedValues()
+    {
+        // Arrange
+        var root = CreateRoot();
+        var node = CreateChild(root);
+        _state.AddRootNode(root);
+        root.Children.Add(node);
+        var changedValues = new Dictionary<string, object?> { [nameof(node.Name)] = PendingName };
+
+        // Act
+        await _coordinator.RestorePendingEditAsync(new DataPortPendingEdit(node.Id, changedValues));
+
+        // Assert
+        Assert.True(node.IsEditModeActive);
+        Assert.True(node.HasChangedProperties);
+        Assert.Same(node, _state.EditingTreeNode);
+        Assert.Equal(changedValues, _coordinator.GetPendingValues(node));
+        _builder.Notifications.Received(1).NotifyNodeChanged(node, ChangedNodeDetail.None);
+        _builder.Scrolling.Received(1).RequestScrollToNode(node);
     }
 
     [Fact]

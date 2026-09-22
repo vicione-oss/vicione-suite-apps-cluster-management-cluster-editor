@@ -189,6 +189,7 @@ internal sealed partial class DataPortTreeMutator(
 
     public void InitializeDataPortTree()
     {
+        state.EditingTreeNode = null;
         state.ClearRootNodes();
 
         // Create visual tree using DataPort with matching treebuilder

@@ -141,4 +141,7 @@
   <data name="ValueTypeChangeNotPossible" xml:space="preserve">
     <value>Der ValueType kann nicht geändert werden, da Links verbunden sind, die den gewählten ValueType nicht zulassen. Behalten Sie den aktuellen ValueType bei oder brechen Sie die Bearbeitung ab und entfernen Sie die betroffenen Links.</value>
   </data>
+  <data name="PendingChangesDiscarded" xml:space="preserve">
+    <value>Der Editor wurde neu geladen und der bearbeitete Knoten existiert nicht mehr. Die ungespeicherten Änderungen wurden verworfen.</value>
+  </data>
 </root>

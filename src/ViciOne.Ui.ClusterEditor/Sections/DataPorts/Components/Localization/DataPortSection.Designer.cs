@@ -116,6 +116,15 @@ namespace ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The editor was reloaded and the node you were editing no longer exists. Your unsaved changes were discarded..
+        /// </summary>
+        internal static string PendingChangesDiscarded {
+            get {
+                return ResourceManager.GetString("PendingChangesDiscarded", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The ValueType cannot be changed because links are connected that do not allow the selected ValueType. Keep the current ValueType, or cancel the edit and remove the conflicting links..
         /// </summary>
         internal static string ValueTypeChangeNotPossible {
