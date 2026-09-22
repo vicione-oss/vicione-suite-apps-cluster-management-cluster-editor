@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using NSubstitute;
@@ -45,7 +46,8 @@ public sealed class DataPortChildNodeModelPropertyDescriptorProviderTests
         };
     }
 
-    private static IPropertyDescriptor<DataPortChildNodeModel>[] GetDescriptors(DataPortChildNodeModel node, IClusterBuilder clusterBuilder)
+    private static IPropertyDescriptor<DataPortChildNodeModel>[] GetDescriptors(
+        DataPortChildNodeModel node, IClusterBuilder clusterBuilder, IReadOnlyDictionary<string, object?>? pendingValues = null)
     {
         var services = new ServiceCollection()
             .AddScoped<NumericPropertyDescriptorBuilderProvider>();
@@ -62,9 +64,37 @@ public sealed class DataPortChildNodeModelPropertyDescriptorProviderTests
             .OfType<DataPortChildNodeModelPropertyDescriptorProvider>()
             .First();
 
-        var editContext = new DataPortChildNodeEditContext { ClusterBuilder = clusterBuilder, Node = node };
+        var editContext = new DataPortChildNodeEditContext
+        {
+            ClusterBuilder = clusterBuilder,
+            Node = node,
+            PendingValues = pendingValues ?? ReadOnlyDictionary<string, object?>.Empty,
+        };
 
         return [.. provider.GetPropertyDescriptors(editContext)];
+    }
+
+    [Fact]
+    public void GetPropertyDescriptors_WhenPendingValuesAreGiven_ShowsThemInPlaceOfTheNodeValues()
+    {
+        // Arrange
+        var node = DataPortNodeModelCreator.CreateDataPortChildNodeModel(dataPortTransferMode: DataPortTransferMode.None);
+        node.Name = "Original";
+        var pendingTransferMode = Enum.GetValues<DataPortTransferMode>().First(m => m != DataPortTransferMode.None);
+        using var clusterBuilder = new ClusterBuilder(Substitute.For<IDependencyResolver>());
+
+        // Act
+        var descriptors = GetDescriptors(node, clusterBuilder, new Dictionary<string, object?>
+        {
+            [nameof(DataPortChildNodeModel.Name)] = "Pending",
+            [TransferModeProperty] = pendingTransferMode,
+        });
+
+        // Assert
+        var nameDescriptor = (PropertyDescriptor<DataPortChildNodeModel, string>)descriptors.Single(d => d.Name == nameof(DataPortChildNodeModel.Name));
+        var transferModeDescriptor = (SelectionPropertyDescriptor<DataPortChildNodeModel, DataPortTransferMode>)descriptors.Single(d => d.Name == TransferModeProperty);
+        Assert.Equal("Pending", nameDescriptor.GetValue!(node));
+        Assert.Equal(pendingTransferMode, transferModeDescriptor.GetValue!(node));
     }
 
     [Fact]

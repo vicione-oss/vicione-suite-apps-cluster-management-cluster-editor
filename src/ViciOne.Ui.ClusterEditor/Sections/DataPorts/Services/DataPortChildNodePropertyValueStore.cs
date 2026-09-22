@@ -8,6 +8,8 @@ internal sealed class DataPortChildNodePropertyValueStore
 {
     private readonly Dictionary<string, object?> _propertyValues = [];
 
+    public IReadOnlyDictionary<string, object?> Values => _propertyValues;
+
     public void Clear()
         => _propertyValues.Clear();
 
@@ -21,6 +23,9 @@ internal sealed class DataPortChildNodePropertyValueStore
 
     public void Set(string propertyName, object? newValue)
         => _propertyValues[propertyName] = newValue;
+
+    public void SetIfAbsent(string propertyName, object? value)
+        => _propertyValues.TryAdd(propertyName, value);
 
     public bool TryGet<T>(string propertyName, [MaybeNullWhen(false)] out T propertyValue)
     {

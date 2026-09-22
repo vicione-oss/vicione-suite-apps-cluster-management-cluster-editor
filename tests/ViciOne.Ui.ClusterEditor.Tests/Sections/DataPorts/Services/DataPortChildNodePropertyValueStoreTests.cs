@@ -74,6 +74,29 @@ public sealed class DataPortChildNodePropertyValueStoreTests
     }
 
     [Fact]
+    public void SetIfAbsent_WhenValueExists_KeepsExistingValue()
+    {
+        // Arrange
+        _store.Set(PropertyName, 1);
+
+        // Act
+        _store.SetIfAbsent(PropertyName, 2);
+
+        // Assert
+        Assert.Equal(1, _store.Get(PropertyName, defaultValue: 0));
+    }
+
+    [Fact]
+    public void SetIfAbsent_WhenValueMissing_StoresValue()
+    {
+        // Act
+        _store.SetIfAbsent(PropertyName, 2);
+
+        // Assert
+        Assert.Equal(2, _store.Get(PropertyName, defaultValue: 0));
+    }
+
+    [Fact]
     public void TryGet_WhenNullValueStored_ReturnsFalse()
     {
         // Arrange

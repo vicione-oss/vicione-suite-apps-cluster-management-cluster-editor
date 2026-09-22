@@ -62,6 +62,7 @@ public sealed class DataPortNodeActionProviderTests
         _editingCoordinator = new DataPortEditingCoordinator(
             Substitute.For<IClusterEditorManagementInternal>(),
             _mutator,
+            new DataPortChildNodePropertyValueStore(),
             _state);
         _provider = new DataPortNodeActionProvider(
             _addChildNodeContextMenuRequest,

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ViciOne.Cluster.Model;
@@ -20,6 +21,11 @@ internal sealed class DataPortTreeState
     public DataPortNodeModel? EditingTreeNode { get; set; }
     public bool IsDeletionInProgress { get; set; }
     public Action<ITreeNode, Action>? OnDeleteNodeUserConfirmationRequest { get; set; }
+
+    /// <summary>
+    /// Values by property name that were changed but not saved yet, shown by the edit form of <see cref="EditingTreeNode"/> in place of the node's own values.
+    /// </summary>
+    public IReadOnlyDictionary<string, object?> PendingEditValues { get; set; } = ReadOnlyDictionary<string, object?>.Empty;
     public IReadOnlyList<DataPortRootNodeModel> RootNodes => _dataPorts;
     public List<ITreeNode> ValidInboundDropTargets { get; } = [];
 

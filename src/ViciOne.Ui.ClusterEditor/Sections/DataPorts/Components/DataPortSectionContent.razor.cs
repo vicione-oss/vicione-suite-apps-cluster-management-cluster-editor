@@ -46,6 +46,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
     [Inject] private IDatastore Datastore { get; set; } = default!;
     [Inject] private DragService DragService { get; set; } = default!;
+    [Inject] private DataPortEditingCoordinator EditingCoordinator { get; set; } = default!;
     [Inject] private LinkDestinationDialogService LinkDestinationDialogService { get; set; } = default!;
     [Inject] private ILogger<DataPortSectionContent> Logger { get; set; } = default!;
     [Inject] private ToolbarService ToolbarService { get; set; } = default!;
@@ -131,7 +132,7 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
     private async Task OnBuilderChanged()
     {
         CreateEditTemplateContext();
-        TryInitDataPortTree();
+        await TryInitDataPortTree();
         await UpdateGroupingButtonState();
         await RefreshPossibleDataPorts();
     }
@@ -344,8 +345,10 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         await InvokeAsync(StateHasChanged);
     }
 
-    private void TryInitDataPortTree()
+    private async Task TryInitDataPortTree()
     {
+        var pendingEdit = EditingCoordinator.CapturePendingEdit();
+
         try
         {
             TreeAdapter.InitializeDataPortTree();
@@ -353,7 +356,10 @@ public sealed partial class DataPortSectionContent : ComponentBase, IDisposable
         catch (Exception ex)
         {
             ReassignBuilderFailed(Logger, ex, Datastore.Builder.Cluster.Id, Datastore.Builder.Cluster.Version);
+            return;
         }
+
+        await EditingCoordinator.RestorePendingEditAsync(pendingEdit);
     }
 
     private async Task UpdateGroupingButtonState()

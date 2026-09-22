@@ -62,6 +62,9 @@
 - Fixed a crash when saving a DataPort node after links were added while its edit form was open; nodes below a node in edit mode can no longer be linked
 - Fixed the diagram staying empty when the editor renders a second time for an already loaded cluster; the active container is projected into the newly created diagram
 - Fixed the Dataflow structure tree not mirroring the datastore when its nodes are rebuilt for an unchanged cluster; the active dataflow is marked again, and the active container is selected and expanded to
+- Fixed DataPort edit form when the host reloads the active container:
+  - The form stays open on the rebuilt node and keeps the values that were not confirmed yet
+  - A warning is shown when the edited node no longer exists and its unconfirmed values are discarded
 
 ### Removed
 

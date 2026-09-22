@@ -562,6 +562,71 @@ public sealed class DataPortTreeMutatorTests : IAsyncDisposable
     }
 
     [Fact]
+    public void InitializeDataPortTree_WhenANodeIsBeingEditedWithUnsavedChanges_ForgetsTheEditingNode()
+    {
+        // Arrange
+        var broker = (DataPortChildNodeModel)CreateRootWithBroker().Children.Single();
+        broker.IsEditModeActive = true;
+        broker.HasChangedProperties = true;
+        _state.EditingTreeNode = broker;
+
+        // Act
+        _mutator.InitializeDataPortTree();
+
+        // Assert
+        _state.EditingTreeNode.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task InitializeDataPortTree_WhenANodeWasBeingEditedWithUnsavedChanges_TheRebuiltNodeCanBeEditedAgain()
+    {
+        // Arrange - an external reload rebuilds the tree while the user has unsaved changes open
+        var dataManagementService = Substitute.For<IClusterEditorManagementInternal>();
+        var coordinator = new DataPortEditingCoordinator(dataManagementService, _mutator, new DataPortChildNodePropertyValueStore(), _state);
+        var broker = (DataPortChildNodeModel)CreateRootWithBroker().Children.Single();
+        await coordinator.BeginEdit(broker);
+        broker.HasChangedProperties = true;
+
+        _mutator.InitializeDataPortTree();
+        var rebuiltBroker = (DataPortChildNodeModel)_state.RootNodes.Single().Children.Single();
+
+        // Act
+        await coordinator.BeginEdit(rebuiltBroker);
+
+        // Assert
+        await dataManagementService.DidNotReceiveWithAnyArgs().ShowMessageToast(default, default!, default!);
+        rebuiltBroker.Should().NotBeSameAs(broker);
+        rebuiltBroker.IsEditModeActive.Should().BeTrue();
+        _state.EditingTreeNode.Should().BeSameAs(rebuiltBroker);
+    }
+
+    [Fact]
+    public async Task InitializeDataPortTree_WhenThePendingEditIsRestored_TheRebuiltNodeKeepsTheChangedValues()
+    {
+        // Arrange - the user renamed the node in the edit form without confirming
+        var propertyValueStore = new DataPortChildNodePropertyValueStore();
+        var coordinator = new DataPortEditingCoordinator(Substitute.For<IClusterEditorManagementInternal>(), _mutator, propertyValueStore, _state);
+        var broker = (DataPortChildNodeModel)CreateRootWithBroker().Children.Single();
+        var originalName = broker.Name;
+        await coordinator.BeginEdit(broker);
+        propertyValueStore.Set(nameof(DataPortChildNodeModel.Name), "Renamed");
+        broker.HasChangedProperties = true;
+
+        // Act
+        var pendingEdit = coordinator.CapturePendingEdit();
+        _mutator.InitializeDataPortTree();
+        await coordinator.RestorePendingEditAsync(pendingEdit);
+
+        // Assert
+        var rebuiltBroker = (DataPortChildNodeModel)_state.RootNodes.Single().Children.Single();
+        rebuiltBroker.Should().NotBeSameAs(broker);
+        rebuiltBroker.IsEditModeActive.Should().BeTrue();
+        rebuiltBroker.HasChangedProperties.Should().BeTrue();
+        rebuiltBroker.Name.Should().Be(originalName);
+        coordinator.GetPendingValues(rebuiltBroker).Should().ContainKey(nameof(DataPortChildNodeModel.Name)).WhoseValue.Should().Be("Renamed");
+    }
+
+    [Fact]
     public void InitializeDataPortTree_WhenNoTreeBuilderForDataPort_SwallowsExceptionAndSkipsRoot()
     {
         // Arrange - a data port exists in the cache but the registry has no matching tree builder
