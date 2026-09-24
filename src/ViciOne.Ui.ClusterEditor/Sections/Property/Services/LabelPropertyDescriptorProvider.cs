@@ -4,6 +4,8 @@ using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.ClusterEditor.Constants;
+using ViciOne.Ui.ClusterEditor.Helpers;
+using ViciOne.Ui.ClusterEditor.Sections.Property.Validators;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.Localization.Resources;
 
@@ -13,6 +15,8 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Property.Services;
 internal sealed class LabelPropertyDescriptorProvider<TContext>(IDatastore datastore)
     : IPropertyDescriptorProvider<TContext, Label>
 {
+    private readonly CssColorPropertyValueValidator _cssColorPropertyValueValidator = new();
+
     public IEnumerable<IPropertyDescriptor<Label>> GetPropertyDescriptors(TContext context)
     {
         var editor = datastore.Builder.Editors.Label;
@@ -24,7 +28,12 @@ internal sealed class LabelPropertyDescriptorProvider<TContext>(IDatastore datas
             GetValue = (instance) => instance.BackColor,
             Name = nameof(Label.BackColor),
             ResetValue = (instance) => editor.SetBackColor(instance, LabelColors.BackgroundDefault),
-            SetValue = editor.SetBackColor
+            SetValue = (instance, value) =>
+            {
+                if (value is null || Color.IsValidCssColor(value))
+                    editor.SetBackColor(instance, value);
+            },
+            ValueValidators = [_cssColorPropertyValueValidator]
         };
 
         yield return new PropertyDescriptor<Label, string?>
@@ -34,7 +43,12 @@ internal sealed class LabelPropertyDescriptorProvider<TContext>(IDatastore datas
             GetValue = (instance) => instance.BorderColor,
             Name = nameof(Label.BorderColor),
             ResetValue = (instance) => editor.SetBorderColor(instance, LabelColors.BorderDefault),
-            SetValue = editor.SetBorderColor
+            SetValue = (instance, value) =>
+            {
+                if (value is null || Color.IsValidCssColor(value))
+                    editor.SetBorderColor(instance, value);
+            },
+            ValueValidators = [_cssColorPropertyValueValidator]
         };
 
         var settings = datastore.Builder.Settings;

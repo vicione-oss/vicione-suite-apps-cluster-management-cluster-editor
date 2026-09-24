@@ -8,8 +8,10 @@ using ViciOne.Ui.Blazor.Components.PropertyGrid.Models;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.ClusterEditor.Constants;
+using ViciOne.Ui.ClusterEditor.Sections.Property.Validators;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.Localization.Resources;
+using Color = ViciOne.Ui.ClusterEditor.Helpers.Color;
 using LocalCommonVocabulary = ViciOne.Ui.ClusterEditor.Localization.Resources.CommonVocabulary;
 using LocalTechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms;
 
@@ -19,6 +21,8 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Property.Services;
 internal sealed class FunctionBlockPropertyDescriptorProvider<TContext>(IDatastore datastore)
     : IPropertyDescriptorProvider<TContext, FunctionBlock>
 {
+    private readonly CssColorPropertyValueValidator _cssColorPropertyValueValidator = new();
+
     public IEnumerable<IPropertyDescriptor<FunctionBlock>> GetPropertyDescriptors(TContext context)
     {
         var builder = datastore.Builder;
@@ -32,7 +36,12 @@ internal sealed class FunctionBlockPropertyDescriptorProvider<TContext>(IDatasto
             GetValue = (instance) => instance.BackColor,
             Name = nameof(FunctionBlock.BackColor),
             ResetValue = (instance) => editor.SetBackColor(instance, BlockNodeColors.BackgroundDefault),
-            SetValue = editor.SetBackColor
+            SetValue = (instance, value) =>
+            {
+                if (value is null || Color.IsValidCssColor(value))
+                    editor.SetBackColor(instance, value);
+            },
+            ValueValidators = [_cssColorPropertyValueValidator]
         };
 
         var runModePropertyDescriptor = new SelectionPropertyDescriptor<FunctionBlock, FunctionBlockRunMode>
@@ -90,7 +99,12 @@ internal sealed class FunctionBlockPropertyDescriptorProvider<TContext>(IDatasto
             GetValue = (instance) => instance.ForeColor,
             Name = nameof(FunctionBlock.ForeColor),
             ResetValue = (instance) => editor.SetForeColor(instance, BlockNodeColors.ForegroundDefault),
-            SetValue = editor.SetForeColor
+            SetValue = (instance, value) =>
+            {
+                if (value is null || Color.IsValidCssColor(value))
+                    editor.SetForeColor(instance, value);
+            },
+            ValueValidators = [_cssColorPropertyValueValidator]
         };
 
         var settings = builder.Settings;

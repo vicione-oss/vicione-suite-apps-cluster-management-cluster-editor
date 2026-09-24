@@ -4,6 +4,8 @@ using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.ClusterEditor.Constants;
+using ViciOne.Ui.ClusterEditor.Helpers;
+using ViciOne.Ui.ClusterEditor.Sections.Property.Validators;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.Localization.Resources;
 using LocalCommonVocabulary = ViciOne.Ui.ClusterEditor.Localization.Resources.CommonVocabulary;
@@ -14,6 +16,8 @@ namespace ViciOne.Ui.ClusterEditor.Sections.Property.Services;
 internal sealed class ChildContainerPropertyDescriptorProvider<TContext>(IDatastore datastore)
     : IPropertyDescriptorProvider<TContext, ChildContainer>
 {
+    private readonly CssColorPropertyValueValidator _cssColorPropertyValueValidator = new();
+
     public IEnumerable<IPropertyDescriptor<ChildContainer>> GetPropertyDescriptors(TContext context)
     {
         var editor = datastore.Builder.Editors.Container;
@@ -45,7 +49,12 @@ internal sealed class ChildContainerPropertyDescriptorProvider<TContext>(IDatast
             GetValue = (instance) => instance.BackColor,
             Name = nameof(ChildContainer.BackColor),
             ResetValue = (instance) => editor.SetBackColor(instance, BlockNodeColors.BackgroundDefault),
-            SetValue = editor.SetBackColor
+            SetValue = (instance, value) =>
+            {
+                if (value is null || Color.IsValidCssColor(value))
+                    editor.SetBackColor(instance, value);
+            },
+            ValueValidators = [_cssColorPropertyValueValidator]
         };
 
         yield return new PropertyDescriptor<ChildContainer, string?>
@@ -56,7 +65,12 @@ internal sealed class ChildContainerPropertyDescriptorProvider<TContext>(IDatast
             GetValue = (instance) => instance.ForeColor,
             Name = nameof(ChildContainer.ForeColor),
             ResetValue = (instance) => editor.SetForeColor(instance, BlockNodeColors.ForegroundDefault),
-            SetValue = editor.SetForeColor
+            SetValue = (instance, value) =>
+            {
+                if (value is null || Color.IsValidCssColor(value))
+                    editor.SetForeColor(instance, value);
+            },
+            ValueValidators = [_cssColorPropertyValueValidator]
         };
 
         var settings = datastore.Builder.Settings;
