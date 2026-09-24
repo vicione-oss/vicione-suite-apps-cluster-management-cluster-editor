@@ -28,7 +28,7 @@ internal static class IPageExtension
 
         if (!await headerTitleLocator.IsVisibleAsync())
         {
-            var buttonLocator = sidebarLocator.GetByRole(AriaRole.Link, new() { Exact = true, Name = title });
+            var buttonLocator = sidebarLocator.GetByRole(AriaRole.Button, new() { Exact = true, Name = title });
             await buttonLocator.ClickAsync();
 
             await Expect(headerTitleLocator).ToBeVisibleAsync();
