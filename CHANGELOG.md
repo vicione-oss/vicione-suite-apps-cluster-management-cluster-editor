@@ -66,6 +66,7 @@
   - The form stays open on the rebuilt node and keeps the values that were not confirmed yet
   - A warning is shown when the edited node no longer exists and its unconfirmed values are discarded
 - Fixed CSS injection via `BackColor`/`ForeColor` of function blocks and containers and `BackColor`/`BorderColor` of labels: only valid CSS colors (hex, `rgb()`, `hsl()`, color names) are accepted, the property grid shows a validation message for invalid values, and invalid stored values are rendered with the default color
+- Fixed statistics in the Information section being recalculated repeatedly for a single change after a cluster was loaded more than once
 
 ### Removed
 
