@@ -25,12 +25,13 @@ internal sealed class StatisticService : IDisposable
         _clusterBuilderEventBuffer = clusterBuilderEventBuffer;
         _datastore = datastore;
         _datastore.BuilderChanged += OnBuilderChanged;
+        SubscribeBufferEvents();
     }
 
     public void Dispose()
     {
         _datastore.BuilderChanged -= OnBuilderChanged;
-        UnsubscribeBuilderEvents();
+        UnsubscribeBufferEvents();
     }
 
     public Statistic GetStatistic()
@@ -109,6 +110,24 @@ internal sealed class StatisticService : IDisposable
     {
         _clusterBuilder = _datastore.Builder;
 
+        InvokeStatisticChanged();
+        return Task.CompletedTask;
+    }
+
+    private void OnClusterStateChanged<T>(IEnumerable<T> _)
+        => InvokeStatisticChanged();
+
+    private void OnConnectorPropertiesChanged(IEnumerable<(object? sender, System.ComponentModel.PropertyChangedEventArgs e)> changedProperties)
+    {
+        foreach (var (_, e) in changedProperties)
+        {
+            if (e.PropertyName is (nameof(Connector.Published)) or (nameof(Connector.EventEnabled)))
+                InvokeStatisticChanged();
+        }
+    }
+
+    private void SubscribeBufferEvents()
+    {
         _clusterBuilderEventBuffer.ConnectorLinksAdded += OnClusterStateChanged;
         _clusterBuilderEventBuffer.ConnectorLinksRemoved += OnClusterStateChanged;
         _clusterBuilderEventBuffer.ConnectorPropertiesChanged += OnConnectorPropertiesChanged;
@@ -128,46 +147,28 @@ internal sealed class StatisticService : IDisposable
         _clusterBuilderEventBuffer.LabelsRemoved += OnClusterStateChanged;
         _clusterBuilderEventBuffer.TreeNodesAdded += OnClusterStateChanged;
         _clusterBuilderEventBuffer.TreeNodesRemoved += OnClusterStateChanged;
-
-        InvokeStatisticChanged();
-        return Task.CompletedTask;
     }
 
-    private void OnClusterStateChanged<T>(IEnumerable<T> _)
-        => InvokeStatisticChanged();
-
-    private void OnConnectorPropertiesChanged(IEnumerable<(object? sender, System.ComponentModel.PropertyChangedEventArgs e)> changedProperties)
+    private void UnsubscribeBufferEvents()
     {
-        foreach (var (_, e) in changedProperties)
-        {
-            if (e.PropertyName is (nameof(Connector.Published)) or (nameof(Connector.EventEnabled)))
-                InvokeStatisticChanged();
-        }
-    }
-
-    private void UnsubscribeBuilderEvents()
-    {
-        if (_clusterBuilderEventBuffer is not null)
-        {
-            _clusterBuilderEventBuffer.ConnectorLinksAdded -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.ConnectorLinksRemoved -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.ConnectorPropertiesChanged -= OnConnectorPropertiesChanged;
-            _clusterBuilderEventBuffer.ContainersAdded -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.ContainersRemoved -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.DataflowsAdded -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.DataflowsRemoved -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.DataPortsAdded -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.DataPortsRemoved -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.EnginesAdded -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.EnginesRemoved -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.FunctionBlocksAdded -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.FunctionBlockDesignsAdded -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.FunctionBlockDesignsRemoved -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.FunctionBlocksRemoved -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.LabelsAdded -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.LabelsRemoved -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.TreeNodesAdded -= OnClusterStateChanged;
-            _clusterBuilderEventBuffer.TreeNodesRemoved -= OnClusterStateChanged;
-        }
+        _clusterBuilderEventBuffer.ConnectorLinksAdded -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.ConnectorLinksRemoved -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.ConnectorPropertiesChanged -= OnConnectorPropertiesChanged;
+        _clusterBuilderEventBuffer.ContainersAdded -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.ContainersRemoved -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.DataflowsAdded -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.DataflowsRemoved -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.DataPortsAdded -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.DataPortsRemoved -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.EnginesAdded -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.EnginesRemoved -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.FunctionBlocksAdded -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.FunctionBlockDesignsAdded -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.FunctionBlockDesignsRemoved -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.FunctionBlocksRemoved -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.LabelsAdded -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.LabelsRemoved -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.TreeNodesAdded -= OnClusterStateChanged;
+        _clusterBuilderEventBuffer.TreeNodesRemoved -= OnClusterStateChanged;
     }
 }
