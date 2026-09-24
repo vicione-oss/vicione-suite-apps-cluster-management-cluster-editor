@@ -5,6 +5,8 @@ using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Models;
 using ViciOne.Ui.ClusterEditor.Constants;
+using ViciOne.Ui.ClusterEditor.Helpers;
+using ViciOne.Ui.ClusterEditor.Sections.Property.Validators;
 using ViciOne.Ui.Localization.Resources;
 using LocalCommonVocabulary = ViciOne.Ui.ClusterEditor.Localization.Resources.CommonVocabulary;
 
@@ -14,6 +16,8 @@ namespace ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Services;
 internal sealed class ContainerEditorChildContainerNodePropertyDescriptorProvider<TContext>()
     : IPropertyDescriptorProvider<TContext, ContainerEditorChildContainer>
 {
+    private readonly CssColorPropertyValueValidator _cssColorPropertyValueValidator = new();
+
     public IEnumerable<IPropertyDescriptor<ContainerEditorChildContainer>> GetPropertyDescriptors(TContext context)
     {
         yield return new PropertyDescriptor<ContainerEditorChildContainer, string>
@@ -43,7 +47,12 @@ internal sealed class ContainerEditorChildContainerNodePropertyDescriptorProvide
             GetValue = (instance) => instance.BackColor,
             Name = nameof(ChildContainer.BackColor),
             ResetValue = (instance) => instance.BackColor = instance.Backup.BackColor,
-            SetValue = (instance, value) => instance.BackColor = value
+            SetValue = (instance, value) =>
+            {
+                if (value is null || Color.IsValidCssColor(value))
+                    instance.BackColor = value;
+            },
+            ValueValidators = [_cssColorPropertyValueValidator]
         };
 
         yield return new PropertyDescriptor<ContainerEditorChildContainer, string?>
@@ -54,7 +63,12 @@ internal sealed class ContainerEditorChildContainerNodePropertyDescriptorProvide
             GetValue = (instance) => instance.ForeColor,
             Name = nameof(ChildContainer.ForeColor),
             ResetValue = (instance) => instance.ForeColor = instance.Backup.ForeColor,
-            SetValue = (instance, value) => instance.ForeColor = value
+            SetValue = (instance, value) =>
+            {
+                if (value is null || Color.IsValidCssColor(value))
+                    instance.ForeColor = value;
+            },
+            ValueValidators = [_cssColorPropertyValueValidator]
         };
     }
 }

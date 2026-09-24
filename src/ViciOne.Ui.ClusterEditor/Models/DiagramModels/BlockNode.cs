@@ -16,9 +16,19 @@ public abstract class BlockNode : NodeModel, IDiagramModel
     internal string? ImageSrc { get; init; }
     internal string ImageText { get; init; } = string.Empty;
     internal string Name { get; set; } = string.Empty;
-    internal string NameBackgroundColor { get; set; } = string.Empty;
+    internal string NameBackgroundColor
+    {
+        get;
+        set => field = Helpers.Color.SanitizeCssColor(value, BlockNodeColors.BackgroundDefault);
+    } = BlockNodeColors.BackgroundDefault;
+
     internal int NameFieldHeight { get; set; }
-    internal string NameForeColor { get; set; } = string.Empty;
+
+    internal string NameForeColor
+    {
+        get;
+        set => field = Helpers.Color.SanitizeCssColor(value, BlockNodeColors.ForegroundDefault);
+    } = BlockNodeColors.ForegroundDefault;
     public new bool Visible { get; set; } = true;
 
     internal BlockNode(Point? point = null) : base(point)

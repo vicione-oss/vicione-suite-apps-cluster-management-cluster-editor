@@ -9,6 +9,8 @@ namespace ViciOne.Ui.ClusterEditor.Tests.Helpers;
 
 public class ColorTests
 {
+    private const string Fallback = "rgb(0, 0, 0)";
+
     [Fact]
     public async Task GetRelativeLuminance_IsThreadSafe_ForManyKeys()
     {
@@ -82,5 +84,64 @@ public class ColorTests
 
         // Assert
         Assert.Equal(first, second);
+    }
+
+    [Theory]
+    [InlineData("#fff")]
+    [InlineData("#FFFA")]
+    [InlineData("#a1b2c3")]
+    [InlineData("#ff000080")]
+    [InlineData("rgb(149, 149, 149)")]
+    [InlineData("RGB(149,149,149)")]
+    [InlineData("rgb(100%, 0%, 50%)")]
+    [InlineData("rgba(1, 2, 3, 0.5)")]
+    [InlineData("rgb(1 2 3)")]
+    [InlineData("rgb(1 2 3 / 50%)")]
+    [InlineData("hsl(120, 50%, 50%)")]
+    [InlineData("hsla(120deg, 50%, 50%, .5)")]
+    [InlineData("hsl(0.5turn 50% 50% / 0.25)")]
+    [InlineData("red")]
+    [InlineData("RebeccaPurple")]
+    [InlineData("transparent")]
+    [InlineData(" #fff ")]
+    public void SanitizeCssColor_ValidColor_ReturnsValue(string value)
+    {
+        // Act
+        var actual = Color.SanitizeCssColor(value, Fallback);
+
+        // Assert
+        Assert.True(Color.IsValidCssColor(value));
+        Assert.Equal(value, actual);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("   ")]
+    [InlineData("red; display:none")]
+    [InlineData("red} body{display:none")]
+    [InlineData("url(https://example.com/x.png)")]
+    [InlineData("\"red\"")]
+    [InlineData("#GGG")]
+    [InlineData("#12345")]
+    [InlineData("#")]
+    [InlineData("notacolor")]
+    [InlineData("💥")]
+    [InlineData("rgb(")]
+    [InlineData("rgb(1, 2)")]
+    [InlineData("rgb(1, 2, 3, 4, 5)")]
+    [InlineData("rgb(1 2 3 4)")]
+    [InlineData("rgb(1, 2 3)")]
+    [InlineData("rgb(a, b, c)")]
+    [InlineData("cmyk(1, 2, 3, 4)")]
+    [InlineData("red blue")]
+    public void SanitizeCssColor_InvalidValue_ReturnsFallback(string? value)
+    {
+        // Act
+        var actual = Color.SanitizeCssColor(value, Fallback);
+
+        // Assert
+        Assert.False(Color.IsValidCssColor(value));
+        Assert.Equal(Fallback, actual);
     }
 }

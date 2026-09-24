@@ -126,6 +126,11 @@
       <AutoGen>True</AutoGen>
       <DependentUpon>DataPortNodeValidationMessages.resx</DependentUpon>
     </Compile>
+    <Compile Update="Sections\Property\Validators\Localization\CssColorPropertyValueValidator.Designer.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>CssColorPropertyValueValidator.resx</DependentUpon>
+    </Compile>
     <Compile Update="Sections\Information\Components\Localization\InformationSection.Designer.cs">
       <DependentUpon>InformationSection.resx</DependentUpon>
       <DesignTime>True</DesignTime>
@@ -246,6 +251,10 @@
     <EmbeddedResource Update="Sections\DataPorts\Validators\Localization\DataPortNodeValidationMessages.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>DataPortNodeValidationMessages.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Update="Sections\Property\Validators\Localization\CssColorPropertyValueValidator.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>CssColorPropertyValueValidator.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Update="Sections\Information\Components\Localization\InformationSection.resx">
       <LastGenOutput>InformationSection.Designer.cs</LastGenOutput>

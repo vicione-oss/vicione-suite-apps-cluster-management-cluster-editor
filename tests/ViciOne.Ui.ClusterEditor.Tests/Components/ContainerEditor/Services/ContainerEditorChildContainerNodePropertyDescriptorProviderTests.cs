@@ -7,6 +7,7 @@ using ViciOne.Ui.Blazor.Components.PropertyGrid.Models.Descriptors;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Models;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Services;
 using ViciOne.Ui.ClusterEditor.Constants;
+using ViciOne.Ui.ClusterEditor.Sections.Property.Validators;
 using ViciOne.Ui.Localization.Resources;
 using Xunit;
 using LocalCommonVocabulary = ViciOne.Ui.ClusterEditor.Localization.Resources.CommonVocabulary;
@@ -61,6 +62,22 @@ public sealed class ContainerEditorChildContainerNodePropertyDescriptorProviderT
         defaultValue.Should().Be(BlockNodeColors.BackgroundDefault);
         _editor.Received(1).SetBackColor(_container, "#123");
         _editor.Received(1).SetBackColor(_container, "#FFF");
+    }
+
+    [Fact]
+    public void BackColor_descriptor_SetValue_ignores_unsafe_css_value()
+    {
+        // Arrange
+        var instance = CreateChildContainer();
+        var descriptor = (PropertyDescriptor<ContainerEditorChildContainer, string?>)
+            CreateSut().GetPropertyDescriptors(new object()).ToList()[2];
+
+        // Act
+        descriptor.SetValue!(instance, "red; display:none");
+
+        // Assert
+        descriptor.GetValue(instance).Should().Be("#FFF");
+        _editor.DidNotReceiveWithAnyArgs().SetBackColor(default!, default);
     }
 
     // ──────────────────────────────────────────────────────────────────────────────
@@ -156,6 +173,35 @@ public sealed class ContainerEditorChildContainerNodePropertyDescriptorProviderT
         defaultValue.Should().Be(BlockNodeColors.ForegroundDefault);
         _editor.Received(1).SetForeColor(_container, "#ABC");
         _editor.Received(1).SetForeColor(_container, "#000");
+    }
+
+    [Fact]
+    public void ForeColor_descriptor_SetValue_ignores_unsafe_css_value()
+    {
+        // Arrange
+        var instance = CreateChildContainer();
+        var descriptor = (PropertyDescriptor<ContainerEditorChildContainer, string?>)
+            CreateSut().GetPropertyDescriptors(new object()).ToList()[3];
+
+        // Act
+        descriptor.SetValue!(instance, "red} body{display:none");
+
+        // Assert
+        descriptor.GetValue(instance).Should().Be("#000");
+        _editor.DidNotReceiveWithAnyArgs().SetForeColor(default!, default);
+    }
+
+    [Theory]
+    [InlineData(2)]
+    [InlineData(3)]
+    public void Color_descriptors_have_css_color_validator(int index)
+    {
+        // Arrange & Act
+        var descriptor = (PropertyDescriptor<ContainerEditorChildContainer, string?>)
+            CreateSut().GetPropertyDescriptors(new object()).ToList()[index];
+
+        // Assert
+        descriptor.ValueValidators.Should().ContainSingle(v => v is CssColorPropertyValueValidator);
     }
 
     // ──────────────────────────────────────────────────────────────────────────────
