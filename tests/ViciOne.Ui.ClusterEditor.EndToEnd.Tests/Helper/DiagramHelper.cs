@@ -19,12 +19,20 @@ internal static class DiagramHelper
     /// Adds a FunctionBlock to the diagram by opening the library section and making a double click
     /// on an entry.
     /// </summary>
+    /// <remarks>
+    /// The library tree is expanded first, as its entries are not rendered while their folder is collapsed.
+    /// </remarks>
     public static async Task AddFunctionBlockAsync(IPage page, string name, int count = 1)
     {
         var libraryLocator = await page.ShowSectionAndGetLocator(SectionNames.Library);
         await Expect(libraryLocator).ToBeVisibleAsync();
 
-        var fbLocator = libraryLocator.GetByTitle(name);
+        await page.Locator(".sidebar--right .flyout > .section:not(.hidden)")
+            .GetByTitle("Expand All", new() { Exact = true })
+            .First
+            .ClickAsync();
+
+        var fbLocator = libraryLocator.GetByText(name, new() { Exact = true });
         await Expect(fbLocator).ToBeVisibleAsync();
 
         for (var i = 0; i < count; i++)
