@@ -4,9 +4,9 @@
     <TargetFramework>net10.0</TargetFramework>
     <Description>-</Description>
     <Product>ViciOne</Product>
-    <Company>ifm Software GmbH</Company>
+    <Company>ViciOne open automation gmbh</Company>
     <Year>$([System.DateTime]::Now.Year)</Year>
-    <Copyright>Copyright © ifm Software GmbH $(Year)</Copyright>
+    <Copyright>Copyright © $(Company) $(Year)</Copyright>
     <NeutralLanguage>en-US</NeutralLanguage>
     <Nullable>enable</Nullable>
     <WarningsAsErrors>nullable</WarningsAsErrors>

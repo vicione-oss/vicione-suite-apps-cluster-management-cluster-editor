@@ -10,7 +10,7 @@
 ## What this repository is
 
 The **ViciOne Cluster Editor** is a Blazor **Razor Class Library (RCL)** that provides
-an interactive, diagram-based editor for ifm's ViciOne cluster/dataflow model. The
+an interactive, diagram-based editor for the ViciOne cluster/dataflow model. The
 shippable product is the reusable component library `ViciOne.Ui.ClusterEditor`
 (`Microsoft.NET.Sdk.Razor`), which is packaged and consumed as a NuGet package by other
 applications (e.g. the ViciOne Suite).
