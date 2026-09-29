@@ -4,7 +4,7 @@ Common:
   Version      : 1.0                                                                               # required: Version of the file
   Date         : 2024-12-02                                                                        # required: Date of the file
   Description  : "SQLite DataPort"                                                                 # required: Description of the file
-  Author       : "ifm software gmbh"                                                               # required: Author of the file
+  Author       : "ViciOne open automation gmbh"                                                               # required: Author of the file
   MetadataType : YAML                                                                              # required: Metadata type of the file (YAML, JSON, XML, Text, Binary, ...)
 
 Root:

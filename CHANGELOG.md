@@ -41,6 +41,7 @@
   - **Breaking:** `ColoredIconFactory.GetDataPortIcon` takes a nullable `DataPortDirection`
 - Moved the debug generators for function blocks, links and data ports into the sample app, where they work through the `ClusterBuilder`
 - Unified JavaScript interop error handling so a lost circuit, a disposed runtime or module and interop cancellations are logged instead of crashing, while errors raised inside JavaScript still surface
+- Rename the company to `ViciOne open automation gmbh` in the license and the package metadata
 
 ### Fixed
 

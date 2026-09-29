@@ -4,7 +4,7 @@ Common:
   Version      : 1.0
   Date         : 2026-09-08
   Description  : "Envelope-child shapes a ruleset may declare that the shipped dp-mqtt ruleset does not use"
-  Author       : "ifm software gmbh"
+  Author       : "ViciOne open automation gmbh"
   MetadataType : YAML
 
 Root:

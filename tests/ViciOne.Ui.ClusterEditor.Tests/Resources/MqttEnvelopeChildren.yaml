@@ -4,7 +4,7 @@ Common:
   Version      : 2.0.0                                                                            # required: Version of the file
   Date         : 2026-09-02                                                                        # required: Date of the file
   Description  : "MQTT DataPort"                                                                   # required: Description of the file
-  Author       : "ifm software gmbh"                                                               # required: Author of the file
+  Author       : "ViciOne open automation gmbh"                                                               # required: Author of the file
   MetadataType : YAML                                                                              # required: Metadata type of the file (YAML, JSON, XML, Text, Binary, ...)
   Namespace    : "ViciOne.DataPort.Mqtt"                                                           # required: Namespace of the DataPort
 
