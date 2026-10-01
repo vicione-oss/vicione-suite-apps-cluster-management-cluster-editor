@@ -1,1 +1,20 @@
-﻿@use "./../../Styles/shared-dialog-styles";
+@use "./../../Styles/mixins";
+@use "./../../Styles/shared-dialog-styles";
+
+.element-cell,
+.data-type-cell,
+.description-cell {
+    @include mixins.overflow-ellipsis();
+}
+
+.connector-with-icon-cell {
+    display: grid;
+    grid-template-columns: 24px auto;
+
+    > .value {
+        @include mixins.overflow-ellipsis();
+
+        line-height: 24px;
+        padding-left: 5px;
+    }
+}

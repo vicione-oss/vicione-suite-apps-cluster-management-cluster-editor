@@ -1,0 +1,43 @@
+﻿@use "./../../Styles/design/colors";
+@use "./../../Styles/mixins";
+
+// The column direction keeps the editor's input and its validation message stacked, and vertically centres
+// a boolean's checkbox, which has no inner wrapper of its own the way .cell-read does.
+.cell {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    justify-content: center;
+
+    // The cell holds focus only for the moment before the editor takes it, so the ring would otherwise flash
+    // on every cell a keyboard traversal passes through.
+    &:focus {
+        outline: none;
+    }
+}
+
+.cell-read {
+    @include mixins.overflow-ellipsis();
+
+    align-items: center;
+    cursor: text;
+    display: flex;
+    height: 100%;
+
+    &.modified {
+        font-weight: bold;
+    }
+}
+
+.input-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.validation-message-container {
+    @include mixins.overflow-ellipsis();
+
+    color: colors.$error;
+    font-size: 10px;
+    margin-top: 2px;
+}

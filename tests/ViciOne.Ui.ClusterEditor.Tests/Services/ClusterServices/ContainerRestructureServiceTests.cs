@@ -22,7 +22,6 @@ using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Tests.TestHelpers;
-using ViciOne.Ui.Shared.Dx.Services;
 using Xunit;
 using FunctionBlock = ViciOne.Cluster.Model.FunctionBlock;
 using Link = ViciOne.Cluster.Model.Link;

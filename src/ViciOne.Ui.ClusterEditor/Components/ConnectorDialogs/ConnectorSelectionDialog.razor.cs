@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using DevExpress.Blazor;
+using System.Linq.Expressions;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.Dialog.Components;
+using ViciOne.Ui.Blazor.Components.Tables.Shared.Models;
+using ViciOne.Ui.ClusterEditor.Components.ConnectorDialogs.Models;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Services;
@@ -15,20 +17,51 @@ namespace ViciOne.Ui.ClusterEditor.Components.ConnectorDialogs;
 
 public sealed partial class ConnectorSelectionDialog : ComponentBase, IDisposable
 {
-    private readonly string _collapseAllGroupsText = CompositeFormats.CollapseSomething($"{CommonVocabulary.All} {CommonVocabulary.GroupPlural}");
+    private static readonly Expression<Func<DataGridConnectorWrapper, object>> s_connectorTypeNameSortExpression
+        = wrapper => wrapper.ConnectorTypeName;
+
+    /// <summary>
+    /// Sorts connectors by direction, so that ascending lists inputs before outputs.
+    /// </summary>
+    private static readonly Expression<Func<DataGridConnectorWrapper, object>> s_isOutputSortExpression
+        = wrapper => !wrapper.IsInput;
+
+    private static readonly Expression<Func<DataGridConnectorWrapper, object>> s_parentNameSortExpression
+        = wrapper => wrapper.ParentName;
+
+    private readonly object _columnChooserToggleId = new();
+
     private List<DataGridConnectorWrapper> _connectorWrappers = [];
-    private readonly string _expandAllGroupsText = CompositeFormats.ExpandSomething($"{CommonVocabulary.All} {CommonVocabulary.GroupPlural}");
-    private bool _groupingButtonsEnabled;
+
+    /// <summary>
+    /// The rows that pass the current filter. Empty when the filter matches no row.
+    /// </summary>
+    private IReadOnlyList<DataGridConnectorWrapper> _filteredItems = [];
+
+    private FilterState _filterState = FilterState.Empty;
+
+    private readonly SortingState _initialSorting = SortingState.Empty
+        .WithColumnSorting(nameof(DataGridConnectorWrapper.ParentName), ascending: true)
+        .WithColumnSorting(nameof(DataGridConnectorWrapper.ConnectorName), ascending: true);
+
     private Dialog? _refDialog;
-    private IGrid? _refGrid;
     private string? _searchText;
     private readonly string _selectAllConnectorsText = CompositeFormats.SelectSomething($"{CommonVocabulary.All} {LocalTechnicalTerms.ConnectorPlural}") + " (" + LocalTechnicalTerms.IncludingSystemConnectors + ")";
     private readonly string _selectAllInputConnectorsText = CompositeFormats.SelectSomething($"{CommonVocabulary.All} {LocalTechnicalTerms.InputConnectorPlural}") + " (" + LocalTechnicalTerms.IncludingSystemConnectors + ")";
     private readonly string _selectAllOutputConnectorsText = CompositeFormats.SelectSomething($"{CommonVocabulary.All} {LocalTechnicalTerms.OutputConnectorPlural}") + " (" + LocalTechnicalTerms.IncludingSystemConnectors + ")";
     private readonly string _selectConnectorsText = CompositeFormats.SelectSomething($"{LocalTechnicalTerms.ConnectorPlural}");
-    private IReadOnlyList<object>? _selectedDataItems;
+    private List<DataGridConnectorWrapper> _selectedItems = [];
     private readonly string _selectInputConnectorsText = CompositeFormats.SelectSomething(LocalTechnicalTerms.InputConnectorPlural);
     private readonly string _selectOutputConnectorsText = CompositeFormats.SelectSomething(LocalTechnicalTerms.OutputConnectorPlural);
+
+    /// <summary>
+    /// The selected rows that pass the current filter.
+    /// </summary>
+    /// <remarks>
+    /// Taken from the table instead of intersecting <see cref="_selectedItems"/> with <see cref="_filteredItems"/>,
+    /// because the table matches rows with its own selection comparer.
+    /// </remarks>
+    private IReadOnlyList<DataGridConnectorWrapper> _visibleSelection = [];
 
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
     [Inject] private ConnectorSelectionDialogService DialogService { get; set; } = default!;
@@ -36,83 +69,48 @@ public sealed partial class ConnectorSelectionDialog : ComponentBase, IDisposabl
     public void Dispose()
     {
         DialogService.VisibilityChanged -= OnDialogServiceVisibilityChangedAsync;
-        _refGrid = null;
-        _selectedDataItems = null;
+        _selectedItems = [];
+        _filteredItems = [];
+        _visibleSelection = [];
     }
 
     private MarkupString GetIconMarkup(DataGridConnectorWrapper connector)
         => (MarkupString)ColoredIconFactory.GetConnectorIcon(ConnectorService.GetConnectorColor(connector.Connector), connector.IsInput);
 
-    private List<DataGridConnectorWrapper> GetSelectableDataItems()
-    {
-        if (string.IsNullOrEmpty(_searchText))
-            return _connectorWrappers;
-
-        List<DataGridConnectorWrapper> result = [];
-        foreach (var cw in _connectorWrappers)
-        {
-            if (cw.ParentName.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
-                cw.ConnectorName.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
-                cw.ConnectorTypeName.Contains(_searchText, StringComparison.OrdinalIgnoreCase) ||
-                cw.Description.Contains(_searchText, StringComparison.OrdinalIgnoreCase))
-            {
-                result.Add(cw);
-            }
-        }
-
-        return result;
-    }
-
-    private void OnCollapseAllGroups()
-        => _refGrid?.CollapseAllGroupRows();
-
-    private static void OnCustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
-    {
-        if (e.FieldName == nameof(DataGridConnectorWrapper.FunctionBlockId)
-            && e.DataItem is DataGridConnectorWrapper connectorWrapper)
-        {
-            e.DisplayText = connectorWrapper.FunctionBlockName;
-        }
-    }
-
-    private static void OnCustomizeCustomGroup(GridCustomGroupEventArgs e)
-    {
-        if (e.FieldName == nameof(DataGridConnectorWrapper.FunctionBlockId)
-            && e.DataItem1 is DataGridConnectorWrapper connectorWrapper1
-            && e.DataItem2 is DataGridConnectorWrapper connectorWrapper2)
-        {
-            e.SameGroup = connectorWrapper1.FunctionBlockId == connectorWrapper2.FunctionBlockId;
-        }
-    }
-
-    private static void OnCustomSort(GridCustomSortEventArgs args)
-    {
-        if (args.FieldName == nameof(DataGridConnectorWrapper.ConnectorName))
-            args.Result = ((DataGridConnectorWrapper)args.DataItem2).IsInput.CompareTo(((DataGridConnectorWrapper)args.DataItem1).IsInput);
-
-        args.Handled = true;
-    }
+    /// <summary>
+    /// Clears the whole selection, including selected rows that the current filter hides.
+    /// </summary>
+    private void OnDeselectAllButton()
+        => _selectedItems = [];
 
     private void OnDialogCancel()
         => DialogService.SetVisibility(false);
 
     private void OnDialogClosing()
     {
-        _refGrid?.DeselectDataItems(_selectedDataItems);
-        _selectedDataItems = null;
+        _selectedItems = [];
         _searchText = null;
+
+        // A surviving filter would narrow the next session's rows with nothing on screen explaining why.
+        _filterState = FilterState.Empty;
+
+        // The table pushes new mirrors only once it has provided, so the next session's first frame would
+        // otherwise show this session's count.
+        _filteredItems = [];
+        _visibleSelection = [];
     }
 
     private void OnDialogOk()
     {
-        if (_selectedDataItems is not null)
+        var selected = _visibleSelection;
+
+        if (selected.Count > 0)
         {
             List<IConnector> selectedConnectors = [];
 
             // Collect all selected container connectors directly.
-            foreach (var di in _selectedDataItems)
+            foreach (var wrapper in selected)
             {
-                var wrapper = (DataGridConnectorWrapper)di;
                 if (wrapper.Connector is ContainerConnector)
                     selectedConnectors.Add(wrapper.Connector);
             }
@@ -135,9 +133,8 @@ public sealed partial class ConnectorSelectionDialog : ComponentBase, IDisposabl
             }
 
             // Resolve selected FB connectors through the lookup.
-            foreach (var di in _selectedDataItems)
+            foreach (var wrapper in selected)
             {
-                var wrapper = (DataGridConnectorWrapper)di;
                 if (wrapper.Connector is not Connector)
                     continue;
 
@@ -197,32 +194,41 @@ public sealed partial class ConnectorSelectionDialog : ComponentBase, IDisposabl
         }
     }
 
-    private void OnExpandAllGroups()
-        => _refGrid?.ExpandAllGroupRows();
-
+    /// <summary>
+    /// Replaces the selection with the rows that pass the current filter and match <paramref name="predicate"/>.
+    /// Rows selected before are deselected, including those that the current filter hides.
+    /// </summary>
     private void OnFilterButton(Func<DataGridConnectorWrapper, bool> predicate)
     {
-        if (_refGrid is null)
-            return;
-
-        _refGrid.DeselectDataItems(_selectedDataItems);
-
         List<DataGridConnectorWrapper> dataItemsToSelect = [];
-        foreach (var item in GetSelectableDataItems())
+
+        foreach (var item in _filteredItems)
         {
             if (predicate(item))
                 dataItemsToSelect.Add(item);
         }
 
-        _refGrid.SelectDataItems(dataItemsToSelect, true);
+        // Assigning a new list is what makes the table adopt it.
+        _selectedItems = dataItemsToSelect;
     }
+
+    private void OnFilteredItemsChanged(IReadOnlyList<DataGridConnectorWrapper> filteredItems)
+        => _filteredItems = filteredItems;
 
     protected override void OnInitialized()
         => DialogService.VisibilityChanged += OnDialogServiceVisibilityChangedAsync;
 
-    private void OnSelectedDataItemsChanged(IReadOnlyList<object> dataItems)
-        => _selectedDataItems = dataItems;
+    private void OnVisibleSelectionChanged(IReadOnlyList<DataGridConnectorWrapper> visibleSelection)
+        => _visibleSelection = visibleSelection;
 
-    private void SetGroupingButtonsState()
-        => _groupingButtonsEnabled = _refGrid?.GetGroupCount() > 0;
+    private void SearchTextChanging(string? searchText)
+    {
+        _searchText = searchText;
+
+        // The table reads a new instance as a command, so this may only run from an event: building one per
+        // render would re-apply the filter on every render.
+        _filterState = string.IsNullOrWhiteSpace(searchText)
+            ? _filterState.WithoutGlobalFilter<ConnectorSelectionSearchFilter>()
+            : _filterState.WithGlobalFilter(new ConnectorSelectionSearchFilter(searchText));
+    }
 }

@@ -1,0 +1,42 @@
+@using ViciOne.Ui.Blazor.Components.CheckBox
+@using ViciOne.Ui.ClusterEditor.Components.UniversalInput
+
+<div @onfocusin="EnterEditMode"
+     @onfocusout="FocusOut"
+     @onkeydown="KeyDown"
+     @onpointerdown:stopPropagation
+     @ref="_containerElement"
+     class="cell"
+     tabindex="@ContainerTabIndex">
+
+    @if (IsBoolean(out var isNullableBoolean))
+    {
+        <CheckBox @bind-Value:get="@((bool?)Value)"
+                  @bind-Value:set="CheckedChanged"
+                  AllowIndeterminateState="@isNullableBoolean" />
+    }
+    else if (_editing)
+    {
+        <div class="input-container">
+            <UniversalInput Value="@_editValue"
+                            ValueChanged="EditorValueChanged"
+                            ValueType="@ValueType" />
+        </div>
+
+        <div class="validation-message-container">
+            @if (!string.IsNullOrEmpty(_validationMessage))
+            {
+                <span title="@_validationMessage">
+                    @_validationMessage
+                </span>
+            }
+        </div>
+    }
+    else
+    {
+        <div class="@ReadCssClasses">
+            <SearchHighlighter SearchText="@SearchText"
+                               Text="@(Value?.ToString() ?? string.Empty)" />
+        </div>
+    }
+</div>

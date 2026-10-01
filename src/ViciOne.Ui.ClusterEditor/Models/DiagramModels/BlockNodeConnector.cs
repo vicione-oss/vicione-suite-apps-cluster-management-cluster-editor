@@ -11,9 +11,9 @@ using ViciOne.Ui.ClusterEditor.Constants;
 using ViciOne.Ui.ClusterEditor.Helpers;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Factories;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Models;
+using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
-using ViciOne.Ui.Shared.Dx.Services;
 
 namespace ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 

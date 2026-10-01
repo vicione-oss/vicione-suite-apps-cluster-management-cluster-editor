@@ -1,4 +1,5 @@
-﻿using System.Linq;
+using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
@@ -11,6 +12,8 @@ using NSubstitute;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
 using ViciOne.Cluster.Model.Extensions;
+using ViciOne.Ui.Blazor.Components.Draggable.Components;
+using ViciOne.Ui.Blazor.Components.Draggable.Services;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.ClusterEditor.Components.DiagramComponents;
 using ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor;
@@ -170,6 +173,101 @@ public class BlockComponentTests
         requestedConnector.Should().BeSameAs(connector);
     }
 
+    // The reveal test below only means something while this one holds.
+    [Fact]
+    public async Task Simplified_view_hides_a_connector_at_its_default()
+    {
+        // Arrange
+        await using var ctx = CreateTestContext();
+        ctx.Services.GetRequiredService<DiagramService>().DiagramState.SimplifiedView = true;
+        var childContainerNode = CreateMappedChildContainerNode(ctx);
+
+        using var inputConnector = ctx.CreateBlockNodeConnector(childContainerNode, isInput: true);
+        using var outputConnector = ctx.CreateBlockNodeConnector(childContainerNode, isInput: false);
+        AddConnectorRow(childContainerNode, inputConnector, outputConnector);
+
+        // A connector off its default keeps Simplified View from showing the whole block.
+        outputConnector.SetValue(1, 0);
+
+        // Act
+        var component = RenderBlockComponent(ctx, childContainerNode);
+
+        // Assert
+        component.Find(".input-connector-container").ClassList.Should().Contain("hidden");
+    }
+
+    // The drag interaction resolves its dropzones once, at drag start, so a connector Simplified View hides must
+    // already carry its dropzone then, and the connector the mark reveals must still carry that same one.
+    [Fact]
+    public async Task Simplified_view_reveals_a_hidden_connector_the_drag_admits_with_the_dropzone_that_joined_it()
+    {
+        // Arrange
+        var dragInteraction = Substitute.For<IDragInteraction>();
+        var policy = Substitute.For<IDropPolicy<BlockNodeConnector>>();
+        await using var ctx = CreateTestContext(services => services
+            .AddScoped(_ => dragInteraction)
+            .AddScoped(_ => policy));
+        ctx.Services.GetRequiredService<DiagramService>().DiagramState.SimplifiedView = true;
+        var childContainerNode = CreateMappedChildContainerNode(ctx);
+
+        using var inputConnector = ctx.CreateBlockNodeConnector(childContainerNode, isInput: true);
+        using var outputConnector = ctx.CreateBlockNodeConnector(childContainerNode, isInput: false);
+        AddConnectorRow(childContainerNode, inputConnector, outputConnector);
+
+        // A connector off its default keeps Simplified View from showing the whole block.
+        outputConnector.SetValue(1, 0);
+        policy.Accepts(Arg.Any<IDraggable>(), inputConnector).Returns(true);
+
+        var component = RenderBlockComponent(ctx, childContainerNode);
+        var args = new DragStartEventArgs { Draggable = Substitute.For<IDraggable>() };
+
+        // Act
+        dragInteraction.DragStart += Raise.EventWith(dragInteraction, args);
+
+        // Assert
+        component.WaitForAssertion(() => component.Find(".input-connector-container").ClassList.Should().NotContain("hidden"));
+        var dropzone = component.FindComponents<ConnectorDropzone>().Single(c => c.Instance.Connector == inputConnector).Instance;
+        args.Dropzones.Should().ContainSingle().Which.Should().BeSameAs(dropzone);
+    }
+
+    // Each dropzone marks its connector on its own, and the block renders synchronously after the first mark, so a
+    // block that only re-rendered when it first got a drop target would leave the later marked connectors hidden.
+    [Fact]
+    public async Task Simplified_view_reveals_every_hidden_connector_of_a_block_the_drag_admits()
+    {
+        // Arrange
+        var dragInteraction = Substitute.For<IDragInteraction>();
+        var policy = Substitute.For<IDropPolicy<BlockNodeConnector>>();
+        await using var ctx = CreateTestContext(services => services
+            .AddScoped(_ => dragInteraction)
+            .AddScoped(_ => policy));
+        ctx.Services.GetRequiredService<DiagramService>().DiagramState.SimplifiedView = true;
+        var childContainerNode = CreateMappedChildContainerNode(ctx);
+
+        using var firstInputConnector = ctx.CreateBlockNodeConnector(childContainerNode, isInput: true);
+        using var firstOutputConnector = ctx.CreateBlockNodeConnector(childContainerNode, isInput: false);
+        AddConnectorRow(childContainerNode, firstInputConnector, firstOutputConnector);
+
+        using var secondInputConnector = ctx.CreateBlockNodeConnector(childContainerNode, isInput: true);
+        using var secondOutputConnector = ctx.CreateBlockNodeConnector(childContainerNode, isInput: false);
+        AddConnectorRow(childContainerNode, secondInputConnector, secondOutputConnector);
+
+        // A connector off its default keeps Simplified View from showing the whole block.
+        firstOutputConnector.SetValue(1, 0);
+        policy.Accepts(Arg.Any<IDraggable>(), Arg.Is<BlockNodeConnector>(c => c.IsInput)).Returns(true);
+
+        var component = RenderBlockComponent(ctx, childContainerNode);
+        var args = new DragStartEventArgs { Draggable = Substitute.For<IDraggable>() };
+
+        // Act
+        await component.InvokeAsync(() => dragInteraction.DragStart += Raise.EventWith(dragInteraction, args));
+
+        // Assert
+        args.Dropzones.Should().HaveCount(2);
+        component.FindAll(".input-connector-container").Should().HaveCount(2)
+            .And.AllSatisfy(c => c.ClassList.Should().NotContain("hidden"));
+    }
+
     private static void AddConnectorRow(BlockNode node, BlockNodeConnector inputConnector, BlockNodeConnector outputConnector)
     {
         node.Connectors.Add([inputConnector, outputConnector]);
@@ -184,7 +282,7 @@ public class BlockComponentTests
         return childContainerNode;
     }
 
-    private static BunitContext CreateTestContext()
+    private static BunitContext CreateTestContext(Action<IServiceCollection>? configureServices = null)
     {
         var ctx = new BunitContext();
         ctx.Services.AddBlockNodeConnectorContextMenu();
@@ -200,8 +298,14 @@ public class BlockComponentTests
         ctx.SetupConnectorService();
         ctx.SetupBoundsService();
         ctx.SetupDragService();
-        ctx.SetupPublishedConnectorsService();
+
+        // The whole section, not just its service: every connector the block renders carries a
+        // ConnectorDropzone, which resolves IDragInteraction plus the drop policy and handler.
+        ctx.SetupPublishedConnectorsSection();
         ctx.Services.TryAddScoped(_ => Substitute.For<IPropertyGridController<DataflowToolbarPropertyGridContext>>());
+
+        // Last, as the section registers the drag services with AddScoped and a later registration wins.
+        configureServices?.Invoke(ctx.Services);
 
         ctx.JSInterop
             .Setup<int[]>("ViciOne.Diagram.BlockNode.measureNameFieldHeights", _ => true)

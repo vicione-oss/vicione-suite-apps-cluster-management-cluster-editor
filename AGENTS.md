@@ -68,10 +68,8 @@ Solution file: `ViciOne.Ui.ClusterEditor.slnx`
 dependencies that shape how you write code are called out here:
 
 - **Diagramming:** `Z.Blazor.Diagrams` — the diagram surface the editor is built on.
-- **UI components:** DevExpress Blazor is consumed **indirectly** through
-  `ViciOne.Ui.Shared.Dx`; prefer `ViciOne.Ui.Blazor.Components` wrappers (e.g. `TextBox`,
-  `ComboBox`) over raw `Dx*` components — the changelog shows an ongoing migration in
-  that direction.
+- **UI components:** `ViciOne.Ui.Blazor.Components` (e.g. `TextBox`, `ComboBox`,
+  `SimpleTable`).
 - **Design tokens:** `ViciOne.Ui.Design` — use its SCSS variables, not legacy/local colors.
 - **Domain model:** `ViciOne.Cluster.Model` / `ViciOne.Cluster.Builder` define the
   cluster/dataflow types the editor maps to diagram models.
@@ -80,7 +78,7 @@ dependencies that shape how you write code are called out here:
 
 ### Private feed — expected failure mode
 
-Several `ViciOne.*` and DevExpress packages come from a private JFrog feed
+Several `ViciOne.*` packages come from a private JFrog feed
 (`https://system.update.ifm/...`) configured in `NuGet.Config`. Credentials are supplied
 locally via .NET user-secrets in `samples/Server` (setup steps in `README.md`).
 
@@ -142,6 +140,9 @@ The library is organized by feature. Blazor components use the code-behind patte
   update the other accordingly**.
 - **End-to-end:** `tests/ViciOne.Ui.ClusterEditor.EndToEnd.Tests` — **Playwright**,
   requires one-time local setup (`docs/end-to-end-tests.en.md`).
+- Structure every test with `// Arrange`, `// Act` and `// Assert` comments, with a single Act per test.
+  A test that checks several steps in a row is split into one test per step, the earlier steps moving
+  into Arrange. Use `// Act & Assert` or `// Assert` alone only when there is nothing to set up or do.
 
 ## Frontend build (npm / SCSS)
 
@@ -223,6 +224,9 @@ Sections are the unit of feature organization. To add one (mirroring the existin
 - Comments on types, members and fields must be XML doc comments (`///`), not `//`. Keep them sparse,
   don't restate the name, and never describe the caller's logic
   (see `docs/code-style-guidelines.en.md` → Comments).
+- **Do not** add the `Async` suffix to new async methods — the signature already says the method
+  returns a `Task`, and a suffix can go stale. Leave existing names and framework overrides
+  (`OnInitializedAsync`, `DisposeAsync`, …) as they are.
 
 ## Useful references
 

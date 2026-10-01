@@ -26,7 +26,8 @@ public class DataflowToolbarTests
     {
         // Arrange
         await using var ctx = new BunitContext();
-        ctx.ComponentFactories.AddStub<PublishedConnectorsSectionContent>(); // Added to avoid DxGrid dependency
+        // The Published Connectors section's table loads its own JS module, which this toolbar test does not set up.
+        ctx.ComponentFactories.AddStub<PublishedConnectorsSectionContent>();
         ctx.SetupTreeEditorJs();
         ctx.Services.AddSectionRail<DataflowToolbarSection>();
         ctx.Services.TryAddScoped<NumericPropertyDescriptorBuilderProvider>();
@@ -45,7 +46,7 @@ public class DataflowToolbarTests
         ctx.Services.TryAddScoped(_ => Substitute.For<IRulesetProvider>());
         ctx.SetupDataPortTreeAdapter();
         ctx.Services.AddPublishedConnectorsSectionContextMenu();
-        ctx.Services.TryAddScoped<PublishedConnectorsService>();
+        ctx.SetupPublishedConnectorsSection();
         ctx.SetupResizeObserver();
         ctx.SetupDropDown();
         ctx.SetupComboBox();

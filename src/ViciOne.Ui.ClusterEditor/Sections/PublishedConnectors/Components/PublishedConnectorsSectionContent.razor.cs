@@ -1,16 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
-using DevExpress.Blazor;
-using DevExpress.Data.Filtering;
 using Microsoft.AspNetCore.Components;
-using Microsoft.AspNetCore.Components.Web;
 using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
+using ViciOne.Ui.Blazor.Components.Tables.Shared.Models;
 using ViciOne.Ui.ClusterEditor.Models;
-using ViciOne.Ui.ClusterEditor.Models.Comparer;
+using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Models;
 using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
 using ViciOne.Ui.ClusterEditor.Services;
@@ -21,101 +19,50 @@ namespace ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Components;
 
 public sealed partial class PublishedConnectorsSectionContent : ComponentBase, IDisposable
 {
-    private const int LeftButton = 0;
-    private bool _blockMouseUp;
+    // A lambda written inline in markup is rebuilt every render, and the items provider would recompile its
+    // sort selector with it.
+    private static readonly Expression<Func<DataGridConnectorWrapper, object>> s_designNameSortExpression
+        = wrapper => wrapper.DesignName;
+
+    private static readonly Expression<Func<DataGridConnectorWrapper, object>> s_functionBlockNameSortExpression
+        = wrapper => wrapper.FunctionBlockName;
+
+    private readonly object _columnChooserToggleId = new();
+
+    private PublishedConnectorDragGhost? _dragGhost;
     private readonly List<FilterButton> _filterButtons = [];
-    private IGrid? _gridRef;
-    private bool _groupingButtonsEnabled;
+
+    // Never reset: the section is not torn down, so what it accumulates is the state the user left behind.
+    private FilterState _filterState = FilterState.Empty;
+
+    // Sorting on design first reproduces the clustering the view had while it grouped by design.
+    private readonly SortingState _initialSorting = SortingState.Empty
+        .WithColumnSorting(nameof(DataGridConnectorWrapper.DesignName), ascending: true)
+        .WithColumnSorting(nameof(DataGridConnectorWrapper.FunctionBlockName), ascending: true);
+
     private FilterButton _inputFilterButton = new();
-    private int _lastRowIndex;
     private FilterButton _outputFilterButton = new();
-    private DataGridConnectorWrapper? _pendingSelection;
+    private EventCallback<RowContextMenuEventArgs<DataGridConnectorWrapper>> _rowContextMenu;
     private string? _searchText;
+    private List<DataGridConnectorWrapper> _selectedItems = [];
 
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
     [Inject] private IContextMenuRequest<PublishedConnectorsSectionContextMenuContext> ContextMenuRequest { get; set; } = default!;
+    [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
     [Inject] private ILogger<PublishedConnectorsSectionContent> Logger { get; set; } = default!;
     [Inject] private PublishedConnectorsService PublishedConnectorsService { get; set; } = default!;
+    [Inject] private PublishedConnectorRowDragGhost RowDragGhost { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
+    [Inject] private PublishedConnectorVisibleSelection VisibleSelection { get; set; } = default!;
 
-    private bool DataAvailable => PublishedConnectorsService.PublishedConnectorWrappers.Any();
-
-    // Runs after the render that expanded the section. The section is kept in the DOM while
-    // inactive but collapsed to zero height, so scrolling the virtualized grid only works
-    // once it is actually visible.
-    private async Task ApplyPendingSelectionAsync()
-    {
-        if (_pendingSelection is null || _gridRef is null)
-            return;
-
-        var target = _pendingSelection;
-        _pendingSelection = null;
-
-        _gridRef.ClearSelection();
-        _gridRef.SelectDataItem(target, true);
-
-        // An active filter or search can hide the row entirely. The selection above still sticks
-        // to the data item, so clearing the filter reveals it as selected; there is nothing to
-        // scroll to in the meantime.
-        if (ExpandGroupRowsTo(target))
-            await _gridRef.MakeDataItemVisibleAsync(target);
-    }
+    private bool DataAvailable => PublishedConnectorsService.PublishedConnectorWrappers.Count > 0;
 
     public void Dispose()
     {
-        PublishedConnectorsService.DraggingEnded -= OnDraggingEnded;
+        RowDragGhost.MarkupDragGhost = null;
+
         PublishedConnectorsService.PublishedConnectorSelectionRequested -= OnPublishedConnectorSelectionRequested;
         PublishedConnectorsService.PublishedConnectorsChanged -= OnPublishedConnectorsChangedAsync;
-    }
-
-    // Expands only the group rows that contain the target, so a jump from the diagram leaves
-    // groups the user deliberately collapsed alone. Returns false when the row cannot be
-    // reached at all, which means an active filter or search text excludes it.
-    private bool ExpandGroupRowsTo(DataGridConnectorWrapper target)
-    {
-        var groupedFieldNames = GetGroupedFieldNames();
-
-        for (var rowIndex = 0; rowIndex < _gridRef!.GetVisibleRowCount(); rowIndex++)
-        {
-            if (!_gridRef.IsGroupRow(rowIndex))
-            {
-                if (ReferenceEquals(_gridRef.GetDataItem(rowIndex), target))
-                    return true;
-
-                continue;
-            }
-
-            var level = _gridRef.GetRowLevel(rowIndex);
-            if (level >= groupedFieldNames.Count)
-                continue;
-
-            var fieldName = groupedFieldNames[level];
-            if (!Equals(_gridRef.GetRowValue(rowIndex, fieldName), _gridRef.GetDataItemValue(target, fieldName)))
-                continue;
-
-            if (!_gridRef.IsGroupRowExpanded(rowIndex))
-                _gridRef.ExpandGroupRow(rowIndex, false);
-        }
-
-        return false;
-    }
-
-    private List<string> GetGroupedFieldNames()
-    {
-        var groupedColumns = new List<IGridDataColumn>();
-        foreach (var column in _gridRef!.GetDataColumns())
-        {
-            if (column.GroupIndex >= 0)
-                groupedColumns.Add(column);
-        }
-
-        groupedColumns.Sort((first, second) => first.GroupIndex.CompareTo(second.GroupIndex));
-
-        var fieldNames = new List<string>(groupedColumns.Count);
-        foreach (var column in groupedColumns)
-            fieldNames.Add(column.FieldName);
-
-        return fieldNames;
     }
 
     private MarkupString GetIconMarkup(DataGridConnectorWrapper connectorWrapper)
@@ -142,69 +89,17 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
         _filterButtons.Add(_outputFilterButton);
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    protected override void OnAfterRender(bool firstRender)
     {
-        SetGroupingButtonsState();
+        if (firstRender)
+        {
+            RowDragGhost.MarkupDragGhost = _dragGhost;
+
+            StateHasChanged();
+        }
+
         SetFilterButtonsState();
-
-        await ApplyPendingSelectionAsync();
     }
-
-    private void OnCollapseAllGroups()
-        => _gridRef?.CollapseAllGroupRows();
-
-    private void OnColumnChooser(string positionTarget)
-        => _gridRef?.ShowColumnChooser(new DialogDisplayOptions(positionTarget, HorizontalAlignment.Right, VerticalAlignment.Top));
-
-    private static void OnCustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
-    {
-        if (e.FieldName == nameof(DataGridConnectorWrapper.FunctionBlockId)
-            && e.DataItem is DataGridConnectorWrapper connectorWrapper)
-        {
-            e.DisplayText = connectorWrapper.FunctionBlockName;
-        }
-    }
-
-    private static void OnCustomizeCustomGroup(GridCustomGroupEventArgs e)
-    {
-        if (e.FieldName == nameof(DataGridConnectorWrapper.FunctionBlockId)
-            && e.DataItem1 is DataGridConnectorWrapper connectorWrapper1
-            && e.DataItem2 is DataGridConnectorWrapper connectorWrapper2)
-        {
-            e.SameGroup = connectorWrapper1.FunctionBlockId == connectorWrapper2.FunctionBlockId;
-        }
-    }
-
-    private void OnCustomizeElement(GridCustomizeElementEventArgs args)
-    {
-        if (args.ElementType == GridElementType.DataRow)
-        {
-            args.Attributes.Add("oncontextmenu", async (MouseEventArgs e) => await OnRowContextMenuAsync(e, args.VisibleIndex));
-            args.Attributes.Add("oncontextmenu:stopPropagation", true);
-            args.Attributes.Add("onpointerdown", (MouseEventArgs e) => OnRowPointerDown(e, args.VisibleIndex));
-            args.Attributes.Add("onpointerup", (MouseEventArgs e) => OnRowPointerUp(e, args.VisibleIndex));
-            args.CssClass = "grabable-row";
-        }
-    }
-
-    private void OnDraggingEnded()
-        => _blockMouseUp = true;
-
-    private static void OnDxGridCustomSort(GridCustomSortEventArgs args)
-    {
-        if (args.FieldName == nameof(DataGridConnectorWrapper.FunctionBlockId))
-        {
-            args.Result = AlphaNumericComparer.Default.Compare(
-                ((DataGridConnectorWrapper)args.DataItem1).FunctionBlockName,
-                ((DataGridConnectorWrapper)args.DataItem2).FunctionBlockName
-            );
-        }
-
-        args.Handled = true;
-    }
-
-    private void OnExpandAllGroups()
-        => _gridRef?.ExpandAllGroupRows();
 
     private void OnFilterInputs()
     {
@@ -222,15 +117,7 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
             filter = _inputFilterButton.IsActive;
         }
 
-        if (filter)
-        {
-            var criteriaOperator = CriteriaOperator.FromLambda<DataGridConnectorWrapper>(c => c.IsInput);
-            _gridRef?.SetFilterCriteria(criteriaOperator);
-        }
-        else
-        {
-            _gridRef?.ClearFilter();
-        }
+        SetDirectionFilter(filter ? ConnectorDirection.Input : null);
     }
 
     private void OnFilterOutputs()
@@ -249,22 +136,16 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
             filter = _outputFilterButton.IsActive;
         }
 
-        if (filter)
-        {
-            var criteriaOperator = CriteriaOperator.FromLambda<DataGridConnectorWrapper>(c => !c.IsInput);
-            _gridRef?.SetFilterCriteria(criteriaOperator);
-        }
-        else
-        {
-            _gridRef?.ClearFilter();
-        }
+        SetDirectionFilter(filter ? ConnectorDirection.Output : null);
     }
 
     protected override void OnInitialized()
     {
-        PublishedConnectorsService.DraggingEnded += OnDraggingEnded;
         PublishedConnectorsService.PublishedConnectorSelectionRequested += OnPublishedConnectorSelectionRequested;
         PublishedConnectorsService.PublishedConnectorsChanged += OnPublishedConnectorsChangedAsync;
+
+        if (ContextMenuSettings.UseCustomMenu)
+            _rowContextMenu = EventCallback.Factory.Create<RowContextMenuEventArgs<DataGridConnectorWrapper>>(this, RowContextMenu);
 
         InitFilterButtons();
     }
@@ -273,9 +154,6 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
     {
         try
         {
-            if (_gridRef is not null)
-                await InvokeAsync(_gridRef.Reload);
-
             await InvokeAsync(StateHasChanged);
         }
         catch (Exception ex)
@@ -284,6 +162,9 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
         }
     }
 
+    // The diagram asks for a row by connector, not by wrapper, because it holds no wrapper: the section owns
+    // those. Matched on Id rather than by reference — the wrapper carries the connector the cache held when it
+    // was built, which a cluster reload replaces with an equal-Id instance.
     private void OnPublishedConnectorSelectionRequested(IConnector connector)
     {
         foreach (var wrapper in PublishedConnectorsService.PublishedConnectorWrappers)
@@ -291,135 +172,81 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
             if (wrapper.Connector.Id != connector.Id)
                 continue;
 
-            _pendingSelection = wrapper;
-            break;
-        }
+            // Replacing the bound reference is what the table reads as a selection set from outside; it
+            // re-raises VisibleSelectionChanged, so the footer count follows. An unpublished connector reaches
+            // no row and the current selection is deliberately left alone.
+            _selectedItems = [wrapper];
 
-        if (_pendingSelection is not null)
+            // Raised from the diagram's call stack, so the render has to be requested explicitly.
             InvokeAsync(StateHasChanged);
-    }
 
-    private async Task OnRowContextMenuAsync(MouseEventArgs e, int rowIndex)
-    {
-        SelectionManager.DeselectAll();
-
-        if (_gridRef!.GetDataItem(rowIndex) is not DataGridConnectorWrapper currentConnectorWrapper)
             return;
-
-        var selectedItems = _gridRef.SelectedDataItems.Cast<DataGridConnectorWrapper>().ToList();
-
-        if (selectedItems.Count == 0 || !selectedItems.Contains(currentConnectorWrapper))
-        {
-            _lastRowIndex = rowIndex;
-
-            selectedItems.Clear();
-            selectedItems.Add(currentConnectorWrapper);
-
-            _gridRef.ClearSelection();
-            _gridRef.SelectDataItems(selectedItems, true);
-
-            await InvokeAsync(StateHasChanged);
-        }
-
-        await ContextMenuRequest.SendAsync(new() { MouseEventArgs = e, PublishedConnectorsWrappers = selectedItems });
-    }
-
-    private async Task OnRowDoubleClickAsync(GridRowClickEventArgs e)
-    {
-        if (_gridRef!.IsGroupRow(e.VisibleIndex))
-            return;
-
-        var dataItem = _gridRef.GetDataItem(e.VisibleIndex);
-        if (dataItem is null || dataItem is not DataGridConnectorWrapper publishedConnector)
-            return;
-
-        await ConnectorService.ShowAndSelectPublishedConnectorMarker(publishedConnector.Connector);
-    }
-
-    private void OnRowPointerDown(MouseEventArgs e, int rowIndex)
-    {
-        SelectionManager.DeselectAll();
-
-        if (e.Button == LeftButton)
-        {
-            if (_gridRef!.GetDataItem(rowIndex) is not DataGridConnectorWrapper currentConnectorWrapper)
-                return;
-
-            var selectedItems = _gridRef!.SelectedDataItems.Cast<DataGridConnectorWrapper>().ToList();
-
-            if (e.ShiftKey)
-            {
-                var lastDataItem = _gridRef!.GetDataItem(_lastRowIndex) as DataGridConnectorWrapper;
-
-                var start = Math.Min(_lastRowIndex, rowIndex);
-                var end = Math.Max(_lastRowIndex, rowIndex);
-                var newItems = Enumerable.Range(start, end - start + 1)
-                    .Where(i => !_gridRef.IsGroupRow(i))
-                    .Select(i => _gridRef.GetDataItem(i))
-                    .Cast<DataGridConnectorWrapper>()
-                    .ToList()
-                    .Where(c => c.ConnectorType == lastDataItem?.ConnectorType);
-
-                selectedItems = e.CtrlKey ? [.. selectedItems.Union(newItems)] : selectedItems = [.. newItems];
-            }
-            else
-            {
-                _lastRowIndex = rowIndex;
-
-                if (e.CtrlKey)
-                {
-                    if (selectedItems.Count > 0 && selectedItems[0].ConnectorType != currentConnectorWrapper.ConnectorType)
-                        return;
-
-                    if (!selectedItems.Remove(currentConnectorWrapper))
-                        selectedItems.Add(currentConnectorWrapper);
-                }
-                else
-                {
-                    if (!selectedItems.Contains(currentConnectorWrapper))
-                    {
-                        selectedItems.Clear();
-                        selectedItems.Add(currentConnectorWrapper);
-                    }
-                }
-            }
-
-            _gridRef.ClearSelection();
-            _gridRef.SelectDataItems(selectedItems, true);
-
-            if (selectedItems.Contains(currentConnectorWrapper))
-                PublishedConnectorsService.StartPublishedConnectorDragging(selectedItems);
-        }
-    }
-
-    private void OnRowPointerUp(MouseEventArgs e, int rowIndex)
-    {
-        if (_blockMouseUp)
-        {
-            _blockMouseUp = false;
-            return;
-        }
-
-        if (e.Button == LeftButton)
-        {
-            if (_gridRef!.GetDataItem(rowIndex) is not DataGridConnectorWrapper focusedConnectorWrapper)
-                return;
-
-            var selectedItems = _gridRef!.SelectedDataItems.Cast<DataGridConnectorWrapper>().ToList();
-
-            if (!e.CtrlKey && !e.ShiftKey)
-            {
-                selectedItems.Clear();
-                selectedItems.Add(focusedConnectorWrapper);
-
-                _gridRef.ClearSelection();
-                _gridRef.SelectDataItems(selectedItems, true);
-            }
         }
     }
 
     [LoggerMessage(Level = LogLevel.Error, Message = "Refresh PublishedConnectors failed.")]
     public static partial void RefreshPublishedConnectorsFailed(ILogger logger, Exception ex);
+
+    // The table raises this without touching the selection, so the rows the menu acts on are settled here.
+    private async Task RowContextMenu(RowContextMenuEventArgs<DataGridConnectorWrapper> context)
+    {
+        SelectionManager.DeselectAll();
+
+        // The menu removes what it is handed, so it is handed the number the footer is showing.
+        IReadOnlyList<DataGridConnectorWrapper> menuSelection = VisibleSelection.Rows;
+
+        if (!_selectedItems.Contains(context.Item))
+        {
+            _selectedItems = [context.Item];
+
+            // The mirror cannot say so for another render, and the pressed row is on screen by definition.
+            menuSelection = _selectedItems;
+
+            StateHasChanged();
+        }
+
+        await ContextMenuRequest.SendAsync(new()
+        {
+            MouseEventArgs = context.MouseEventArgs,
+            PublishedConnectorsWrappers = menuSelection
+        });
+    }
+
+    private Task RowDoubleClick(DataGridConnectorWrapper connectorWrapper)
+        => ConnectorService.ShowAndSelectPublishedConnectorMarker(connectorWrapper.Connector);
+
+    private void SearchTextChanged(string? searchText)
+    {
+        _searchText = searchText;
+
+        // The table reads a new instance as a command, so this may only run from an event: building one per
+        // render would re-apply the filter on every render.
+        _filterState = string.IsNullOrWhiteSpace(searchText)
+            ? _filterState.WithoutGlobalFilter<PublishedConnectorSearchFilter>()
+            : _filterState.WithGlobalFilter(new PublishedConnectorSearchFilter(searchText));
+    }
+
+    // A selection is dragged onto a connector as one payload, so it may only hold connectors of a single data
+    // type — a mixed selection has no common valid target.
+    private bool SelectionAllowed(SelectionRequest<DataGridConnectorWrapper> request)
+    {
+        if (request.CurrentSelection.Count == 0)
+            return true;
+
+        return request.CurrentSelection[0].ConnectorType == request.Item.ConnectorType;
+    }
+
+    private void SetDirectionFilter(ConnectorDirection? requestedDirection)
+    {
+        _filterState = requestedDirection is { } direction
+            ? _filterState.WithGlobalFilter(new PublishedConnectorDirectionFilter(direction))
+            : _filterState.WithoutGlobalFilter<PublishedConnectorDirectionFilter>();
+
+        // The direction buttons are FilterButton models owned by SearchAndFilterComponent, so their click marks
+        // that component dirty and not this one. Without an explicit render the new FilterState is never handed
+        // to the table, and the rows keep whichever filter was last applied.
+        InvokeAsync(StateHasChanged);
+    }
 
     private void SetFilterButtonsState()
     {
@@ -451,14 +278,6 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
         }
 
         if (prevIFBS != _inputFilterButton.IsDisabled || prevOFBS != _outputFilterButton.IsDisabled)
-            InvokeAsync(StateHasChanged);
-    }
-
-    private void SetGroupingButtonsState()
-    {
-        var prevGBE = _groupingButtonsEnabled;
-        _groupingButtonsEnabled = DataAvailable && _gridRef?.GetVisibleRowCount() > 0 && _gridRef?.GetGroupCount() > 0;
-        if (prevGBE != _groupingButtonsEnabled)
             InvokeAsync(StateHasChanged);
     }
 }

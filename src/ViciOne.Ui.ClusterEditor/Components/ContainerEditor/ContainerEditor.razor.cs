@@ -5,7 +5,6 @@ using System.Threading;
 using System.Threading.Tasks;
 using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Behaviors;
-using DevExpress.XtraRichEdit.Layout.Engine;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
@@ -25,7 +24,6 @@ using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
-using ViciOne.Ui.Shared.Dx.Services;
 
 namespace ViciOne.Ui.ClusterEditor.Components.ContainerEditor;
 

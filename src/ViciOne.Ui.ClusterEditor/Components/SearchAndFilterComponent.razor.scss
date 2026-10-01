@@ -1,6 +1,12 @@
-@use "./../Styles/colors" as editor;
-@use "./../Styles/shared-search-tools-styles";
+﻿@use "./../Styles/shared-search-tools-styles";
 @use "./../Styles/design/colors";
+
+// Only the box the chooser sits in: the section that fills the slot renders and styles the toggle itself.
+.column-chooser-slot {
+    align-self: center;
+
+    height: 24px;
+}
 
 .command-button {
     cursor: pointer;

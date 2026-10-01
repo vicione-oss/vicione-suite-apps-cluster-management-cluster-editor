@@ -1,9 +1,17 @@
 ﻿@using ViciOne.Ui.Blazor.Components.Dialog.Components
 @using ViciOne.Ui.Blazor.Components.SearchBox
+@using ViciOne.Ui.Blazor.Components.Tables.AdvancedTable.Components.ColumnChooser
+@using ViciOne.Ui.Blazor.Components.Tables.AdvancedTable.Components.Footers
+@using ViciOne.Ui.Blazor.Components.Tables.Shared.Enums
+@using ViciOne.Ui.Blazor.Components.Tables.SimpleTable.Components
+@using ViciOne.Ui.Blazor.Components.Tables.SimpleTable.Components.Columns
+@using ViciOne.Ui.Blazor.Components.Tables.SimpleTable.Components.Columns.SimpleTableSelectColumn
+@using ViciOne.Ui.Blazor.Components.Tables.SimpleTable.Components.Filters
 @using ViciOne.Ui.Blazor.Components.Toolbar.Components
 @using ViciOne.Ui.Blazor.Components.Toolbar.Enums
-@using ViciOne.Ui.ClusterEditor.Components.ToolbarColumnChooserButton
+@using ViciOne.Ui.ClusterEditor.Models.Comparer
 @using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
+@using TechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
 
 @* CloseOnEscape="true" not supported yet, https://gitlab.com/vicione-oss/vicione/ui-libs/blazor-components/-/issues/141 *@
 <Dialog @ref="_refDialog"
@@ -11,9 +19,9 @@
         Height="@DialogSizes.LargeHeight"
         OnClosing="OnDialogClosing"
         OnShowing="OnDialogShowing"
-        Width="@DialogSizes.LargeWidth"
         Visible="@DialogService.Visible"
-        VisibleChanged="VisibleChangedAsync">
+        VisibleChanged="VisibleChanged"
+        Width="@DialogSizes.LargeWidth">
 
     <HeaderSlot>
         <Toolbar>
@@ -21,26 +29,24 @@
                 <ToolbarContent>
                     <div class="search-container">
                         <SearchBox Placeholder="@CommonVocabulary.Search"
-                                   @bind-Text="_searchText"
-                                   @bind-Text:event="TextChanging" />
+                                   Text="@_searchText"
+                                   TextChanging="SearchTextChanging" />
                     </div>
                 </ToolbarContent>
             </ToolbarGroup>
 
             <ToolbarGroup AlignRight="true">
-                <ToolbarButton Enabled="@_groupingButtonsEnabled"
-                               IconName="@MonochromeIconName.ExpandAll"
-                               OnClick="@OnExpandAllGroups"
-                               Text="@_expandAllGroupsText"
-                               TextVisibility="@TextVisibility.MenuOnly" />
+                <ColumnChooserToggle Id="@_columnChooserToggleId"
+                                     OpenPopupToLeft="true">
 
-                <ToolbarButton Enabled="@_groupingButtonsEnabled"
-                               IconName="@MonochromeIconName.CollapseAll"
-                               OnClick="@OnCollapseAllGroups"
-                               Text="@_collapseAllGroupsText"
-                               TextVisibility="@TextVisibility.MenuOnly" />
-
-                <ToolbarColumnChooserButton AssociatedGrid="@_refGrid" />
+                    <Button>
+                        <ToolbarButton Active="@context.PopupVisible"
+                                       IconName="@MonochromeIconName.ColumnChooserMenu"
+                                       OnClick="@context.Toggle"
+                                       Text="@context.PopupTitle"
+                                       TextVisibility="@TextVisibility.MenuOnly" />
+                    </Button>
+                </ColumnChooserToggle>
             </ToolbarGroup>
         </Toolbar>
     </HeaderSlot>
@@ -48,186 +54,169 @@
     <Body>
         <div class="content-container">
             <div class="content">
-                <DxGrid @ref="@_refGrid"
-                        CssClass="dialog-grid"
-                        CustomGroup="OnCustomizeCustomGroup"
-                        CustomizeCellDisplayText="OnCustomizeCellDisplayText"
-                        CustomSort="@OnDxGridCustomSort"
-                        Data="@(DialogService.ConnectorWrappers.Count > 0 ? DialogService.ConnectorWrappers : DialogService.DataPortWrappers)"
-                        FocusedRowEnabled="@(!DialogService.IsDeletionMode)"
-                        FocusedRowChanged="OnFocusedRowChanged"
-                        LayoutAutoSaving="OnLayoutAutoSavingAsync"
-                        RowDoubleClick="OnRowDoubleClickAsync"
-                        SearchText="@_searchText"
-                        SearchTextParseMode="GridSearchTextParseMode.ExactMatch"
-                        SelectAllCheckboxMode="GridSelectAllCheckboxMode.AllPages"
-                        SelectedDataItemsChanged="OnSelectedDataItemsChanged"
-                        ShowGroupPanel="true"
-                        VirtualScrollingEnabled="true">
+                <SimpleTable @bind-FilterState="_filterState"
+                             @bind-SelectedItems="_selectedItems"
+                             ColumnChooserToggleId="@_columnChooserToggleId"
+                             Items="@_items"
+                             MaximumHeight="100%"
+                             Mode="TableLoadingMode.Virtualize"
+                             RowClickSelectionEnabled="@(!DialogService.IsDeletionMode)"
+                             RowDoubleClick="RowDoubleClick"
+                             SelectionMode="TableSelectionMode"
+                             SortingState="_initialSorting"
+                             TItem="object"
+                             VisibleSelectionChanged="OnVisibleSelectionChanged">
 
+                    @* Enter is a per-column callback, so a column added here without CellActivated is silent:
+                       Enter does nothing while the focused cell is in it. *@
                     <Columns>
                         @if (DialogService.IsDeletionMode)
                         {
-                            <DxGridSelectionColumn ShowInColumnChooser="false"
-                                                   Width="50"/>
+                            <SimpleTableSelectColumn ShowInColumnChooser="false"
+                                                     TItem="object" />
                         }
 
                         @if (_showConnectors)
                         {
-                            <DxGridDataColumn AllowGroup="true"
-                                          AllowSort="false"
-                                          Caption="@CommonVocabulary.Design"
-                                          FieldName="@nameof(DataGridConnectorWrapper.DesignName)"
-                                          GroupInterval="GridColumnGroupInterval.DisplayText">
+                            <SimpleTableTemplateColumn CellActivated="RowDoubleClick"
+                                                       Id="@nameof(DataGridConnectorWrapper.DesignName)"
+                                                       Resizeable="true"
+                                                       TItem="object"
+                                                       Title="@CommonVocabulary.Design">
 
-                            <CellDisplayTemplate Context="cellContext">
-                                @{
-                                    <div class="text-truncated" title="@cellContext.DisplayText">
-                                        <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
-                                                                                           Text="@cellContext.DisplayText.ToString()" />
+                                <CellContent>
+                                    @{ var connector = (DataGridConnectorWrapper)context; }
+                                    <div class="text-truncated" title="@connector.DesignName">
+                                        <SearchHighlighter SearchText="@_searchText"
+                                                           Text="@connector.DesignName" />
                                     </div>
-                                }
-                            </CellDisplayTemplate>
-
-                            <GroupRowTemplate Context="rowContext">
-                                @rowContext.GroupValue
-                            </GroupRowTemplate>
-                        </DxGridDataColumn>
+                                </CellContent>
+                                <FilterEditor>
+                                    <SimpleTableContainsColumnFilterEditor TItem="object"
+                                                                           ValueSelector="@(x => ((DataGridConnectorWrapper)x).DesignName)" />
+                                </FilterEditor>
+                            </SimpleTableTemplateColumn>
                         }
 
-                        <DxGridDataColumn AllowGroup="true"
-                              AllowSort="false"
-                              Caption="@CommonVocabulary.Path"
-                              FieldName="@nameof(DataGridConnectorWrapper.Path)">
+                        <SimpleTableTemplateColumn CellActivated="RowDoubleClick"
+                                                   Id="@nameof(DataGridConnectorWrapper.Path)"
+                                                   Resizeable="true"
+                                                   TItem="object"
+                                                   Title="@CommonVocabulary.Path">
 
-                            <CellDisplayTemplate Context="cellContext">
-                                @{
-                                    <div class="text-truncated" title="@cellContext.DisplayText">
-                                        <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
-                                                                                           Text="@cellContext.DisplayText.ToString()" />
-                                    </div>
-                                }
-                            </CellDisplayTemplate>
-
-                            <GroupRowTemplate Context="rowContext">
-                                @{
-                                    <div class="text-truncated" title="@rowContext.GroupValueDisplayText">
-                                        @rowContext.GroupValueDisplayText
-                                    </div>
-                                }
-                            </GroupRowTemplate>
-                        </DxGridDataColumn>
+                            <CellContent>
+                                <div class="text-truncated" title="@GetPath(context)">
+                                    <SearchHighlighter SearchText="@_searchText"
+                                                       Text="@GetPath(context)" />
+                                </div>
+                            </CellContent>
+                            <FilterEditor>
+                                <SimpleTableContainsColumnFilterEditor TItem="object"
+                                                                       ValueSelector="GetPath" />
+                            </FilterEditor>
+                        </SimpleTableTemplateColumn>
 
                         @if (_showConnectors)
                         {
-                            <DxGridDataColumn AllowGroup="true"
-                                              AllowSort="true"
-                                              Caption="@TechnicalTerms.FunctionBlock"
-                                              FieldName="@nameof(DataGridConnectorWrapper.FunctionBlockId)"
-                                              GroupInterval="GridColumnGroupInterval.Custom"
-                                              SortIndex="0"
-                                              SortMode="GridColumnSortMode.Custom">
+                            <SimpleTableTemplateColumn CellActivated="RowDoubleClick"
+                                                       Id="@nameof(DataGridConnectorWrapper.FunctionBlockId)"
+                                                       Resizeable="true"
+                                                       SortComparer="AlphaNumericComparer.Default"
+                                                       SortExpression="s_connectorSortExpression"
+                                                       TItem="object"
+                                                       Title="@TechnicalTerms.FunctionBlock">
 
-                                <CellDisplayTemplate Context="cellContext">
-                                    @{
-                                        <div class="text-truncated" title="@cellContext.DisplayText">
-                                            <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
-                                                                                               Text="@cellContext.DisplayText.ToString()" />
+                                <CellContent>
+                                    @{ var connector = (DataGridConnectorWrapper)context; }
+                                    <div class="text-truncated" title="@connector.FunctionBlockName">
+                                        <SearchHighlighter SearchText="@_searchText"
+                                                           Text="@connector.FunctionBlockName" />
+                                    </div>
+                                </CellContent>
+                                <FilterEditor>
+                                    <SimpleTableContainsColumnFilterEditor TItem="object"
+                                                                           ValueSelector="@(x => ((DataGridConnectorWrapper)x).FunctionBlockName)" />
+                                </FilterEditor>
+                            </SimpleTableTemplateColumn>
+
+                            <SimpleTableTemplateColumn CellActivated="RowDoubleClick"
+                                                       Id="@nameof(DataGridConnectorWrapper.ConnectorName)"
+                                                       Resizeable="true"
+                                                       TItem="object"
+                                                       Title="@TechnicalTerms.Connector">
+
+                                <CellContent>
+                                    @{ var connector = (DataGridConnectorWrapper)context; }
+                                    <div class="connector-with-icon-cell">
+                                        <div class="icon">
+                                            @GetIconMarkup(connector)
                                         </div>
-                                    }
-                                </CellDisplayTemplate>
-
-                                <GroupRowTemplate Context="rowContext">
-                                    @rowContext.GroupValueDisplayText
-                                </GroupRowTemplate>
-                            </DxGridDataColumn>
-
-                            <DxGridDataColumn AllowGroup="true"
-                                              AllowSort="false"
-                                              Caption="@TechnicalTerms.Connector"
-                                              FieldName="@nameof(DataGridConnectorWrapper.ConnectorName)">
-
-                                <CellDisplayTemplate Context="cellContext">
-                                    @{
-                                        var publishedConnector = (DataGridConnectorWrapper)cellContext.DataItem;
-
-                                        <div class="connector-with-icon-cell">
-                                            <div class="icon">
-                                                @GetIconMarkup(publishedConnector)
-                                            </div>
-                                            <div class="value">
-                                                <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
-                                                                                                   Text="@cellContext.Value.ToString()" />
-                                            </div>
+                                        <div class="value">
+                                            <SearchHighlighter SearchText="@_searchText"
+                                                               Text="@connector.ConnectorName" />
                                         </div>
-                                    }
-                                </CellDisplayTemplate>
-
-                                <GroupRowTemplate Context="rowContext">
-                                    @{
-                                        var publishedConnector = (DataGridConnectorWrapper)rowContext.Grid.GetDataItem(rowContext.VisibleIndex);
-
-                                        <div class="connector-with-icon-cell">
-                                            <div class="icon">
-                                                @GetIconMarkup(publishedConnector)
-                                            </div>
-                                            <div class="value">
-                                                @rowContext.GroupValueDisplayText.ToString()
-                                            </div>
-                                        </div>
-                                    }
-                                </GroupRowTemplate>
-                            </DxGridDataColumn>
+                                    </div>
+                                </CellContent>
+                                <FilterEditor>
+                                    <SimpleTableContainsColumnFilterEditor TItem="object"
+                                                                           ValueSelector="@(x => ((DataGridConnectorWrapper)x).ConnectorName)" />
+                                </FilterEditor>
+                            </SimpleTableTemplateColumn>
                         }
 
                         @if (_showDataPorts)
                         {
-                            <DxGridDataColumn AllowGroup="true"
-                                              AllowSort="true"
-                                              Caption="@CommonVocabulary.Name"
-                                              FieldName="@nameof(DataGridDataPortWrapper.Name)"
-                                              GroupInterval="GridColumnGroupInterval.DisplayText"
-                                              SortIndex="0"
-                                              SortMode="GridColumnSortMode.DisplayText">
+                            <SimpleTableTemplateColumn CellActivated="RowDoubleClick"
+                                                       Id="@nameof(DataGridDataPortWrapper.Name)"
+                                                       Resizeable="true"
+                                                       SortComparer="AlphaNumericComparer.Default"
+                                                       SortExpression="s_dataPortSortExpression"
+                                                       TItem="object"
+                                                       Title="@CommonVocabulary.Name">
 
-                                <CellDisplayTemplate Context="cellContext">
-                                    @{
-                                        <div class="text-truncated" title="@cellContext.DisplayText">
-                                            <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
-                                                                                               Text="@cellContext.DisplayText.ToString()" />
-                                        </div>
-                                    }
-                                </CellDisplayTemplate>
-
-                                <GroupRowTemplate Context="rowContext">
-                                    @rowContext.GroupValueDisplayText
-                                </GroupRowTemplate>
-                            </DxGridDataColumn>
+                                <CellContent>
+                                    @{ var dataPort = (DataGridDataPortWrapper)context; }
+                                    <div class="text-truncated" title="@dataPort.Name">
+                                        <SearchHighlighter SearchText="@_searchText"
+                                                           Text="@dataPort.Name" />
+                                    </div>
+                                </CellContent>
+                                <FilterEditor>
+                                    <SimpleTableContainsColumnFilterEditor TItem="object"
+                                                                           ValueSelector="@(x => ((DataGridDataPortWrapper)x).Name)" />
+                                </FilterEditor>
+                            </SimpleTableTemplateColumn>
                         }
 
-                        <DxGridDataColumn AllowGroup="true"
-                                          AllowSort="false"
-                                          Caption="@CommonVocabulary.Description"
-                                          FieldName="@nameof(DataGridConnectorWrapper.Description)">
+                        <SimpleTableTemplateColumn CellActivated="RowDoubleClick"
+                                                   Id="@nameof(DataGridConnectorWrapper.Description)"
+                                                   Resizeable="true"
+                                                   TItem="object"
+                                                   Title="@CommonVocabulary.Description">
 
-                            <CellDisplayTemplate Context="cellContext">
-                                @{
-                                    <div class="text-truncated" title="@cellContext.DisplayText">
-                                        <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
-                                                                                           Text="@cellContext.DisplayText.ToString()" />
-                                    </div>
-                                }
-                            </CellDisplayTemplate>
-                        </DxGridDataColumn>
+                            <CellContent>
+                                <div class="text-truncated" title="@GetDescription(context)">
+                                    <SearchHighlighter SearchText="@_searchText"
+                                                       Text="@GetDescription(context)" />
+                                </div>
+                            </CellContent>
+                            <FilterEditor>
+                                <SimpleTableContainsColumnFilterEditor TItem="object"
+                                                                       ValueSelector="GetDescription" />
+                            </FilterEditor>
+                        </SimpleTableTemplateColumn>
                     </Columns>
 
-                </DxGrid>
+                    <Footer>
+                        <TableFooter SelectedItemCount="_visibleSelection.Count" />
+                    </Footer>
+                </SimpleTable>
             </div>
         </div>
     </Body>
 
     <Footer>
-        <DialogFooterButton Enabled="@_okButtonEnabled"
+        <DialogFooterButton Enabled="@OkButtonEnabled"
                             OnClick="@OnDialogOk"
                             Text="@(DialogService.IsDeletionMode ? CommonVocabulary.Delete : CommonVocabulary.Ok)" />
 

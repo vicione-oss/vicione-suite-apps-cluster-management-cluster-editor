@@ -7,6 +7,7 @@ using ViciOne.Ui.Blazor.Components.ExpandableMenu.Extensions;
 using ViciOne.Ui.Blazor.Components.Popup.Extensions;
 using ViciOne.Ui.Blazor.Components.SectionRail.Extensions;
 using ViciOne.Ui.Blazor.Components.Sidebar.Extensions;
+using ViciOne.Ui.Blazor.Components.Tables.SimpleTable.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ContainerBreadcrumb.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Extensions;
@@ -29,7 +30,6 @@ using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices.ContainerEditor;
-using ViciOne.Ui.Shared.Dx.Services;
 
 namespace ViciOne.Ui.ClusterEditor.Extensions;
 
@@ -80,6 +80,7 @@ public static class IServiceCollectionExtensions
         services.AddPopup();
         services.AddDialog();
         services.AddSidebar();
+        services.AddSimpleTable();
 
         services.AddScoped<IContainerEditorRequest, ContainerEditorRequest>();
 

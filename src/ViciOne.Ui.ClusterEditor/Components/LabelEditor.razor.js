@@ -40,7 +40,7 @@ function renderEditor(content) {
  * @param {string} content
  */
 export function showEditor(content) {
-    // This timeout is necessary to let the DxDialog resize itself
+    // This timeout is necessary to let the Dialog resize itself
     setTimeout(() => renderEditor(content), 100)
 }
 

@@ -60,15 +60,6 @@ namespace ViciOne.Ui.ClusterEditor.Components.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Column chooser.
-        /// </summary>
-        internal static string ColumnChooser {
-            get {
-                return ResourceManager.GetString("ColumnChooser", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Select &amp; Show.
         /// </summary>
         internal static string SelectAndShow {
