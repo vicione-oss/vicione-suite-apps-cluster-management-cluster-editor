@@ -1,0 +1,8 @@
+﻿// Covers the port so the drag interaction measures the port's own rectangle, without taking the pointer
+// events the port itself handles.
+.connector-dropzone {
+    position: absolute;
+    inset: 0;
+
+    pointer-events: none;
+}

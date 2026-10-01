@@ -1,14 +1,18 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using AwesomeAssertions;
+using Blazor.Diagrams.Core.Geometry;
 using Bunit;
-using DevExpress.Blazor;
-using DevExpress.Data.Filtering;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using NSubstitute;
 using ViciOne.Cluster.Builder.Abstractions;
 using ViciOne.Cluster.Model;
+using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
+using ViciOne.Ui.Blazor.Components.Tables.SimpleTable.Components;
+using ViciOne.Ui.Blazor.Components.Tables.SimpleTable.Components.Columns;
+using ViciOne.Ui.ClusterEditor.Components;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Components;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Extensions;
@@ -31,8 +35,6 @@ public class PublishedConnectorsSectionContentTests
         // Arrange
         await using var ctx = CreateContext();
 
-        ctx.CreateDiagramInstance();
-
         // Act
         var component = ctx.Render<PublishedConnectorsSectionContent>();
 
@@ -40,131 +42,212 @@ public class PublishedConnectorsSectionContentTests
         Assert.NotNull(component);
     }
 
-    private static BunitContext CreateContext()
+    // Enter is a per-column callback, so a column added without a handler is silent: Enter stops working
+    // while the lead sits in it, with nothing in the UI to explain it.
+    [Fact]
+    public async Task Every_column_activates_the_row_so_enter_is_never_silent()
     {
-        var ctx = new BunitContext();
-        ctx.SetupDevExpressBlazor();
-        ctx.SetupDiagramService();
-        ctx.Services.AddPublishedConnectorsSectionContextMenu();
-        ctx.SetupPublishedConnectorsService();
-        ctx.SetupSelectionManager();
-        ctx.SetupConnectorService();
-        ctx.SetupDragService();
+        // Arrange
+        await using var ctx = CreateContext();
 
-        ctx.JSInterop
-            .Setup<int[]>("ViciOne.Diagram.BlockNode.measureNameFieldHeights", _ => true)
-            .SetResult([.. Enumerable.Repeat(0, 10)]);
+        // Act
+        var component = ctx.Render<PublishedConnectorsSectionContent>();
 
-        return ctx;
-    }
+        // Assert
+        var columns = component.FindComponents<SimpleTableTemplateColumn<DataGridConnectorWrapper>>();
 
-    private static Dictionary<string, bool> GetGroupExpansionStateByConnectorName(IGrid grid)
-    {
-        var expansionStates = new Dictionary<string, bool>();
-
-        for (var rowIndex = 0; rowIndex < grid.GetVisibleRowCount(); rowIndex++)
-        {
-            if (!grid.IsGroupRow(rowIndex) || grid.GetRowLevel(rowIndex) != 1)
-                continue;
-
-            var connectorName = (string)grid.GetRowValue(rowIndex, nameof(DataGridConnectorWrapper.ConnectorName));
-            expansionStates[connectorName] = grid.IsGroupRowExpanded(rowIndex);
-        }
-
-        return expansionStates;
+        columns.Should().HaveCount(6);
+        columns.Should().AllSatisfy(column => column.Instance.CellActivated.HasDelegate.Should().BeTrue());
     }
 
     [Fact]
-    public async Task Requested_published_connector_is_selected_in_the_grid()
+    public async Task The_markup_drag_ghost_is_registered_while_the_section_lives()
+    {
+        // Arrange
+        await using var ctx = CreateContext();
+        var rowDragGhost = ctx.Services.GetRequiredService<PublishedConnectorRowDragGhost>();
+
+        // Act
+        ctx.Render<PublishedConnectorsSectionContent>();
+
+        // Assert
+        rowDragGhost.MarkupDragGhost.Should().NotBeNull();
+    }
+
+    // The container holds one ghost slot for the whole application, so a section that does not clear its own
+    // on the way out leaves a dangling one behind.
+    [Fact]
+    public async Task The_markup_drag_ghost_is_cleared_with_the_section()
+    {
+        // Arrange
+        await using var ctx = CreateContext();
+        var rowDragGhost = ctx.Services.GetRequiredService<PublishedConnectorRowDragGhost>();
+        ctx.Render<PublishedConnectorsSectionContent>();
+
+        // Act
+        await ctx.DisposeComponentsAsync();
+
+        // Assert
+        rowDragGhost.MarkupDragGhost.Should().BeNull();
+    }
+
+    // The table suppresses the browser's own menu whenever a handler is wired, so wiring it unconditionally
+    // would leave a right-click opening nothing at all.
+    [Theory]
+    [InlineData(true)]
+    [InlineData(false)]
+    public async Task The_row_context_menu_is_wired_only_when_the_custom_menu_would_open(bool useCustomMenu)
+    {
+        // Arrange
+        await using var ctx = CreateContext(useCustomMenu);
+
+        // Act
+        var component = ctx.Render<PublishedConnectorsSectionContent>();
+
+        // Assert
+        component.FindComponent<SimpleTable<DataGridConnectorWrapper>>()
+            .Instance.RowContextMenuRequested.HasDelegate
+            .Should().Be(useCustomMenu);
+    }
+
+    // The table resolves the payload from the whole selection, so a row the active filter hides would be
+    // dragged along with nothing on screen to say so.
+    [Fact]
+    public async Task A_drag_carries_the_visible_selection_and_not_the_rows_the_filter_hides()
+    {
+        // Arrange
+        await using var ctx = CreateContext();
+        var component = ctx.Render<PublishedConnectorsSectionContent>();
+        var table = component.FindComponent<SimpleTable<DataGridConnectorWrapper>>().Instance;
+
+        var visible = Wrapper();
+        var hidden = Wrapper();
+
+        await component.InvokeAsync(() => table.VisibleSelectionChanged.InvokeAsync([visible]));
+
+        // Act
+        var payload = table.DragPayloadProvider!.GetPayload(visible, [visible, hidden]);
+
+        // Assert
+        payload.Should().Equal(visible);
+    }
+
+    // The direction buttons are FilterButton models rendered by SearchAndFilterComponent, so the @onclick that
+    // reaches them belongs to that component's render tree and marks it dirty, not this section. Without an
+    // explicit render the table never receives the new FilterState and the rows keep whichever filter was
+    // applied last. The handler is invoked directly rather than through InvokeOnFilterClickedFn because the
+    // buttons are disabled while the service has no published connectors, which no test can seed.
+    [Fact]
+    public async Task Pressing_a_direction_filter_hands_the_new_filter_state_to_the_table()
+    {
+        // Arrange
+        await using var ctx = CreateContext();
+        var component = ctx.Render<PublishedConnectorsSectionContent>();
+        var table = component.FindComponent<SimpleTable<DataGridConnectorWrapper>>();
+        var filterButtons = component.FindComponent<SearchAndFilterComponent>().Instance.FilterButtons;
+
+        var stateBeforeClick = table.Instance.FilterState;
+
+        // Act
+        await component.InvokeAsync(filterButtons[0].OnFilterClickedFn!);
+
+        // Assert
+        table.Instance.FilterState.Should().NotBe(stateBeforeClick);
+    }
+
+    // The other half of the diagram's "double click a published marker" gesture: BlockComponent asks the
+    // service, and this is the end that has to turn the connector into the row the user sees selected.
+    [Fact]
+    public async Task A_requested_published_connector_becomes_the_tables_selection()
     {
         // Arrange
         await using var ctx = CreateContext();
         using var builder = BuilderFactory.Create();
-        var (component, service, grid, output, _) = await SetupPublishedConnectorsAsync(ctx, builder);
+        var (component, service, published, _) = await RenderWithOnePublishedConnectorAsync(ctx, builder);
 
-        var wrapper = service.PublishedConnectorWrappers.Single(w => w.Connector.Id == output.Id);
+        var table = component.FindComponent<SimpleTable<DataGridConnectorWrapper>>();
+        var wrapper = service.PublishedConnectorWrappers.Single(w => w.Connector.Id == published.Id);
 
         // Act
-        await component.InvokeAsync(() => service.RequestPublishedConnectorSelection(output));
+        await component.InvokeAsync(() => service.RequestPublishedConnectorSelection(published));
 
         // Assert
-        component.WaitForAssertion(() => grid.IsDataItemSelected(wrapper).Should().BeTrue());
+        component.WaitForAssertion(() => table.Instance.SelectedItems.Should().Equal(wrapper));
     }
 
+    // Unpublishing races the gesture: the marker is double clicked on a diagram that has not caught up yet.
+    // Collapsing the selection to nothing would be a silent, unexplained change to what the footer counts.
     [Fact]
-    public async Task Requested_published_connector_stays_selected_when_a_filter_hides_it()
+    public async Task Requesting_a_connector_that_has_no_row_leaves_the_selection_alone()
     {
         // Arrange
         await using var ctx = CreateContext();
         using var builder = BuilderFactory.Create();
-        var (component, service, grid, output, _) = await SetupPublishedConnectorsAsync(ctx, builder);
+        var (component, service, published, unpublished) = await RenderWithOnePublishedConnectorAsync(ctx, builder);
 
-        var wrapper = service.PublishedConnectorWrappers.Single(w => w.Connector.Id == output.Id);
+        var table = component.FindComponent<SimpleTable<DataGridConnectorWrapper>>();
+        var wrapper = service.PublishedConnectorWrappers.Single(w => w.Connector.Id == published.Id);
 
-        // Show inputs only, which excludes the output connector we are about to request.
-        await component.InvokeAsync(() => grid.SetFilterCriteria(CriteriaOperator.FromLambda<DataGridConnectorWrapper>(c => c.IsInput)));
-
-        // Act
-        await component.InvokeAsync(() => service.RequestPublishedConnectorSelection(output));
-
-        // Assert
-        component.WaitForAssertion(() => grid.IsDataItemSelected(wrapper).Should().BeTrue());
-
-        // Clearing the filter brings the row back, still selected.
-        await component.InvokeAsync(grid.ClearFilter);
-        component.WaitForAssertion(() => grid.IsDataItemSelected(wrapper).Should().BeTrue());
-    }
-
-    [Fact]
-    public async Task Requesting_a_published_connector_expands_only_its_own_group()
-    {
-        // Arrange
-        await using var ctx = CreateContext();
-        using var builder = BuilderFactory.Create();
-        var (component, service, grid, output, input) = await SetupPublishedConnectorsAsync(ctx, builder);
-
-        // Group by connector name as well, so the two connectors end up in separate sub groups.
-        await component.InvokeAsync(() => grid.GroupBy(nameof(DataGridConnectorWrapper.ConnectorName)));
-        await component.InvokeAsync(grid.CollapseAllGroupRows);
+        await component.InvokeAsync(() => service.RequestPublishedConnectorSelection(published));
+        component.WaitForAssertion(() => table.Instance.SelectedItems.Should().Equal(wrapper));
 
         // Act
-        await component.InvokeAsync(() => service.RequestPublishedConnectorSelection(output));
+        await component.InvokeAsync(() => service.RequestPublishedConnectorSelection(unpublished));
 
         // Assert
-        component.WaitForAssertion(() =>
-        {
-            var expansionStates = GetGroupExpansionStateByConnectorName(grid);
-            expansionStates[output.Name].Should().BeTrue();
-            expansionStates[input.Name].Should().BeFalse();
-        });
+        table.Instance.SelectedItems.Should().Equal(wrapper);
     }
 
-    private static async Task<(IRenderedComponent<PublishedConnectorsSectionContent> Component, PublishedConnectorsService Service, IGrid Grid, IConnector Output, IConnector Input)>
-        SetupPublishedConnectorsAsync(BunitContext ctx, IClusterBuilder builder)
+    // Publishing has to go through the builder: that is what fills the service's wrapper list. Publishing on
+    // the diagram model instead only moves the marker and leaves the section empty.
+    private static async Task<(IRenderedComponent<PublishedConnectorsSectionContent> Component, PublishedConnectorsService Service, IConnector Published, IConnector Unpublished)>
+        RenderWithOnePublishedConnectorAsync(BunitContext ctx, IClusterBuilder builder)
     {
-        ctx.CreateDiagramInstance();
-
         var datastore = ctx.Services.GetRequiredService<IDatastore>();
         var diagramService = ctx.Services.GetRequiredService<DiagramService>();
         var service = ctx.Services.GetRequiredService<PublishedConnectorsService>();
 
         await datastore.Load(builder, diagramService, Ct);
 
-        var node = await datastore.AddFunctionBlock(diagramService, BuilderFactory.FbDesignId, new(0, 0), Ct);
+        var node = await datastore.AddFunctionBlock(diagramService, BuilderFactory.FbDesignId, new Point(0, 0), Ct);
         var functionBlock = datastore.DataflowDiagramMapping.GetModel(node);
 
-        // Deliberately two differently named connectors: grouping by connector name has to put
-        // them into separate groups.
-        var output = functionBlock.Outputs.First(c => c.Name == "Value");
-        var input = functionBlock.Inputs.First(c => c.Name == "Increment");
+        var published = functionBlock.Outputs.First(c => c.Name == "Value");
+        var unpublished = functionBlock.Inputs.First(c => c.Name == "Increment");
 
         var component = ctx.Render<PublishedConnectorsSectionContent>();
 
-        builder.Editors.Connector.SetPublished(output, true);
-        builder.Editors.Connector.SetPublished(input, true);
+        builder.Editors.Connector.SetPublished((Connector)published, true);
+        component.WaitForState(() => service.PublishedConnectorWrappers.Count == 1);
 
-        component.WaitForState(() => service.PublishedConnectorWrappers.Count() == 2);
+        return (component, service, published, unpublished);
+    }
 
-        return (component, service, component.FindComponent<DxGrid>().Instance, output, input);
+    // ConnectorDesign is abstract with an inaccessible member and no public implementation outside its own
+    // assembly. The policy sorts rows by identity, so neither design is read.
+    private static DataGridConnectorWrapper Wrapper()
+        => new(Substitute.For<IConnectorOutput>(), null!, null!);
+
+    private static BunitContext CreateContext(bool useCustomMenu = true)
+    {
+        var ctx = new BunitContext();
+        ctx.JSInterop.Mode = JSRuntimeMode.Loose;
+
+        var contextMenuSettings = Substitute.For<IContextMenuSettings>();
+        contextMenuSettings.UseCustomMenu.Returns(useCustomMenu);
+        ctx.Services.TryAddScoped(_ => contextMenuSettings);
+
+        ctx.Services.AddPublishedConnectorsSectionContextMenu();
+        ctx.SetupPublishedConnectorsSection();
+
+        // Projecting a function block onto the diagram measures its name field, and the loose JS runtime
+        // would answer that call with null rather than the heights the mapper indexes into.
+        ctx.JSInterop
+            .Setup<int[]>("ViciOne.Diagram.BlockNode.measureNameFieldHeights", _ => true)
+            .SetResult([.. Enumerable.Repeat(0, 10)]);
+
+        ctx.CreateDiagramInstance();
+
+        return ctx;
     }
 }

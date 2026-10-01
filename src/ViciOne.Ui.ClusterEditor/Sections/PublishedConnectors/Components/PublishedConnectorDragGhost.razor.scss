@@ -1,0 +1,22 @@
+﻿// The library hit-tests dropzones from the top-left corner of the ghost's host element and sizes that host
+// from this content, so one pixel puts the corner on the pointer. The icon is out of flow to stay visible.
+.published-connector-drag-ghost {
+    cursor: not-allowed;
+
+    display: block;
+    height: 1px;
+    position: relative;
+    width: 1px;
+
+    &.over-valid-target {
+        cursor: alias;
+    }
+
+    ::deep .icon {
+        cursor: inherit;
+
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+}

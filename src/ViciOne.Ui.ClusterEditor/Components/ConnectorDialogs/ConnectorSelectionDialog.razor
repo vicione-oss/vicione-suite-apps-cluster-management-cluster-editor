@@ -1,14 +1,21 @@
 ﻿@using System.Globalization
 @using ViciOne.Cluster.Model.Extensions
 @using ViciOne.Ui.Blazor.Components.Dialog.Components
-@using ViciOne.Ui.Blazor.Components.SearchBox
+@using ViciOne.Ui.Blazor.Components.Tables.AdvancedTable.Components.ColumnChooser
+@using ViciOne.Ui.Blazor.Components.Tables.AdvancedTable.Components.Footers
+@using ViciOne.Ui.Blazor.Components.Tables.Shared.Enums
+@using ViciOne.Ui.Blazor.Components.Tables.SimpleTable.Components
+@using ViciOne.Ui.Blazor.Components.Tables.SimpleTable.Components.Columns
+@using ViciOne.Ui.Blazor.Components.Tables.SimpleTable.Components.Columns.SimpleTableSelectColumn
+@using ViciOne.Ui.Blazor.Components.Tables.SimpleTable.Components.Filters
 @using ViciOne.Ui.Blazor.Components.Toolbar.Components
 @using ViciOne.Ui.Blazor.Components.Toolbar.Enums
-@using ViciOne.Ui.ClusterEditor.Components.ToolbarColumnChooserButton
+@using ViciOne.Ui.ClusterEditor.Components.ToolbarSearchbox
 @using ViciOne.Ui.Localization.Resources
 @using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
 @using TechnicalTerms = ViciOne.Ui.Localization.Resources.TechnicalTerms
 @using LocalTechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
+@using SelectionMode = ViciOne.Ui.Blazor.Components.Tables.Shared.Enums.SelectionMode
 
 @* CloseOnEscape="true" not supported yet, https://gitlab.com/vicione-oss/vicione/ui-libs/blazor-components/-/issues/141 *@
 <Dialog @bind-Visible:get="DialogService.Visible"
@@ -23,13 +30,8 @@
     <HeaderSlot>
         <Toolbar>
             <ToolbarGroup AlignRight="true">
-                <ToolbarContent>
-                    <div class="search-container">
-                        <SearchBox @bind-Text="@_searchText"
-                                   @bind-Text:event="TextChanging"
-                                   Placeholder="@CommonVocabulary.Search" />
-                    </div>
-                </ToolbarContent>
+                <ToolbarSearchbox Text="@_searchText"
+                                  TextChanging="SearchTextChanging" />
 
                 <ToolbarButton IconName="@MonochromeIconName.SelectConnectorsInput"
                                OnClick="@(() => OnFilterButton(c => c.IsInput && !c.Connector.FunctionBlock.GetSystemConnectors().ToArray().Contains(c.Connector)))"
@@ -61,26 +63,25 @@
                                Text="@_selectAllOutputConnectorsText"
                                TextVisibility="@TextVisibility.MenuOnly" />
 
+                @* Clears the whole selection, filtered-away rows included. *@
                 <ToolbarButton IconName="@MonochromeIconName.SortUncheckAll"
-                               OnClick="@(() => OnFilterButton((c) => false))"
+                               OnClick="@OnDeselectAllButton"
                                Text="@Localization.ConnectorSelectionDialog.DeselectAllConnectors"
                                TextVisibility="@TextVisibility.MenuOnly" />
             </ToolbarGroup>
 
             <ToolbarGroup AlignRight="true">
-                <ToolbarButton Enabled="@_groupingButtonsEnabled"
-                               IconName="@MonochromeIconName.ExpandAll"
-                               OnClick="@OnExpandAllGroups"
-                               Text="@_expandAllGroupsText"
-                               TextVisibility="@TextVisibility.MenuOnly" />
+                <ColumnChooserToggle Id="@_columnChooserToggleId"
+                                     OpenPopupToLeft="true">
 
-                <ToolbarButton Enabled="@_groupingButtonsEnabled"
-                               IconName="@MonochromeIconName.CollapseAll"
-                               OnClick="@OnCollapseAllGroups"
-                               Text="@_collapseAllGroupsText"
-                               TextVisibility="@TextVisibility.MenuOnly" />
-
-                <ToolbarColumnChooserButton AssociatedGrid="@_refGrid" />
+                    <Button>
+                        <ToolbarButton Active="@context.PopupVisible"
+                                       IconName="@MonochromeIconName.ColumnChooserMenu"
+                                       OnClick="@context.Toggle"
+                                       Text="@context.PopupTitle"
+                                       TextVisibility="@TextVisibility.MenuOnly" />
+                    </Button>
+                </ColumnChooserToggle>
             </ToolbarGroup>
         </Toolbar>
     </HeaderSlot>
@@ -88,128 +89,104 @@
     <Body>
         <div class="content-container">
             <div class="content">
-                <DxGrid @ref="@_refGrid"
-                        CssClass="dialog-grid"
-                        CustomGroup="OnCustomizeCustomGroup"
-                        CustomizeCellDisplayText="OnCustomizeCellDisplayText"
-                        CustomSort="@OnCustomSort"
-                        Data="@_connectorWrappers"
-                        SearchText="@_searchText"
-                        SearchTextParseMode="GridSearchTextParseMode.ExactMatch"
-                        SelectedDataItemsChanged="OnSelectedDataItemsChanged"
-                        SelectionMode="GridSelectionMode.Multiple"
-                        ShowGroupPanel="true"
-                        VirtualScrollingEnabled="true">
+                <SimpleTable @bind-FilterState="_filterState"
+                             @bind-SelectedItems="_selectedItems"
+                             ColumnChooserToggleId="@_columnChooserToggleId"
+                             FilteredItemsChanged="OnFilteredItemsChanged"
+                             Items="@_connectorWrappers"
+                             MaximumHeight="100%"
+                             Mode="TableLoadingMode.Virtualize"
+                             RowClickSelectionEnabled="false"
+                             SelectionMode="SelectionMode.Multiple"
+                             SortingState="_initialSorting"
+                             TItem="DataGridConnectorWrapper"
+                             VisibleSelectionChanged="OnVisibleSelectionChanged">
 
                     <Columns>
-                        <DxGridSelectionColumn AllowSelectAll="false"
-                                               ShowInColumnChooser="false"
-                                               Width="50" />
+                        <SimpleTableSelectColumn HasSelectAllHeader="false"
+                                                 TItem="DataGridConnectorWrapper" />
 
-                        <DxGridDataColumn AllowGroup="true"
-                                          AllowSort="true"
-                                          Caption="@CommonVocabulary.Element"
-                                          FieldName="@nameof(DataGridConnectorWrapper.ParentName)"
-                                          GroupIndexChanged="SetGroupingButtonsState"
-                                          GroupInterval="GridColumnGroupInterval.DisplayText"
-                                          SortIndex="1">
+                        <SimpleTableTemplateColumn Id="@nameof(DataGridConnectorWrapper.ParentName)"
+                                                   Resizeable="true"
+                                                   SortExpression="s_parentNameSortExpression"
+                                                   TItem="DataGridConnectorWrapper"
+                                                   Title="@CommonVocabulary.Element">
 
-                            <CellDisplayTemplate Context="cellContext">
-                                @{
-                                    <div class="text-truncated" title="@cellContext.DisplayText">
-                                        <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
-                                                                                           Text="@cellContext.DisplayText.ToString()" />
+                            <CellContent>
+                                <div class="element-cell" title="@context.ParentName">
+                                    <SearchHighlighter SearchText="@_searchText"
+                                                       Text="@context.ParentName" />
+                                </div>
+                            </CellContent>
+                            <FilterEditor>
+                                <SimpleTableContainsColumnFilterEditor TItem="DataGridConnectorWrapper"
+                                                                       ValueSelector="@(x => x.ParentName)" />
+                            </FilterEditor>
+                        </SimpleTableTemplateColumn>
+
+                        <SimpleTableTemplateColumn Id="@nameof(DataGridConnectorWrapper.ConnectorName)"
+                                                   Resizeable="true"
+                                                   SortExpression="s_isOutputSortExpression"
+                                                   TItem="DataGridConnectorWrapper"
+                                                   Title="@LocalTechnicalTerms.Connector">
+
+                            <CellContent>
+                                <div class="connector-with-icon-cell">
+                                    <div class="icon">
+                                        @GetIconMarkup(context)
                                     </div>
-                                }
-                            </CellDisplayTemplate>
-
-                            <GroupRowTemplate Context="rowContext">
-                                @rowContext.GroupValue
-                            </GroupRowTemplate>
-                        </DxGridDataColumn>
-
-                        <DxGridDataColumn AllowGroup="true"
-                                          AllowSort="true"
-                                          Caption="@LocalTechnicalTerms.Connector"
-                                          FieldName="@nameof(DataGridConnectorWrapper.ConnectorName)"
-                                          GroupIndexChanged="SetGroupingButtonsState"
-                                          SortIndex="2"
-                                          SortMode="GridColumnSortMode.Custom">
-
-                            <CellDisplayTemplate Context="cellContext">
-                                @{
-                                    var publishedConnector = (DataGridConnectorWrapper)cellContext.DataItem;
-
-                                    <div class="connector-with-icon-cell">
-                                        <div class="icon">
-                                            @GetIconMarkup(publishedConnector)
-                                        </div>
-                                        <div class="value">
-                                            <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
-                                                                                               Text="@cellContext.Value.ToString()" />
-                                        </div>
+                                    <div class="value">
+                                        <SearchHighlighter SearchText="@_searchText"
+                                                           Text="@context.ConnectorName" />
                                     </div>
-                                }
-                            </CellDisplayTemplate>
+                                </div>
+                            </CellContent>
+                            <FilterEditor>
+                                <SimpleTableContainsColumnFilterEditor TItem="DataGridConnectorWrapper"
+                                                                       ValueSelector="@(x => x.ConnectorName)" />
+                            </FilterEditor>
+                        </SimpleTableTemplateColumn>
 
-                            <GroupRowTemplate Context="rowContext">
-                                @{
-                                    var publishedConnector = (DataGridConnectorWrapper)rowContext.Grid.GetDataItem(rowContext.VisibleIndex);
+                        <SimpleTableTemplateColumn Id="@nameof(DataGridConnectorWrapper.ConnectorTypeName)"
+                                                   Resizeable="true"
+                                                   SortExpression="s_connectorTypeNameSortExpression"
+                                                   TItem="DataGridConnectorWrapper"
+                                                   Title="@TechnicalTerms.DataType">
 
-                                    <div class="connector-with-icon-cell">
-                                        <div class="icon">
-                                            @GetIconMarkup(publishedConnector)
-                                        </div>
-                                        <div class="value">
-                                            @rowContext.GroupValueDisplayText.ToString()
-                                        </div>
-                                    </div>
-                                }
-                            </GroupRowTemplate>
-                        </DxGridDataColumn>
+                            <CellContent>
+                                <div class="data-type-cell" title="@context.ConnectorTypeName">
+                                    <SearchHighlighter SearchText="@_searchText"
+                                                       Text="@context.ConnectorTypeName" />
+                                </div>
+                            </CellContent>
+                            <FilterEditor>
+                                <SimpleTableContainsColumnFilterEditor TItem="DataGridConnectorWrapper"
+                                                                       ValueSelector="@(x => x.ConnectorTypeName)" />
+                            </FilterEditor>
+                        </SimpleTableTemplateColumn>
 
-                        <DxGridDataColumn AllowGroup="true"
-                                          AllowSort="true"
-                                          Caption="@TechnicalTerms.DataType"
-                                          FieldName="@nameof(DataGridConnectorWrapper.ConnectorTypeName)"
-                                          GroupIndexChanged="SetGroupingButtonsState">
+                        <SimpleTableTemplateColumn Id="@nameof(DataGridConnectorWrapper.Description)"
+                                                   Resizeable="true"
+                                                   TItem="DataGridConnectorWrapper"
+                                                   Title="@CommonVocabulary.Description">
 
-                            <CellDisplayTemplate Context="cellContext">
-                                @{
-                                    <div class="text-truncated" title="@cellContext.DisplayText">
-                                        <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
-                                                                                           Text="@cellContext.DisplayText.ToString()" />
-                                    </div>
-                                }
-                            </CellDisplayTemplate>
-
-                            <GroupRowTemplate Context="rowContext">
-                                @{
-                                    <div class="text-truncated" title="@rowContext.GroupValueDisplayText">
-                                        @rowContext.GroupValueDisplayText
-                                    </div>
-                                }
-                            </GroupRowTemplate>
-                        </DxGridDataColumn>
-
-                        <DxGridDataColumn AllowGroup="true"
-                                          AllowSort="false"
-                                          Caption="@CommonVocabulary.Description"
-                                          FieldName="@nameof(DataGridConnectorWrapper.Description)"
-                                          GroupIndexChanged="SetGroupingButtonsState">
-
-                            <CellDisplayTemplate Context="cellContext">
-                                @{
-                                    <div class="text-truncated" title="@cellContext.DisplayText">
-                                        <ViciOne.Ui.Shared.Dx.Components.SearchHighlighter SearchText="@_searchText"
-                                                                                           Text="@cellContext.DisplayText.ToString()" />
-                                    </div>
-                                }
-                            </CellDisplayTemplate>
-                        </DxGridDataColumn>
+                            <CellContent>
+                                <div class="description-cell" title="@context.Description">
+                                    <SearchHighlighter SearchText="@_searchText"
+                                                       Text="@context.Description" />
+                                </div>
+                            </CellContent>
+                            <FilterEditor>
+                                <SimpleTableContainsColumnFilterEditor TItem="DataGridConnectorWrapper"
+                                                                       ValueSelector="@(x => x.Description)" />
+                            </FilterEditor>
+                        </SimpleTableTemplateColumn>
                     </Columns>
 
-                </DxGrid>
+                    <Footer>
+                        <TableFooter SelectedItemCount="_visibleSelection.Count" />
+                    </Footer>
+                </SimpleTable>
             </div>
         </div>
     </Body>

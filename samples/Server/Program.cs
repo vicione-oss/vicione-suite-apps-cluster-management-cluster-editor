@@ -39,7 +39,6 @@ else
 
 builder.Services.AddLocalization();
 
-builder.Services.AddDevExpressBlazor();
 builder.WebHost.UseStaticWebAssets();
 
 builder.Services.AddClusterDependenciesSupport();

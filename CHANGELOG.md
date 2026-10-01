@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.0 - Unreleased
+## 2.0.0 - 2026-10-01
 
 ### Added
 
@@ -22,7 +22,7 @@
 - Changed tooltip to use design from `ViciOne.Ui.Design`
 - Refactored `NodeEditor` component into multiple services to avoid excessive class coupling and improve maintainability
 - Moved `ViciOne.Ui.Shared.Dx.Components.SearchHighlighter` to `ViciOne.Ui.ClusterEditor.Components.SearchHighlighter`
-- Improved the connector drop zone when dragging from DataPorts to match the drop zone when creating links 
+- Improved the connector drop zone when dragging from DataPorts to match the drop zone when creating links
 - Refactored default context menu handling in components to enable default context menu handling by host app
 - Updated `.editorconfig` to newest version
 - Removed obsolete persistence code from `IClusterEditorManagement`
@@ -40,6 +40,13 @@
   - **Breaking:** `DataPortChildNodeModel` has a new required `LinkDirections` member
   - **Breaking:** `ColoredIconFactory.GetDataPortIcon` takes a nullable `DataPortDirection`
 - Moved the debug generators for function blocks, links and data ports into the sample app, where they work through the `ClusterBuilder`
+- Replaced `DxGrid` with `ViciOne.Ui.Blazor.Components.SimpleTable` in the Connector Selection dialog
+- Replaced `DxGrid` with `ViciOne.Ui.Blazor.Components.SimpleTable` in the Link Destination dialog
+- Replaced `DxGrid` with `ViciOne.Ui.Blazor.Components.SimpleTable` in the FB Settings editor
+- Replaced `DxGrid` with `ViciOne.Ui.Blazor.Components.SimpleTable` in the Published Connectors section
+- Replaced `DxComboBox` with `ViciOne.Ui.Blazor.Components.ComboBox` in `UniversalInput`
+- The cluster editor no longer needs `AddDevExpressBlazor` or the `dx-bootstrap-custom.css` stylesheet in the host app
+- Moved `ViciOne.Ui.Shared.Dx.Services.ComparerService` to `ViciOne.Ui.ClusterEditor.Services.ComparerService`
 - Unified JavaScript interop error handling so a lost circuit, a disposed runtime or module and interop cancellations are logged instead of crashing, while errors raised inside JavaScript still surface
 - Rename the company to `ViciOne open automation gmbh` in the license and the package metadata
 
@@ -59,7 +66,6 @@
   - Deleting a node's parent while editing it no longer blocks all further edits, or crashes when the warning is closed
 - Fixed selection rectangle no longer working on an empty diagram after a previous selection ended on the edge dragging area
 - Fixed a rare crash when a library drag left the diagram while a JavaScript call was still running
-- Fixed missing highlight of focused and selected rows in grids (e.g. Link Destination dialog) by providing the Bootstrap color variables still used by DevExpress components
 - Fixed a crash when saving a DataPort node after links were added while its edit form was open; nodes below a node in edit mode can no longer be linked
 - Fixed the diagram staying empty when the editor renders a second time for an already loaded cluster; the active container is projected into the newly created diagram
 - Fixed the Dataflow structure tree not mirroring the datastore when its nodes are rebuilt for an unchanged cluster; the active dataflow is marked again, and the active container is selected and expanded to
@@ -78,10 +84,12 @@
 ### Updated external references
 
 - `Microsoft` packages, update to version `10.0.12`
-- `ViciOne.Ui.Blazor.Components` package, updated to version `6.1.1`
+- `ViciOne.Ui.Blazor.Components` package, updated to version `6.2.0`
 - `ViciOne.Ui.MonochromeIcons` package, update version to `4.18.0`
+- `ViciOne.Ui.Localization` package, updated to version `3.6.0`
 - `ViciOne.Ui.Design` package, added in version `2.5.0`
 - `ViciOne.TreeBuilder` package, replaced by `ViciOne.Tree.Builder` in version `3.0.0`
+- `ViciOne.Ui.Shared.Dx` package, removed
 
 ## 1.3.0 - 2026-08-05
 
@@ -135,7 +143,7 @@
 
 - Restructured CHANGELOG, moved fixes to their own section
 - Double click on a `Connector` container marker now selects the associated parent container's `Connector`
-- Double click on a `Link` now selects the associated Connector instead of the Node 
+- Double click on a `Link` now selects the associated Connector instead of the Node
 - Reduced GC pressure on interaction hot paths by replacing LINQ chains with allocation-free loops, eliminated spread-operator array copies in event buffers, fixed quadratic diagram filter lookup
 
 ### Fixed
@@ -197,7 +205,7 @@
 - Respect `TransferDirection` restrictions of `DataPortChildNodes` during drag & drop
 - Improved `Library` drag async handling
 - Reworked library drag to use JavaScript based movement
-- Prevent horizontal scrollbar in `DataPortSection` 
+- Prevent horizontal scrollbar in `DataPortSection`
 - Implemented right-aligned sticky action buttons for `DataPortTreeNodes`
 
 ### Fixed

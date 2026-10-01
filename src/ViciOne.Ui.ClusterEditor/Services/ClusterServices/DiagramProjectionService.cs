@@ -10,7 +10,6 @@ using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Mappers.DiagramMappers;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
-using ViciOne.Ui.Shared.Dx.Services;
 using FunctionBlock = ViciOne.Cluster.Model.FunctionBlock;
 using Link = ViciOne.Cluster.Model.Link;
 
@@ -37,7 +36,7 @@ internal sealed class DiagramProjectionService
         _jsRuntime = jsRuntime;
         _logger = logger;
 
-        // This line adds the IAggregatingPooling to the cache of Shared.Dx.Services.ComparerService
+        // This line adds the IAggregatingPooling to the cache of ComparerService
         // which prevents a noticeable delay when the user drags the first FunctionBlock from the Library
         // to the diagram
         var _ = _comparerService.GetComparer(typeof(Core.Contracts.DataModel.IAggregatingPooling));

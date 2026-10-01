@@ -75,36 +75,21 @@
         }
     </div>
 
-    @for (var (i, displayAll) = (0, ShouldDisplayAllConnectors()); i < Node.Connectors!.Count; i++)
+    @for (var i = 0; i < Node.Connectors!.Count; i++)
     {
         var inputConnector = Node.Connectors[i][0];
         var outputConnector = Node.Connectors[i][1];
 
         <div class="connector-row @(i == 3 ? "divider" : "") @(i == Node.Connectors.Count - 1 ? "last-row" : "")">
 
-            @if (displayAll)
+            @if (inputConnector is not null)
             {
-                if (inputConnector is not null)
-                {
-                    @InputConnectorFragment(inputConnector)
-                }
-
-                if (outputConnector is not null)
-                {
-                    @OutputConnectorFragment(outputConnector)
-                }
+                @InputConnectorFragment(inputConnector)
             }
-            else
-            {
-                if (inputConnector is not null && inputConnector.ShouldDisplayConnector())
-                {
-                    @InputConnectorFragment(inputConnector)
-                }
 
-                if (outputConnector is not null && outputConnector.ShouldDisplayConnector())
-                {
-                    @OutputConnectorFragment(outputConnector)
-                }
+            @if (outputConnector is not null)
+            {
+                @OutputConnectorFragment(outputConnector)
             }
         </div>
     }
@@ -122,8 +107,13 @@
     {
         if (!connector.Visible) { return; }
 
+        // A connector Simplified View hides is only styled away, never left out: its dropzone must already exist
+        // when a drag starts, since the drag interaction resolves its dropzones only then, and must stay the same
+        // element once the valid-target mark reveals the connector.
+        var hidden = IsConnectorHidden(connector);
+
         <div @ondrop="@((_) => OnDrop(connector))"
-             class="input-connector-container"
+             class="input-connector-container @(hidden ? "hidden" : string.Empty)"
              ondragover="@(connector.IsValidDropTarget ? "event.preventDefault();" : string.Empty)"
              style="@connector.ConnectorContainerStyle">
 
@@ -136,6 +126,8 @@
                  @onpointerleave="@OnPortContainerPointerLeave"
                  class="input-port-container"
                  style="@connector.PortStyle">
+
+                <ConnectorDropzone Connector="@connector" />
 
                 <PortRenderer @key="connector" Port="@connector">
                     @if (!string.IsNullOrWhiteSpace(connector.PortText))
@@ -157,6 +149,8 @@
                 @connector.Text
             </div>
         </div>
+
+        if (hidden) { return; }
 
         var (outerLine, innerLine) = GetMarkerLines(connector);
         if (outerLine is { } outer)
@@ -227,8 +221,13 @@
     {
         if (!connector.Visible) { return; }
 
+        // A connector Simplified View hides is only styled away, never left out: its dropzone must already exist
+        // when a drag starts, since the drag interaction resolves its dropzones only then, and must stay the same
+        // element once the valid-target mark reveals the connector.
+        var hidden = IsConnectorHidden(connector);
+
         <div @ondrop="@((_) => OnDrop(connector))"
-             class="output-connector-container"
+             class="output-connector-container @(hidden ? "hidden" : string.Empty)"
              ondragover="@(connector.IsValidDropTarget ? "event.preventDefault();" : string.Empty)"
              style="@connector.ConnectorContainerStyle">
 
@@ -248,6 +247,8 @@
                  class="output-port-container"
                  style="@connector.PortStyle">
 
+                <ConnectorDropzone Connector="@connector" />
+
                 <PortRenderer @key="connector" Port="@connector">
                     @if (!string.IsNullOrWhiteSpace(connector.PortText))
                     {
@@ -256,6 +257,8 @@
                 </PortRenderer>
             </div>
         </div>
+
+        if (hidden) { return; }
 
         var (outerLine, innerLine) = GetMarkerLines(connector);
         if (outerLine is { } outer)

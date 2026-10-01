@@ -2,7 +2,6 @@ using Blazor.Diagrams;
 using Blazor.Diagrams.Core.Geometry;
 using Blazor.Diagrams.Core.Models;
 using Bunit;
-using DevExpress.Blazor.Internal;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Logging;
@@ -12,6 +11,7 @@ using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
 using ViciOne.Ui.Blazor.Components.Resizing.Services;
+using ViciOne.Ui.Blazor.Components.Tables.SimpleTable.Extensions;
 using ViciOne.Ui.ClusterEditor.Components;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor;
 using ViciOne.Ui.ClusterEditor.Components.ContainerEditor.Extensions;
@@ -26,11 +26,11 @@ using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Services;
 using ViciOne.Ui.ClusterEditor.Sections.Information.Services;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Services;
+using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
-using ViciOne.Ui.Shared.Dx.Services;
 using Xunit;
 
 namespace ViciOne.Ui.ClusterEditor.Tests.Extensions;
@@ -149,23 +149,6 @@ internal static class BunitContextExtensions
         return ctx;
     }
 
-    public static BunitContext SetupDevExpressBlazor(this BunitContext ctx)
-    {
-        var deviceInfo = new DeviceInfo(false);
-        var env = Substitute.For<IEnvironmentInfo>();
-        env.DeviceInfo.Returns(deviceInfo);
-        ctx.Services.AddScoped(s => env);
-
-        ctx.JSInterop.Mode = JSRuntimeMode.Loose;
-
-        ctx.Services.AddDevExpressBlazor(options => options.BootstrapVersion = DevExpress.Blazor.BootstrapVersion.v5);
-        var rootModule = ctx.JSInterop.SetupModule("./_content/DexExpress.Blazor/dx-blazor.js");
-        rootModule.Mode = JSRuntimeMode.Strict;
-        rootModule.Setup<DeviceInfo>("getDeviceInfo", _ => true).SetResult(deviceInfo);
-
-        return ctx;
-    }
-
     public static BunitContext SetupDiagramService(this BunitContext ctx)
     {
         ctx.SetupDatastore();
@@ -205,7 +188,7 @@ internal static class BunitContextExtensions
         ctx.Services.TryAddScoped<FullscreenService>();
         ctx.Services.AddDialog();
 
-        ctx.JSInterop.SetupModule("./_content/ViciOne.Ui.ClusterEditor/Components/FbSettingsEditor/FbSettingsEditor.razor.js");
+        ctx.JSInterop.SetupModule("./_content/ViciOne.Ui.ClusterEditor/Components/FbSettingsEditor/Cell.razor.js");
 
         return ctx;
     }
@@ -268,10 +251,22 @@ internal static class BunitContextExtensions
         return ctx;
     }
 
+    public static BunitContext SetupPublishedConnectorsSection(this BunitContext ctx)
+    {
+        ctx.SetupPublishedConnectorsService();
+        ctx.SetupSelectionManager();
+        ctx.SetupConnectorService();
+
+        ctx.Services.TryAddScoped(_ => Substitute.For<IContextMenuSettings>());
+        ctx.Services.AddSimpleTable();
+        ctx.Services.AddPublishedConnectorsSection();
+
+        return ctx;
+    }
+
     public static BunitContext SetupPublishedConnectorsService(this BunitContext ctx)
     {
-        ctx.SetupDiagramService();
-        ctx.Services.TryAddScoped<InputEventService>();
+        ctx.SetupDatastore();
 
         ctx.Services.TryAddScoped<PublishedConnectorsService>();
 

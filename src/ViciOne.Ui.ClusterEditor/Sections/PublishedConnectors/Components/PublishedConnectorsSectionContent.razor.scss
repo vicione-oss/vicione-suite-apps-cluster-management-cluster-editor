@@ -1,16 +1,31 @@
-@use "./../../../Styles/colors" as editor;
+@use "./../../../Styles/design/colors";
+@use "./../../../Styles/mixins";
+
+// Rendered into SearchAndFilterComponent's slot, so it lands in this component's style scope and cannot be
+// shaped from the toolbar's own stylesheet. It repeats what the filter buttons beside it use.
+.column-chooser-button {
+    cursor: pointer;
+    height: 24px;
+
+    &:hover {
+        background-color: colors.$background-dark-hover;
+    }
+
+    &.active {
+        color: colors.$accent;
+    }
+}
 
 .content-container {
     display: flex;
+    flex-direction: column;
     height: 100%;
 
-    .text-truncated {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+    ::deep .text-truncated {
+        @include mixins.overflow-ellipsis();
     }
 
-    .connector-with-icon-cell {
+    ::deep .connector-with-icon-cell {
         display: grid;
         grid-template-columns: 24px auto;
 
@@ -20,19 +35,19 @@
         }
 
         > .value {
-            @extend .text-truncated;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+
             line-height: 24px;
             padding-left: 5px;
         }
     }
 
-    ::deep .scrollable-grid {
-        border: none;
-        overflow: auto;
-        user-select: none;
-
-        .grabable-row {
-            cursor: grab;
-        }
+    // The icon comes from a MarkupString and carries no scope attribute, so no scoped selector reaches it.
+    ::deep .connector-with-icon-cell > .icon svg {
+        cursor: unset;
+        height: 24px;
+        width: 24px;
     }
 }

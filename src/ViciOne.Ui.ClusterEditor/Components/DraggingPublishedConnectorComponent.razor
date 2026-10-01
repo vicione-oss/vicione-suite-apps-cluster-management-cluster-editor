@@ -1,9 +1,0 @@
-﻿<div class="dragging-published-connector"
-     style="--published-connector-cursor: @(_isValidTargetNearby ? "alias" : "not-allowed");
-            --visible: @(_position is not null ? "visible" : "hidden");
-            --top: @Razor.GetCssPx(_position?.Y - 24 ?? 0);
-            --left: @Razor.GetCssPx(_position?.X - 24 ?? 0);">
-
-    <MonochromeIcon Name="MonochromeIconName.PublishedConnectorDragging"
-                    Size="MonochromeIconSize.Medium" />
-</div>

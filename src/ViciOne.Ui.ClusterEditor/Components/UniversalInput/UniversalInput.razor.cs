@@ -5,7 +5,6 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Threading.Tasks;
-using DevExpress.Blazor;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Ui.Blazor.Components.ComboBox;
 using ViciOne.Ui.ClusterEditor.Components.UniversalInput.Extensions;
@@ -25,7 +24,6 @@ public sealed partial class UniversalInput : ComponentBase, IDisposable
     private static readonly Type s_uriType = typeof(Uri);
 
     private EditorType _editorType;
-    private object? _enumComboBoxItems;
     private PropertyBag? _propertyBag;
     private string _textBoxPlaceholder = TextBoxPlaceholderNull;
     private string? _textBoxValue;
@@ -81,10 +79,37 @@ public sealed partial class UniversalInput : ComponentBase, IDisposable
                     Value = enumValue,
                 });
 
-    private Type GetDxComboBoxType()
-        => typeof(DxComboBox<,>).MakeGenericType(
-            [typeof(ComboBoxItem<,>).MakeGenericType(ValueType, typeof(string)), ValueType]
-        );
+    private static object? GetComboBoxItemTextSelector(Type valueType)
+    {
+        var @delegate = GetComboBoxItemTextSelector<DayOfWeek>;
+
+        var method = @delegate.Method
+            .GetGenericMethodDefinition()
+            .MakeGenericMethod(valueType);
+
+        var result = method.Invoke(null, []);
+
+        return result;
+    }
+
+    private static Expression<Func<ComboBoxItem<TValue, string>, string>> GetComboBoxItemTextSelector<TValue>()
+        => item => item.Text;
+
+    private static object? GetComboBoxItemValueSelector(Type valueType)
+    {
+        var @delegate = GetComboBoxItemValueSelector<DayOfWeek>;
+
+        var method = @delegate.Method
+            .GetGenericMethodDefinition()
+            .MakeGenericMethod(valueType);
+
+        var result = method.Invoke(null, []);
+
+        return result;
+    }
+
+    private static Expression<Func<ComboBoxItem<TValue, string>, TValue>> GetComboBoxItemValueSelector<TValue>()
+        => item => item.Value;
 
     private EditorType GetEditorType()
     {
@@ -146,8 +171,6 @@ public sealed partial class UniversalInput : ComponentBase, IDisposable
 
             _propertyBag?.CollectionChanged += OnPropertyBagCollectionChangedAsync;
         }
-
-        _enumComboBoxItems = _editorType is EditorType.Enum ? GetComboBoxItems(ValueType) : null;
 
         if (_editorType is
                 EditorType.Char or

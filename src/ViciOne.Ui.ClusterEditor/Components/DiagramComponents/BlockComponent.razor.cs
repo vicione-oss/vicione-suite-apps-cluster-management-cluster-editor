@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
@@ -515,6 +515,9 @@ public sealed partial class BlockComponent : ComponentBase, IDisposable, IHandle
         _isImageVisible = isVisible;
         _isDirty = true;
     }
+
+    private bool IsConnectorHidden(BlockNodeConnector connector)
+        => !ShouldDisplayAllConnectors() && !connector.ShouldDisplayConnector();
 
     private bool ShouldDisplayAllConnectors()
         => !DiagramService.DiagramState.SimplifiedView ||

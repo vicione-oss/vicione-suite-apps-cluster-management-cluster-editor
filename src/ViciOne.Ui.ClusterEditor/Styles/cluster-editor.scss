@@ -1,16 +1,4 @@
-@use "design/popup/variables" as popup;
-@use "dx-bootstrap-variables";
-
 // Popup overrides indicating discrepancies between Suite and Cluster Editor
 .modal-content {
     font-weight: 400 !important;
-}
-
-// Ensure column chooser appears above dialogs
-dxbl-popup-cell:has(.dxbl-grid-column-chooser-dialog) {
-    z-index: #{popup.$z-index + 10} !important;
-}
-
-dxbl-popup-cell:has(.dxbl-dropdown) {
-    z-index: #{popup.$z-index + 10} !important;
 }

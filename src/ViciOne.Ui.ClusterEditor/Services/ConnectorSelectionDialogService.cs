@@ -36,7 +36,7 @@ public sealed class ConnectorSelectionDialogService(IDatastore datastore, Select
                 c,
                 datastore.Builder.ResolveConnectorDesign(c.GetUnderlyingConnector()),
                 datastore.Builder.ResolveFunctionBlockDesign(c.FunctionBlock.DesignId),
-                dataflowNameProvider: () => datastore.Builder.Cache.GetDataflow(c.FunctionBlock)?.Name));
+                dataflowName: datastore.Builder.Cache.GetDataflow(c.FunctionBlock)?.Name));
         }
 
         Connectors = result;

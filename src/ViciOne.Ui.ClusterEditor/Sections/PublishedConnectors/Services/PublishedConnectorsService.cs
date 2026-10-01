@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
-using Blazor.Diagrams.Core.Geometry;
 using ViciOne.Cluster.Builder.Extensions;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
-using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
 namespace ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
 
@@ -19,24 +17,23 @@ internal sealed class PublishedConnectorsService : IDisposable
 {
     private readonly ClusterBuilderEventBuffer _clusterBuilderEventBuffer;
     private readonly IDatastore _datastore;
-    private readonly DiagramService _diagramService;
-    private readonly DragService _dragService;
-    private bool _moveOccured;
     private readonly List<DataGridConnectorWrapper> _publishedConnectorWrappers = [];
 
-    public IEnumerable<DataGridConnectorWrapper> PublishedConnectorWrappers
-        => _publishedConnectorWrappers;
+    /// <summary>
+    /// The published connectors, as a snapshot that is replaced rather than mutated whenever the set changes.
+    /// Wrapper instances are reused across snapshots, so a selection held elsewhere keeps its identity.
+    /// </summary>
+    public IReadOnlyList<DataGridConnectorWrapper> PublishedConnectorWrappers { get; private set; } = [];
 
-    public event Action? DraggingEnded;
-    public event Action<Point?, bool>? DraggingPublishedConnectorPositionChanged;
     public event Action? PublishedConnectorsChanged;
+
+    /// <summary>
+    /// Raised when something outside the section — a double click on a published connector marker in the
+    /// diagram — asks for a connector's row to become the section's selection.
+    /// </summary>
     public event Action<IConnector>? PublishedConnectorSelectionRequested;
 
-    public PublishedConnectorsService(
-        ClusterBuilderEventBuffer clusterBuilderEventBuffer,
-        IDatastore datastore,
-        DiagramService diagramService,
-        DragService dragService)
+    public PublishedConnectorsService(ClusterBuilderEventBuffer clusterBuilderEventBuffer, IDatastore datastore)
     {
         _clusterBuilderEventBuffer = clusterBuilderEventBuffer;
         _clusterBuilderEventBuffer.ConnectorLinksAdded += OnConnectorLinksChanged;
@@ -50,23 +47,22 @@ internal sealed class PublishedConnectorsService : IDisposable
 
         _datastore = datastore;
         _datastore.BuilderChanged += OnClusterBuilderChanged;
-
-        _diagramService = diagramService;
-        _dragService = dragService;
     }
 
-    private void AddLink(BlockNodeConnector? secondBlockNodeConnector)
+    /// <summary>
+    /// Links every published connector in <paramref name="publishedConnectorWrappers"/> to the connector behind
+    /// <paramref name="targetBlockNodeConnector"/>, skipping the pairs the builder rejects.
+    /// </summary>
+    /// <remarks>
+    /// A wrapper may name a connector unpublished after the drag started, so every pair is validated.
+    /// </remarks>
+    internal void AddLinks(IReadOnlyList<DataGridConnectorWrapper> publishedConnectorWrappers,
+        BlockNodeConnector targetBlockNodeConnector)
     {
-        if (secondBlockNodeConnector is null)
-            return;
+        var secondConnector = _datastore.DataflowDiagramMapping.GetModel(targetBlockNodeConnector);
 
-        var secondConnector = _datastore.DataflowDiagramMapping.GetModel(secondBlockNodeConnector);
-
-        foreach (var item in _dragService.DraggedItems)
+        foreach (var publishedConnector in publishedConnectorWrappers)
         {
-            if (item is not DataGridConnectorWrapper publishedConnector)
-                continue;
-
             var sourceConnector = (IConnectorOutput)(publishedConnector.IsInput ? secondConnector : publishedConnector.Connector);
             var targetConnector = (IConnectorInput)(publishedConnector.IsInput ? publishedConnector.Connector : secondConnector);
 
@@ -109,28 +105,32 @@ internal sealed class PublishedConnectorsService : IDisposable
         _datastore.BuilderChanged -= OnClusterBuilderChanged;
     }
 
-    private BlockNodeConnector? GetTargetBlockNodeConnector(Point position)
-    {
-        if (_dragService.DragTargets is null)
-            return null;
+    /// <summary>
+    /// The name of the dataflow <paramref name="connector"/>'s function block belongs to.
+    /// </summary>
+    /// <remarks>
+    /// Only ever called with a connector just read out of the current cache, so the lookup always resolves.
+    /// <c>GetDataflow</c> throws rather than returning <see langword="null"/> for a block the cache does not
+    /// hold, which is why this must not be handed a connector a wrapper has been carrying.
+    /// </remarks>
+    private string? GetDataflowName(IConnector connector)
+        => _datastore.Builder.Cache.GetDataflow(connector.FunctionBlock)?.Name;
 
-        foreach (var target in _dragService.DragTargets)
+
+    /// <summary>
+    /// The connectors that every published connector in <paramref name="publishedConnectorWrappers"/> may legally
+    /// be linked to.
+    /// </summary>
+    internal IReadOnlySet<BlockNodeConnector> GetValidTargetConnectors(IReadOnlyList<DataGridConnectorWrapper> publishedConnectorWrappers)
+    {
+        List<Connector> connectors = [];
+        foreach (var wrapper in publishedConnectorWrappers)
         {
-            if (target is BlockNodeConnector connector && connector.GetBounds().ContainsPoint(position))
-                return connector;
+            if (wrapper.Connector is Connector connector)
+                connectors.Add(connector);
         }
 
-        return null;
-    }
-
-    private void MoveDraggingPublishedConnector(Point position)
-    {
-        _moveOccured = true;
-
-        var relativeMousePoint = _diagramService.Diagram.GetRelativeMousePoint(position.X, position.Y);
-        var targetBlockNodeConnector = GetTargetBlockNodeConnector(relativeMousePoint);
-
-        DraggingPublishedConnectorPositionChanged?.Invoke(position, targetBlockNodeConnector is not null);
+        return new HashSet<BlockNodeConnector>(_datastore.GetValidTargetConnectors(connectors, false));
     }
 
     private Task OnClusterBuilderChanged()
@@ -184,17 +184,6 @@ internal sealed class PublishedConnectorsService : IDisposable
             UpdatePublishedConnectorEntries();
     }
 
-    private void OnDraggingEnded(Point position)
-    {
-        var relativeMousePoint = _diagramService.Diagram.GetRelativeMousePoint(position.X, position.Y);
-        var targetBlockNodeConnector = GetTargetBlockNodeConnector(relativeMousePoint);
-
-        if (targetBlockNodeConnector is not null)
-            AddLink(targetBlockNodeConnector);
-
-        StopPublishedConnectorDragging();
-    }
-
     private void OnFunctionBlockPropertiesChanged(IEnumerable<(object? Sender, PropertyChangedEventArgs EventArgs)> functionBlockProperties)
     {
         var updateNeeded = false;
@@ -236,51 +225,35 @@ internal sealed class PublishedConnectorsService : IDisposable
             _datastore.Builder.Editors.Connector.SetPublished((Connector)publishedConnector.Connector, false);
     }
 
+    /// <summary>
+    /// Asks the section to make <paramref name="connector"/>'s row its selection.
+    /// </summary>
+    /// <remarks>
+    /// Always the underlying connector: a container's marker is a proxy and has no row of its own.
+    /// </remarks>
     public void RequestPublishedConnectorSelection(IConnector connector)
         => PublishedConnectorSelectionRequested?.Invoke(connector);
-
-    public void StartPublishedConnectorDragging(IEnumerable<DataGridConnectorWrapper> connectorWrappersToDrag)
-    {
-        var connectors = new List<Connector>();
-        foreach (var wrapper in connectorWrappersToDrag)
-            connectors.Add((Connector)wrapper.Connector);
-
-        if (connectors.Count == 0)
-            return;
-
-        var validTargetConnectors = _datastore.GetValidTargetConnectors(connectors, false);
-        _dragService.StartDragging(connectorWrappersToDrag, validTargetConnectors);
-        _dragService.DraggingEnded += OnDraggingEnded;
-        _dragService.DraggingPositionChanged += MoveDraggingPublishedConnector;
-    }
-
-    private void StopPublishedConnectorDragging()
-    {
-        _dragService.DraggingEnded -= OnDraggingEnded;
-        _dragService.DraggingPositionChanged -= MoveDraggingPublishedConnector;
-
-        if (_moveOccured)
-        {
-            _moveOccured = false;
-            DraggingEnded?.Invoke();
-        }
-
-        DraggingPublishedConnectorPositionChanged?.Invoke(null, false);
-    }
 
     private void UpdatePublishedConnectorEntries()
     {
         var publishedConnectors = _datastore.Builder.Cache.PublishedConnectors;
 
-        var currentlyPublishedIds = new HashSet<Guid>(publishedConnectors.Count);
+        var currentById = new Dictionary<Guid, IConnector>(publishedConnectors.Count);
         foreach (var pc in publishedConnectors)
-            currentlyPublishedIds.Add(pc.Id);
+            currentById[pc.Id] = pc;
 
         var existingIds = new HashSet<Guid>(_publishedConnectorWrappers.Count);
         foreach (var pc in _publishedConnectorWrappers)
             existingIds.Add(pc.Connector.Id);
 
-        _publishedConnectorWrappers.RemoveAll(pc => !currentlyPublishedIds.Contains(pc.Connector.Id));
+        _publishedConnectorWrappers.RemoveAll(pc => !currentById.ContainsKey(pc.Connector.Id));
+
+        // A surviving wrapper keeps its instance so the table's selection survives, so nothing else ever rebuilds
+        // it — its path has to be re-resolved here or a dataflow, container or function-block rename would never
+        // reach the Path column. Resolved against the connector the cache holds now, not the one the wrapper was
+        // built with, which may belong to a cluster that has since been replaced.
+        foreach (var pc in _publishedConnectorWrappers)
+            pc.RefreshPath(GetDataflowName(currentById[pc.Connector.Id]));
 
         foreach (var pc in publishedConnectors)
         {
@@ -290,12 +263,14 @@ internal sealed class PublishedConnectorsService : IDisposable
                     pc,
                     _datastore.Builder.ResolveConnectorDesign(pc),
                     _datastore.Builder.ResolveFunctionBlockDesign(pc.FunctionBlock.DesignId),
-                    dataflowNameProvider: () => _datastore.Builder.Cache.GetDataflow(pc.FunctionBlock)?.Name
+                    dataflowName: GetDataflowName(pc)
                 ));
             }
         }
 
         _publishedConnectorWrappers.Sort(CompareConnectorWrappers);
+
+        PublishedConnectorWrappers = [.. _publishedConnectorWrappers];
 
         PublishedConnectorsChanged?.Invoke();
     }

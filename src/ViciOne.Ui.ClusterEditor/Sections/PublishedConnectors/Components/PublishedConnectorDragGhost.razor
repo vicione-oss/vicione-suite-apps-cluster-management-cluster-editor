@@ -1,0 +1,13 @@
+@using ViciOne.Ui.Blazor.Components.Draggable.Components
+@using ViciOne.Ui.MonochromeIcons.Components
+@using ViciOne.Ui.MonochromeIcons.Core.Enums
+
+@inherits DragGhostBase
+
+<DragGhostContent @ref="Content">
+    <span class="published-connector-drag-ghost @_targetStateCssModifier">
+        <MonochromeIcon CssClass="icon"
+                        Name="MonochromeIconName.PublishedConnectorDragging"
+                        Size="MonochromeIconSize.Medium" />
+    </span>
+</DragGhostContent>

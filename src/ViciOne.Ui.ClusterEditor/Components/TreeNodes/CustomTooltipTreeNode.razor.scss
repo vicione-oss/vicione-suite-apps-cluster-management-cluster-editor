@@ -1,4 +1,6 @@
-﻿.action-button-content {
+﻿@use "./../../Styles/mixins";
+
+.action-button-content {
     display: contents;
 }
 
@@ -16,8 +18,6 @@
     min-width: 100px;
 
     > div {
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        @include mixins.overflow-ellipsis();
     }
 }

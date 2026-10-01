@@ -33,12 +33,11 @@ The attribues of a component are ordered alphabetically within these groups
 - Everything else
 
 ```razor
-<DxTextBox @bind-Text="ConfiguringConnection.Name"
-           @onfocusout="OnConnectionNameFocusOut"
-           ClearButtonDisplayMode="@DataEditorClearButtonDisplayMode.Auto"
-           ReadOnly="@(!_canEditConnectionName)"
-           autocomplete="off"
-           maxlength="@_nameMaxLength" />
+<TextBox @bind-Value="ConfiguringConnection.Name"
+         AutoComplete="off"
+         FocusLost="OnConnectionNameFocusOut"
+         MaximumLength="@_nameMaxLength"
+         ReadOnly="@(!_canEditConnectionName)" />
 ```
 
 ### Brackets  

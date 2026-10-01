@@ -1,104 +1,145 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
-using DevExpress.Blazor;
 using Microsoft.AspNetCore.Components;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.Dialog.Components;
+using ViciOne.Ui.Blazor.Components.Tables.Shared.Models;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Models.Comparer;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ColorableIcons;
-using ViciOne.Ui.Localization.Resources;
+using SelectionMode = ViciOne.Ui.Blazor.Components.Tables.Shared.Enums.SelectionMode;
 
 namespace ViciOne.Ui.ClusterEditor.Components;
 
 public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
 {
-    private readonly string _collapseAllGroupsText = CompositeFormats.CollapseSomething($"{CommonVocabulary.All} {CommonVocabulary.GroupPlural}");
-    private readonly string _expandAllGroupsText = CompositeFormats.ExpandSomething($"{CommonVocabulary.All} {CommonVocabulary.GroupPlural}");
-    private bool _groupingButtonsEnabled;
+    private static readonly Comparer<object> s_alphaNumericComparer
+        = Comparer<object>.Create(AlphaNumericComparer.Default.Compare);
+
+    private static readonly Expression<Func<object, object>> s_connectorSortExpression
+        = item => ((DataGridConnectorWrapper)item).FunctionBlockName;
+
+    private static readonly Func<object, object> s_connectorSortKeySelector = s_connectorSortExpression.Compile();
+
+    private static readonly Expression<Func<object, object>> s_dataPortSortExpression
+        = item => ((DataGridDataPortWrapper)item).Name;
+
+    private static readonly Func<object, object> s_dataPortSortKeySelector = s_dataPortSortExpression.Compile();
+
+    private readonly object _columnChooserToggleId = new();
+
+    private FilterState _filterState = FilterState.Empty;
+
     private string _heading = string.Empty;
-    private bool _okButtonEnabled;
+    private SortingState _initialSorting = SortingState.Empty;
+    private List<object> _items = [];
     private Dialog? _refDialog;
-    private IGrid? _refGrid;
     private string? _searchText;
-    private IReadOnlyList<object>? _selectedDataItems;
+    private List<object> _selectedItems = [];
     private bool _showConnectors;
     private bool _showDataPorts;
+
+    /// <summary>
+    /// The selected rows that pass the current filter.
+    /// </summary>
+    /// <remarks>
+    /// Taken from the table instead of intersecting <see cref="_selectedItems"/> with the filtered rows, because the
+    /// table matches rows with its own selection comparer.
+    /// </remarks>
+    private IReadOnlyList<object> _visibleSelection = [];
 
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
     [Inject] private LinkDestinationDialogService DialogService { get; set; } = default!;
 
+    private bool OkButtonEnabled => _selectedItems.Count > 0;
+
+    private SelectionMode TableSelectionMode => DialogService.IsDeletionMode ? SelectionMode.Multiple : SelectionMode.Single;
+
     public void Dispose()
     {
         DialogService.VisibilityChanged -= OnDialogServiceVisibilityChangedAsync;
-        _refGrid = null;
-        _selectedDataItems = null;
+        _selectedItems = [];
+        _visibleSelection = [];
     }
+
+    /// <summary>
+    /// Returns the row that the table renders first under the initial sorting.
+    /// </summary>
+    /// <remarks>
+    /// Each branch uses the comparer that its column declares as sort comparer, so that the result matches the table.
+    /// </remarks>
+    private object? FirstRowInTableOrder()
+    {
+        if (_showConnectors)
+            return _items.MinBy(s_connectorSortKeySelector, s_alphaNumericComparer);
+
+        return _items.MinBy(s_dataPortSortKeySelector, s_alphaNumericComparer);
+    }
+
+    private static string GetDescription(object item) => item switch
+    {
+        DataGridConnectorWrapper connector => connector.Description,
+        DataGridDataPortWrapper dataPort => dataPort.Description,
+        _ => string.Empty,
+    };
 
     private MarkupString GetIconMarkup(DataGridConnectorWrapper connector)
         => (MarkupString)ColoredIconFactory.GetConnectorIcon(ConnectorService.GetConnectorColor(connector.Connector), connector.IsInput);
 
-    private void OnCollapseAllGroups()
-        => _refGrid?.CollapseAllGroupRows();
-
-    private static void OnCustomizeCellDisplayText(GridCustomizeCellDisplayTextEventArgs e)
+    private static string GetPath(object item) => item switch
     {
-        if (e.FieldName == nameof(DataGridConnectorWrapper.FunctionBlockId)
-            && e.DataItem is DataGridConnectorWrapper connectorWrapper)
-        {
-            e.DisplayText = connectorWrapper.FunctionBlockName;
-        }
-    }
-
-    private static void OnCustomizeCustomGroup(GridCustomGroupEventArgs e)
-    {
-        if (e.FieldName == nameof(DataGridConnectorWrapper.FunctionBlockId)
-            && e.DataItem1 is DataGridConnectorWrapper connectorWrapper1
-            && e.DataItem2 is DataGridConnectorWrapper connectorWrapper2)
-        {
-            e.SameGroup = connectorWrapper1.FunctionBlockId == connectorWrapper2.FunctionBlockId;
-        }
-    }
+        DataGridConnectorWrapper connector => connector.Path,
+        DataGridDataPortWrapper dataPort => dataPort.Path,
+        _ => string.Empty,
+    };
 
     private void OnDialogClosing()
     {
         DialogService.IsDeletionMode = false;
         _searchText = null;
+
+        // A surviving filter would narrow the next session's rows with nothing on screen explaining why.
+        _filterState = FilterState.Empty;
+
         _showConnectors = false;
         _showDataPorts = false;
+        _selectedItems = [];
+
+        // The table pushes a new mirror only once it has provided, so the next session's first frame would
+        // otherwise show this session's count.
+        _visibleSelection = [];
     }
 
     private void OnDialogOk()
     {
+        var selected = _visibleSelection;
+
         if (DialogService.IsDeletionMode)
         {
-            if (_selectedDataItems is not null && _selectedDataItems.Any())
+            if (selected.Count > 0)
             {
-                var firstSelectedDataItem = _selectedDataItems[0];
-
-                if (firstSelectedDataItem is DataGridConnectorWrapper)
+                if (selected[0] is DataGridConnectorWrapper)
                 {
-                    var connectors = _selectedDataItems.Select(di => (Connector)((DataGridConnectorWrapper)di).Connector);
+                    var connectors = selected.Select(item => (Connector)((DataGridConnectorWrapper)item).Connector);
                     DialogService.InvokeLinksToDeleteSelected(connectors);
                 }
-                else if (firstSelectedDataItem is DataGridDataPortWrapper)
+                else if (selected[0] is DataGridDataPortWrapper)
                 {
-                    var dataPortTreeNodes = _selectedDataItems.Select(di => ((DataGridDataPortWrapper)di).DataPortTreeNode);
+                    var dataPortTreeNodes = selected.Select(item => ((DataGridDataPortWrapper)item).DataPortTreeNode);
                     DialogService.InvokeLinksToDeleteSelected(dataPortTreeNodes);
                 }
             }
         }
-        else
+        else if (selected.Count == 1)
         {
-            var focusedDataItem = _refGrid!.GetFocusedDataItem();
-
-            if (focusedDataItem is DataGridConnectorWrapper connectorWrapper)
+            if (selected[0] is DataGridConnectorWrapper connectorWrapper)
                 DialogService.InvokeConnectorSelected((Connector)connectorWrapper.Connector, connectorWrapper.DestinationMarker);
-            else if (focusedDataItem is DataGridDataPortWrapper dataPortWrapper)
+            else if (selected[0] is DataGridDataPortWrapper dataPortWrapper)
                 DialogService.InvokeDataPortSelected(dataPortWrapper.DataPortTreeNode);
         }
 
@@ -119,62 +160,45 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
     private void OnDialogShowing()
     {
         if (DialogService.ConnectorWrappers.Count > 0)
-            _showConnectors = true;
-        else
-            _showDataPorts = true;
-    }
-
-    private async Task OnDialogShownAsync()
-    {
-        if (DialogService.IsDeletionMode)
-            await _refGrid!.SelectAllAsync();
-
-        SetHeading();
-    }
-
-    private static void OnDxGridCustomSort(GridCustomSortEventArgs args)
-    {
-        if (args.FieldName == nameof(DataGridConnectorWrapper.FunctionBlockId))
         {
-            args.Result = AlphaNumericComparer.Default.Compare(
-                ((DataGridConnectorWrapper)args.DataItem1).FunctionBlockName,
-                ((DataGridConnectorWrapper)args.DataItem2).FunctionBlockName
-            );
+            _showConnectors = true;
+            _items = [.. DialogService.ConnectorWrappers];
+            _initialSorting = SortingState.Empty.WithColumnSorting(nameof(DataGridConnectorWrapper.FunctionBlockId), ascending: true);
+        }
+        else
+        {
+            _showDataPorts = true;
+            _items = [.. DialogService.DataPortWrappers];
+            _initialSorting = SortingState.Empty.WithColumnSorting(nameof(DataGridDataPortWrapper.Name), ascending: true);
+        }
+    }
+
+    private void OnDialogShown()
+    {
+        // Reads the dialog's own source list, so the seeding does not depend on the window the table has
+        // loaded.
+        if (DialogService.IsDeletionMode)
+        {
+            _selectedItems = [.. _items];
+        }
+        else if (FirstRowInTableOrder() is { } firstRow)
+        {
+            // Assigning a new list is what makes the table adopt it.
+            _selectedItems = [firstRow];
         }
 
-        args.Handled = true;
-    }
-
-    private void OnExpandAllGroups()
-        => _refGrid?.ExpandAllGroupRows();
-
-    private void OnFocusedRowChanged(GridFocusedRowChangedEventArgs e)
-    {
-        _okButtonEnabled = e.DataItem is not null;
-        SetGroupingButtonsState();
-        StateHasChanged();
+        SetHeading();
     }
 
     protected override void OnInitialized()
         => DialogService.VisibilityChanged += OnDialogServiceVisibilityChangedAsync;
 
-    private async Task OnLayoutAutoSavingAsync(GridPersistentLayoutEventArgs _)
-    {
-        SetGroupingButtonsState();
-        await InvokeAsync(StateHasChanged);
-    }
+    private void OnVisibleSelectionChanged(IReadOnlyList<object> visibleSelection)
+        => _visibleSelection = visibleSelection;
 
-    private async void OnRowDoubleClickAsync(GridRowClickEventArgs e)
+    private async Task RowDoubleClick(object dataItem)
     {
-        if (_refGrid!.IsGroupRow(e.VisibleIndex) ||
-            DialogService.IsDeletionMode ||
-            _refDialog is null)
-        {
-            return;
-        }
-
-        var dataItem = _refGrid.GetDataItem(e.VisibleIndex);
-        if (dataItem is null)
+        if (DialogService.IsDeletionMode || _refDialog is null)
             return;
 
         DialogService.SetSourceConnectorMarker(null);
@@ -187,14 +211,16 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
             DialogService.InvokeDataPortSelected(dataPortWrapper.DataPortTreeNode);
     }
 
-    private void OnSelectedDataItemsChanged(IReadOnlyList<object> dataItems)
+    private void SearchTextChanging(string? searchText)
     {
-        _okButtonEnabled = dataItems is not null && dataItems.Any();
-        _selectedDataItems = dataItems;
-    }
+        _searchText = searchText;
 
-    private void SetGroupingButtonsState()
-        => _groupingButtonsEnabled = _refGrid?.GetGroupCount() > 0;
+        // The table reads a new instance as a command, so this may only run from an event: building one per
+        // render would re-apply the filter on every render.
+        _filterState = string.IsNullOrWhiteSpace(searchText)
+            ? _filterState.WithoutGlobalFilter<LinkDestinationSearchFilter>()
+            : _filterState.WithGlobalFilter(new LinkDestinationSearchFilter(searchText));
+    }
 
     private void SetHeading()
     {
@@ -208,11 +234,11 @@ public sealed partial class LinkDestinationDialog : ComponentBase, IDisposable
             _heading = Localization.LinkDestinationDialog.SelectTarget + " - " + sourcePart;
     }
 
-    private async Task VisibleChangedAsync(bool visible)
+    private void VisibleChanged(bool visible)
     {
         DialogService.SetVisibility(visible);
 
         if (visible)
-            await OnDialogShownAsync();
+            OnDialogShown();
     }
 }

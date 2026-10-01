@@ -1,39 +1,18 @@
-@use "./../../Styles/design/colors";
 @use "./../../Styles/shared-dialog-styles";
 
-@mixin checkbox-focus-state() {
-    &:focus-within {
-        @content;
+// Table cells carry `contain: strict`, which clips the ComboBox drop-down to its cell and lets later rows paint
+// over it. The drop-down is no popup in ViciOne.Ui.Blazor.Components, so the editing cell gives up its containment
+// and lifts itself above the later rows, pinned cells (z-index 1) included, while staying below the sticky header.
+// The list still only gets the room left inside the table's scroll area, which the shared dialog styles stretch over
+// the dialog; with fewer than three items fitting below, it opens upwards under the sticky header. !important because
+// the table's own cell rules use a five-class selector chain.
+.content ::deep td:has(.combo-box) {
+    contain: none !important;
+    overflow: visible !important;
+    z-index: 2 !important;
+
+    // Pinned cells are already positioned (sticky); relative would unpin them.
+    &:not(.pinned-column) {
+        position: relative;
     }
-}
-
-.content-container .content ::deep .dialog-grid .dxbl-grid-table tbody tr.dxbl-grid-editor-inplace-container > td:not(.dxbl-grid-command-cell):not(.dxbl-grid-selection-cell) {
-    & .dxbl-checkbox-checked,
-    & .dxbl-checkbox-indeterminate {
-        .dxbl-checkbox-check-element {
-            @include checkbox-focus-state() {
-                box-shadow: 0 0 var(--dxbl-checkbox-checked-focus-shadow-blur) var(--dxbl-checkbox-checked-focus-shadow-spread) var(--dxbl-checkbox-checked-focus-shadow-color);
-            }
-        }
-    }
-
-    & .dxbl-checkbox-unchecked .dxbl-checkbox-check-element {
-        @include checkbox-focus-state() {
-            box-shadow: 0 0 var(--dxbl-checkbox-unchecked-focus-shadow-blur) var(--dxbl-checkbox-unchecked-focus-shadow-spread) var(--dxbl-checkbox-unchecked-focus-shadow-color);
-        }
-    }
-}
-
-.input-container {
-    display: flex;
-    flex-direction: column;
-}
-
-.validation-message-container {
-    color: colors.$error;
-    font-size: 10px;
-    margin-top: 2px;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }

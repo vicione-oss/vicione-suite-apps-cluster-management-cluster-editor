@@ -113,7 +113,7 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
                 connectorResult.Add(new DataGridConnectorWrapper(connector,
                     datastore.Builder.ResolveConnectorDesign(connector),
                     datastore.Builder.ResolveFunctionBlockDesign(connector.FunctionBlock.DesignId),
-                    dataflowNameProvider: () => datastore.Builder.Cache.GetDataflow(connector.FunctionBlock)?.Name));
+                    dataflowName: datastore.Builder.Cache.GetDataflow(connector.FunctionBlock)?.Name));
             }
 
             ConnectorWrappers = connectorResult;
@@ -145,7 +145,7 @@ public sealed class LinkDestinationDialogService(IDatastore datastore)
                 datastore.Builder.ResolveConnectorDesign(connector),
                 datastore.Builder.ResolveFunctionBlockDesign(connector.FunctionBlock.DesignId),
                 ConnectorMarkerType.DataPort,
-                dataflowNameProvider: () => datastore.Builder.Cache.GetDataflow(connector.FunctionBlock)?.Name));
+                dataflowName: datastore.Builder.Cache.GetDataflow(connector.FunctionBlock)?.Name));
         }
 
         ConnectorWrappers = result;

@@ -11,6 +11,12 @@
     pointer-events: none;
 }
 
+@mixin overflow-ellipsis() {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 @mixin svg-icon-disabled() {
     ::deep {
         & > svg {

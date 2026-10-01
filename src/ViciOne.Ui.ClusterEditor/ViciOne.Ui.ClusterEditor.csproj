@@ -24,7 +24,6 @@
     </PackageReference>
     <PackageReference Include="ViciOne.Ui.Localization" />
     <PackageReference Include="ViciOne.Ui.MonochromeIcons.Components" />
-    <PackageReference Include="ViciOne.Ui.Shared.Dx" />
     <PackageReference Include="ViciOne.Ui.TreeEditor" />
     <PackageReference Include="Z.Blazor.Diagrams" />
   </ItemGroup>
@@ -80,11 +79,6 @@
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>BlockComponent.resx</DependentUpon>
-    </Compile>
-    <Compile Update="Components\ToolbarColumnChooserButton\Localization\ToolbarColumnChooserButton.Designer.cs">
-      <DependentUpon>ToolbarColumnChooserButton.resx</DependentUpon>
-      <DesignTime>True</DesignTime>
-      <AutoGen>True</AutoGen>
     </Compile>
     <Compile Update="Helpers\Localization\TooltipData.Designer.cs">
       <DesignTime>True</DesignTime>
@@ -219,10 +213,6 @@
     <EmbeddedResource Update="Components\DiagramComponents\Localization\BlockComponent.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>BlockComponent.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Update="Components\ToolbarColumnChooserButton\Localization\ToolbarColumnChooserButton.resx">
-      <LastGenOutput>ToolbarColumnChooserButton.Designer.cs</LastGenOutput>
-      <Generator>ResXFileCodeGenerator</Generator>
     </EmbeddedResource>
     <EmbeddedResource Update="Helpers\Localization\TooltipData.resx">
       <Generator>ResXFileCodeGenerator</Generator>

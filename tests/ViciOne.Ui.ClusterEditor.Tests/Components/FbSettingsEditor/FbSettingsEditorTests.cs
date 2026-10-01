@@ -1,10 +1,10 @@
 ﻿using System.Threading.Tasks;
 using Bunit;
-using ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
+using FbSettingsEditorComponent = ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor.FbSettingsEditor;
 
-namespace ViciOne.Ui.ClusterEditor.Tests.Components;
+namespace ViciOne.Ui.ClusterEditor.Tests.Components.FbSettingsEditor;
 
 public class FbSettingsEditorTests
 {
@@ -18,7 +18,7 @@ public class FbSettingsEditorTests
         ctx.CreateDiagramInstance();
 
         // Act
-        var component = ctx.Render<FbSettingsEditor>();
+        var component = ctx.Render<FbSettingsEditorComponent>();
 
         // Assert
         Assert.NotNull(component);

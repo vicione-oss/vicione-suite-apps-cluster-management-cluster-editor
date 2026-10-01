@@ -2,12 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using DevExpress.Blazor;
 using Microsoft.AspNetCore.Components;
 using Microsoft.Extensions.Logging;
 using Microsoft.JSInterop;
 using ViciOne.Ui.Blazor.Components.Dialog.Components;
-using ViciOne.Ui.Blazor.Components.Extensions;
+using ViciOne.Ui.Blazor.Components.Tables.Shared.Models;
+using ViciOne.Ui.ClusterEditor.Components.FbSettingsEditor.Models;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Localization;
 using ViciOne.Ui.ClusterEditor.Models;
@@ -23,22 +23,24 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
     private const string CommentColumnKey = "Comment";
     private const string NameColumnKey = "Key";
 
-#pragma warning disable IDE0052 // Remove unread private members
-    private bool _closeOnEscape = true;
-#pragma warning restore IDE0052 // Remove unread private members
+    /// <summary>
+    /// The cell the table last activated, or <see langword="null"/> once the request has been rendered.
+    /// </summary>
+    /// <remarks>
+    /// A <see cref="Cell"/> opens its edit whenever its parameters are set with the flag on, so a request left
+    /// standing would reopen the edit, and take the focus, on every later render.
+    /// </remarks>
+    private (string RowKey, string ColumnId)? _activatedCell;
+
+    private IJSObjectReference? _cellModule;
+    private readonly object _columnChooserToggleId = new();
     private bool _disposed;
     private readonly string _editTemplatesText = CompositeFormats.EditSomething(TechnicalTerms.TemplatePlural);
-    private readonly Dictionary<string, object?> _initialEditValues = [];
-    private bool _isEditmodeActive;
+    private FilterState _filterState = FilterState.Empty;
     private bool _isFullscreen;
-    private IJSObjectReference? _jsModule;
-    private bool _keepInitialValues;
     private Dialog? _refDialog;
-    private IGrid? _refGrid;
-    private DotNetObjectReference<FbSettingsEditor>? _refObject;
     private string? _searchText;
-    private IEnumerable<IGrouping<string, FbSetting>> _settings = [];
-    private string? _validationMessage;
+    private List<IGrouping<string, FbSetting>> _settings = [];
     private bool _visible;
 
     [Inject] private IDatastore Datastore { get; set; } = default!;
@@ -48,21 +50,49 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
     [Inject] private ILogger<FbSettingsEditor> Logger { get; set; } = default!;
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
 
+    private void CellActivated(string columnId, IGrouping<string, FbSetting> settingGroup)
+        => _activatedCell = (settingGroup.Key, columnId);
+
+    /// <summary>
+    /// Stores the committed <paramref name="value"/> on the setting of <paramref name="fbName"/>, or on every
+    /// setting of the row for the All column.
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="Cell"/> validates before it commits, so <paramref name="value"/> is always valid.
+    /// </remarks>
+    private void CellValueCommitted(string fbName, IGrouping<string, FbSetting> settingGroup, object? value)
+    {
+        if (fbName.Equals(AllColumnKey, StringComparison.Ordinal))
+        {
+            foreach (var fbSetting in settingGroup)
+                fbSetting.Value = value;
+        }
+        else
+        {
+            GetSetting(fbName, settingGroup).Value = value;
+        }
+
+        // The values are mutated in place, so only a new list reference makes the table re-run the filter.
+        // It costs the user their keyboard position, and with nothing filtering it can change neither the rows
+        // nor their order, so it is paid only where it can matter.
+        if (_filterState.Filters.Count > 0)
+            _settings = [.. _settings];
+    }
+
     public async ValueTask DisposeAsync()
     {
         FbSettingsEditorRequest.FbSettingsEditorRequested -= OnFbSettingsEditorRequested;
         FullscreenService.FullscreenStateChanged -= OnFullscreenStateChanged;
 
         _disposed = true;
-        _refObject?.Dispose();
 
         await DisposeModuleAsync();
     }
 
     private async ValueTask DisposeModuleAsync()
     {
-        var module = _jsModule;
-        _jsModule = null;
+        var module = _cellModule;
+        _cellModule = null;
 
         if (module is null)
             return;
@@ -102,55 +132,31 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
     private static bool IsAnySettingModified(IGrouping<string, FbSetting> settingGroup)
         => settingGroup.Any(s => s.IsModified);
 
-    private static bool IsBooleanDataItem(IGrouping<string, FbSetting> settingGroup, out bool isNullable)
-    {
-        var setting = settingGroup.First();
-
-        if (setting.SettingType != typeof(bool) && setting.SettingType != typeof(bool?))
-        {
-            isNullable = false;
-            return false;
-        }
-
-        isNullable = setting.SettingType.IsNullableValueType() || setting.Value == null;
-        return true;
-    }
+    private bool IsCellActivated(string columnId, IGrouping<string, FbSetting> settingGroup)
+        => _activatedCell == (settingGroup.Key, columnId);
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (!firstRender)
-            return;
-
-        var (_, module) = await JsRuntime.TryInvoke<IJSObjectReference>(
-            Logger,
-            "import",
-            "./_content/ViciOne.Ui.ClusterEditor/Components/FbSettingsEditor/FbSettingsEditor.razor.js");
-
-        _jsModule = module;
-
-        if (_disposed)
-            await DisposeModuleAsync();
-    }
-
-    private void OnCheckedChanged(
-        IGrouping<string, FbSetting> dataItem,
-        bool? value,
-        string fbName = "")
-    {
-        if (_initialEditValues.Count == 0)
+        if (firstRender)
         {
-            _keepInitialValues = true;
-            SetInitialValues(dataItem);
+            // Imported once here rather than per cell, since every cell calls the same functions.
+            var (_, module) = await JsRuntime.TryInvoke<IJSObjectReference>(
+                Logger,
+                "import",
+                "./_content/ViciOne.Ui.ClusterEditor/Components/FbSettingsEditor/Cell.razor.js");
+
+            _cellModule = module;
+
+            if (_disposed)
+                await DisposeModuleAsync();
         }
 
-        if (string.IsNullOrEmpty(fbName) || fbName.Equals(AllColumnKey, StringComparison.Ordinal))
+        // Rendering the request away is what lets the next Enter on the same cell arrive as a change rather
+        // than as the flag the cell already carries.
+        if (_activatedCell is not null)
         {
-            foreach (var fbSetting in dataItem)
-                fbSetting.Value = value;
-        }
-        else
-        {
-            dataItem.First(g => g.FbName == fbName).Value = value;
+            _activatedCell = null;
+            StateHasChanged();
         }
     }
 
@@ -162,18 +168,15 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
         await _refDialog.CloseAsync();
     }
 
-    private static void OnCustomizeEditModel(GridCustomizeEditModelEventArgs e)
-        => e.EditModel = ((IGrouping<string, FbSetting>)e.DataItem).First();
-
     private async Task OnDialogClosing()
     {
-        if (_jsModule is not null)
-            await _jsModule.TryInvokeVoid(Logger, "removeEscEventListener");
-
         if (_isFullscreen)
             await FullscreenService.SetFullscreen(false);
 
         _searchText = string.Empty;
+
+        // A surviving filter would narrow the next session's rows with nothing on screen explaining why.
+        _filterState = FilterState.Empty;
     }
 
     private async Task OnDialogOk()
@@ -190,21 +193,6 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
             await _refDialog.CloseAsync();
     }
 
-    private async Task OnDialogShowing()
-    {
-        _refObject ??= DotNetObjectReference.Create(this);
-
-        if (_jsModule is not null)
-            await _jsModule.TryInvokeVoid(Logger, "addEscEventListener", _refObject);
-    }
-
-    [JSInvokable]
-    public async Task OnEscCaptured()
-    {
-        if (_isEditmodeActive && _refGrid is not null)
-            await _refGrid.CancelEditAsync();
-    }
-
     private async Task OnFbSettingsEditorRequested()
         => await Show();
 
@@ -214,43 +202,7 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
     private async Task OnFullscreenStateChanged(bool isFullscreen)
     {
         _isFullscreen = isFullscreen;
-        if (!_isEditmodeActive)
-            _closeOnEscape = !isFullscreen;
         await InvokeAsync(StateHasChanged);
-    }
-
-    private void OnGridEditCancelling(GridEditCancelingEventArgs e)
-    {
-        if (_initialEditValues.Count > 0)
-        {
-            foreach (var setting in (IGrouping<string, FbSetting>)e.DataItem)
-                setting.Value = _initialEditValues[setting.FbName];
-        }
-
-        _closeOnEscape = true;
-        _isEditmodeActive = false;
-    }
-
-    private void OnGridEditModelSaving(GridEditModelSavingEventArgs e)
-    {
-        if (!string.IsNullOrEmpty(_validationMessage))
-            e.Cancel = true;
-
-        _closeOnEscape = true;
-        _isEditmodeActive = false;
-    }
-
-    private void OnGridEditStart(GridEditStartEventArgs e)
-    {
-        _closeOnEscape = false;
-
-        if (_keepInitialValues)
-            _keepInitialValues = false;
-        else
-            _initialEditValues.Clear();
-
-        _isEditmodeActive = true;
-        _validationMessage = null;
     }
 
     protected override void OnInitialized()
@@ -259,61 +211,28 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
         FullscreenService.FullscreenStateChanged += OnFullscreenStateChanged;
     }
 
-    private void OnSearchTextChanging(string searchText)
-        => _searchText = searchText;
-
-    private void OnUnboundColumnData(GridUnboundColumnDataEventArgs e)
+    private void SearchTextChanging(string? searchText)
     {
-        if (e.FieldName == AllColumnKey || _settings.Any(g => g.Any(s => s.FbName == e.FieldName)))
-            e.Value = GetCellValue(e.FieldName, (IGrouping<string, FbSetting>)e.DataItem)?.ToString() ?? string.Empty;
-    }
+        _searchText = searchText;
 
-    private async Task OnValueBindingSet(
-        string fbName,
-        IGrouping<string, FbSetting> settingGroup,
-        object? value)
-    {
-        try
-        {
-            var setting = GetSetting(fbName, settingGroup);
-
-            Datastore.Builder.Editors.Setting.ValidateValue(setting.Setting, value);
-            _validationMessage = null;
-            if (fbName.Equals(AllColumnKey, StringComparison.Ordinal))
-            {
-                foreach (var fbSetting in settingGroup)
-                    fbSetting.Value = value;
-            }
-            else
-            {
-                setting.Value = value;
-            }
-        }
-        catch (Exception ex)
-        {
-            _validationMessage = ex.Message;
-            await InvokeAsync(StateHasChanged);
-        }
-    }
-
-    private void SetInitialValues(IGrouping<string, FbSetting> dataItem)
-    {
-        _initialEditValues.Clear();
-        foreach (var setting in dataItem)
-            _initialEditValues[setting.FbName] = setting.Value;
+        // The table reads a new instance as a command, so this may only run from an event: building one per
+        // render would re-apply the filter on every render.
+        _filterState = string.IsNullOrWhiteSpace(searchText)
+            ? _filterState.WithoutGlobalFilter<FbSettingSearchFilter>()
+            : _filterState.WithGlobalFilter(new FbSettingSearchFilter(searchText));
     }
 
     private async Task Show()
     {
         var fbCount = SelectionManager.SelectedFBs.Count;
 
-        _settings = SelectionManager.SelectedFBs
+        _settings = [.. SelectionManager.SelectedFBs
             .GetSettings(Datastore)
             .ToArray()
             .GroupBy(s => s.Name)
-            .Where(sg => sg.Count() == fbCount);
+            .Where(sg => sg.Count() == fbCount)];
 
-        if (_settings.Any() && _refDialog is not null)
+        if (_settings.Count > 0 && _refDialog is not null)
             await _refDialog.ShowAsync();
     }
 
@@ -323,7 +242,6 @@ public sealed partial class FbSettingsEditor : ComponentBase, IAsyncDisposable
         {
             _isFullscreen = !_isFullscreen;
             await FullscreenService.SetFullscreen(_isFullscreen);
-            _closeOnEscape = !_isFullscreen;
             await InvokeAsync(StateHasChanged);
         }
     }

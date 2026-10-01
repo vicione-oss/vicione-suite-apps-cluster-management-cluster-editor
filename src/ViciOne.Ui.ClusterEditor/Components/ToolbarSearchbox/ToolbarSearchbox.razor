@@ -1,0 +1,11 @@
+﻿@using ViciOne.Ui.Blazor.Components.SearchBox
+@using ViciOne.Ui.Blazor.Components.Toolbar.Components
+@using CommonVocabulary = ViciOne.Ui.Localization.Resources.CommonVocabulary
+
+<ToolbarContent>
+    <div class="toolbar-searchbox">
+        <SearchBox Placeholder="@CommonVocabulary.Search"
+                   Text="@Text"
+                   TextChanging="@TextChanging" />
+    </div>
+</ToolbarContent>

@@ -1,4 +1,4 @@
-@use "./colors" as editor;
+@use "./mixins";
 @use "./design/colors";
 
 .content-container {
@@ -12,83 +12,42 @@
         right: 0;
         top: 0;
 
-        .text-truncated {
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        // The table sizes itself to its rows and MaximumHeight only caps that, whereas the dialog grid filled the
+        // dialog. Filling it keeps the footer at the bottom and the scroll area as tall as the dialog allows.
+        ::deep .advanced-table {
+            height: 100%;
+
+            > .content-container {
+                flex-grow: 1;
+            }
         }
 
-        ::deep .dialog-grid {
-            --dxbl-grid-bg: #{colors.$background-dark};
-            --dxbl-grid-header-bg: #{colors.$background-dark};
-            --dxbl-grid-group-indent-cell-width: 32px;
-            --dxbl-grid-edit-row-bg: #{colors.$background-dark};
-            height: 100%;
-            user-select: none;
+        .text-truncated {
+            @include mixins.overflow-ellipsis();
+        }
 
-            .connector-with-icon-cell {
+        // Authored in the dialog markup but rendered inside the table, so ::deep has to pierce the component
+        // boundary. The svg comes from a MarkupString and carries no scope attribute at all.
+        ::deep .connector-with-icon-cell {
+            display: grid;
+            grid-template-columns: 24px auto;
+
+            > .icon {
+                align-items: center;
                 display: grid;
-                grid-template-columns: 24px auto;
 
-                > .icon {
-                    align-items: center;
-                    display: grid;
-                }
-
-                > .value {
-                    @extend .text-truncated;
-                    line-height: 24px;
-                    padding-left: 5px;
+                svg {
+                    cursor: unset;
+                    height: 24px;
+                    width: 24px;
                 }
             }
 
-            .regular {
-                color: editor.$editor-foreground;
-            }
+            > .value {
+                @include mixins.overflow-ellipsis();
 
-            .modified {
-                font-weight: bold;
-            }
-
-            .dxbl-grid-table {
-                border-collapse: collapse;
-
-                & > tbody > tr > td {
-                    line-height: 25px;
-                    outline: none !important;
-                }
-
-                & > tbody > tr > td:first-of-type, & > thead > tr > th:first-of-type {
-                    padding-left: 24px !important;
-                }
-
-                & > tbody > tr.dxbl-grid-edit-row.dxbl-grid-editor-inplace-container > td:not(.dxbl-grid-empty-cell):not(.dxbl-grid-indent-cell)::before {
-                    content: none;
-                }
-
-                & > tbody > tr > td.dxbl-grid-expand-button-cell {
-                    padding-left: 12px !important;
-                }
-
-                & > tbody > tr > td > .dxbl-checkbox {
-                    vertical-align: middle !important;
-                }
-
-                & > tbody > tr:first-of-type > td {
-                    padding-top: 16px !important;
-                }
-
-                & > thead {
-                    box-shadow: 0 1px colors.$background-light-hover;
-
-                    .dxbl-grid-header-row > th:not(.dxbl-grid-empty-cell)::before {
-                        opacity: 0%;
-                    }
-
-                    & > tr > th {
-                        height: 48px;
-                    }
-                }
+                line-height: 24px;
+                padding-left: 5px;
             }
         }
     }

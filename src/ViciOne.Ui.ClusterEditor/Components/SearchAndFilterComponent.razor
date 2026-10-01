@@ -72,16 +72,12 @@
                     </div>
                 }
 
-                if (ShowColumnChooser)
+                if (ColumnChooserSlot is not null)
                 {
-                    <div @onclick="OnColumnChooserAsync"
-                         id="@_columnChooserId"
-                         class="command-button"
-                         style="grid-column: @(counter * 2 + 5)"
-                         title="@Localization.SearchAndFilterComponent.ColumnChooser">
+                    <div class="column-chooser-slot"
+                         style="grid-column: @(counter * 2 + 5)">
 
-                        <MonochromeIcon Name="MonochromeIconName.ColumnChooserMenu"
-                                        Size="MonochromeIconSize.SmallMedium" />
+                        @ColumnChooserSlot
                     </div>
                 }
             }

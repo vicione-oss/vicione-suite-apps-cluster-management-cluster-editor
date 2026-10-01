@@ -117,6 +117,10 @@
     grid-column: 1;
     grid-template-columns: calc(var(--canvas-grid-size) - var(--node-border-width)) repeat(7, var(--canvas-grid-size));
     grid-template-rows: 100%;
+
+    &.hidden {
+        display: none;
+    }
 }
 
 .input-pooling-mode {
@@ -133,6 +137,7 @@
     cursor: pointer;
     grid-column: 1 / span 2;
     margin: 1px 0;
+    position: relative;
     text-align: center;
 }
 
@@ -282,6 +287,10 @@
     grid-column: 2;
     grid-template-columns: repeat(7, var(--canvas-grid-size)) calc(var(--canvas-grid-size) - var(--node-border-width));
     grid-template-rows: 100%;
+
+    &.hidden {
+        display: none;
+    }
 }
 
 .output-port-container {
@@ -290,6 +299,7 @@
     cursor: pointer;
     grid-column: 7 / span 2;
     margin: 1px 0;
+    position: relative;
     text-align: center;
 }
 
