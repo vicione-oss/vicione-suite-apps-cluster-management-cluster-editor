@@ -1,238 +1,27 @@
-### Scripts ###
-.prepare_keys: &prepare_keys
-  - apt update -y
-  - "which ssh-agent || ( apt install -y openssh-client )"
-  - eval $(ssh-agent -s)
-  - mkdir -p ~/.ssh && chmod 700 ~/.ssh && touch ~/.ssh/known_hosts && chmod 644 ~/.ssh/known_hosts
-  - chmod 600 "${DEPLOY_SSH_PRV}"
-  - ssh-add "${DEPLOY_SSH_PRV}"
-
-.prepare_npm: &prepare_npm
-  - cd src/ViciOne.Ui.ClusterEditor
-  - npm ci
-  - npm run-script build
-  - cd -
-
-.patch_version: &patch_version
-  - sed -i -E "s/##VERSION_REF##/$Version/g" src/ViciOne.Ui.ClusterEditor/wwwroot/data/version.json
-
-.appsettings_credentials: &appsettings_credentials
-  - patch_appsettings() { local file="${1}"; local pattern="${2}"; local replace=$(printf '%s\n' "${3}" | sed -e 's/[&|]/\\&/g'); sed -i -E "s|${pattern}|${replace}|g" "${file}"; }
-  - patch_appsettings "./samples/Server/appsettings.json" "##NuGet_User_RO_JFrog##" "${NuGet_User_RO_JFrog}"
-  - patch_appsettings "./samples/Server/appsettings.json" "##NuGet_PW_RO_JFrog##" "${NuGet_PW_RO_JFrog}"
-
-.activate_mise: &activate_mise
-  - mise install
-  - eval "$(mise env)"
-
-.update_nuget_source_ro: &update_nuget_source_ro
-  - dotnet nuget update source JFrogNuGetProxy --configfile NuGet.Config -u $NuGet_User_JFrog -p $NuGet_PW_JFrog --store-password-in-clear-text
-  - dotnet nuget update source JFrogViciOne --configfile NuGet.Config -u $NuGet_User_JFrog -p $NuGet_PW_JFrog --store-password-in-clear-text
-
-.update_nuget_source_rw: &update_nuget_source_rw
-  - dotnet nuget update source JFrogViciOne --configfile NuGet.Config -u $NuGet_User_RW_JFrog -p $NuGet_PW_RW_JFrog --store-password-in-clear-text
-  - dotnet nuget add source "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/packages/nuget/index.json" --name GitLabRegistry --username gitlab-ci-token --password $CI_JOB_TOKEN --store-password-in-clear-text
-
-.rule_tag: &rule_tag
-  if: "$CI_COMMIT_TAG"
-
-.rule_default_branch: &rule_default_branch
-  if: "$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH"
-
-.rule_mr: &rule_mr
-  if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-
-.rule_web: &rule_web
-  if: '$CI_PIPELINE_SOURCE == "web"'
-
-.rules: &rules
-  - *rule_tag
-  - *rule_default_branch
-  - *rule_mr
-  - *rule_web
-
-.rules_manual: &rules_manual
-  - <<: *rule_tag
-    when: manual
-    allow_failure: true
-  - <<: *rule_default_branch
-    when: manual
-    allow_failure: true
-  - <<: *rule_mr
-    when: manual
-    allow_failure: true
-  - <<: *rule_web
-    when: manual
-    allow_failure: true
-
-.rules_deploy: &rules_deploy
-  - <<: *rule_default_branch
-    when: manual
-    allow_failure: true
-  - <<: *rule_mr
-    when: manual
-    allow_failure: true
-
-### Defaults ###
-variables:
-  IMAGE_NAME: registry.gitlab.com/vicione-oss/tooling/base-image:vicione-latest
-  RUNNER_TAG: saas-linux-small-amd64
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_REF_PROTECTED == "true" || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - when: never
 
 stages:
-  - build
-  - test
-  - pack
-  - publish
-  - deploy
+  - trigger
 
-### CI Components ###
-include:
-  ### Version calculation
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/version/version-calc@v1.2.0
-  ### Renovate configuration validation
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/components/renovate/configuration-validation@v1.0.1
-    inputs:
-      rules: *rules
-      tags:
-        - ${RUNNER_TAG}
-  ### Restore
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-restore@v2.7.1
-    inputs:
-      image: ${IMAGE_NAME}
-      rules: *rules
-      before_script:
-        - *activate_mise
-        - *update_nuget_source_ro
-      tags:
-        - ${RUNNER_TAG}
-  ### Test & Build
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-build@v2.7.1
-    inputs:
-      image: ${IMAGE_NAME}
-      rules: *rules
-      before_script:
-        - *activate_mise
-        - *update_nuget_source_ro
-        - *prepare_npm
-        - echo "$Version"
-      tags:
-        - ${RUNNER_TAG}
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-test@v2.7.1
-    inputs:
-      coverage: true
-      image: ${IMAGE_NAME}
-      filter: '/[(Category!=Manual)&(Category!=Playwright)]'
-      rules: *rules
-      before_script:
-        - *activate_mise
-        - *update_nuget_source_ro
-        - *prepare_npm
-      tags:
-        - ${RUNNER_TAG}
-  ### NuGet Packages
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-pack@v2.7.1
-    inputs:
-      image: ${IMAGE_NAME}
-      rules: *rules
-      project: 'src/ViciOne.Ui.ClusterEditor/ViciOne.Ui.ClusterEditor.csproj'
-      before_script:
-        - *activate_mise
-        - *patch_version
-        - 'echo "PackageVersion: ${PackageVersion:-notAssigned}"'
-      tags:
-        - ${RUNNER_TAG}
-  - component: $CI_SERVER_FQDN/vicione-oss/tooling/dotnet-component/dotnet-nuget-push@v2.7.1
-    inputs:
-      image: ${IMAGE_NAME}
-      sources:
-        - "JFrogViciOne"
-        - "GitLabRegistry"
-      filename_pattern: "./src/*"
-      rules: *rules_manual
-      before_script:
-        - *activate_mise
-        - *patch_version
-        - *update_nuget_source_rw
-      tags:
-        - ${RUNNER_TAG}
-
-Publish arm64:
-  stage: build
-  image: ${IMAGE_NAME}
+Run pipeline:
+  stage: trigger
   variables:
-    PROJECT: './samples/Server/Server.csproj'
-    DIRECTORY: 'artifacts/publish'
-  before_script:
-    - *activate_mise
-    - *patch_version
-    - *update_nuget_source_ro
-    - *prepare_npm
-    - echo "$Version"
-  script:
-    - *appsettings_credentials
-    - mkdir -p "${DIRECTORY}"
-    - ABSOLUTE_DIRECTORY=$(realpath "${DIRECTORY}")
-    - dotnet restore
-    - dotnet publish -c Release -r linux-arm64 -o "${ABSOLUTE_DIRECTORY}" -v m --self-contained true "${PROJECT}"
-  artifacts:
-    paths:
-      - "artifacts/publish"
-  rules: *rules_manual
-  tags:
-    - saas-linux-large-arm64
-
-### Deployments
-
-.prepare_deploy: &prepare_deploy
-  - apt update -y && apt install -y rsync bash
-  - *prepare_keys
-  - ssh-keyscan -T 250 $HOST_IP >> ~/.ssh/known_hosts
-  - *patch_version
-
-.deploy_cluster_editor_systemd: &deploy_cluster_editor_systemd
-  - mkdir -p "${DIRECTORY}"
-  - ABSOLUTE_DIRECTORY=$(realpath "${DIRECTORY}")
-  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo systemctl stop cluster-editor.service" || true
-  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo mkdir -p ${INSTALL_DIRECTORY} && sudo chown -R ${DEPLOY_USER}:${DEPLOY_USER} ${INSTALL_DIRECTORY}"
-  - rsync -e 'ssh -q  -o "ConnectTimeout=10"' -rz --inplace --stats --delete "${ABSOLUTE_DIRECTORY}"/ ${DEPLOY_USER}@${HOST_IP}:${INSTALL_DIRECTORY}
-  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo setcap 'cap_net_bind_service=+ep' ${INSTALL_DIRECTORY}/${BINARY}"
-  - scp .deploy/cluster-editor.service ${DEPLOY_USER}@${HOST_IP}:.
-  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo mv cluster-editor.service /etc/systemd/system/"
-  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo systemctl daemon-reload"
-  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo systemctl enable --now cluster-editor.service"
-  - ssh -q  -o "ConnectTimeout=10" ${DEPLOY_USER}@${HOST_IP} "sudo systemctl restart cluster-editor.service"
-
-.deploy_job:
-  stage: deploy
-  image: ${IMAGE_NAME}
-  before_script:
-    - *prepare_deploy
-  script:
-    - *deploy_cluster_editor_systemd
-  rules: *rules_deploy
-  needs:
-    - 'Publish arm64'
-  tags:
-    - tdl
-
-Deploy EC10:
-  extends: .deploy_job
-  variables:
-    DIRECTORY: 'artifacts/publish'
-    HOST_IP: '10.100.17.71'
-    INSTALL_DIRECTORY: '/opt/cluster-editor'
-    BINARY: "Server"
-  environment:
-    name: 'ec-701.tdl.vicione.dev'
-    url: 'https://ec-701.tdl.vicione.dev/'
-
-Deploy EC20:
-  extends: .deploy_job
-  variables:
-    DIRECTORY: 'artifacts/publish'
-    HOST_IP: '10.100.13.75'
-    INSTALL_DIRECTORY: '/opt/cluster-editor'
-    BINARY: "Server"
-  environment:
-    name: 'ec-305.tdl.vicione.dev'
-    url: 'https://ec-305.tdl.vicione.dev/'
+    PARENT_PIPELINE_SOURCE: $CI_PIPELINE_SOURCE
+  trigger:
+    include:
+      - local: '.gitlab-ci.pipeline.yml'
+    strategy: depend
+    forward:
+      yaml_variables: true
+      pipeline_variables: true
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: manual
+      allow_failure: false
+    - if: '$CI_COMMIT_TAG'
+    - if: '$CI_COMMIT_REF_PROTECTED == "true" || $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
