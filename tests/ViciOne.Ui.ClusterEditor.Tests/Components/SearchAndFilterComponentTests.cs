@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using AwesomeAssertions;
 using Bunit;
+using ViciOne.Ui.Blazor.Components.TestingHelpers.SearchBox.Extensions;
 using ViciOne.Ui.ClusterEditor.Components;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
 using Xunit;
@@ -14,6 +15,7 @@ public class SearchAndFilterComponentTests
     {
         // Arrange
         await using var ctx = new BunitContext();
+        ctx.JSInterop.SetupForSearchBox();
 
         // Act
         var component = ctx.Render<SearchAndFilterComponent>();
@@ -27,6 +29,7 @@ public class SearchAndFilterComponentTests
     {
         // Arrange
         await using var ctx = new BunitContext();
+        ctx.JSInterop.SetupForSearchBox();
 
         // Act
         var component = ctx.Render<SearchAndFilterComponent>();
@@ -40,6 +43,7 @@ public class SearchAndFilterComponentTests
     {
         // Arrange
         await using var ctx = new BunitContext();
+        ctx.JSInterop.SetupForSearchBox();
 
         // Act
         var component = ctx.Render<SearchAndFilterComponent>(parameters => parameters
@@ -56,6 +60,7 @@ public class SearchAndFilterComponentTests
     {
         // Arrange
         await using var ctx = new BunitContext();
+        ctx.JSInterop.SetupForSearchBox();
 
         // Act
         var component = ctx.Render<SearchAndFilterComponent>();
@@ -69,6 +74,7 @@ public class SearchAndFilterComponentTests
     {
         // Arrange
         await using var ctx = new BunitContext();
+        ctx.JSInterop.SetupForSearchBox();
 
         // Act
         var component = ctx.Render<SearchAndFilterComponent>(parameters => parameters

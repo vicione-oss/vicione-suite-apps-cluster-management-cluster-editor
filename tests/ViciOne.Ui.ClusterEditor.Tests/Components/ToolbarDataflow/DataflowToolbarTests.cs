@@ -3,6 +3,7 @@ using Bunit;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 using ViciOne.Ui.Blazor.Components.SectionRail.Extensions;
+using ViciOne.Ui.Blazor.Components.TestingHelpers.SearchBox.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarDataflow;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarDataflow.Extensions;
 using ViciOne.Ui.ClusterEditor.Models;
@@ -50,6 +51,7 @@ public class DataflowToolbarTests
         ctx.SetupResizeObserver();
         ctx.SetupDropDown();
         ctx.SetupComboBox();
+        ctx.JSInterop.SetupForSearchBox();
 
         ctx.CreateDiagramInstance();
 

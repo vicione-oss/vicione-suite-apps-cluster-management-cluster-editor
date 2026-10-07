@@ -3,6 +3,7 @@ using Bunit;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using NSubstitute;
 using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
+using ViciOne.Ui.Blazor.Components.TestingHelpers.SearchBox.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Components;
 using ViciOne.Ui.ClusterEditor.Sections.DataPorts.Extensions;
 using ViciOne.Ui.ClusterEditor.Services;
@@ -29,6 +30,7 @@ public class DataPortSectionContentTests
         ctx.SetupDataPortTreeAdapter();
         ctx.Services.AddDialog();
         ctx.CreateDiagramInstance();
+        ctx.JSInterop.SetupForSearchBox();
 
         // Act
         var component = ctx.Render<DataPortSectionContent>();
