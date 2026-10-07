@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using ViciOne.Ui.Blazor.Components.TestingHelpers.SearchBox.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.SearchAndTools.Components;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
@@ -20,6 +21,7 @@ public class SearchAndToolsSectionContentTests
         ctx.SetupSelectionManager();
         ctx.Services.TryAddScoped<TraceService>();
         ctx.SetupResizeObserver();
+        ctx.JSInterop.SetupForSearchBox();
 
         ctx.CreateDiagramInstance();
 

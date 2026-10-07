@@ -1,6 +1,7 @@
 ﻿using System.Threading.Tasks;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
+using ViciOne.Ui.Blazor.Components.TestingHelpers.SearchBox.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Library.Components;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
@@ -19,6 +20,7 @@ public class LibrarySectionContentTests
         ctx.SetupClusterEditorManagement();
         ctx.SetupResizeObserver();
         ctx.Services.AddScoped<InputEventService>();
+        ctx.JSInterop.SetupForSearchBox();
 
         // Act
         var component = ctx.Render<LibrarySectionContent>();

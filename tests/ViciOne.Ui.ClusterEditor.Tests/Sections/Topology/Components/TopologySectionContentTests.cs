@@ -2,6 +2,7 @@
 using Bunit;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
+using ViciOne.Ui.Blazor.Components.TestingHelpers.SearchBox.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Components;
 using ViciOne.Ui.ClusterEditor.Sections.Topology.Services;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
@@ -20,6 +21,7 @@ public class TopologySectionContentTests
         ctx.SetupClusterEditorManagement();
         ctx.Services.TryAddScoped<TopologyTreeAdapter>();
         ctx.Services.AddDialog();
+        ctx.JSInterop.SetupForSearchBox();
 
         // Act
         var component = ctx.Render<TopologySectionContent>();

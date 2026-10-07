@@ -1,5 +1,15 @@
 # Changelog
 
+## 2.1.0 - Unreleased
+
+### Changed
+
+- Re-enabled closing dialogs with the Escape key
+
+### Updated external references
+
+- `ViciOne.Ui.Blazor.Components` package, updated to version `6.4.0`
+
 ## 2.0.0 - 2026-10-01
 
 ### Added

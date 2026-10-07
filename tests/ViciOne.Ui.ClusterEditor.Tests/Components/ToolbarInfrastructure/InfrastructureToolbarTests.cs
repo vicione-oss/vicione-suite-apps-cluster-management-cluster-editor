@@ -3,6 +3,7 @@ using Bunit;
 using ViciOne.Ui.Blazor.Components.Dialog.Extensions;
 using ViciOne.Ui.Blazor.Components.ExpandableMenu.Extensions;
 using ViciOne.Ui.Blazor.Components.Sidebar.Extensions;
+using ViciOne.Ui.Blazor.Components.TestingHelpers.SearchBox.Extensions;
 using ViciOne.Ui.Blazor.Components.TestingHelpers.Sidebar.Extensions;
 using ViciOne.Ui.ClusterEditor.Components.ToolbarInfrastructure;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
@@ -26,6 +27,7 @@ public class InfrastructureToolbarTests
         ctx.SetupDataflowStructureTreeAdapter();
         ctx.SetupStatisticService();
         ctx.SetupDatastore();
+        ctx.JSInterop.SetupForSearchBox();
 
         ctx.CreateDiagramInstance();
 

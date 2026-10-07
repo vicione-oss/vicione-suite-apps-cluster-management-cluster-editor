@@ -4,6 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Extensions;
 using ViciOne.Ui.Blazor.Components.PropertyGrid.Services;
+using ViciOne.Ui.Blazor.Components.TestingHelpers.SearchBox.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.Property.Components;
 using ViciOne.Ui.ClusterEditor.Sections.Property.Extensions;
 using ViciOne.Ui.ClusterEditor.Services;
@@ -25,6 +26,7 @@ public class PropertySectionContentTests
         ctx.Services.TryAddScoped<InputEventService>();
         ctx.Services.AddPropertySection();
         ctx.Services.AddPropertyGrid<object>();
+        ctx.JSInterop.SetupForSearchBox();
 
         ctx.CreateDiagramInstance();
 

@@ -109,8 +109,9 @@ public sealed partial class Cell : ComponentBase
 
         // Under Interactive Server the browser has already completed the focus transition by the time this
         // call reaches it, so document.activeElement can be read straight away.
-        var (success, focusInside) = await JsModule.TryInvoke<bool>(Logger, "isFocusInside", _containerElement);
-        if (!success || focusInside)
+        // An edit Escape has ended is left to the key-up, which arrives after this focus-out and discards it.
+        var (success, shouldCommit) = await JsModule.TryInvoke<bool>(Logger, "shouldCommitEdit", _containerElement);
+        if (!success || !shouldCommit)
             return;
 
         _editing = false;
@@ -133,7 +134,7 @@ public sealed partial class Cell : ComponentBase
 
     private async Task KeyDown(KeyboardEventArgs e)
     {
-        if (e.Key is not ("Escape" or "Enter"))
+        if (e.Key != "Enter")
         {
             // Every other key belongs to the editor. Rendering the cell for it renders the editor again as well,
             // and a SpinEdit takes that render for a new value and drops the step its arrow key has just made.
@@ -144,19 +145,25 @@ public sealed partial class Cell : ComponentBase
         if (JsModule is null)
             return;
 
-        if (e.Key == "Escape" && _editing)
-        {
-            _editValue = Value;
-            _validationMessage = null;
+        await JsModule.TryInvokeVoid(Logger, "focusTable", _containerElement);
+    }
 
-            _editing = false;
-
-            await JsModule.TryInvokeVoid(Logger, "focusTable", _containerElement);
-        }
-        else if (e.Key == "Enter")
+    private async Task KeyUp(KeyboardEventArgs e)
+    {
+        // Escape is acted on here rather than on key-down, which Cell.razor.js stops at the editor so that the
+        // dialog does not close along with the edit. A stopped key-down never reaches Blazor.
+        if (e.Key != "Escape" || !_editing || JsModule is null)
         {
-            await JsModule.TryInvokeVoid(Logger, "focusTable", _containerElement);
+            _skipRender = true;
+            return;
         }
+
+        _editValue = Value;
+        _validationMessage = null;
+
+        _editing = false;
+
+        await JsModule.TryInvokeVoid(Logger, "focusTable", _containerElement);
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -164,6 +171,7 @@ public sealed partial class Cell : ComponentBase
         if (_pendingFocus && _editing && JsModule is not null)
         {
             _pendingFocus = false;
+            await JsModule.TryInvokeVoid(Logger, "handleEscapeInEditor", _containerElement);
             await JsModule.TryInvokeVoid(Logger, "focusFirstInput", _containerElement);
         }
     }

@@ -11,9 +11,9 @@
 @using LocalTechnicalTerms = ViciOne.Ui.ClusterEditor.Localization.Resources.TechnicalTerms
 @using TechnicalTerms = ViciOne.Ui.Localization.Resources.TechnicalTerms
 
-@* CloseOnEscape="true" not supported yet, https://gitlab.com/vicione-oss/vicione/ui-libs/blazor-components/-/issues/141 *@
 <Dialog @bind-Visible="_visible"
         @ref="_refDialog"
+        CloseOnEscape="true"
         HeaderText="@($"{LocalTechnicalTerms.FunctionBlock} - {CommonVocabulary.SettingPlural}")"
         Height="@(_isFullscreen ? DialogSizes.FullscreenHeight : DialogSizes.LargeHeight)"
         OnClosing="@OnDialogClosing"

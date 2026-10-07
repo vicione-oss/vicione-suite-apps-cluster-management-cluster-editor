@@ -9,6 +9,7 @@
 <Dialog @bind-Visible="_visible"
         @bind-Visible:after="OnVisibleChanged"
         @ref="_refDialog"
+        CloseOnEscape="true"
         HeaderText="@string.Format(UserActions.EditSomething, LocalTechnicalTerms.Container)"
         Height="@DialogSizes.LargeHeight"
         OnClosing="@OnDialogClosing"

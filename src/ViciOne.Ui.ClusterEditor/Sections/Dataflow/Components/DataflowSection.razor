@@ -29,8 +29,8 @@
         <TreeEditor Builder="@_treeBuilder" />
     </div>
 
-    @* CloseOnEscape="true" not supported yet, https://gitlab.com/vicione-oss/vicione/ui-libs/blazor-components/-/issues/141 *@
     <Dialog @ref="_confirmDeleteDialogRef"
+            CloseOnEscape="true"
             HeaderText="@DataflowStructureTreeAdapter.DeleteDataflowHeader"
             Height="@DialogSizes.SmallHeight"
             OnClosing="@OnClosingDataflowDeleteDialog"

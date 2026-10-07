@@ -522,7 +522,7 @@ public class CellTests
         EnterEditModeAndType(component, "after");
 
         // Act
-        component.Find(".cell").KeyDown(Key.Escape);
+        component.Find(".cell").KeyUp(Key.Escape);
 
         // Assert
         component.WaitForAssertion(() => component.FindAll(".input-container").Should().BeEmpty());
@@ -531,8 +531,67 @@ public class CellTests
         module.VerifyInvoke("focusTable");
     }
 
-    // Handing focus back to the table blurs the editor, so the focus-out arrives after Escape has already left
-    // edit mode. That order is what keeps the discarded value from being committed on the way out.
+    // The browser stops the Escape key-down at the editor, so that the dialog around the table stays open. Only
+    // the key-up reaches the cell, and an edit ended on both would be ended by a key-down that slipped through.
+    [Fact]
+    public async Task Escape_key_down_leaves_the_edit_open()
+    {
+        // Arrange
+        await using var datastore = CreateDatastore();
+        await using var ctx = CreateContext(datastore);
+        var module = SetupCellModule(ctx);
+
+        var component = RenderCell(ctx, "before", typeof(string));
+        EnterEditModeAndType(component, "after");
+
+        // Act
+        component.Find(".cell").KeyDown(Key.Escape);
+
+        // Assert
+        component.FindAll(".input-container").Should().ContainSingle();
+        module.VerifyNotInvoke("focusTable");
+    }
+
+    [Fact]
+    public async Task Entering_edit_mode_keeps_the_escape_key_down_in_the_editor()
+    {
+        // Arrange
+        await using var datastore = CreateDatastore();
+        await using var ctx = CreateContext(datastore);
+        var module = SetupCellModule(ctx);
+        var component = RenderCell(ctx, "before", typeof(string));
+
+        // Act
+        EnterEditMode(component);
+
+        // Assert
+        component.WaitForAssertion(() => module.VerifyInvoke("handleEscapeInEditor"));
+    }
+
+    // The table hands the focus back to the cell on the Escape key-up, before that key-up has reached Blazor. The
+    // focus-out therefore arrives while the edit is still open, and only the browser knows that Escape caused it.
+    [Fact]
+    public async Task Focus_out_caused_by_an_escape_commits_nothing()
+    {
+        // Arrange
+        await using var datastore = CreateDatastore();
+        await using var ctx = CreateContext(datastore);
+        SetupCellModule(ctx, shouldCommitEdit: false);
+        var commitCount = 0;
+
+        var component = RenderCell(ctx, "before", typeof(string), additionalParameters: parameters => parameters
+            .Add(p => p.OnValueCommitted, _ => commitCount++));
+        EnterEditModeAndType(component, "after");
+
+        // Act
+        Blur(component);
+
+        // Assert
+        commitCount.Should().Be(0);
+    }
+
+    // The discarded value is still in the cell, so a focus-out that arrives once Escape has left edit mode must
+    // not take it for an edit to commit.
     [Fact]
     public async Task Focus_out_following_an_escape_commits_nothing()
     {
@@ -545,7 +604,7 @@ public class CellTests
         var component = RenderCell(ctx, "before", typeof(string), additionalParameters: parameters => parameters
             .Add(p => p.OnValueCommitted, _ => commitCount++));
         EnterEditModeAndType(component, "after");
-        component.Find(".cell").KeyDown(Key.Escape);
+        component.Find(".cell").KeyUp(Key.Escape);
 
         // Act
         Blur(component);
@@ -575,7 +634,7 @@ public class CellTests
         EnterEditModeAndType(component, RejectedValue);
 
         // Act
-        component.Find(".cell").KeyDown(Key.Escape);
+        component.Find(".cell").KeyUp(Key.Escape);
 
         // Assert
         component.WaitForAssertion(() => component.FindAll(".input-container").Should().BeEmpty());
@@ -681,7 +740,7 @@ public class CellTests
                 commitCount++;
             }));
         EnterEditModeAndType(component, "discarded");
-        component.Find(".cell").KeyDown(Key.Escape);
+        component.Find(".cell").KeyUp(Key.Escape);
         component.WaitForAssertion(() => component.FindAll(".input-container").Should().BeEmpty());
         EnterEditModeAndType(component, "kept");
 
@@ -788,12 +847,14 @@ public class CellTests
         return ctx;
     }
 
-    private static BunitJSModuleInterop SetupCellModule(BunitContext ctx)
+    private static BunitJSModuleInterop SetupCellModule(BunitContext ctx, bool shouldCommitEdit = true)
     {
         var module = ctx.JSInterop.SetupModule(CellModulePath);
-        module.Setup<bool>("isFocusInside", _ => true).SetResult(false);
+        module.Setup<bool>("shouldCommitEdit", _ => true).SetResult(shouldCommitEdit);
         module.SetupVoid("focusFirstInput", _ => true);
         module.SetupVoid("focusTable", _ => true);
+        // Completed up front, since the cell awaits it before it takes the focus.
+        module.SetupVoid("handleEscapeInEditor", _ => true).SetVoidResult();
 
         return module;
     }
