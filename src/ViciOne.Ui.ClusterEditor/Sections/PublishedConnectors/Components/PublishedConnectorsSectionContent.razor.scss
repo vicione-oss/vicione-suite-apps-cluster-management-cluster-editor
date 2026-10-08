@@ -7,12 +7,17 @@
     cursor: pointer;
     height: 24px;
 
-    &:hover {
+    &:hover:not(.disabled) {
         background-color: colors.$background-dark-hover;
     }
 
     &.active {
         color: colors.$accent;
+    }
+
+    &.disabled {
+        cursor: default;
+        color: colors.$background-dark-hover;
     }
 }
 
@@ -20,6 +25,31 @@
     display: flex;
     flex-direction: column;
     height: 100%;
+
+    // Both rules work around ViciOne.Ui.Blazor.Components 6.2.0 and reach into its markup, so recheck them on
+    // every update of the library.
+
+    // With every column hidden the table sizes itself to zero width, which takes its no-data placeholder with it,
+    // and keeps the height of a header row that has no header left.
+    ::deep .published-connectors-empty .inner-table {
+        min-width: 100%;
+
+        thead {
+            display: none;
+        }
+    }
+
+    // The table paints its header and rows a shade lighter than the section. Repeating the table's own selector
+    // chain outweighs it; hover and selection keep the table's colors, and the no-data placeholder does not
+    // light up under the mouse.
+    ::deep .advanced-table .content-container .inner-table-container .inner-table {
+        thead tr,
+        tbody > tr.no-data > td,
+        tbody > tr:not(.selected):not(:hover),
+        tbody > tr:not(.selected):not(:hover) > td {
+            background-color: colors.$background-darker;
+        }
+    }
 
     ::deep .text-truncated {
         @include mixins.overflow-ellipsis();
