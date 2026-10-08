@@ -6,6 +6,10 @@
 
 - Re-enabled closing dialogs with the Escape key
 
+### Fixed
+
+- `NullReferenceException` when changing the simplified view setting before the node editor is initialized
+
 ### Updated external references
 
 - `ViciOne.Ui.Blazor.Components` package, updated to version `6.4.0`

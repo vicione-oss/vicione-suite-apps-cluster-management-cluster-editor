@@ -96,6 +96,9 @@ public sealed class DiagramService : IDisposable
 
         DiagramState.SimplifiedView = simplifiedView;
 
+        if (Diagram is null)
+            return;
+
         foreach (var node in Diagram.Nodes)
             node.Refresh();
     }
