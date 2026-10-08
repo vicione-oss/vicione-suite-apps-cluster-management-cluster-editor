@@ -22,8 +22,12 @@
                                      OpenPopupToLeft="true">
 
                     <Button>
-                        <div @onclick="@context.Toggle"
-                             class="column-chooser-button @(context.PopupVisible ? "active" : string.Empty)"
+                        @* The empty table hides every column on purpose, so the chooser stays shut until there are rows.
+                           A popup still open when the last row goes has to remain closable. *@
+                        @{ var chooserEnabled = DataAvailable || context.PopupVisible; }
+                        <div @onclick="@(chooserEnabled ? context.Toggle : default)"
+                             aria-disabled="@(chooserEnabled ? "false" : "true")"
+                             class="column-chooser-button @(context.PopupVisible ? "active" : null) @(chooserEnabled ? null : "disabled")"
                              title="@context.PopupTitle">
 
                             <MonochromeIcon Name="MonochromeIconName.ColumnChooserMenu"
@@ -40,12 +44,14 @@
             <PublishedConnectorDragGhost @ref="_dragGhost" />
 
             <SimpleTable TItem="DataGridConnectorWrapper"
-                         ColumnChooserToggleId="@_columnChooserToggleId"
-                         @bind-SelectedItems="_selectedItems"
                          @bind-FilterState="_filterState"
+                         @bind-SelectedItems="_selectedItems"
+                         @ref="_table"
+                         ColumnChooserToggleId="@_columnChooserToggleId"
+                         CssClass="@(DataAvailable ? null : "published-connectors-empty")"
                          DragPayloadProvider="VisibleSelection"
                          ItemSelectionAllowed="@SelectionAllowed"
-                         Items="@PublishedConnectorsService.PublishedConnectorWrappers"
+                         Items="@_wrappers"
                          MaximumHeight="100%"
                          Mode="TableLoadingMode.Virtualize"
                          RowContextMenuRequested="@_rowContextMenu"
@@ -56,11 +62,13 @@
                          VisibleSelectionChanged="VisibleSelection.Store">
                 <Columns>
                     <SimpleTableTemplateColumn TItem="DataGridConnectorWrapper"
+                                               @bind-Visible:get="IsColumnVisible(nameof(DataGridConnectorWrapper.Path))"
+                                               @bind-Visible:set="(visible => SetColumnVisible(nameof(DataGridConnectorWrapper.Path), visible))"
                                                CellActivated="RowDoubleClick"
                                                Id="@nameof(DataGridConnectorWrapper.Path)"
+                                               MinimumWidth="90"
                                                Resizeable="true"
-                                               Title="@CommonVocabulary.Path"
-                                               Width="110">
+                                               Title="@CommonVocabulary.Path">
                         <CellContent>
                             <div class="text-truncated" title="@context.Path">
                                 <SearchHighlighter SearchText="@_searchText" Text="@context.Path" />
@@ -73,12 +81,14 @@
                     </SimpleTableTemplateColumn>
 
                     <SimpleTableTemplateColumn TItem="DataGridConnectorWrapper"
+                                               @bind-Visible:get="IsColumnVisible(nameof(DataGridConnectorWrapper.DesignName))"
+                                               @bind-Visible:set="(visible => SetColumnVisible(nameof(DataGridConnectorWrapper.DesignName), visible))"
                                                CellActivated="RowDoubleClick"
                                                Id="@nameof(DataGridConnectorWrapper.DesignName)"
+                                               MinimumWidth="140"
                                                Resizeable="true"
                                                SortExpression="s_designNameSortExpression"
-                                               Title="@CommonVocabulary.Design"
-                                               Width="140">
+                                               Title="@CommonVocabulary.Design">
                         <CellContent>
                             <div class="text-truncated" title="@context.DesignName">
                                 <SearchHighlighter SearchText="@_searchText" Text="@context.DesignName" />
@@ -91,13 +101,15 @@
                     </SimpleTableTemplateColumn>
 
                     <SimpleTableTemplateColumn TItem="DataGridConnectorWrapper"
+                                               @bind-Visible:get="IsColumnVisible(nameof(DataGridConnectorWrapper.FunctionBlockName))"
+                                               @bind-Visible:set="(visible => SetColumnVisible(nameof(DataGridConnectorWrapper.FunctionBlockName), visible))"
                                                CellActivated="RowDoubleClick"
                                                Id="@nameof(DataGridConnectorWrapper.FunctionBlockName)"
+                                               MinimumWidth="140"
                                                Resizeable="true"
                                                SortComparer="AlphaNumericComparer.Default"
                                                SortExpression="s_functionBlockNameSortExpression"
-                                               Title="@TechnicalTerms.FunctionBlock"
-                                               Width="140">
+                                               Title="@TechnicalTerms.FunctionBlock">
                         <CellContent>
                             <div class="text-truncated" title="@context.FunctionBlockName">
                                 <SearchHighlighter SearchText="@_searchText" Text="@context.FunctionBlockName" />
@@ -110,11 +122,13 @@
                     </SimpleTableTemplateColumn>
 
                     <SimpleTableTemplateColumn TItem="DataGridConnectorWrapper"
+                                               @bind-Visible:get="IsColumnVisible(nameof(DataGridConnectorWrapper.ConnectorName))"
+                                               @bind-Visible:set="(visible => SetColumnVisible(nameof(DataGridConnectorWrapper.ConnectorName), visible))"
                                                CellActivated="RowDoubleClick"
                                                Id="@nameof(DataGridConnectorWrapper.ConnectorName)"
+                                               MinimumWidth="125"
                                                Resizeable="true"
-                                               Title="@TechnicalTerms.Connector"
-                                               Width="125">
+                                               Title="@TechnicalTerms.Connector">
                         <CellContent>
                             <div class="connector-with-icon-cell">
                                 <div class="icon">
@@ -132,11 +146,13 @@
                     </SimpleTableTemplateColumn>
 
                     <SimpleTableTemplateColumn TItem="DataGridConnectorWrapper"
+                                               @bind-Visible:get="IsColumnVisible(nameof(DataGridConnectorWrapper.Links))"
+                                               @bind-Visible:set="(visible => SetColumnVisible(nameof(DataGridConnectorWrapper.Links), visible))"
                                                CellActivated="RowDoubleClick"
                                                Id="@nameof(DataGridConnectorWrapper.Links)"
+                                               MinimumWidth="100"
                                                Resizeable="true"
-                                               Title="@TechnicalTerms.LinkPlural"
-                                               Width="100">
+                                               Title="@TechnicalTerms.LinkPlural">
                         <CellContent>
                             <div class="text-truncated" title="@context.Links">
                                 <SearchHighlighter SearchText="@_searchText" Text="@context.LinksText" />
@@ -149,11 +165,13 @@
                     </SimpleTableTemplateColumn>
 
                     <SimpleTableTemplateColumn TItem="DataGridConnectorWrapper"
+                                               @bind-Visible:get="IsColumnVisible(nameof(DataGridConnectorWrapper.Description))"
+                                               @bind-Visible:set="(visible => SetColumnVisible(nameof(DataGridConnectorWrapper.Description), visible))"
                                                CellActivated="RowDoubleClick"
                                                Id="@nameof(DataGridConnectorWrapper.Description)"
+                                               MinimumWidth="80"
                                                Resizeable="true"
-                                               Title="@CommonVocabulary.Description"
-                                               Width="160">
+                                               Title="@CommonVocabulary.Description">
                         <CellContent>
                             <div class="text-truncated" title="@context.Description">
                                 <SearchHighlighter SearchText="@_searchText" Text="@context.Description" />

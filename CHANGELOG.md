@@ -5,6 +5,11 @@
 ### Changed
 
 - Re-enabled closing dialogs with the Escape key
+- Matched the Published Connectors table header and rows to the section background
+
+### Fixed
+
+- Horizontal scrollbar of the empty Published Connectors table; its column headers and column chooser now appear once a connector is published
 
 ### Fixed
 

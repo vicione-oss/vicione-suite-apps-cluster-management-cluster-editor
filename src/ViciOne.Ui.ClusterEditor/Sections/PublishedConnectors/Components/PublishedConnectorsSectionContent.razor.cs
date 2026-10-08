@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
@@ -7,9 +7,10 @@ using Microsoft.Extensions.Logging;
 using ViciOne.Cluster.Model;
 using ViciOne.Ui.Blazor.Components.ContextMenu.Services;
 using ViciOne.Ui.Blazor.Components.Tables.Shared.Models;
+using ViciOne.Ui.Blazor.Components.Tables.SimpleTable.Components;
 using ViciOne.Ui.ClusterEditor.Models;
-using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Models;
 using ViciOne.Ui.ClusterEditor.Models.ContextMenu.Specialized;
+using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Models;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
 using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ColorableIcons;
@@ -35,6 +36,8 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
     // Never reset: the section is not torn down, so what it accumulates is the state the user left behind.
     private FilterState _filterState = FilterState.Empty;
 
+    private readonly HashSet<string> _hiddenColumnIds = [];
+
     // Sorting on design first reproduces the clustering the view had while it grouped by design.
     private readonly SortingState _initialSorting = SortingState.Empty
         .WithColumnSorting(nameof(DataGridConnectorWrapper.DesignName), ascending: true)
@@ -46,6 +49,15 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
     private string? _searchText;
     private List<DataGridConnectorWrapper> _selectedItems = [];
 
+    /// <summary>Whether <see cref="_initialSorting"/> still has to be handed to the table.</summary>
+    /// <remarks>
+    /// Hiding a column drops the sorting keyed to it, so the initial sorting has to be handed over again once the
+    /// columns are back. The sorting the user chose before the table turned empty is lost with it.
+    /// </remarks>
+    private bool _sortingReapplyPending;
+    private SimpleTable<DataGridConnectorWrapper>? _table;
+    private IReadOnlyList<DataGridConnectorWrapper> _wrappers = [];
+
     [Inject] private ConnectorService ConnectorService { get; set; } = default!;
     [Inject] private IContextMenuRequest<PublishedConnectorsSectionContextMenuContext> ContextMenuRequest { get; set; } = default!;
     [Inject] private IContextMenuSettings ContextMenuSettings { get; set; } = default!;
@@ -55,7 +67,7 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
     [Inject] private SelectionManager SelectionManager { get; set; } = default!;
     [Inject] private PublishedConnectorVisibleSelection VisibleSelection { get; set; } = default!;
 
-    private bool DataAvailable => PublishedConnectorsService.PublishedConnectorWrappers.Count > 0;
+    private bool DataAvailable => _wrappers.Count > 0;
 
     public void Dispose()
     {
@@ -89,7 +101,10 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
         _filterButtons.Add(_outputFilterButton);
     }
 
-    protected override void OnAfterRender(bool firstRender)
+    private bool IsColumnVisible(string columnId)
+        => DataAvailable && !_hiddenColumnIds.Contains(columnId);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
@@ -99,6 +114,13 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
         }
 
         SetFilterButtonsState();
+
+        if (_sortingReapplyPending && _table is not null)
+        {
+            _sortingReapplyPending = false;
+
+            await _table.SetSortingStateAsync(_initialSorting);
+        }
     }
 
     private void OnFilterInputs()
@@ -141,6 +163,8 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
 
     protected override void OnInitialized()
     {
+        _wrappers = PublishedConnectorsService.PublishedConnectorWrappers;
+
         PublishedConnectorsService.PublishedConnectorSelectionRequested += OnPublishedConnectorSelectionRequested;
         PublishedConnectorsService.PublishedConnectorsChanged += OnPublishedConnectorsChangedAsync;
 
@@ -154,7 +178,16 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
     {
         try
         {
-            await InvokeAsync(StateHasChanged);
+            await InvokeAsync(() =>
+            {
+                var hadRows = DataAvailable;
+                _wrappers = PublishedConnectorsService.PublishedConnectorWrappers;
+
+                // Only once the columns are shown again, after this render, can the sorting be handed over.
+                _sortingReapplyPending |= !hadRows && DataAvailable;
+
+                StateHasChanged();
+            });
         }
         catch (Exception ex)
         {
@@ -193,7 +226,7 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
         SelectionManager.DeselectAll();
 
         // The menu removes what it is handed, so it is handed the number the footer is showing.
-        IReadOnlyList<DataGridConnectorWrapper> menuSelection = VisibleSelection.Rows;
+        var menuSelection = VisibleSelection.Rows;
 
         if (!_selectedItems.Contains(context.Item))
         {
@@ -228,12 +261,20 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
 
     // A selection is dragged onto a connector as one payload, so it may only hold connectors of a single data
     // type — a mixed selection has no common valid target.
-    private bool SelectionAllowed(SelectionRequest<DataGridConnectorWrapper> request)
+    private static bool SelectionAllowed(SelectionRequest<DataGridConnectorWrapper> request)
     {
         if (request.CurrentSelection.Count == 0)
             return true;
 
         return request.CurrentSelection[0].ConnectorType == request.Item.ConnectorType;
+    }
+
+    private void SetColumnVisible(string columnId, bool visible)
+    {
+        if (visible)
+            _hiddenColumnIds.Remove(columnId);
+        else
+            _hiddenColumnIds.Add(columnId);
     }
 
     private void SetDirectionFilter(ConnectorDirection? requestedDirection)
@@ -262,7 +303,7 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
         {
             var hasInput = false;
             var hasOutput = false;
-            foreach (var pc in PublishedConnectorsService.PublishedConnectorWrappers)
+            foreach (var pc in _wrappers)
             {
                 if (pc.IsInput)
                     hasInput = true;
