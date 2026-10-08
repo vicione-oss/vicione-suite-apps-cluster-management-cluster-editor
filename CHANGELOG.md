@@ -17,7 +17,7 @@
 
 ### Updated external references
 
-- `ViciOne.Ui.Blazor.Components` package, updated to version `6.4.0`
+- `ViciOne.Ui.Blazor.Components` package, updated to version `6.5.0-ci2925722588`
 
 ## 2.0.0 - 2026-10-01
 
