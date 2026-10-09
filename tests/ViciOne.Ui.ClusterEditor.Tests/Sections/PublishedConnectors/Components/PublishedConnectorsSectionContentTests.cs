@@ -20,6 +20,7 @@ using ViciOne.Ui.ClusterEditor.Models;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Components;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Extensions;
 using ViciOne.Ui.ClusterEditor.Sections.PublishedConnectors.Services;
+using ViciOne.Ui.ClusterEditor.Services;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 using ViciOne.Ui.ClusterEditor.Tests.Extensions;
@@ -385,6 +386,71 @@ public class PublishedConnectorsSectionContentTests
             nameof(DataGridConnectorWrapper.FunctionBlockName));
     }
 
+    /// <remarks>
+    /// Reloading the dataflow that is already open hands out new connector instances under the ids the rows are
+    /// matched by, so a reused row would keep acting on the cluster that was replaced.
+    /// </remarks>
+    [Fact]
+    public async Task A_reloaded_cluster_rebuilds_the_rows_on_its_own_connectors()
+    {
+        // Arrange
+        await using var ctx = CreateContext();
+        using var builder = BuilderFactory.Create();
+        var (component, service, _, _) = await RenderWithOnePublishedConnectorAsync(ctx, builder);
+        using var reloaded = BuilderFactory.CreateReloaded(builder);
+
+        // Act
+        await component.InvokeAsync(() => LoadAsync(ctx, reloaded));
+
+        // Assert
+        service.PublishedConnectorWrappers.Should().ContainSingle()
+            .Which.Connector.Should().BeSameAs(reloaded.Cache.PublishedConnectors.Single());
+    }
+
+    [Fact]
+    public async Task A_reloaded_cluster_drops_the_selection()
+    {
+        // Arrange
+        await using var ctx = CreateContext();
+        using var builder = BuilderFactory.Create();
+        var (component, service, published, _) = await RenderWithOnePublishedConnectorAsync(ctx, builder);
+        using var reloaded = BuilderFactory.CreateReloaded(builder);
+
+        var table = component.FindComponent<SimpleTable<DataGridConnectorWrapper>>();
+
+        await component.InvokeAsync(() => service.RequestPublishedConnectorSelection(published));
+        component.WaitForAssertion(() => table.Instance.SelectedItems.Should().HaveCount(1));
+
+        // Act
+        await component.InvokeAsync(() => LoadAsync(ctx, reloaded));
+
+        // Assert
+        component.WaitForAssertion(() => table.Instance.SelectedItems.Should().BeEmpty());
+    }
+
+    [Fact]
+    public async Task Activating_a_row_after_a_reload_selects_the_published_connector_marker()
+    {
+        // Arrange
+        await using var ctx = CreateContext();
+        using var builder = BuilderFactory.Create();
+        var (component, service, _, _) = await RenderWithOnePublishedConnectorAsync(ctx, builder);
+        using var reloaded = BuilderFactory.CreateReloaded(builder);
+        await component.InvokeAsync(() => LoadAsync(ctx, reloaded));
+
+        var table = component.FindComponent<SimpleTable<DataGridConnectorWrapper>>();
+        var wrapper = service.PublishedConnectorWrappers.Single();
+
+        // Act
+        await component.InvokeAsync(() => table.Instance.RowDoubleClick.InvokeAsync(wrapper));
+
+        // Assert
+        var marker = ctx.Services.GetRequiredService<IDatastore>()
+            .DataflowDiagramMapping.GetDiagramModel(wrapper.Connector).PublishedConnectorMarker;
+
+        ctx.Services.GetRequiredService<SelectionManager>().IsSelected(marker).Should().BeTrue();
+    }
+
     private static async Task<IConnector> AddPublishableConnector(BunitContext ctx, IClusterBuilder builder)
     {
         var datastore = ctx.Services.GetRequiredService<IDatastore>();
@@ -448,6 +514,10 @@ public class PublishedConnectorsSectionContentTests
 
         await component.InvokeAsync(() => column.VisibleChanged.InvokeAsync(false));
     }
+
+    private static Task LoadAsync(BunitContext ctx, IClusterBuilder builder)
+        => ctx.Services.GetRequiredService<IDatastore>()
+            .Load(builder, ctx.Services.GetRequiredService<DiagramService>(), Ct);
 
     private static async Task<(IRenderedComponent<PublishedConnectorsSectionContent> Component, IConnector Connector)>
         RenderEmpty(BunitContext ctx, IClusterBuilder builder)

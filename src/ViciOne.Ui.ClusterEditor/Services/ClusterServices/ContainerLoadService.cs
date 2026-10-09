@@ -147,9 +147,6 @@ internal sealed partial class ContainerLoadService(
         if (state.ActiveContainer == container && !force)
             return;
 
-        SaveViewport(state.ActiveContainer, diagramService.Diagram);
-
-        state.SetActiveContainer(container);
         var activeDataflow = container is ChildContainer childContainer
             ? state.Builder.Cache.GetDataflow(childContainer)
             : state.Builder.Cache.Dataflows.FirstOrDefault(x => x.Root == container);
@@ -160,6 +157,9 @@ internal sealed partial class ContainerLoadService(
             return;
         }
 
+        SaveViewport(state.ActiveContainer, diagramService.Diagram);
+
+        state.SetActiveContainer(container);
         state.SetActiveDataflow(activeDataflow);
 
         state.SetValidDataflowEngines(state.Builder.Cache.GetUsedEngines(state.ActiveDataflow).Concat(state.Builder.Cache.GetUnusedEngines()));

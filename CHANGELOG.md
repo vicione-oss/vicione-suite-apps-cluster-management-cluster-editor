@@ -10,14 +10,12 @@
 ### Fixed
 
 - Horizontal scrollbar of the empty Published Connectors table; its column headers and column chooser now appear once a connector is published
-
-### Fixed
-
+- Crash when double clicking an entry in the Published Connectors section after reloading the same dataflow
 - `NullReferenceException` when changing the simplified view setting before the node editor is initialized
 
 ### Updated external references
 
-- `ViciOne.Ui.Blazor.Components` package, updated to version `6.5.0-ci2925722588`
+- `ViciOne.Ui.Blazor.Components` package, updated to version `6.5.0`
 
 ## 2.0.0 - 2026-10-01
 

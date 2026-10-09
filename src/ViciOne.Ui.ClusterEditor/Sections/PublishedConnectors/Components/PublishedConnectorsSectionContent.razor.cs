@@ -186,6 +186,7 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
                 // Only once the columns are shown again, after this render, can the sorting be handed over.
                 _sortingReapplyPending |= !hadRows && DataAvailable;
 
+                DropRemovedRowsFromSelection();
                 StateHasChanged();
             });
         }
@@ -195,9 +196,27 @@ public sealed partial class PublishedConnectorsSectionContent : ComponentBase, I
         }
     }
 
+    /// <summary>
+    /// Removes every row from the selection that <see cref="_wrappers"/> no longer holds.
+    /// </summary>
+    /// <remarks>
+    /// The table keeps whatever selection it is bound to, so a row that left the list would otherwise stay
+    /// selected with nothing on screen to show it.
+    /// </remarks>
+    private void DropRemovedRowsFromSelection()
+    {
+        if (_selectedItems.Count == 0)
+            return;
+
+        var currentRows = new HashSet<DataGridConnectorWrapper>(_wrappers);
+        if (_selectedItems.TrueForAll(currentRows.Contains))
+            return;
+
+        _selectedItems = _selectedItems.FindAll(currentRows.Contains);
+    }
+
     // The diagram asks for a row by connector, not by wrapper, because it holds no wrapper: the section owns
-    // those. Matched on Id rather than by reference — the wrapper carries the connector the cache held when it
-    // was built, which a cluster reload replaces with an equal-Id instance.
+    // those.
     private void OnPublishedConnectorSelectionRequested(IConnector connector)
     {
         foreach (var wrapper in PublishedConnectorsService.PublishedConnectorWrappers)
