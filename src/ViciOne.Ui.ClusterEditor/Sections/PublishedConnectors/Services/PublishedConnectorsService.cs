@@ -108,11 +108,6 @@ internal sealed class PublishedConnectorsService : IDisposable
     /// <summary>
     /// The name of the dataflow <paramref name="connector"/>'s function block belongs to.
     /// </summary>
-    /// <remarks>
-    /// Only ever called with a connector just read out of the current cache, so the lookup always resolves.
-    /// <c>GetDataflow</c> throws rather than returning <see langword="null"/> for a block the cache does not
-    /// hold, which is why this must not be handed a connector a wrapper has been carrying.
-    /// </remarks>
     private string? GetDataflowName(IConnector connector)
         => _datastore.Builder.Cache.GetDataflow(connector.FunctionBlock)?.Name;
 
@@ -135,6 +130,10 @@ internal sealed class PublishedConnectorsService : IDisposable
 
     private Task OnClusterBuilderChanged()
     {
+        // A reloaded cluster hands out new connector instances under the same ids, so a wrapper matched by id
+        // would keep pointing into the cluster that was replaced.
+        _publishedConnectorWrappers.Clear();
+
         UpdatePublishedConnectorEntries();
         return Task.CompletedTask;
     }
@@ -238,22 +237,21 @@ internal sealed class PublishedConnectorsService : IDisposable
     {
         var publishedConnectors = _datastore.Builder.Cache.PublishedConnectors;
 
-        var currentById = new Dictionary<Guid, IConnector>(publishedConnectors.Count);
+        var currentlyPublishedIds = new HashSet<Guid>(publishedConnectors.Count);
         foreach (var pc in publishedConnectors)
-            currentById[pc.Id] = pc;
+            currentlyPublishedIds.Add(pc.Id);
 
         var existingIds = new HashSet<Guid>(_publishedConnectorWrappers.Count);
         foreach (var pc in _publishedConnectorWrappers)
             existingIds.Add(pc.Connector.Id);
 
-        _publishedConnectorWrappers.RemoveAll(pc => !currentById.ContainsKey(pc.Connector.Id));
+        _publishedConnectorWrappers.RemoveAll(pc => !currentlyPublishedIds.Contains(pc.Connector.Id));
 
         // A surviving wrapper keeps its instance so the table's selection survives, so nothing else ever rebuilds
         // it — its path has to be re-resolved here or a dataflow, container or function-block rename would never
-        // reach the Path column. Resolved against the connector the cache holds now, not the one the wrapper was
-        // built with, which may belong to a cluster that has since been replaced.
+        // reach the Path column.
         foreach (var pc in _publishedConnectorWrappers)
-            pc.RefreshPath(GetDataflowName(currentById[pc.Connector.Id]));
+            pc.RefreshPath(GetDataflowName(pc.Connector));
 
         foreach (var pc in publishedConnectors)
         {

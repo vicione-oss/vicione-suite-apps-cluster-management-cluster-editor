@@ -7,7 +7,6 @@ using ViciOne.Cluster.Model.Extensions;
 using ViciOne.Core.Contracts;
 using ViciOne.Ui.ClusterEditor.Extensions;
 using ViciOne.Ui.ClusterEditor.Models.Data;
-using ViciOne.Ui.ClusterEditor.Models.DiagramModels;
 using ViciOne.Ui.ClusterEditor.Services.ClusterServices;
 using ViciOne.Ui.ClusterEditor.Services.ComponentServices;
 
@@ -33,14 +32,16 @@ public sealed class ConnectorService(IDatastore datastore, DiagramService diagra
 
     public async Task ShowAndSelectConnector(IConnector targetConnector)
     {
-        await ShowConnector(targetConnector);
+        if (!await ShowConnector(targetConnector))
+            return;
 
         selectionManager.SetSelection(datastore.DataflowDiagramMapping.GetDiagramModel(targetConnector));
     }
 
     public async Task ShowAndSelectDataPortConnectorMarker(IConnector targetConnector)
     {
-        await ShowConnector(targetConnector);
+        if (!await ShowConnector(targetConnector))
+            return;
 
         selectionManager.DeselectAll();
         selectionManager.Select(datastore.DataflowDiagramMapping.GetDiagramModel(targetConnector).DataPortConnectorMarker);
@@ -48,20 +49,32 @@ public sealed class ConnectorService(IDatastore datastore, DiagramService diagra
 
     public async Task ShowAndSelectPublishedConnectorMarker(IConnector targetConnector)
     {
-        await ShowConnector(targetConnector);
+        if (!await ShowConnector(targetConnector))
+            return;
 
         selectionManager.DeselectAll();
         selectionManager.Select(datastore.DataflowDiagramMapping.GetDiagramModel(targetConnector).PublishedConnectorMarker);
     }
 
-    private async Task ShowConnector(IConnector targetConnector)
+    /// <summary>
+    /// Loads the container of <paramref name="targetConnector"/> and brings its function block into view.
+    /// </summary>
+    /// <returns>
+    /// <see langword="false"/> if the function block is not part of the loaded container, which is the case for a
+    /// connector of a cluster that has since been replaced.
+    /// </returns>
+    private async Task<bool> ShowConnector(IConnector targetConnector)
     {
         var targetFunctionBlock = targetConnector.FunctionBlock;
         var containerToLoad = targetFunctionBlock.Container;
         await datastore.LoadContainer(containerToLoad, diagramService);
-        BlockNode node = datastore.DataflowDiagramMapping.GetDiagramModel(targetFunctionBlock);
+
+        if (!datastore.DataflowDiagramMapping.TryGetDiagramModel(targetFunctionBlock, out var node))
+            return false;
 
         if (!diagramService.Diagram.IsNodeInViewport(node))
             diagramService.Diagram.PanToNode(node);
+
+        return true;
     }
 }

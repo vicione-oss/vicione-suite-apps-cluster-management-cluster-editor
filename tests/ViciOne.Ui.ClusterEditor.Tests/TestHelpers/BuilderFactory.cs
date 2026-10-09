@@ -1,5 +1,6 @@
 ﻿using System;
 using NSubstitute;
+using Shared.ClusterSerialization;
 using Shared.Extensions;
 using ViciOne.Cluster.Builder;
 using ViciOne.Cluster.Builder.Abstractions;
@@ -16,6 +17,25 @@ internal static class BuilderFactory
 
     internal static IClusterBuilder Create()
     {
+        var cluster = new ClusterBuilder(CreateDependencyResolver());
+        cluster.AddDemoElements();
+
+        return cluster;
+    }
+
+    /// <summary>
+    /// A builder over a serialized copy of <paramref name="builder"/>'s cluster, as a save followed by a load
+    /// produces it: every element keeps its id but is a new instance.
+    /// </summary>
+    internal static IClusterBuilder CreateReloaded(IClusterBuilder builder)
+    {
+        var cluster = ClusterSerializer.Deserialize(ClusterSerializer.Serialize(builder.Cluster));
+
+        return new ClusterBuilder(cluster, CreateDependencyResolver());
+    }
+
+    private static IDependencyResolver CreateDependencyResolver()
+    {
         var dependencyResolver = Substitute.For<IDependencyResolver>();
         var fbDesign = TestResources.LoadFbDesign();
         s_fbDesignId = fbDesign.Id;
@@ -27,9 +47,6 @@ internal static class BuilderFactory
             .ResolveDataPortDesignDependency(Arg.Any<string>())
             .Returns(new ClusterDependency { Name = "DataPortDependency", Version = "1.0.0" });
 
-        var cluster = new ClusterBuilder(dependencyResolver);
-        cluster.AddDemoElements();
-
-        return cluster;
+        return dependencyResolver;
     }
 }

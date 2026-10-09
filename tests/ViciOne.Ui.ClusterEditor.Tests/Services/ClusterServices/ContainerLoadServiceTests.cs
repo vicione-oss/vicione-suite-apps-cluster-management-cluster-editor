@@ -329,7 +329,7 @@ public sealed class ContainerLoadServiceTests : IAsyncDisposable
         };
         var orphan = new Container { Id = Guid.NewGuid(), Name = "Orphan" };
 
-        // Act - the orphan belongs to no dataflow, so resolution fails after the active container is set
+        // Act - the orphan belongs to no dataflow, so resolution fails
         var act = async () => await _sut.LoadContainer(orphan, _diagramService);
 
         // Assert
@@ -340,6 +340,20 @@ public sealed class ContainerLoadServiceTests : IAsyncDisposable
             .Any(call => call.GetMethodInfo().Name == nameof(ILogger.Log)
                          && call.GetArguments() is [LogLevel.Error, ..])
             .Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task LoadContainer_WhenTargetContainerHasNoDataflowInCache_KeepsActiveContainer()
+    {
+        // Arrange
+        await LoadRootAsync();
+        var orphan = new Container { Id = Guid.NewGuid(), Name = "Orphan" };
+
+        // Act
+        await _sut.LoadContainer(orphan, _diagramService);
+
+        // Assert - the diagram still shows the root, so the state must not claim otherwise
+        _state.ActiveContainer.Should().BeSameAs(Root);
     }
 
     [Fact]
