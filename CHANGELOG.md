@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.1.1 - Unreleased
+
+### Updated external references
+
+- `ViciOne.Tree.Builder` package, updated to version `3.1.0`
+
 ## 2.1.0 - 2026-10-09
 
 ### Changed
